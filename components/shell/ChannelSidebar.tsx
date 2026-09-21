@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { Book1, Briefcase, Colorfilter, DocumentText, Home2, InfoCircle, Lock1, Lovely, Microphone2, People, ShieldTick, Crown1, Chart2, Add, Layer, Note1, VideoPlay, TaskSquare, Radar, Edit2 } from "iconsax-reactjs";
+import { MagicStar, Book1, Briefcase, Colorfilter, DocumentText, Home2, InfoCircle, Lock1, Lovely, Microphone2, People, ShieldTick, Crown1, Chart2, Add, Layer, Note1, VideoPlay, TaskSquare, Radar, Edit2 } from "iconsax-reactjs";
 import { CIRCLES, getPerson, INTRODUCTIONS, ME_ID, PROJECTS, PROJECT_STAGES } from "@/lib/data";
 import { DIRECT_THREADS, LIVE_ROOM_IDS, channelsFor, roomsFor } from "@/lib/data/village";
 import { cn } from "@/lib/cn";
@@ -50,9 +50,18 @@ function HomeChannels({ pathname }: { pathname: string }) {
   return (
     <>
       <Group label="Home">
+        <Row href="/onboarding" icon={<Colorfilter size={18} color="currentColor" aria-hidden />} label="Start here" active={matchesPath(pathname, "/onboarding")} />
         <Row href="/" icon={<Home2 size={18} color="currentColor" aria-hidden />} label="Today" active={pathname === "/"} />
         <Row href="/introductions" icon={<People size={18} color="currentColor" aria-hidden />} label="Introductions" active={matchesPath(pathname, "/introductions")} hint={<span className="rounded-full bg-live px-1.5 text-[11px] font-bold text-white">{pending}</span>} />
         <Row href="/rooms" icon={<Microphone2 size={18} color="currentColor" aria-hidden />} label="All palavers" active={pathname === "/rooms"} />
+      </Group>
+      <Group label="Explore Artelia Connect">
+        <Row href="/stories" icon={<Book1 size={18} color="currentColor" aria-hidden />} label="Stories & journals" active={false} />
+        <Row href="/studio" icon={<Layer size={18} color="currentColor" aria-hidden />} label="Collaboration Studio" active={false} />
+        <Row href="/opportunities" icon={<Briefcase size={18} color="currentColor" aria-hidden />} label="Open calls" active={false} />
+        <Row href="/studio-visits" icon={<VideoPlay size={18} color="currentColor" aria-hidden />} label="Studio visits" active={false} />
+        <Row href="/circles" icon={<People size={18} color="currentColor" aria-hidden />} label="Creative Circles" active={matchesPath(pathname, "/circles")} />
+        <Row href="/companion" icon={<MagicStar size={18} color="currentColor" aria-hidden />} label="Creative Companion" active={matchesPath(pathname, "/companion")} hint={<span className="rounded bg-ai px-1 text-[10px] font-bold text-white">AI</span>} />
       </Group>
       <Group label="Direct messages">
         {DIRECT_THREADS.map((t) => {

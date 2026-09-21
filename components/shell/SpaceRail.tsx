@@ -10,13 +10,13 @@ import type { SpaceId } from "./nav";
 
 type Tip = { label: string; y: number } | null;
 
-function RailItem({ href, label, active, children, unread, onTip }: { href: string; label: string; active: boolean; children: ReactNode; unread?: boolean; onTip: (tip: Tip) => void }) {
+function RailItem({ href, label, active, children, unread, onTip, caption }: { href: string; label: string; active: boolean; children: ReactNode; unread?: boolean; onTip: (tip: Tip) => void; caption?: string }) {
   const show = (el: HTMLElement) => {
     const r = el.getBoundingClientRect();
     onTip({ label, y: r.top + r.height / 2 });
   };
   return (
-    <li className="group relative flex justify-center">
+    <li className="group relative flex flex-col items-center">
       <span
         aria-hidden
         className={cn(
@@ -39,6 +39,7 @@ function RailItem({ href, label, active, children, unread, onTip }: { href: stri
       >
         {children}
       </Link>
+      {caption && <span aria-hidden className={cn("mt-1 text-[10px] font-semibold leading-none", active ? "text-white" : "text-night-muted group-hover:text-white")}>{caption}</span>}
     </li>
   );
 }
@@ -52,7 +53,7 @@ export default function SpaceRail({ space }: { space: SpaceId }) {
     <>
     <nav aria-label="Spaces" className="scrollbar-hide flex h-full w-[72px] shrink-0 flex-col items-center overflow-y-auto bg-night-950 py-3">
       <ul className="flex w-full flex-col gap-2">
-        <RailItem onTip={setTip} href="/" label="Home" active={space === "home"}>
+        <RailItem onTip={setTip} caption="Home" href="/" label="Home" active={space === "home"}>
           <span className={cn(iconTile(space === "home"), "font-playfair text-2xl font-bold")}>A</span>
         </RailItem>
         <li aria-hidden className="mx-auto my-1 h-0.5 w-8 rounded-full bg-night-700" />
@@ -61,24 +62,24 @@ export default function SpaceRail({ space }: { space: SpaceId }) {
             <Image src={circle.image} alt="" width={48} height={48} className="h-full w-full object-cover" />
           </RailItem>
         ))}
-        <RailItem onTip={setTip} href="/circles" label="Find a circle" active={false}>
+        <RailItem onTip={setTip} caption="Circles" href="/circles" label="Find a circle" active={false}>
           <span className="flex h-full w-full items-center justify-center bg-night-800 text-presence-around group-hover:bg-presence-around group-hover:text-night-950">
             <Add size={24} color="currentColor" aria-hidden />
           </span>
         </RailItem>
         <li aria-hidden className="mx-auto my-1 h-0.5 w-8 rounded-full bg-night-700" />
-        <RailItem onTip={setTip} href="/studio" label="Collaboration Studio" active={space === "studio"}>
+        <RailItem onTip={setTip} caption="Studio" href="/studio" label="Collaboration Studio" active={space === "studio"}>
           <span className={iconTile(space === "studio")}><Layer size={22} color="currentColor" aria-hidden /></span>
         </RailItem>
-        <RailItem onTip={setTip} href="/opportunities" label="Opportunities" active={space === "opportunities"}>
+        <RailItem onTip={setTip} caption="Calls" href="/opportunities" label="Opportunities — open calls" active={space === "opportunities"}>
           <span className={iconTile(space === "opportunities")}><Briefcase size={22} color="currentColor" aria-hidden /></span>
         </RailItem>
-        <RailItem onTip={setTip} href="/stories" label="Gallery — stories & journals" active={space === "gallery"}>
+        <RailItem onTip={setTip} caption="Stories" href="/stories" label="Gallery — stories, journals & studio visits" active={space === "gallery"}>
           <span className={iconTile(space === "gallery")}><Book1 size={22} color="currentColor" aria-hidden /></span>
         </RailItem>
       </ul>
       <ul className="mt-auto flex w-full flex-col gap-2 pt-3">
-        <RailItem onTip={setTip} href="/companion" label="Creative Companion (AI)" active={false}>
+        <RailItem onTip={setTip} caption="AI" href="/companion" label="Creative Companion (AI)" active={false}>
           <span className="flex h-full w-full items-center justify-center bg-ai text-white"><MagicStar size={22} variant="Bold" color="currentColor" aria-hidden /></span>
         </RailItem>
       </ul>
