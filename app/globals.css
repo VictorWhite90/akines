@@ -64,6 +64,21 @@
   --color-ai: #4338ca;
   --color-ai-bg: #eef0fd;
 
+  /* Village night: the rail and channel list. Indigo-dye darks, firelight gold. */
+  --color-night-950: #0b1618;
+  --color-night-900: #102125;
+  --color-night-800: #15292e;
+  --color-night-700: #1c3339;
+  --color-night-600: #25404a;
+  --color-night-text: #dfe6e4;
+  --color-night-muted: #8fa3a1;
+  --color-fire: #f5b041;
+  --color-live: #e8743b;
+  --color-presence-studio: #f5b041;
+  --color-presence-around: #5fbf8a;
+  --color-presence-room: #e8743b;
+  --color-presence-quiet: #8fa3a1;
+
   /* Wellbeing: soft, never alarming */
   --color-calm: #5d7f8c;
   --color-calm-bg: #eaf2f4;

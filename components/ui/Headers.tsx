@@ -18,11 +18,11 @@ export function PageHeader({
   return (
     <header className={cn("flex flex-col gap-4 md:flex-row md:items-end md:justify-between", className)}>
       <div className="max-w-2xl">
-        {eyebrow && <p className="text-xs font-semibold uppercase tracking-[0.12em] text-ruby-600">{eyebrow}</p>}
-        <h1 className="mt-2 font-playfair text-[32px] font-bold leading-tight text-green-950 md:text-[44px] md:leading-[1.15]">
+        {eyebrow && <p className="mb-2 text-sm text-grey-700">{eyebrow}</p>}
+        <h1 className="font-playfair text-[34px] font-bold leading-tight text-green-950 md:text-[48px] md:leading-[1.1]">
           {title}
         </h1>
-        {description && <p className="mt-3 text-sm leading-relaxed text-grey-800 md:text-base">{description}</p>}
+        {description && <p className="mt-3 text-base leading-relaxed text-grey-700">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-3">{actions}</div>}
     </header>

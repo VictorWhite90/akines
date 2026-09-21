@@ -3,20 +3,20 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowRight } from "iconsax-reactjs";
-import Chip from "@/components/ui/Chip";
 import { INTENTS, MY_DNA } from "@/lib/data/dna";
 import type { IntentId } from "@/lib/types";
+import { cn } from "@/lib/cn";
 
-/** What each intent points to first — the session shapes itself around purpose. */
+/** What each intent points to first — the session shapes itself around purpose (C1). */
 const NEXT_STEP: Record<IntentId, { text: string; href: string; cta: string }> = {
-  inspiration: { text: "Moussa's harbour recordings and two new artwork stories are waiting.", href: "/stories", cta: "Open stories" },
-  collaborator: { text: "Moussa Diallo is a strong complementary match for you — here's why.", href: "/introductions", cta: "See introductions" },
-  "discover-artists": { text: "Kwame Mensah paints his street at mural scale — start with his story.", href: "/stories/street-saints", cta: "Read the story" },
-  discuss: { text: "“What does home mean in African art?” starts at 18:00 with two seats left.", href: "/rooms/home", cta: "View the room" },
-  opportunity: { text: "You're shortlisted for Threads of Return — pick a conversation slot by Oct 30.", href: "/applications", cta: "Open application" },
-  learn: { text: "Ask the Creative Companion about natural indigo chemistry, or join the masks room on Thursday.", href: "/companion", cta: "Ask the Companion" },
-  reflect: { text: "Take two quiet minutes with a private check-in. Nothing you write is shared or used for ranking.", href: "/wellbeing", cta: "Start a check-in" },
-  "less-alone": { text: "The Textiles Circle meets on Wednesday — small, moderated, and you already know two members.", href: "/circles/textiles", cta: "Visit the circle" },
+  inspiration: { text: "Two new artwork stories, each told in the artist's own voice.", href: "/stories", cta: "Open stories" },
+  collaborator: { text: "Moussa Diallo, a sound artist, is working on the same questions you are.", href: "/introductions", cta: "See why" },
+  "discover-artists": { text: "Kwame Mensah paints his street at the size of church murals.", href: "/stories/street-saints", cta: "Read his story" },
+  discuss: { text: "“What does home mean in African art?” starts at 18:00 — two seats left.", href: "/rooms/home", cta: "View the room" },
+  opportunity: { text: "You're shortlisted for Threads of Return. Pick a conversation slot by Oct 30.", href: "/applications", cta: "Pick a slot" },
+  learn: { text: "Ask the Companion about natural indigo, or join Thursday's room on masks.", href: "/companion", cta: "Ask the Companion" },
+  reflect: { text: "Two quiet minutes, just for you. Nothing you write is shared.", href: "/wellbeing", cta: "Check in" },
+  "less-alone": { text: "The Textiles Circle meets on Wednesday — small, moderated, friendly.", href: "/circles/textiles", cta: "Visit the circle" },
 };
 
 export default function IntentPicker() {
@@ -24,24 +24,32 @@ export default function IntentPicker() {
   const next = NEXT_STEP[intent];
 
   return (
-    <section aria-labelledby="intent-heading" className="rounded-[4px] border border-sand-200 bg-white p-5 sm:p-6">
-      <h2 id="intent-heading" className="font-playfair text-xl font-semibold text-green-950 sm:text-2xl">
-        What would feel meaningful today?
+    <section aria-labelledby="intent-heading">
+      <h2 id="intent-heading" className="text-sm text-grey-700">
+        What are you here for today?
       </h2>
-      <p className="mt-1 text-sm text-grey-700">Your answer shapes this session. Change it any time.</p>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="scrollbar-hide -mx-1 mt-3 flex gap-2 overflow-x-auto px-1 pb-1 md:flex-wrap md:overflow-visible">
         {INTENTS.map((option) => (
-          <Chip key={option.id} selected={intent === option.id} onToggle={() => setIntent(option.id)}>
+          <button
+            key={option.id}
+            type="button"
+            aria-pressed={intent === option.id}
+            onClick={() => setIntent(option.id)}
+            className={cn(
+              "shrink-0 cursor-pointer rounded-full border px-4 py-2 text-sm transition-colors",
+              intent === option.id ? "border-green-950 bg-green-950 text-white" : "border-sand-300 text-green-950 hover:border-green-950",
+            )}
+          >
             {option.label}
-          </Chip>
+          </button>
         ))}
       </div>
-      <div className="mt-5 flex flex-col gap-3 rounded-[4px] bg-sand-100 p-4 sm:flex-row sm:items-center sm:justify-between" aria-live="polite">
-        <p className="text-sm text-green-950">{next.text}</p>
-        <Link href={next.href} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-green-950 underline underline-offset-4">
-          {next.cta} <ArrowRight size={16} color="currentColor" aria-hidden />
+      <p className="mt-4 text-base text-green-950" aria-live="polite">
+        {next.text}{" "}
+        <Link href={next.href} className="inline-flex items-center gap-1 whitespace-nowrap font-semibold underline underline-offset-4">
+          {next.cta} <ArrowRight size={14} color="currentColor" aria-hidden />
         </Link>
-      </div>
+      </p>
     </section>
   );
 }

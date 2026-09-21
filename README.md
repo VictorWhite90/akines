@@ -15,6 +15,20 @@ yarn install
 yarn dev        # http://localhost:3100
 ```
 
+## The idea: the Village
+
+Connect is laid out like a community app — think an advanced Discord, with its
+own soul, after the concept note's "living African creative village":
+
+- **A rail of spaces**: your Circles, the Collaboration Studio, Opportunities, the Gallery.
+- **Channels inside each circle** — #welcome, #general, #works-in-progress, #opportunities.
+- **Palavers**: Presence Rooms as six seats around a fire. No audience, not recorded.
+- **Creative presence** instead of online/offline: *In the studio · dyeing panel 7*, *In a room*, *Quiet mode*.
+- **Introductions become DMs** with the reason for the match pinned at the top.
+- **Structured critique** replies: what's working, what's unclear, try this.
+- **Responses show who, never how many** — no likes, no follower counts.
+- **The Companion** is a labelled AI member of every space.
+
 ## Start here
 
 - **`/concept`** — every requirement from the concept note mapped to the screen

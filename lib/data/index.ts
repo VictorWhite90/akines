@@ -5,3 +5,4 @@ export * from "./connect";
 export * from "./opportunities";
 export * from "./projects";
 export * from "./stories";
+export * from "./village";

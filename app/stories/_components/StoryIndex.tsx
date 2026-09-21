@@ -2,76 +2,105 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Diagram, Microphone2, Routing2, VideoPlay } from "iconsax-reactjs";
+import { ArrowRight, Microphone2 } from "iconsax-reactjs";
 import Avatar from "@/components/ui/Avatar";
-import Card from "@/components/ui/Card";
-import Chip from "@/components/ui/Chip";
 import Media from "@/components/ui/Media";
 import { getPerson } from "@/lib/data";
+import type { ArtworkStory } from "@/lib/types";
+import { cn } from "@/lib/cn";
 import { ALL_STORIES, mediumOf, type StoryMedium } from "../_data";
 
-const MEDIA: StoryMedium[] = ["Textiles", "Ceramics", "Painting", "Photography", "Fashion"];
+const FILTERS: ("All" | StoryMedium)[] = ["All", "Textiles", "Ceramics", "Painting", "Photography", "Fashion"];
+
+function Byline({ story }: { story: ArtworkStory }) {
+  const artist = getPerson(story.artistId);
+  return (
+    <p className="flex items-center gap-2 text-sm text-grey-700">
+      <Avatar name={artist.name} size="xs" />
+      <span>
+        <span className="text-green-950">{artist.name}</span> · {artist.city}, {story.year}
+      </span>
+    </p>
+  );
+}
+
+function FeaturedStory({ story }: { story: ArtworkStory }) {
+  return (
+    <Link href={`/stories/${story.id}`} className="group grid gap-6 md:grid-cols-[3fr_2fr] md:items-center md:gap-10">
+      <Media src={story.image} alt={story.title} ratio="3/2" sizes="(max-width: 768px) 100vw, 640px" priority className="rounded-[6px]" />
+      <div>
+        <p className="text-sm text-grey-700">{mediumOf(story)}</p>
+        <h2 className="mt-2 font-playfair text-3xl font-semibold leading-tight text-green-950 group-hover:underline md:text-4xl">{story.title}</h2>
+        <p className="mt-4 font-playfair text-lg italic leading-relaxed text-grey-800">“{story.meaning}”</p>
+        <div className="mt-5">
+          <Byline story={story} />
+        </div>
+        <span className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-green-950">
+          Read the story <ArrowRight size={16} color="currentColor" aria-hidden />
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+function StoryCard({ story }: { story: ArtworkStory }) {
+  return (
+    <Link href={`/stories/${story.id}`} className="group block">
+      <Media src={story.image} alt={story.title} ratio="3/2" sizes="(max-width: 768px) 100vw, 540px" className="rounded-[6px]" />
+      <h3 className="mt-4 font-playfair text-2xl font-semibold text-green-950 group-hover:underline">{story.title}</h3>
+      <div className="mt-2">
+        <Byline story={story} />
+      </div>
+      <p className="mt-3 flex items-center gap-1.5 text-sm text-grey-700">
+        <Microphone2 size={15} color="currentColor" aria-hidden /> Told by the artist · {story.voiceNote.duration}
+      </p>
+    </Link>
+  );
+}
 
 export default function StoryIndex() {
-  const [medium, setMedium] = useState<StoryMedium | "all">("all");
-  const stories = medium === "all" ? ALL_STORIES : ALL_STORIES.filter((s) => mediumOf(s) === medium);
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]>("All");
+  const stories = filter === "All" ? ALL_STORIES : ALL_STORIES.filter((s) => mediumOf(s) === filter);
+  const [featured, ...rest] = stories;
+  const showFeatured = filter === "All" && featured;
+  const grid = showFeatured ? rest : stories;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div role="group" aria-label="Filter stories by medium" className="flex flex-wrap gap-2">
-        <Chip selected={medium === "all"} onToggle={() => setMedium("all")}>All media</Chip>
-        {MEDIA.map((m) => (
-          <Chip key={m} selected={medium === m} onToggle={() => setMedium(medium === m ? "all" : m)}>
-            {m}
-          </Chip>
+    <div>
+      <div role="group" aria-label="Filter by medium" className="scrollbar-hide -mx-1 flex gap-1 overflow-x-auto px-1">
+        {FILTERS.map((f) => (
+          <button
+            key={f}
+            type="button"
+            aria-pressed={filter === f}
+            onClick={() => setFilter(f)}
+            className={cn(
+              "shrink-0 cursor-pointer rounded-full px-4 py-2 text-sm transition-colors",
+              filter === f ? "bg-green-950 text-white" : "text-grey-800 hover:bg-sand-100",
+            )}
+          >
+            {f}
+          </button>
         ))}
       </div>
 
-      <p className="text-sm text-grey-700" aria-live="polite">
-        {medium === "all" ? `${stories.length} stories` : `${stories.length} ${stories.length === 1 ? "story" : "stories"} in ${medium.toLowerCase()}`}
-      </p>
+      <p className="sr-only" aria-live="polite">{stories.length} stories</p>
 
-      <ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {stories.map((story) => {
-          const artist = getPerson(story.artistId);
-          return (
-            <Card as="li" key={story.id} className="flex flex-col overflow-hidden">
-              <Media src={story.image} alt="" ratio="4/3" sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 360px">
-                <span className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-green-950">{mediumOf(story)}</span>
-              </Media>
-              <div className="flex flex-1 flex-col gap-4 p-5">
-                <div>
-                  <h3 className="font-playfair text-xl font-semibold text-green-950">
-                    <Link href={`/stories/${story.id}`} className="hover:underline">{story.title}</Link>
-                  </h3>
-                  <p className="mt-1 flex items-center gap-2 text-sm text-grey-700">
-                    <Avatar name={artist.name} size="xs" verified={artist.verified} />
-                    <Link href={`/people/${artist.id}`} className="font-semibold text-green-950 hover:underline">{artist.name}</Link>
-                    <span aria-hidden>·</span>
-                    <span>{artist.city}, {story.year}</span>
-                  </p>
-                </div>
-                <blockquote className="border-l-2 border-gold-400 pl-3 font-playfair text-base italic leading-snug text-green-950">
-                  “{story.meaning}”
-                </blockquote>
-                <ul aria-label="What this story contains" className="mt-auto flex flex-wrap gap-x-4 gap-y-2 text-xs text-grey-800">
-                  <li className="flex items-center gap-1.5"><Microphone2 size={15} color="currentColor" aria-hidden /> Voice note {story.voiceNote.duration}</li>
-                  <li className="flex items-center gap-1.5"><VideoPlay size={15} color="currentColor" aria-hidden /> Studio video</li>
-                  <li className="flex items-center gap-1.5"><Diagram size={15} color="currentColor" aria-hidden /> {story.evolution.length}-step evolution</li>
-                  <li className="flex items-center gap-1.5"><Routing2 size={15} color="currentColor" aria-hidden /> Legacy record · {story.legacy.length}</li>
-                </ul>
-                <Link href={`/stories/${story.id}`} className="self-start text-sm font-semibold text-green-950 underline underline-offset-4">
-                  Read the story<span className="sr-only">: {story.title}</span>
-                </Link>
-              </div>
-            </Card>
-          );
-        })}
-      </ul>
+      {showFeatured && (
+        <div className="mt-10">
+          <FeaturedStory story={featured} />
+        </div>
+      )}
 
-      <p className="border-t border-sand-200 pt-6 text-center text-sm text-grey-700">
-        That&apos;s every story for now. New ones arrive when artists finish work — not on a schedule.
-      </p>
+      {grid.length > 0 && (
+        <div className={cn("grid gap-x-10 gap-y-14 md:grid-cols-2", showFeatured ? "mt-16" : "mt-10")}>
+          {grid.map((story) => (
+            <StoryCard key={story.id} story={story} />
+          ))}
+        </div>
+      )}
+
+      {stories.length === 0 && <p className="mt-10 text-grey-700">No {filter.toLowerCase()} stories yet.</p>}
     </div>
   );
 }

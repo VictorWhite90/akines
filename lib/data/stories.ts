@@ -7,7 +7,7 @@ export const STORIES: ArtworkStory[] = [
     id: "indigo-crossing", title: "Indigo Crossing", artistId: "adaeze", image: IMG.textile, year: "2026", medium: "Hand-dyed indigo, salvaged cotton, thread", dimensions: "180 × 240 cm", price: "US$4,800",
     meaning: "A map of my grandmother's journey from Kano to Lagos, stitched from cloth she never talked about.",
     voiceNote: { duration: "3:42", transcript: "My grandmother kept one wrapper folded at the bottom of her box for fifty years. When she died I opened it and it still smelled of the dye pits in Kano. This piece is me finally asking her about that journey — in the only language we shared, which was cloth." },
-    studioVideo: { duration: "6:10", poster: IMG.studioWide, caption: "Dyeing day at the Kofar Mata pits, Kano" },
+    studioVideo: { duration: "6:10", poster: IMG.beads, caption: "Dyeing day at the Kofar Mata pits, Kano" },
     evolution: [
       { stage: "First sketch", note: "Routes drawn on tracing paper over an old road map.", date: "Jan" },
       { stage: "Failed dye bath", note: "The first vat went green — too much lime. Kept one panel anyway.", date: "Feb" },
