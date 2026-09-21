@@ -28,6 +28,7 @@ function Row({ href, icon, label, active, hint, dim }: { href: string; icon: Rea
     <li>
       <Link
         href={href}
+        title={label}
         aria-current={active ? "page" : undefined}
         className={cn(
           "flex items-center gap-2 rounded-[6px] px-2 py-1.5 text-[15px] transition-colors",
@@ -99,7 +100,7 @@ function CircleChannels({ circleId, pathname }: { circleId: string; pathname: st
           const active = matchesPath(pathname, `/rooms/${room.id}`);
           return (
             <li key={room.id}>
-              <Link href={`/rooms/${room.id}`} aria-current={active ? "page" : undefined} className={cn("block rounded-[6px] px-2 py-1.5", active ? "bg-night-600 text-white" : "text-night-text hover:bg-night-700 hover:text-white")}>
+              <Link href={`/rooms/${room.id}`} title={`${room.title} · ${live ? "live now" : room.when}`} aria-current={active ? "page" : undefined} className={cn("block rounded-[6px] px-2 py-1.5", active ? "bg-night-600 text-white" : "text-night-text hover:bg-night-700 hover:text-white")}>
                 <span className="flex items-center gap-2 text-[15px]">
                   <span className="flex w-5 justify-center text-night-muted"><Microphone2 size={17} color="currentColor" aria-hidden /></span>
                   <span className="min-w-0 flex-1 truncate">{room.title}</span>

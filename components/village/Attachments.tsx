@@ -56,7 +56,7 @@ function RoomAttachment({ roomId }: { roomId: string }) {
   const live = LIVE_ROOM_IDS.includes(room.id);
   const open = room.capacity - room.participantIds.length;
   return (
-    <Link href={`/rooms/${room.id}`} className={`${frame} flex items-center gap-4 bg-night-900 p-4 text-night-text hover:bg-night-800`}>
+    <Link href={`/rooms/${room.id}`} className="mt-2 flex max-w-xl items-center gap-4 overflow-hidden rounded-[8px] bg-night-900 p-4 text-night-text transition-colors hover:bg-night-800">
       <span className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-night-700">
         <span className="h-4 w-4 rounded-full bg-fire shadow-[0_0_18px_6px_rgba(245,176,65,0.45)]" />
       </span>
