@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/*
+ * Artelia Connect design tokens.
+ *
+ * Brand colour scales are copied from the Artelia buyer site so Connect reads
+ * as part of Artelia. Connect adds a warm "sand" paper for its calmer,
+ * community-first surfaces, and three trust tones that keep verified facts,
+ * self-declared information and AI suggestions visibly distinct everywhere.
+ */
+@theme {
+  --color-star: #fdb022;
+  --color-green-50: #eaf6fa;
+  --color-green-100: #d3ecf6;
+  --color-green-200: #9ad8ec;
+  --color-green-300: #7cc3d8;
+  --color-green-400: #6dacbf;
+  --color-green-500: #5d93a4;
+  --color-green-600: #4f7e8c;
+  --color-green-700: #416975;
+  --color-green-800: #33555f;
+  --color-green-900: #253f47;
+  --color-green-950: #1f363d;
+  --color-ruby-50: #fef1eb;
+  --color-ruby-100: #fde3d6;
+  --color-ruby-200: #fbcaae;
+  --color-ruby-300: #faad74;
+  --color-ruby-400: #f19638;
+  --color-ruby-500: #d58430;
+  --color-ruby-600: #a96824;
+  --color-ruby-700: #7d4b18;
+  --color-ruby-800: #57330e;
+  --color-ruby-900: #311a04;
+  --color-ruby-950: #200f02;
+  --color-grey-10: #e8e8e9;
+  --color-grey-25: #e9ebec;
+  --color-grey-50: #e7e6e7;
+  --color-grey-100: #f7f7f7;
+  --color-grey-200: #ededed;
+  --color-grey-300: #e6e6e6;
+  --color-grey-400: #d7d7d7;
+  --color-grey-500: #c0c0c0;
+  --color-grey-600: #a2a2a2;
+  --color-grey-700: #717171;
+  --color-grey-800: #494949;
+  --color-grey-900: #313131;
+  --color-grey-1000: #181818;
+  --color-primaryText: var(--color-green-950);
+
+  /* Connect additions */
+  --color-sand-50: #fbf8f4;
+  --color-sand-100: #f5efe7;
+  --color-sand-200: #ebe1d4;
+  --color-sand-300: #dccbb6;
+  --color-gold-300: #f8d88f;
+  --color-gold-400: #f5c25b;
+  --color-gold-500: #e0a93a;
+
+  /* Trust tones: verified / self-declared / AI suggestion */
+  --color-verified: #2f6f4f;
+  --color-verified-bg: #e6f2eb;
+  --color-declared: #494949;
+  --color-declared-bg: #ededed;
+  --color-ai: #4338ca;
+  --color-ai-bg: #eef0fd;
+
+  /* Wellbeing: soft, never alarming */
+  --color-calm: #5d7f8c;
+  --color-calm-bg: #eaf2f4;
+  --color-alert: #b42318;
+  --color-alert-bg: #fef3f2;
+
+  --font-playfair: var(--font-display-src), Georgia, serif;
+  --font-montserrat: var(--font-body-src), system-ui, sans-serif;
+}
+
+:root {
+  --topbar-height: 64px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-sand-50);
+  color: var(--color-grey-1000);
+  font-family: var(--font-montserrat);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
