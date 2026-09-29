@@ -9,17 +9,18 @@ import { useChannelChat } from "@/components/chat/useChat";
 import Pic from "@/components/home/Pic";
 import MyRooms, { useMyRooms } from "@/components/rooms/MyRooms";
 import RoomCard from "@/components/rooms/RoomCard";
-import Avatar from "@/components/ui/Avatar";
+import Avatar, { AvatarStack } from "@/components/ui/Avatar";
 import { AiTag } from "@/components/ui/Chip";
+import { circleActivities } from "@/lib/data/circleActivities";
 import { ROOMS, type Circle, type Room } from "@/lib/data/community";
 import { CHANNELS, circleMembers, seedChannels, type ChannelId } from "@/lib/data/circleChat";
 import type { PhotoKey } from "@/lib/data/images";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { TRENDS, type Region, type Trend } from "@/lib/data/trends";
-import { newId } from "@/lib/useLocal";
+import { newId, useLocal } from "@/lib/useLocal";
 import { useJoined } from "./useJoined";
 
-type Tab = "chat" | "trends" | "rooms";
+type Tab = "chat" | "trends" | "rooms" | "activities";
 
 /** Which seeded Presence Room best fits each circle. */
 const ROOM_FOR: Record<string, string[]> = {
@@ -67,8 +68,9 @@ export default function CircleSpace({ circle, startTab }: { circle: Circle; star
   const cc = useChannelChat(useMemo(() => seedChannels(circle), [circle]), members);
   const trends = TRENDS[circle.id];
   const [, setRooms] = useMyRooms();
+  const [rsvp, setRsvp] = useLocal<Record<string, boolean>>("cs:rsvp", {});
 
-  const [tab, setTab] = useState<Tab>(startTab === "trends" || startTab === "rooms" ? startTab : "chat");
+  const [tab, setTab] = useState<Tab>(startTab === "trends" || startTab === "rooms" || startTab === "activities" ? startTab : "chat");
   const [channel, setChannel] = useState<ChannelId>("general");
   const [draft, setDraft] = useState("");
   const [lightbox, setLightbox] = useState<PhotoKey | null>(null);
@@ -82,6 +84,7 @@ export default function CircleSpace({ circle, startTab }: { circle: Circle; star
   const shownStories = trends.stories.filter((s) => region === "All" || s.region === region);
   const roomIds = ROOM_FOR[circle.id] ?? ["home"];
   const liveRooms = roomIds.map((id) => ROOMS.find((r) => r.id === id)).filter((r): r is Room => Boolean(r));
+  const activities = useMemo(() => circleActivities(circle), [circle]);
 
   const discuss = (t: Trend) => {
     cc.chatFor("general").push({ from: me, kind: "text", text: `Sharing from Trends: “${t.title}” (${t.region}). What do you make of it?` });
@@ -136,6 +139,7 @@ export default function CircleSpace({ circle, startTab }: { circle: Circle; star
           <button className={tab === "chat" ? "on" : ""} onClick={() => setTab("chat")}><Ico n="hash" size={16} /> Chat</button>
           <button className={tab === "trends" ? "on" : ""} onClick={() => setTab("trends")}><Ico n="trend" size={16} /> Trends</button>
           <button className={tab === "rooms" ? "on" : ""} onClick={() => setTab("rooms")}><Ico n="users" size={16} /> Rooms</button>
+          <button className={tab === "activities" ? "on" : ""} onClick={() => setTab("activities")}><Ico n="globe" size={16} /> Activities</button>
         </nav>
 
         {tab === "chat" && (
@@ -213,6 +217,39 @@ export default function CircleSpace({ circle, startTab }: { circle: Circle; star
             <div className="cs-sec">
               <h2 className="sm">Open rooms this circle likes</h2>
               <div className="cs-roomgrid">{liveRooms.map((r) => <RoomCard key={r.id} room={r} />)}</div>
+            </div>
+          </div>
+        )}
+
+        {tab === "activities" && (
+          <div className="cs-scroll">
+            <div className="cs-sec">
+              <p className="ac-eyebrow">Do something together</p>
+              <h2>Activities for {circle.name}</h2>
+              <p className="sub">People bond more effectively when they do something together, not just talk. A few things members here are planning.</p>
+            </div>
+            <div className="cs-activities">
+              {activities.map((a) => {
+                const going = rsvp[a.id] ?? false;
+                const goingPeople = a.going.map((id) => PEOPLE[id]);
+                return (
+                  <article key={a.id} className="cs-activity">
+                    <div className="ph"><Pic name={a.photo} sizes="320px" /><span className="mode">{a.mode}</span></div>
+                    <div className="bd">
+                      <p className="meta">{a.when} · {a.where}</p>
+                      <h3>{a.title}</h3>
+                      <p className="sum">{a.blurb}</p>
+                      <div className="ft">
+                        <span className="who">
+                          {goingPeople.length > 0 && <AvatarStack people={goingPeople} size={24} max={4} />}
+                          {goingPeople.length + (going ? 1 : 0)} going
+                        </span>
+                        <button className={going ? "on" : ""} onClick={() => setRsvp((cur) => ({ ...cur, [a.id]: !going }))}>{going ? "You're going" : "RSVP"}</button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
         )}

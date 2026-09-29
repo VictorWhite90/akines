@@ -1,0 +1,93 @@
+/* Activities: "people bond more effectively when they do something together" (brief §6) — a
+   short, curated list of real things people are doing, laid out like an events feed. Prefix: act-. */
+.app .act{display:flex;flex-direction:column;gap:28px}
+
+/* header */
+.app .act-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.app .act-head h1{margin:0;font-family:var(--font-playfair),serif;font-size:30px;font-weight:600;line-height:1.1}
+.app .act-head p{margin:8px 0 0;font-size:14px;line-height:1.55;color:var(--muted);max-width:560px}
+.app .act-stats{display:flex;gap:8px}
+.app .act-stats span{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 14px;font-size:12px;color:var(--muted);white-space:nowrap}
+.app .act-stats b{color:var(--ink);font-size:15px;font-weight:700;margin-right:4px}
+
+/* tabs */
+.app .act-tabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-top:-8px}
+.app .act-tabs button{position:relative;background:none;border:0;padding:10px 0 12px;font:inherit;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.app .act-tabs button:hover{color:var(--ink)}
+.app .act-tabs button.on{color:var(--ink)}
+.app .act-tabs button.on:after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:var(--forest)}
+.app .act-tabs .n{background:var(--lime);color:var(--forest);border-radius:20px;padding:1px 7px;font-size:11px;font-weight:700}
+
+/* section heads */
+.app .act-sec{display:flex;flex-direction:column;gap:14px}
+.app .act-sechead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.app .act-sechead h2{margin:0;font-family:var(--font-playfair),serif;font-size:19px;font-weight:600}
+.app .act-sechead span{font-size:12.5px;color:var(--muted)}
+
+/* shared bits */
+.app .act .circ{align-self:flex-start;font-size:10.5px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--orange);text-decoration:none}
+.app .act .circ:hover{text-decoration:underline}
+.app .act h3 a{color:inherit;text-decoration:none}
+.app .act h3 a:hover{text-decoration:underline;text-underline-offset:3px}
+.app .act .where{margin:0;display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .act .where svg{flex:none;opacity:.75}
+.app .act .who{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.app .act-rsvp{flex:none;border:1px solid var(--forest);background:#fff;color:var(--forest);border-radius:30px;padding:6px 14px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s,color .15s}
+.app .act-rsvp:hover{background:var(--forest);color:#fff}
+.app .act-rsvp.on{background:var(--lime);border-color:var(--lime);color:var(--forest)}
+.app .act-rsvp.on:hover{background:#cadf5a;color:var(--forest)}
+
+/* agenda rows (today / your plans) */
+.app .act-agenda{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.app .act-row{display:grid;grid-template-columns:62px 72px minmax(0,1fr) auto auto;align-items:center;gap:16px;padding:12px 18px}
+.app .act-row+.act-row{border-top:1px solid var(--line)}
+.app .act-row:hover{background:#fbf9f4}
+.app .act-row .when{display:grid;gap:1px}
+.app .act-row .when b{font-size:15px;font-weight:700;color:var(--ink)}
+.app .act-row .when span{font-size:11px;font-weight:600;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+.app .act-row .when span.today{color:var(--orange)}
+.app .act-row .ph{position:relative;display:block;width:72px;height:56px;border-radius:10px;overflow:hidden}
+.app .act-row .bd{min-width:0;display:grid;gap:3px}
+.app .act-row h3{margin:0;font-family:var(--font-playfair),serif;font-size:16px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* toolbar */
+.app .act-toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.app .act-filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.app .act-seg{display:inline-flex;background:#ebe6da;border-radius:30px;padding:3px}
+.app .act-seg button{border:0;background:none;border-radius:30px;padding:6px 14px;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.app .act-seg button:hover{color:var(--ink)}
+.app .act-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(23,60,50,.14)}
+.app .act-select{position:relative;display:inline-flex}
+.app .act-select:after{content:'';position:absolute;right:14px;top:50%;width:6px;height:6px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.app .act-select select{appearance:none;border:1px solid var(--line);background:#fff;border-radius:30px;padding:8px 36px 8px 14px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;outline:0}
+.app .act-select select:focus-visible{border-color:var(--forest)}
+
+/* event cards */
+.app .act-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.app .act-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s}
+.app .act-card:hover{box-shadow:0 10px 28px rgba(23,60,50,.1);transform:translateY(-2px)}
+.app .act-card .ph{position:relative;display:block;aspect-ratio:2/1}
+.app .act-card .date{position:absolute;left:10px;bottom:10px;display:grid;justify-items:center;background:#fff;border-radius:10px;padding:5px 9px;font-size:11px;font-weight:600;color:var(--muted);line-height:1.2;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.app .act-card .date b{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--orange)}
+.app .act-card .mode{position:absolute;top:10px;right:10px;background:rgba(15,42,35,.72);backdrop-filter:blur(6px);color:#fff;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.app .act-card .mode.virtual{background:rgba(216,235,110,.95);color:var(--forest)}
+.app .act-card .bd{padding:12px 14px 14px;display:flex;flex-direction:column;gap:5px;flex:1}
+.app .act-card h3{margin:0;font-family:var(--font-playfair),serif;font-size:16px;line-height:1.25;font-weight:600}
+.app .act-card .ft{margin-top:auto;padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+
+.app .act-showmore{align-self:center;border:1px solid var(--line);background:#fff;border-radius:30px;padding:9px 22px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer}
+.app .act-showmore:hover{border-color:var(--forest)}
+.app .act-empty{display:grid;justify-items:center;gap:6px;background:#fff;border:1px dashed #cfcabb;border-radius:18px;padding:32px;text-align:center;font-size:13px;color:var(--muted)}
+.app .act-empty b{font-size:15px;color:var(--ink)}
+.app .act-empty button{margin-top:8px;border:0;background:var(--forest);color:#fff;border-radius:30px;padding:8px 18px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+
+@media(max-width:1180px){.app .act-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:900px){.app .act-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.app .act-row .who{display:none}.app .act-row{grid-template-columns:54px 64px minmax(0,1fr) auto}}
+@media(max-width:560px){
+  .app .act-grid{grid-template-columns:1fr}
+  .app .act-row{grid-template-columns:56px minmax(0,1fr) auto;gap:12px;padding:12px 14px}
+  .app .act-row .when{display:none}
+  .app .act-row .ph{width:56px;height:56px}
+  .app .act-stats{width:100%}
+  .app .act-stats span{flex:1;text-align:center}
+}
