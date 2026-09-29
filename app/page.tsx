@@ -72,7 +72,7 @@ export default function Courtyard() {
           <section className="collab-hub">
             <div className="collab-intro">
               <div>
-                <div className="ac-eyebrow">Artelia Collaboration Studio</div>
+                <div className="ac-eyebrow">Kinnect Collaboration Studio</div>
                 <h2>Make something <em>neither of you could make alone.</em></h2>
                 <p>Find complementary creative voices, answer curated open calls, and build together in a protected project room, from first spark to exhibition and shared revenue.</p>
               </div>

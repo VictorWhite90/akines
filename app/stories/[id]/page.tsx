@@ -15,7 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const s = STORIES.find((x) => x.id === id);
-  return { title: s ? `${s.title} · Artelia Connect` : "Story" };
+  return { title: s ? `${s.title} · Kinnect` : "Story" };
 }
 
 export default async function StoryPage({ params }: { params: Promise<{ id: string }> }) {

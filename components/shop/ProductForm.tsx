@@ -91,7 +91,7 @@ export default function ProductForm({ initial, onSave, onClose }: { initial?: Pr
                 );
               })}
             </div>
-            <small className="hint">Prototype: photos come from the Artelia library instead of an upload.</small>
+            <small className="hint">Prototype: photos come from the Kinnect library instead of an upload.</small>
           </div>
 
           <label><span>Shipping note <small>optional</small></span><input value={shipping} onChange={(e) => setShipping(e.target.value)} placeholder="For example: Ships from Lagos in 3 to 5 days" /></label>

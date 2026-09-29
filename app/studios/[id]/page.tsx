@@ -11,7 +11,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const s = seededStudio(id);
-  return { title: s ? `${s.name} · Artelia Connect` : "Studio · Artelia Connect" };
+  return { title: s ? `${s.name} · Kinnect` : "Studio · Kinnect" };
 }
 
 export default async function StudioPublic({ params }: { params: Promise<{ id: string }> }) {

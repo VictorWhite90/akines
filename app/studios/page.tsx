@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import StudiosBoard from "@/components/home/StudiosBoard";
 import PageHeader from "@/components/ui/PageHeader";
 
-export const metadata: Metadata = { title: "Studio visits · Artelia Connect" };
+export const metadata: Metadata = { title: "Studio visits · Kinnect" };
 
 export default function Studios() {
   return (

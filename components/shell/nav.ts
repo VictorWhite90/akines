@@ -12,6 +12,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/rooms", label: "Presence rooms", glyph: "◉", badge: "3 live" },
       { href: "/activities", label: "Activities", glyph: "▦" },
       { href: "/collaborate", label: "Collaborate", glyph: "⌘", badge: "12 open" },
+      { href: "/messages", label: "Messages", glyph: "✉" },
     ],
   },
   {

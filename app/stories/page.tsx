@@ -7,7 +7,7 @@ import VoiceNote from "@/components/ui/VoiceNote";
 import { PEOPLE } from "@/lib/data/people";
 import { ARTWORK, STORIES } from "@/lib/data/stories";
 
-export const metadata: Metadata = { title: "Stories & legacy · Artelia Connect" };
+export const metadata: Metadata = { title: "Stories & legacy · Kinnect" };
 
 const WAVE = [10, 18, 28, 14, 34, 22, 40, 26, 14, 30, 42, 20, 12, 28, 36, 18, 10, 24, 32, 16, 12, 26, 38, 22, 14, 30, 20, 34, 16, 10, 24, 18, 28, 12, 20, 32];
 

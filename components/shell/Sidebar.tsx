@@ -8,8 +8,8 @@ import { NAV_GROUPS, isActive } from "./nav";
 
 export function Wordmark() {
   return (
-    <Link href="/" className="brand" aria-label="Artelia Connect home">
-      Artelia <span>Connect</span>
+    <Link href="/" className="brand" aria-label="Kinnect home">
+      Kinnect
     </Link>
   );
 }

@@ -4,7 +4,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import { AiTag } from "@/components/ui/Chip";
 import { MATCHES } from "@/lib/data/matches";
 
-export const metadata: Metadata = { title: "Kindred · Artelia Connect" };
+export const metadata: Metadata = { title: "Kindred · Kinnect" };
 
 const HOW = [
   { t: "Things you discovered", d: "Artists, works and traditions you've spent real time with." },
