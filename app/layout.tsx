@@ -9,6 +9,7 @@ import "./studio.css";
 import "./store.css";
 import "./circles.css";
 import "./activities.css";
+import "./feed.css";
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["500", "600"], style: ["normal", "italic"], display: "swap" });
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dmsans", weight: ["400", "500", "600", "700"], display: "swap" });

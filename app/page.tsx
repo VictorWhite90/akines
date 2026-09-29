@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar";
+import Composer from "@/components/feed/Composer";
+import HomeFeed from "@/components/home/HomeFeed";
 import Pic from "@/components/home/Pic";
 import ShopStrip from "@/components/home/ShopStrip";
 import { Introduction, MoodCheckin, ReserveButtons } from "@/components/home/HomeClient";
@@ -114,6 +116,8 @@ export default function Courtyard() {
             </div>
           </section>
 
+          <Composer />
+
           <div className="section-title">
             <div><h2>Stories with a pulse</h2><p>Not a feed. A few moments a week, chosen for what they say.</p></div>
             <Link href="/stories">Explore all →</Link>
@@ -123,6 +127,11 @@ export default function Courtyard() {
               <StoryTile key={s.id} href={`/stories/${s.id}`} photo={s.photo} type={s.kind} voice={s.voice} by={s.by} title={s.title} text={s.excerpt} left={["♡ 128 felt this", "♡ 96 felt this", "♡ 211 felt this"][i]} right={`${s.reflections} reflections`} />
             ))}
           </div>
+
+          <div className="section-title">
+            <div><h2>Your circles&rsquo; feed</h2><p>What people are sharing in the circles you&rsquo;ve joined.</p></div>
+          </div>
+          <HomeFeed circleIds={joinedCircles.map((c) => c.id)} />
 
           <div className="section-title">
             <div><h2>Witness the journey</h2><p>Living journals and the legacy every artwork carries.</p></div>
