@@ -1,88 +1,177 @@
-// Covers: C1 (intent at session start), C3 (explained introduction), C4 (room tonight), S9 (application status), S6 (milestone approval), W1/W3 (private check-in), P2 (finite — ends when done)
 import Link from "next/link";
-import type { ReactNode } from "react";
-import { ArrowRight, Lovely, Messages2, People, TaskSquare, TickCircle } from "iconsax-reactjs";
-import Page from "@/components/ui/Page";
-import { INTRODUCTIONS, ME, MY_APPLICATIONS, ROOMS, getCall, getPerson, getProject } from "@/lib/data";
-import IntentPicker from "./_today/IntentPicker";
+import Avatar from "@/components/ui/Avatar";
+import Pic from "@/components/home/Pic";
+import ShopStrip from "@/components/home/ShopStrip";
+import { Introduction, MoodCheckin, ReserveButtons } from "@/components/home/HomeClient";
+import { CALLS, CIRCLES, COLLABS, ROOMS, STUDIOS } from "@/lib/data/community";
+import { JOURNAL } from "@/lib/data/journals";
+import { MATCHES } from "@/lib/data/matches";
+import { PEOPLE } from "@/lib/data/people";
+import { ARTWORK, STORIES } from "@/lib/data/stories";
+import { DNA_SUMMARY, DNA_TITLE } from "@/lib/data/dna";
+import type { PhotoKey } from "@/lib/data/images";
 
-function TodayItem({ icon, title, detail, href, action }: { icon: ReactNode; title: string; detail: string; href: string; action: string }) {
+const room = ROOMS[0];
+const host = PEOPLE[room.host];
+const collab = COLLABS[0];
+const call = CALLS[0];
+const callBy = PEOPLE[call.by];
+const match = MATCHES[0];
+const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" }).replace(/^(\w+),? /, "$1 · ");
+
+function StoryTile({ href, photo, type, voice, by, title, text, left, right }: { href: string; photo: PhotoKey; type: string; voice?: string; by: keyof typeof PEOPLE; title: string; text: string; left: string; right: string }) {
+  const p = PEOPLE[by];
   return (
-    <li className="flex flex-col gap-3 border-b border-sand-200 py-6 last:border-0 sm:flex-row sm:items-center sm:gap-5">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sand-100 text-green-950">{icon}</span>
-      <div className="min-w-0 flex-1">
-        <p className="font-semibold text-green-950">{title}</p>
-        <p className="mt-1 text-sm text-grey-700">{detail}</p>
+    <Link href={href} className="story">
+      <div className="story-img">
+        <Pic name={photo} sizes="(max-width: 760px) 80vw, 340px" />
+        <span className="type">{type}</span>
+        {voice && <span className="voice">▶︎ {voice} in their voice</span>}
       </div>
-      <Link href={href} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-green-950 underline-offset-4 hover:underline">
-        {action} <ArrowRight size={16} color="currentColor" aria-hidden />
-      </Link>
-    </li>
+      <div className="story-body">
+        <div className="byline"><Avatar person={p} size={26} />{p.name} · {p.city}</div>
+        <h4>{title}</h4>
+        <p>{text}</p>
+        <div className="react"><span>{left}</span><span>{right}</span></div>
+      </div>
+    </Link>
   );
 }
 
-export default function TodayPage() {
-  const intro = INTRODUCTIONS[0];
-  const person = getPerson(intro.personId);
-  const application = MY_APPLICATIONS[0];
-  const call = getCall(application.callId)!;
-  const project = getProject("salt-water-memory")!;
-  const milestone = project.milestones.find((m) => m.status === "current")!;
-  const room = ROOMS[0];
-  const seatsLeft = room.capacity - room.participantIds.length;
-
+export default function Courtyard() {
+  const joinedCircles = CIRCLES.filter((c) => c.joined);
+  const journals = JOURNAL.filter((j) => j.photo).slice(0, 2);
   return (
-    <Page className="max-w-3xl">
-      <h1 className="font-playfair text-[34px] font-bold leading-tight text-green-950 md:text-[48px]">Good evening, {ME.name.split(" ")[0]}.</h1>
-      <p className="mt-3 text-base text-grey-700">Four things worth your time today.</p>
-
-      <div className="mt-10">
-        <IntentPicker />
+    <>
+      <div className="welcome">
+        <div>
+          <div className="ac-eyebrow">Your creative community</div>
+          <h1>Welcome back, <em>Amara.</em></h1>
+        </div>
+        <div className="date">{today}</div>
       </div>
 
-      <section aria-labelledby="today-heading" className="mt-12">
-        <h2 id="today-heading" className="sr-only">Today</h2>
-        <ol className="border-t border-sand-200">
-          <TodayItem
-            icon={<People size={20} color="currentColor" aria-hidden />}
-            title={`Meet ${person.name}`}
-            detail={`${person.title} in ${person.city} — you both explore migration and memory.`}
-            href="/introductions"
-            action="See why"
-          />
-          <TodayItem
-            icon={<TaskSquare size={20} color="currentColor" aria-hidden />}
-            title={`You're shortlisted for ${call.title}`}
-            detail="Pick a time for a short video conversation by Oct 30."
-            href="/applications"
-            action="Pick a slot"
-          />
-          <TodayItem
-            icon={<TickCircle size={20} color="currentColor" aria-hidden />}
-            title={`Approve “${milestone.title}”`}
-            detail={`${project.title} · Moussa has approved. Yours releases the next payment.`}
-            href={`/studio/${project.id}`}
-            action="Review"
-          />
-          <TodayItem
-            icon={<Messages2 size={20} color="currentColor" aria-hidden />}
-            title={room.title}
-            detail={`${room.when} · ${seatsLeft} of 6 seats open · small, not recorded`}
-            href={`/rooms/${room.id}`}
-            action="Take a seat"
-          />
-        </ol>
-      </section>
+      <div className="home-grid">
+        <div>
+          <section className="hero">
+            <Pic name="heroStudio" sizes="(max-width: 1060px) 100vw, 900px" priority position="center 30%" />
+            <div className="hero-copy">
+              <span className="pill"><span className="live-dot" /> Presence Room · {room.when}</span>
+              <h2>{room.title}</h2>
+              <p>{room.blurb} Hosted by {host.role.toLowerCase()} {host.name}. No audience, not recorded, no performance. Just presence.</p>
+              <ReserveButtons roomId={room.id} />
+            </div>
+            <div className="attendees">
+              {room.seated.slice(0, 3).map((id) => <span className="avatar-wrap" key={id}><Avatar person={PEOPLE[id]} size={32} /></span>)}
+              <span className="count">{room.seated.length} of 6 joined</span>
+            </div>
+          </section>
 
-      <Link href="/wellbeing" className="mt-10 flex items-center gap-4 rounded-[6px] bg-calm-bg px-5 py-4 text-calm transition-colors hover:bg-calm-bg/70">
-        <Lovely size={22} variant="Bulk" color="currentColor" aria-hidden />
-        <span className="flex-1 text-sm">
-          <span className="font-semibold">Two quiet minutes for yourself.</span> A private check-in — never shared, never used for matching.
-        </span>
-        <ArrowRight size={16} color="currentColor" aria-hidden />
-      </Link>
+          <section className="collab-hub">
+            <div className="collab-intro">
+              <div>
+                <div className="ac-eyebrow">Artelia Collaboration Studio</div>
+                <h2>Make something <em>neither of you could make alone.</em></h2>
+                <p>Find complementary creative voices, answer curated open calls, and build together in a protected project room, from first spark to exhibition and shared revenue.</p>
+              </div>
+              <Link href="/collaborate" className="launch-collab">Explore collaborations <span>↗</span></Link>
+            </div>
+            <div className="collab-strip">
+              <article className="project-card featured-project">
+                <div className="project-visual">
+                  <Pic name="collabArt" sizes="(max-width: 760px) 100vw, 300px" />
+                  <span className="project-tag">Featured collaboration</span>
+                  <div className="project-people">
+                    {collab.makers.map((m) => <span className="avatar-wrap" key={m}><Avatar person={PEOPLE[m]} size={31} /></span>)}
+                    <b>＋</b>
+                  </div>
+                </div>
+                <div className="project-copy">
+                  <div className="project-meta">{collab.route.replace(" × ", " × ")} · {collab.medium}</div>
+                  <h3>{collab.title}</h3>
+                  <p>{collab.blurb}</p>
+                  <div className="progress-line"><i style={{ width: `${collab.progress}%` }} /></div>
+                  <div className="progress-label"><span>Making</span><span>{collab.progress}% · {collab.next.toLowerCase()}</span></div>
+                </div>
+              </article>
+              <article className="open-call">
+                <div className="call-top"><span className="call-type">Curator open call</span><span className="deadline">{call.days} days left</span></div>
+                <h3>{call.title}</h3>
+                <p>{call.blurb}</p>
+                <div className="criteria">{call.tags.map((t) => <span key={t}>{t}</span>)}</div>
+                <div className="curator-row">
+                  <Avatar person={callBy} size={35} />
+                  <div><b>{callBy.name}</b><small>Verified curator · {call.city}</small></div>
+                  <Link href="/collaborate#calls">View call</Link>
+                </div>
+              </article>
+            </div>
+            <div className="collab-values">
+              <span><b>01</b> Portfolio-first applications</span>
+              <span><b>02</b> Roles &amp; rights agreed upfront</span>
+              <span><b>03</b> Shared milestones</span>
+              <span><b>04</b> Permanent creator credits</span>
+            </div>
+          </section>
 
-      <p className="mt-12 text-center text-sm text-grey-600">That&apos;s everything for today.</p>
-    </Page>
+          <div className="section-title">
+            <div><h2>Stories with a pulse</h2><p>Not a feed. A few moments a week, chosen for what they say.</p></div>
+            <Link href="/stories">Explore all →</Link>
+          </div>
+          <div className="cards">
+            {STORIES.slice(0, 3).map((s, i) => (
+              <StoryTile key={s.id} href={`/stories/${s.id}`} photo={s.photo} type={s.kind} voice={s.voice} by={s.by} title={s.title} text={s.excerpt} left={["♡ 128 felt this", "♡ 96 felt this", "♡ 211 felt this"][i]} right={`${s.reflections} reflections`} />
+            ))}
+          </div>
+
+          <div className="section-title">
+            <div><h2>Witness the journey</h2><p>Living journals and the legacy every artwork carries.</p></div>
+            <Link href="/journal">Open journals →</Link>
+          </div>
+          <div className="cards">
+            {journals.map((j) => (
+              <StoryTile key={j.id} href="/journal" photo={j.photo!} type={j.kind === "artist" ? "Artist journal" : "Collector journal"} by={j.by} title={j.title} text={j.text.split(". ")[0] + "."} left={j.mood ?? ""} right={j.date} />
+            ))}
+            <StoryTile href={`/stories/${ARTWORK.id}#legacy`} photo={ARTWORK.photo} type="Art Legacy" by={ARTWORK.artist} title="This painting has had three homes." text="Made in Accra, acquired in Casablanca, and now asked about every morning." left="5 chapters" right="Read its story →" />
+          </div>
+
+          <div className="section-title">
+            <div><h2>Step inside the studio</h2><p>Live, virtual, 360° or VR. Talk to the maker directly.</p></div>
+            <Link href="/studios">All visits →</Link>
+          </div>
+          <div className="cards">
+            {STUDIOS.slice(0, 3).map((v) => {
+              const a = PEOPLE[v.artist];
+              return <StoryTile key={v.id} href="/studios" photo={v.photo} type={v.mode} by={v.artist} title={`${a.name}'s studio`} text={v.blurb} left={v.when} right={v.place} />;
+            })}
+          </div>
+
+          <ShopStrip />
+        </div>
+
+        <div className="side-stack">
+          <Introduction id={match.id} reason={match.reason} signals={match.signals} opener={match.opener} />
+          <MoodCheckin />
+          <section className="panel">
+            <div className="panel-head"><h3>Your circles</h3><Link href="/circles">See all</Link></div>
+            <div className="circle-list">
+              {joinedCircles.map((c) => (
+                <Link key={c.id} href={`/circles/${c.id}`} className="circle">
+                  <div className="circle-thumb"><Pic name={c.photo} sizes="48px" /></div>
+                  <div><h4>{c.name}</h4><small>{c.members} members · {c.active} active</small></div>
+                  <span className="open">Open</span>
+                </Link>
+              ))}
+            </div>
+          </section>
+          <section className="panel insight">
+            <div className="ac-eyebrow">Your Creative DNA</div>
+            <h3>{DNA_TITLE}.</h3>
+            <p>{DNA_SUMMARY}</p>
+            <Link href="/dna">Explore my Creative DNA →</Link>
+          </section>
+        </div>
+      </div>
+    </>
   );
 }

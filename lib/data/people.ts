@@ -1,30 +1,42 @@
-import type { Person } from "@/lib/types";
+import type { FaceKey } from "./images";
 
-/** The signed-in member for the whole prototype. */
-export const ME_ID = "adaeze";
+/** Creative presence: what someone is doing, not whether they are "online". */
+export type Presence = "studio" | "room" | "quiet" | "open";
 
-export const PEOPLE: Person[] = [
-  { id: "adaeze", name: "Adaeze Nwosu", role: "artist", title: "Textile artist", city: "Lagos", country: "Nigeria", languages: ["English", "Igbo"], practices: ["Textiles", "Installation"], themes: ["migration", "memory", "indigo dye traditions", "northern Nigerian textile histories"], verified: true, availability: "open", readiness: "mid-career", bio: "Weaves hand-dyed indigo with salvaged fabric to map journeys families never talk about." },
-  { id: "moussa", name: "Moussa Diallo", role: "creative", title: "Sound artist", city: "Dakar", country: "Senegal", languages: ["French", "Wolof", "English"], practices: ["Sound", "Installation"], themes: ["migration", "memory", "oral history", "the Atlantic"], verified: true, availability: "open", readiness: "mid-career", bio: "Records harbours, markets and grandmothers, then builds rooms you listen to with your whole body." },
-  { id: "halima", name: "Halima Sani", role: "curator", title: "Independent curator", city: "Abuja", country: "Nigeria", languages: ["English", "Hausa"], practices: ["Curation"], themes: ["figurative painting", "women's archives", "textile & fibre"], verified: true, availability: "limited", readiness: "established", bio: "Curates exhibitions on women's domestic archives. Runs two open calls a year for West African artists." },
-  { id: "kwame", name: "Kwame Mensah", role: "artist", title: "Figurative painter", city: "Accra", country: "Ghana", languages: ["English", "Twi"], practices: ["Painting"], themes: ["identity", "family portraits", "Accra street life"], verified: false, availability: "open", readiness: "emerging", bio: "Paints the people on his street at the size of church murals." },
-  { id: "wanjiru", name: "Wanjiru Kamau", role: "creative", title: "Photographer", city: "Nairobi", country: "Kenya", languages: ["English", "Swahili", "Kikuyu"], practices: ["Photography"], themes: ["memory", "urban markets", "archives"], verified: true, availability: "limited", readiness: "mid-career", bio: "Photographs Nairobi's markets at dawn and prints them on market cloth." },
-  { id: "chidi", name: "Chidi Eze", role: "collector", title: "Collector & patron", city: "London", country: "United Kingdom", languages: ["English", "Igbo"], practices: ["Collecting"], themes: ["northern Nigerian textile art", "emerging artists", "diaspora"], verified: true, availability: "open", readiness: "established", bio: "Diaspora collector. Buys early, stays for the whole career, lends works back for exhibitions." },
-  { id: "fatima", name: "Fatima El Amrani", role: "artist", title: "Ceramicist", city: "Marrakech", country: "Morocco", languages: ["Arabic", "French", "English"], practices: ["Ceramics"], themes: ["craft lineages", "architecture", "water"], verified: true, availability: "open", readiness: "mid-career", bio: "Third-generation potter building vessels that hold rainwater for courtyards." },
-  { id: "tunde", name: "Tunde Bakare", role: "artist", title: "Emerging painter", city: "Ibadan", country: "Nigeria", languages: ["English", "Yoruba"], practices: ["Painting", "Drawing"], themes: ["identity", "solitude", "large-format work"], verified: false, availability: "open", readiness: "emerging", bio: "Just left art school. Working alone in a borrowed classroom and looking for people to learn with." },
-  { id: "nomvula", name: "Nomvula Dlamini", role: "gallery", title: "Director, Ubuntu Contemporary", city: "Johannesburg", country: "South Africa", languages: ["English", "isiZulu"], practices: ["Gallery"], themes: ["textile & fibre", "installation", "pan-African exchange"], verified: true, availability: "limited", readiness: "established", bio: "Runs a gallery that commissions one ambitious installation a year." },
-  { id: "ines", name: "Inês Tavares", role: "creative", title: "Choreographer", city: "Luanda", country: "Angola", languages: ["Portuguese", "English"], practices: ["Dance", "Performance"], themes: ["the body as archive", "migration"], verified: true, availability: "limited", readiness: "mid-career", bio: "Makes dances from gestures people keep after they leave home." },
-  { id: "ayo", name: "Ayo Adeyemi", role: "creative", title: "Fashion designer", city: "Lagos", country: "Nigeria", languages: ["English", "Yoruba"], practices: ["Fashion", "Textiles"], themes: ["adire", "tailoring", "women redefining African fashion"], verified: true, availability: "open", readiness: "mid-career", bio: "Tailors adire into structured silhouettes; runs a studio of eleven women." },
-  { id: "kofi", name: "Kofi Boateng", role: "institution", title: "Programmes lead, West Africa Arts Foundation", city: "Accra", country: "Ghana", languages: ["English"], practices: ["Commissioning"], themes: ["public art", "heritage", "Benin Bronzes"], verified: true, availability: "limited", readiness: "established", bio: "Commissions public-facing work and funds artist residencies across West Africa." },
-  { id: "sipho", name: "Sipho Ndlovu", role: "creative", title: "Architect", city: "Cape Town", country: "South Africa", languages: ["English", "isiXhosa"], practices: ["Architecture"], themes: ["water", "public space", "materials"], verified: false, availability: "open", readiness: "mid-career", bio: "Designs rain-harvesting courtyards and wants artists inside the process, not after it." },
-  { id: "leila", name: "Leila Haddad", role: "researcher", title: "Art historian", city: "Cairo", country: "Egypt", languages: ["Arabic", "English", "French"], practices: ["Research", "Writing"], themes: ["masks", "ritual objects", "restitution"], verified: true, availability: "limited", readiness: "established", bio: "Writes about ritual objects and who gets to tell their stories." },
-  { id: "zuri", name: "Zuri Okello", role: "collector", title: "First-time collector", city: "Kampala", country: "Uganda", languages: ["English", "Luganda"], practices: ["Collecting"], themes: ["photography", "home", "art that heals"], verified: false, availability: "open", readiness: "emerging", bio: "Started collecting after a hard year: 'art made my flat feel like somewhere I'm allowed to rest.'" },
-];
+export const PRESENCE: Record<Presence, { label: string; dot: string }> = {
+  studio: { label: "In the studio", dot: "bg-ochre-400" },
+  room: { label: "In a room", dot: "bg-clay-400" },
+  quiet: { label: "Quiet mode", dot: "bg-ink-300" },
+  open: { label: "Open to chat", dot: "bg-moss-500" },
+};
 
-export function getPerson(id: string): Person {
-  const person = PEOPLE.find((p) => p.id === id);
-  if (!person) throw new Error(`Unknown person id: ${id}`);
-  return person;
-}
+export type Person = {
+  id: string;
+  name: string;
+  role: string;
+  city: string;
+  face?: FaceKey;
+  presence: Presence;
+  note?: string;
+  about: string;
+};
 
-export const ME = getPerson(ME_ID);
+export const PEOPLE = {
+  amara: { id: "amara", name: "Amara Okafor", role: "Collector", city: "Lagos", face: "amaraFace", presence: "open", about: "I collect because a room with a painting in it feels less lonely." },
+  ayo: { id: "ayo", name: "Ayo Balogun", role: "Textile artist", city: "Ibadan", face: "ayoFace", presence: "studio", note: "Dyeing panel 7", about: "Indigo, resist-dye and the memory a cloth keeps." },
+  kwame: { id: "kwame", name: "Kwame Mensah", role: "Painter", city: "Accra", face: "kwameFace", presence: "studio", note: "Third layer, still unsure", about: "Portraits of people who raised me, painted slowly." },
+  leila: { id: "leila", name: "Leila Benali", role: "Collector", city: "Casablanca", face: "leilaFace", presence: "room", about: "I buy work I can argue with at breakfast." },
+  zuri: { id: "zuri", name: "Zuri Nwosu", role: "Curator", city: "London", face: "mayaFace", presence: "open", about: "Curating the conversation between diaspora and home." },
+  nandi: { id: "nandi", name: "Nandi Moyo", role: "Curator", city: "Harare", face: "w5", presence: "room", note: "Hosting tonight", about: "I host small rooms where nobody performs." },
+  tunde: { id: "tunde", name: "Tunde Adeyemi", role: "Sculptor", city: "Lagos", face: "m2", presence: "studio", note: "Firing at 6pm", about: "Clay, bronze and figures that look back at you." },
+  wanjiru: { id: "wanjiru", name: "Wanjiru Kamau", role: "Photographer", city: "Nairobi", face: "w8", presence: "quiet", about: "Photographs of what people keep in their pockets." },
+  thandi: { id: "thandi", name: "Thandi Dlamini", role: "Ceramicist", city: "Johannesburg", face: "w3", presence: "studio", note: "Throwing bowls", about: "Everyday vessels, made slowly, used daily." },
+  fatou: { id: "fatou", name: "Fatou Diop", role: "Fashion designer", city: "Dakar", face: "w10", presence: "open", about: "Cut, cloth and the politics of what we wear." },
+  efua: { id: "efua", name: "Efua Boateng", role: "Art historian", city: "Kumasi", face: "w6", presence: "open", about: "Following objects home, one archive at a time." },
+  chidi: { id: "chidi", name: "Chidi Eze", role: "Student", city: "Enugu", presence: "open", about: "Learning to look before I learn to make." },
+} satisfies Record<string, Person>;
+
+export type PersonId = keyof typeof PEOPLE;
+export const ME = PEOPLE.amara;
+export const person = (id: PersonId): Person => PEOPLE[id];
+export const allPeople = Object.values(PEOPLE) as Person[];

@@ -1,25 +1,45 @@
-import { CIRCLES, ROOMS } from "@/lib/data/connect";
+export type NavItem = { href: string; label: string; glyph: string; badge?: string };
+export type NavGroup = { label?: string; items: NavItem[] };
 
-/** Which space the current path lives in. Drives the rail and channel list. */
-export type SpaceId = "home" | "studio" | "opportunities" | "gallery" | `circle:${string}`;
+/** The rail is grouped by what a member is doing, so nothing feels scattered. */
+export const NAV_GROUPS: NavGroup[] = [
+  { items: [{ href: "/", label: "Community home", glyph: "⌂" }] },
+  {
+    label: "Connect",
+    items: [
+      { href: "/kindred", label: "Discover people", glyph: "◇" },
+      { href: "/circles", label: "Creative circles", glyph: "◎" },
+      { href: "/rooms", label: "Presence rooms", glyph: "◉", badge: "3 live" },
+      { href: "/collaborate", label: "Collaborate", glyph: "⌘", badge: "12 open" },
+    ],
+  },
+  {
+    label: "Make & sell",
+    items: [
+      { href: "/studio", label: "My studio", glyph: "✦" },
+      { href: "/journal", label: "My journal", glyph: "▤" },
+      { href: "/store", label: "My store", glyph: "▣" },
+    ],
+  },
+  {
+    label: "Explore",
+    items: [
+      { href: "/shop", label: "Shop art", glyph: "□" },
+      { href: "/studios", label: "Studio visits", glyph: "◈" },
+      { href: "/stories", label: "Stories & legacy", glyph: "❖" },
+    ],
+  },
+  {
+    label: "Care",
+    items: [
+      { href: "/wellbeing", label: "Creative wellbeing", glyph: "♡" },
+      { href: "/dna", label: "Creative DNA", glyph: "◐" },
+    ],
+  },
+];
 
-const HOME = ["/", "/introductions", "/dm", "/onboarding", "/dna", "/wellbeing", "/trust", "/membership", "/people", "/companion", "/concept", "/pilot", "/rooms"];
+export const NAV: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
 
-export function matchesPath(pathname: string, prefix: string) {
-  return prefix === "/" ? pathname === "/" : pathname === prefix || pathname.startsWith(`${prefix}/`);
-}
-
-export function currentSpace(pathname: string): SpaceId {
-  const circle = pathname.match(/^\/(?:c|circles)\/([^/]+)/);
-  if (circle && CIRCLES.some((c) => c.id === circle[1])) return `circle:${circle[1]}`;
-  const room = pathname.match(/^\/rooms\/([^/]+)/);
-  if (room) {
-    const circleId = ROOMS.find((r) => r.id === room[1])?.circleId;
-    if (circleId) return `circle:${circleId}`;
-  }
-  if (["/studio"].some((p) => matchesPath(pathname, p))) return "studio";
-  if (["/opportunities", "/applications", "/curator"].some((p) => matchesPath(pathname, p))) return "opportunities";
-  if (["/stories", "/journals", "/studio-visits"].some((p) => matchesPath(pathname, p))) return "gallery";
-  if (HOME.some((p) => matchesPath(pathname, p))) return "home";
-  return "home";
+export function isActive(pathname: string, href: string) {
+  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
 }

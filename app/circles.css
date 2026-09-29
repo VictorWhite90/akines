@@ -1,0 +1,57 @@
+/* Circle community: tabs, channels, trends and rooms. Chat itself reuses the .rs styles in rooms.css. */
+.app .cs-on{color:#2a6d4d;font-weight:600}
+.app .cs-tabs{display:flex;gap:4px;padding:8px 14px 0;background:#fff;border-bottom:1px solid var(--line)}
+.app .cs-tabs button{display:inline-flex;gap:7px;align-items:center;border:0;background:none;padding:10px 14px 11px;font:inherit;font-size:14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;cursor:pointer;margin-bottom:-1px}
+.app .cs-tabs button:hover{color:var(--ink)}
+.app .cs-tabs button.on{color:var(--ink);border-bottom-color:var(--orange)}
+.app .cs-chan{display:flex;gap:6px;padding:9px 14px;background:var(--cream);border-bottom:1px solid var(--line);overflow-x:auto}
+.app .cs-chan button{flex:none;border:1px solid var(--line);background:#fff;border-radius:30px;padding:5px 13px;font:inherit;font-size:12.5px;color:var(--ink);cursor:pointer}
+.app .cs-chan button.on{background:var(--forest);border-color:var(--forest);color:#fff}
+.app .rs-comp.ro{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.app .rs-comp.ro p{margin:0;font-size:13px;color:var(--muted)}
+.app .rs-comp.ro button{border:0;background:var(--lime);color:var(--ink);font:inherit;font-weight:700;font-size:13px;border-radius:30px;padding:10px 20px;cursor:pointer;white-space:nowrap}
+.app .cs-scroll{flex:1;overflow-y:auto;padding:18px 20px 24px;display:grid;gap:22px;align-content:start;background:var(--paper)}
+.app .cs-sec h2{font-family:var(--font-playfair),serif;font-size:26px;font-weight:600;margin:2px 0 6px;line-height:1.15}
+.app .cs-sec h2.sm{font-size:19px;margin-bottom:10px}
+.app .cs-sec .sub{margin:0 0 14px;font-size:13.5px;line-height:1.55;color:var(--muted);max-width:640px}
+.app .cs-topics{display:flex;flex-wrap:wrap;gap:8px}
+.app .cs-topics button{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:30px;padding:7px 13px;font:inherit;font-size:12.5px;color:var(--ink);cursor:pointer}
+.app .cs-topics button:hover{border-color:var(--orange);background:#fff6f0}
+.app .cs-topics svg{color:var(--orange)}
+.app .cs-regions{display:flex;gap:6px;flex-wrap:wrap;margin-top:-6px}
+.app .cs-regions button{border:0;background:transparent;font:inherit;font-size:13px;color:var(--muted);padding:5px 12px;border-radius:20px;cursor:pointer;font-weight:600}
+.app .cs-regions button.on{background:var(--ink);color:#fff}
+.app .cs-trends{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.app .cs-trend{background:var(--cream);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.app .cs-trend .ph{position:relative;height:132px}
+.app .cs-trend .reg{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}
+.app .cs-trend .bd{padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+.app .cs-trend .meta{margin:0;font-size:11px;color:var(--muted)}
+.app .cs-trend .meta b{color:var(--orange);text-transform:uppercase;letter-spacing:.8px;font-size:10px}
+.app .cs-trend h3{margin:0;font-family:var(--font-playfair),serif;font-size:17px;line-height:1.25;font-weight:600}
+.app .cs-trend .sum{margin:0;font-size:12.5px;line-height:1.55;color:var(--muted);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.app .cs-trend .ft{margin-top:auto;padding-top:8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.app .cs-trend .src{font-size:11px;color:var(--muted)}
+.app .cs-trend .btns{display:flex;gap:6px}
+.app .cs-trend .btns button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 11px;font:inherit;font-size:11.5px;font-weight:600;color:var(--ink);cursor:pointer}
+.app .cs-trend .btns button.on{background:#e4f1e8;border-color:#bcd9c6;color:#2a6d4d}
+.app .cs-trend .btns .pri{background:var(--forest);border-color:var(--forest);color:#fff}
+.app .cs-empty{grid-column:1/-1;font-size:13px;color:var(--muted);padding:20px;text-align:center}
+.app .cs-events{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.app .cs-events li{display:flex;align-items:center;gap:12px;background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.app .cs-events .k{flex:none;background:var(--forest);color:var(--lime);border-radius:8px;padding:5px 9px;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;min-width:74px;text-align:center}
+.app .cs-events div{flex:1;min-width:0;display:grid;line-height:1.35}
+.app .cs-events b{font-size:13.5px}
+.app .cs-events small{font-size:11.5px;color:var(--muted)}
+.app .cs-events button{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 12px;font:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;color:var(--ink)}
+.app .cs-events button.on{background:#e4f1e8;border-color:#bcd9c6;color:#2a6d4d}
+.app .cs-fine{font-size:11px;color:var(--muted);margin:10px 0 0}
+.app .cs-actions{display:flex;gap:10px;flex-wrap:wrap}
+.app .cs-actions button{display:inline-flex;gap:7px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:30px;padding:10px 18px;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer}
+.app .cs-actions .pri{background:var(--ink);border-color:var(--ink);color:#fff}
+.app .cs-roomgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.app .cs-pin{background:#fff;border:1px solid var(--line);border-left:3px solid var(--orange);border-radius:12px;padding:10px 12px}
+.app .cs-pin b{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--orange)}
+.app .cs-pin p{margin:4px 0 0;font-family:var(--font-playfair),serif;font-style:italic;font-size:15px;line-height:1.4}
+.app .cs .rs-msgs{min-height:0}
+@media(max-width:760px){.app .cs-trends{grid-template-columns:1fr}.app .cs-events li{flex-wrap:wrap}}

@@ -1,83 +1,92 @@
-import type { ArtworkStory, JournalEntry, StudioVisit } from "@/lib/types";
-import { IMG } from "./images";
+import type { PhotoKey } from "./images";
+import type { PersonId } from "./people";
 
-/** Artwork pages as stories: voice, process, failure, meaning, and a living legacy. */
-export const STORIES: ArtworkStory[] = [
-  {
-    id: "indigo-crossing", title: "Indigo Crossing", artistId: "adaeze", image: IMG.textile, year: "2026", medium: "Hand-dyed indigo, salvaged cotton, thread", dimensions: "180 × 240 cm", price: "US$4,800",
-    meaning: "A map of my grandmother's journey from Kano to Lagos, stitched from cloth she never talked about.",
-    voiceNote: { duration: "3:42", transcript: "My grandmother kept one wrapper folded at the bottom of her box for fifty years. When she died I opened it and it still smelled of the dye pits in Kano. This piece is me finally asking her about that journey — in the only language we shared, which was cloth." },
-    studioVideo: { duration: "6:10", poster: IMG.beads, caption: "Dyeing day at the Kofar Mata pits, Kano" },
-    evolution: [
-      { stage: "First sketch", note: "Routes drawn on tracing paper over an old road map.", date: "Jan" },
-      { stage: "Failed dye bath", note: "The first vat went green — too much lime. Kept one panel anyway.", date: "Feb" },
-      { stage: "Weaving", note: "Salvaged cotton from Balogun market woven into the gaps.", date: "Apr" },
-      { stage: "Finished", note: "Hung for the first time in the Textiles Circle review.", date: "Jun" },
-    ],
-    materials: ["Natural indigo (Kofar Mata pits)", "Salvaged Balogun cotton", "Hand-spun thread"],
-    influences: [
-      { kind: "music", text: "Fela — “Water No Get Enemy”" },
-      { kind: "memory", text: "My grandmother's wrapper, 1971" },
-      { kind: "place", text: "The road from Kano to Lagos" },
-      { kind: "poem", text: "Gabriel Okara — “Piano and Drums”" },
-    ],
-    challenges: "The green vat almost ended the series. I kept that panel — it's the part of the journey nobody planned.",
-    legacy: [
-      { date: "Jun 2026", kind: "created", text: "Completed in Lagos", personId: "adaeze", place: "Lagos", source: "verified" },
-      { date: "Jul 2026", kind: "exhibited", text: "Shown at the Textiles Circle portfolio review", place: "Online", source: "verified" },
-      { date: "Aug 2026", kind: "acquired", text: "Acquired by Chidi Eze", personId: "chidi", place: "London", source: "verified" },
-      { date: "Aug 2026", kind: "travelled", text: "Shipped Lagos → London", place: "London", source: "verified" },
-      { date: "Sep 2026", kind: "reflection", text: "Collector's audio reflection added", personId: "chidi", source: "self-declared" },
-    ],
-    collectorEntries: [
-      { personId: "chidi", date: "Sep 2026", livesIn: "Hallway, facing the front door", text: "My mother left Kano for Enugu in 1974. I bought this because she stood in front of it for twenty minutes and then told me a story I'd never heard. My kids walk past it every morning; my daughter calls it ‘Grandma's river’." },
-    ],
-  },
-  {
-    id: "vessel-for-rain", title: "Vessel for Rain", artistId: "fatima", image: IMG.ceramics, year: "2025", medium: "Local red clay, wood-fired", dimensions: "62 × 40 cm",
-    meaning: "A water jar shaped by three generations of potters' hands — and a question about who inherits a craft.",
-    voiceNote: { duration: "2:18", transcript: "My grandfather's thumbprint is on the inside of every jar he made. I make my jars the same way so that one day someone finds mine." },
-    studioVideo: { duration: "4:02", poster: IMG.ceramics, caption: "Wood-firing in Marrakech" },
-    evolution: [{ stage: "Throwing", note: "Thrown in two halves.", date: "Mar" }, { stage: "Cracked in firing", note: "Mended with gold slip.", date: "Apr" }, { stage: "Finished", note: "", date: "May" }],
-    materials: ["Local red clay", "Wood ash glaze"],
-    influences: [{ kind: "artist", text: "Ladi Kwali" }, { kind: "place", text: "Riad courtyards" }],
-    challenges: "It cracked in the kiln. The mend is now the point.",
-    legacy: [{ date: "May 2025", kind: "created", text: "Completed in Marrakech", personId: "fatima", place: "Marrakech", source: "verified" }, { date: "Nov 2025", kind: "award", text: "Shortlisted, Pan-African Craft Prize", source: "verified" }],
-    collectorEntries: [],
-  },
-  {
-    id: "street-saints", title: "Street Saints", artistId: "kwame", image: IMG.paintingStudio, year: "2026", medium: "Oil on canvas", dimensions: "200 × 150 cm", price: "US$2,900",
-    meaning: "My neighbours, painted at the size we paint saints.",
-    voiceNote: { duration: "1:55", transcript: "Everyone on my street has a story someone should paint big." },
-    studioVideo: { duration: "3:30", poster: IMG.paintingStudio, caption: "Studio, Jamestown, Accra" },
-    evolution: [{ stage: "Sittings", note: "Six neighbours, one afternoon each.", date: "Feb" }, { stage: "Finished", note: "", date: "Apr" }],
-    materials: ["Oil paint", "Cotton duck canvas"],
-    influences: [{ kind: "place", text: "Jamestown, Accra" }, { kind: "artist", text: "Church murals in Cape Coast" }],
-    challenges: "Paying sitters fairly on a student budget.",
-    legacy: [{ date: "Apr 2026", kind: "created", text: "Completed in Accra", personId: "kwame", place: "Accra", source: "self-declared" }],
-    collectorEntries: [],
-  },
+export type StoryKind = "Studio journal" | "Collector reflection" | "Curator's note" | "Process story";
+
+export type Story = {
+  id: string;
+  kind: StoryKind;
+  title: string;
+  excerpt: string;
+  by: PersonId;
+  photo: PhotoKey;
+  voice?: string;
+  reflections: number;
+  read: string;
+};
+
+export const STORIES: Story[] = [
+  { id: "indigo-room", kind: "Studio journal", title: "I almost painted over this", excerpt: "A work about my grandmother, indigo cloth, and the things families leave unsaid.", by: "kwame", photo: "paintingHand", voice: "1:42", reflections: 24, read: "6 min" },
+  { id: "breakfast-question", kind: "Collector reflection", title: "The painting that made my daughter ask", excerpt: "One question at breakfast changed how our family speaks about identity.", by: "leila", photo: "exhibitionAfrican", reflections: 18, read: "4 min" },
+  { id: "five-voices", kind: "Curator's note", title: "Five voices reshaping portraiture", excerpt: "Beyond the gaze: a personal walk through the artists changing the conversation.", by: "zuri", photo: "galleryModern", reflections: 37, read: "9 min" },
+  { id: "clay-remembers", kind: "Process story", title: "How clay remembers hands", excerpt: "Twelve years of throwing the same bowl, and what the last one taught me.", by: "thandi", photo: "clayWet", voice: "2:08", reflections: 12, read: "5 min" },
+  { id: "mask-photograph", kind: "Process story", title: "The mask I was allowed to photograph", excerpt: "Three visits, one conversation with the custodians, and the frame I didn't take.", by: "wanjiru", photo: "tribalCarving", reflections: 15, read: "7 min" },
+  { id: "mothers-cloth", kind: "Studio journal", title: "What my mother's cloth taught me about patience", excerpt: "Seven dye baths, one green surprise, and an afternoon of watching the light change it.", by: "ayo", photo: "textileHang", voice: "2:31", reflections: 21, read: "5 min" },
+  { id: "first-purchase", kind: "Collector reflection", title: "Buying my first work, slowly", excerpt: "Eleven months of instalments and the morning it finally came off the wall's waiting list.", by: "chidi", photo: "gallerySeated", reflections: 9, read: "4 min" },
 ];
 
-/** Living journals — artists' process and collectors' lives with the work. */
-export const JOURNAL: JournalEntry[] = [
-  { id: "j1", authorId: "adaeze", kind: "failure", date: "Today", text: "Vat went green again. Lime ratio is off in the dry season — writing it down so I stop repeating this.", image: IMG.textile, visibility: "public", storyId: "indigo-crossing" },
-  { id: "j2", authorId: "moussa", kind: "sketch", date: "Yesterday", text: "Dakar harbour, 5:12am. The gulls start before the engines. That order matters for the piece.", visibility: "public" },
-  { id: "j3", authorId: "tunde", kind: "doubt", date: "Yesterday", text: "Three weeks on one canvas and I still can't tell if it's finished or abandoned.", visibility: "circle" },
-  { id: "j4", authorId: "chidi", kind: "collector", date: "2 days ago", text: "Moved Indigo Crossing to the hallway. It changes colour with the morning light — nobody told me cloth does that.", visibility: "public", storyId: "indigo-crossing" },
-  { id: "j5", authorId: "kwame", kind: "win", date: "3 days ago", text: "Shortlisted for Figure & Ground. First time a curator has asked about my process, not my price.", visibility: "public" },
-  { id: "j6", authorId: "fatima", kind: "idea", date: "4 days ago", text: "What if the courtyard drain was the sculpture? Sent a note to Sipho.", image: IMG.ceramics, visibility: "public" },
-  { id: "j7", authorId: "zuri", kind: "collector", date: "Last week", text: "Bought my second photograph. I hung it where I have coffee so I start every day looking at something that isn't a screen.", visibility: "public" },
-  { id: "j8", authorId: "adaeze", kind: "doubt", date: "Last week", text: "Private: not sure I can afford the Kano trip this quarter.", visibility: "private" },
-];
+/* ---------- One artwork, told in full ("Story behind every artwork" + "Art Legacy") ---------- */
+export const ARTWORK = {
+  id: "indigo-room",
+  title: "Indigo Room",
+  artist: "kwame" as PersonId,
+  medium: "Oil and indigo pigment on linen",
+  size: "90 × 120 cm",
+  year: 2024,
+  price: "$1,900",
+  photo: "paintingWoman" as PhotoKey,
+  voice: { length: "1:42", caption: "Kwame on the day he almost painted over it" },
+  inspiration: "My grandmother dyed cloth in a yard behind her house. I remember the smell before I remember her face. This painting is the room I keep returning to in my head, not the room as it was.",
+  challenges: "The third layer killed it. Everything went flat and polite. For two weeks I wouldn't look at it. I turned it to the wall and painted something easier.",
+  meaning: "It taught me that finished isn't the same as true. I scraped back to the second layer and left the ruin showing. That's the painting now.",
+  music: { title: "Juju on my grandmother's old cassette", note: "Played on repeat through the whole third layer." },
+  poem: ["The cloth keeps the hand", "that pressed it into the dye,", "the way a name keeps a mouth", "long after the mouth is quiet."],
+  sketches: ["studioEasel", "brushes", "paintingHand", "studioDim"] as PhotoKey[],
+  evolution: [
+    { step: "Sketch", note: "Charcoal study from memory: the yard, the poles, the cloth." },
+    { step: "First layer", note: "Warm ground and indigo washes. Confident, too confident." },
+    { step: "The third layer", note: "Everything went flat. I turned it to the wall." },
+    { step: "Scraped back", note: "Found the second layer underneath. Kept the damage." },
+  ],
+  legacy: [
+    { year: "Mar 2024", title: "Made", place: "Accra, studio at Osu", note: "Begun from a charcoal sketch.", who: "Kwame Mensah" },
+    { year: "Nov 2024", title: "First shown", place: "“Cloth & Memory”, Accra group show", note: "Hung between two textile works.", who: "Nandi Moyo (curator)" },
+    { year: "Feb 2025", title: "Acquired", place: "Casablanca", note: "“I bought it because I couldn't stop arguing with it.”", who: "Leila Benali" },
+    { year: "Sep 2025", title: "Shortlisted", place: "Emerging Voices Prize", note: "One of twelve works chosen from 480.", who: "Prize jury" },
+    { year: "Today", title: "At home", place: "A hallway in Casablanca", note: "Her daughter now asks about it every morning.", who: "Leila's reflection" },
+  ],
+};
 
-export const STUDIO_VISITS: StudioVisit[] = [
-  { id: "sv1", artistId: "adaeze", title: "Dye pits & loom: inside Indigo Crossing", when: "Sat · 10:00 WAT", format: "live", seats: 12, seatsLeft: 5, image: IMG.textile, description: "Walk through the dyeing process live and ask about any piece in the studio." },
-  { id: "sv2", artistId: "fatima", title: "360° wood-fired kiln tour", when: "Any time", format: "360", seats: 0, seatsLeft: 0, image: IMG.ceramics, description: "Look around the kiln yard at your own pace, with the artist's audio notes." },
-  { id: "sv3", artistId: "kwame", title: "Street Saints studio open day", when: "Sun · 15:00 GMT", format: "live", seats: 20, seatsLeft: 14, image: IMG.paintingStudio, description: "Meet the painter and the neighbours who sat for the series." },
-  { id: "sv4", artistId: "ayo", title: "VR: a day in the tailoring studio", when: "Any time", format: "vr", seats: 0, seatsLeft: 0, image: IMG.fashion, description: "Headset or phone — stand beside the cutting table." },
-];
-
-export function getStory(id: string) {
-  return STORIES.find((story) => story.id === id);
-}
+/** Short bodies for the stories that don't have a full artwork page. */
+export const STORY_BODY: Record<string, string[]> = {
+  "mask-photograph": [
+    "I asked three times before anyone answered. The first visit was only to be seen; I left my camera in the car.",
+    "The custodians said I could photograph the mask, but not on the day it was worn. I could photograph the room it rests in, and the hands that keep it.",
+    "The frame I didn't take is the one I think about most. Some pictures are better kept as a promise.",
+  ],
+  "mothers-cloth": [
+    "My mother dyed cloth in a yard behind our house. I remember the smell before I remember her face.",
+    "Seven baths in, the green came out stronger than I'd ever mixed. I'd planned to be annoyed. Instead I hung it in the yard and watched the light change it for an hour.",
+    "Patience isn't waiting. It's staying interested while the cloth decides.",
+  ],
+  "first-purchase": [
+    "I couldn't afford it, so I asked whether I could pay over eleven months. The artist said yes before I'd finished the sentence.",
+    "Every instalment felt like a small conversation with the painting. By the last one I knew it better than I know most people.",
+    "It arrived on a Thursday. I hung it, stepped back, and then sat on the floor for a long time.",
+  ],
+  "breakfast-question": [
+    "I bought the painting for its colours. That was the honest reason. It hangs in our hallway, and one morning my daughter stopped on her way to school and asked, “Who is she waiting for?”",
+    "I had no answer. I'd been walking past her for months. We stood there until she was late, and it turned into the longest conversation we'd had about who we are and where the women in our family come from.",
+    "The artist wrote to me afterwards, and told me the woman isn't waiting for anyone. But she let my daughter keep her version.",
+  ],
+  "five-voices": [
+    "Portraiture in Africa has never been one thing. It's the studio photograph and the commissioned oil, the passport picture and the memorial cloth.",
+    "These five artists are changing the terms: who looks, who is looked at, and who gets to say when the picture is finished.",
+    "What they share isn't style. It's that each of them has made a portrait in which the sitter looks back and isn't in a hurry.",
+  ],
+  "clay-remembers": [
+    "I've thrown the same bowl for twelve years. It's a simple shape: a wide mouth and a low foot. People say it's boring, and they're right, and that's the point.",
+    "Clay remembers everything you do to it. Every hurried pull, every doubt. You can see a bad week in a bowl.",
+    "The last bowl I made this month has no memory of anger in it. That took twelve years to learn, and it's the only thing I'm proud of.",
+  ],
+};

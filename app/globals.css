@@ -9,6 +9,63 @@
  * self-declared information and AI suggestions visibly distinct everywhere.
  */
 @theme {
+  --font-display: var(--font-playfair), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Deep forest green: sidebar, dark cards, and its tints for text on dark. */
+  --color-ink-50: #eef3f0;
+  --color-ink-100: #dbe5e0;
+  --color-ink-200: #b9c8c2;
+  --color-ink-300: #8fa39b;
+  --color-ink-400: #68736e;
+  --color-ink-500: #4a6158;
+  --color-ink-600: #315047;
+  --color-ink-700: #24463b;
+  --color-ink-800: #1c4036;
+  --color-ink-900: #173c32;
+  --color-ink-950: #0f2a23;
+  /* Near-black green for primary buttons and headings. */
+  --color-night: #18231f;
+
+  --color-paper-50: #fbf9f3;
+  --color-paper-100: #f5f1e8;
+  --color-paper-200: #e7e0cf;
+  --color-paper-300: #d8cfb9;
+  --color-paper-400: #c2b596;
+
+  /* Lime: the bright accent on buttons and dark surfaces. (Kept under the old "ochre" name.) */
+  --color-ochre-200: #e9f3ab;
+  --color-ochre-300: #d9eb6d;
+  --color-ochre-400: #d9eb6d;
+  --color-ochre-500: #b9cd45;
+  --color-ochre-600: #6f8012;
+
+  /* Orange: italic accents, badges and progress. */
+  --color-clay-100: #fbe3d6;
+  --color-clay-200: #f7c3aa;
+  --color-clay-300: #f49a72;
+  --color-clay-400: #ef743f;
+  --color-clay-500: #ef743f;
+  --color-clay-600: #d0561f;
+  --color-clay-700: #a8431a;
+
+  --color-moss-100: #e3e9d5;
+  --color-moss-300: #a7b98b;
+  --color-moss-500: #5c7648;
+  --color-moss-700: #3b4e2d;
+
+  --color-rose-300: #e2a2b0;
+  --color-cocoa: #896656;
+  --color-mute: #68736e;
+  --color-line: #e3ddcc;
+
+  --shadow-soft: 0 1px 2px rgb(24 35 31 / 0.05);
+  --shadow-lift: 0 2px 4px rgb(24 35 31 / 0.05), 0 18px 40px -18px rgb(24 35 31 / 0.3);
+
+  --animate-breathe: breathe 8s ease-in-out infinite;
+  --animate-rise: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
+
   --color-star: #fdb022;
   --color-green-50: #eaf6fa;
   --color-green-100: #d3ecf6;
@@ -85,8 +142,6 @@
   --color-alert: #b42318;
   --color-alert-bg: #fef3f2;
 
-  --font-playfair: var(--font-display-src), Georgia, serif;
-  --font-montserrat: var(--font-body-src), system-ui, sans-serif;
 }
 
 :root {
@@ -98,9 +153,9 @@ html {
 }
 
 body {
-  background: var(--color-sand-50);
-  color: var(--color-grey-1000);
-  font-family: var(--font-montserrat);
+  background: var(--color-paper-100);
+  color: var(--color-night);
+  font-family: var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
 }
 
 @media (prefers-reduced-motion: reduce) {
