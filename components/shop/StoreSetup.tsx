@@ -89,7 +89,7 @@ export default function StoreSetup({ onCreate }: { onCreate: (s: StoreProfile) =
             <span>About your store <small>optional</small></span>
             <textarea value={about} onChange={(e) => setAbout(e.target.value)} rows={3} placeholder="Who you are, how you work, what buyers can expect" maxLength={280} />
           </label>
-          <button className="sh-btn lime big" type="submit">Open my store</button>
+          <button className="sh-btn dark big" type="submit">Open my store</button>
         </form>
 
         <aside className="st-preview" aria-label="Preview">

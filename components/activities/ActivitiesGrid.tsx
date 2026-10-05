@@ -12,7 +12,6 @@ import { allActivities, dayDistance, soonLabel, todayIndex, type FlatActivity } 
 
 type Mode = "In person" | "Virtual";
 type View = "discover" | "going";
-const PAGE = 8;
 
 /**
  * "People bond more effectively when they do something together" (brief §6). Activities are
@@ -26,7 +25,6 @@ export default function ActivitiesGrid() {
   const [view, setView] = useState<View>("discover");
   const [mode, setMode] = useState<Mode | "all">("all");
   const [circleId, setCircleId] = useState<string>("all");
-  const [showAll, setShowAll] = useState(false);
 
   const today = todayIndex();
   const all = useMemo(() => allActivities(), []);
@@ -43,7 +41,6 @@ export default function ActivitiesGrid() {
   }, [all, joined, today]);
 
   const filtered = rest.filter((a) => (mode === "all" || a.mode === mode) && (circleId === "all" || a.circleId === circleId));
-  const shown = showAll ? filtered : filtered.slice(0, PAGE);
   const myPlans = all.filter((a) => rsvp[a.id]).sort(byDistance);
 
   const rsvpOf = (id: string) => rsvp[id] ?? false;
@@ -92,12 +89,8 @@ export default function ActivitiesGrid() {
         <>
           {soon.length > 0 && (
             <section className="act-sec">
-              <SecHead title="Up next" sub="The soonest things on across Akines" />
-              <div className="act-agenda">
-                {soon.map((a) => (
-                  <AgendaRow key={a.id} a={a} going={rsvpOf(a.id)} onRsvp={() => toggleRsvp(a.id)} />
-                ))}
-              </div>
+              <SecHead title="Up next" sub="The soonest things across Akines" />
+              <div className="act-grid">{soon.map(card)}</div>
             </section>
           )}
 
@@ -131,18 +124,13 @@ export default function ActivitiesGrid() {
             </div>
 
             {filtered.length > 0 ? (
-              <div className="act-grid">{shown.map(card)}</div>
+              <div className="act-hscroll scrollbar-hide">{filtered.map(card)}</div>
             ) : (
               <div className="act-empty">
                 <b>Nothing matches those filters</b>
                 <span>Try a different mode or circle.</span>
                 <button type="button" onClick={() => { setMode("all"); setCircleId("all"); }}>Clear filters</button>
               </div>
-            )}
-            {!showAll && filtered.length > PAGE && (
-              <button type="button" className="act-showmore" onClick={() => setShowAll(true)}>
-                Show {filtered.length - PAGE} more
-              </button>
             )}
           </section>
         </>

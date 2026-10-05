@@ -64,6 +64,8 @@
 
 /* event cards */
 .app .act-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.app .act-hscroll{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;margin:0 -2px;padding-left:2px;padding-right:2px}
+.app .act-hscroll .act-card{flex:0 0 260px;scroll-snap-align:start}
 .app .act-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s}
 .app .act-card:hover{box-shadow:0 10px 28px rgba(60,45,23,.1);transform:translateY(-2px)}
 .app .act-card .ph{position:relative;display:block;aspect-ratio:2/1}
@@ -75,8 +77,6 @@
 .app .act-card h3{margin:0;font-family:var(--font-playfair),serif;font-size:16px;line-height:1.25;font-weight:600}
 .app .act-card .ft{margin-top:auto;padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 
-.app .act-showmore{align-self:center;border:1px solid var(--line);background:#fff;border-radius:30px;padding:9px 22px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer}
-.app .act-showmore:hover{border-color:var(--forest)}
 .app .act-empty{display:grid;justify-items:center;gap:6px;background:#fff;border:1px dashed #cfcabb;border-radius:18px;padding:32px;text-align:center;font-size:13px;color:var(--muted)}
 .app .act-empty b{font-size:15px;color:var(--ink)}
 .app .act-empty button{margin-top:8px;border:0;background:var(--forest);color:#fff;border-radius:30px;padding:8px 18px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
