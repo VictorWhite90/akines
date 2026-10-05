@@ -3,6 +3,7 @@ import Link from "next/link";
 import Photo from "@/components/ui/Photo";
 import CircleJoin from "@/components/circles/CircleJoin";
 import KinCircleHero from "@/components/circles/KinCircleHero";
+import MyKinCircles from "@/components/circles/MyKinCircles";
 import { CIRCLES } from "@/lib/data/community";
 
 export const metadata: Metadata = { title: "KinCircle · Akines" };
@@ -12,10 +13,12 @@ export default function Circles() {
     <div className="space-y-12">
       <KinCircleHero />
 
+      <MyKinCircles />
+
       <div id="find-a-circle" className="scroll-mt-24">
-        <p className="text-[11px] font-bold tracking-[2px] text-clay-600 uppercase">Find a circle</p>
+        <p className="text-[11px] font-bold tracking-[2px] text-clay-600 uppercase">Browse community circles</p>
         <h2 className="font-display mt-2 text-[30px] leading-[1.1] font-semibold">Small communities, <em className="font-medium text-clay-500 italic">real conversation.</em></h2>
-        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-mute">Ten circles, each held small enough that people know each other&rsquo;s names. Join one to chat with the circle, see what&rsquo;s happening around the world in your field, and open private rooms for live calls.</p>
+        <p className="mt-3 max-w-2xl text-[15px] leading-relaxed text-mute">Ten open circles anyone can join, each held small enough that people know each other&rsquo;s names. Prefer something of your own? <Link href="/circles/new" className="font-semibold text-ink-950 underline underline-offset-2">Start a KinCircle</Link> instead.</p>
       </div>
 
       <ul className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">

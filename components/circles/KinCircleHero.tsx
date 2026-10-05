@@ -2,16 +2,19 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { PHOTO } from "@/lib/data/images";
 
 const STEPS: { n: string; title: string; body: string }[] = [
-  { n: "01", title: "Set your purpose", body: "Name the thread that brings you together: a craft, a cause, a shared way of seeing." },
-  { n: "02", title: "Invite with intention", body: "Bring in people you trust, or let KinCircle suggest kindred creatives." },
-  { n: "03", title: "Arrive as yourself", body: "No performance, no follower count. Just honest introductions." },
-  { n: "04", title: "Support one another", body: "Share drafts, ask for feedback, show up when someone's stuck." },
-  { n: "05", title: "Make something together", body: "Turn conversation into a show, a zine, a collection, a room of your own." },
-  { n: "06", title: "Carry it forward", body: "Your circle's story becomes part of its legacy, not lost in a feed." },
+  { n: "01", title: "Gather", body: "Bring together people with a genuine reason to meet." },
+  { n: "02", title: "Discover", body: "Understand their stories, strengths and needs." },
+  { n: "03", title: "Connect", body: "Develop trust through small shared experiences." },
+  { n: "04", title: "Create", body: "Turn conversation into commitments and useful action." },
+  { n: "05", title: "Reflect", body: "Notice inclusion, contribution and relationship health." },
+  { n: "06", title: "Continue", body: "Choose how the relationship should grow—or close well." },
 ];
+
+const JOURNEY_SUB = "Every KinCircle follows a simple human rhythm. People arrive with intention, learn who is really present, build trust, act together and choose what the relationship becomes.";
 
 const PANELS = 3; // intro, how-it-works (1-3), how-it-works (4-6)
 
@@ -39,17 +42,17 @@ export default function KinCircleHero() {
                 Build trust, support one another and create something meaningful—without the noise of another group chat.
               </p>
               <div className="mt-1 flex flex-wrap gap-3">
-                <a href="#find-a-circle" className="rounded-full bg-ochre-400 px-5 py-3 text-[14px] font-bold text-ink-950">Start a KinCircle</a>
+                <Link href="/circles/new" className="rounded-full bg-ochre-400 px-5 py-3 text-[14px] font-bold text-ink-950">Start a KinCircle</Link>
                 <button type="button" onClick={() => setStage(1)} className="rounded-full border border-white/30 bg-white/10 px-5 py-3 text-[14px] text-white backdrop-blur-sm">See how it works</button>
               </div>
             </div>
 
             {/* Stage 1: how it works, steps 1-3 */}
-            <HowItWorks steps={STEPS.slice(0, 3)} onBack={() => setStage(0)} onNext={() => setStage(2)} nextLabel="The last three →" page={1} />
+            <HowItWorks steps={STEPS.slice(0, 3)} sub={JOURNEY_SUB} onBack={() => setStage(0)} onNext={() => setStage(2)} nextLabel="The last three →" page={1} />
 
             {/* Stage 2: how it works, steps 4-6 */}
             <HowItWorks steps={STEPS.slice(3, 6)} onBack={() => setStage(1)} page={2}>
-              <a href="#find-a-circle" className="rounded-full bg-ochre-400 px-5 py-3 text-[14px] font-bold text-ink-950">Start your KinCircle</a>
+              <Link href="/circles/new" className="rounded-full bg-ochre-400 px-5 py-3 text-[14px] font-bold text-ink-950">Start your KinCircle</Link>
             </HowItWorks>
           </div>
         </div>
@@ -67,14 +70,15 @@ export default function KinCircleHero() {
   );
 }
 
-function HowItWorks({ steps, onBack, onNext, nextLabel, page, children }: { steps: typeof STEPS; onBack: () => void; onNext?: () => void; nextLabel?: string; page: 1 | 2; children?: React.ReactNode }) {
+function HowItWorks({ steps, sub, onBack, onNext, nextLabel, page, children }: { steps: typeof STEPS; sub?: string; onBack: () => void; onNext?: () => void; nextLabel?: string; page: 1 | 2; children?: React.ReactNode }) {
   return (
     <div className="h-full w-full flex-none overflow-y-auto py-8 pr-7 pl-14 sm:px-16 sm:py-10">
       <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-[11px] text-white backdrop-blur-sm">
-        <span className="h-[7px] w-[7px] rounded-full bg-ochre-400" /> How KinCircle works · {page} of 2
+        <span className="h-[7px] w-[7px] rounded-full bg-ochre-400" /> A relationship with direction · {page} of 2
       </span>
       <h2 className="font-display mt-4 max-w-xl text-[26px] leading-[1.1] font-semibold text-white sm:text-[32px]">More than a group. A shared journey.</h2>
-      <div className="mt-6 flex max-w-xl flex-col gap-4">
+      {sub && <p className="mt-2 max-w-md text-[13px] leading-relaxed text-white/75">{sub}</p>}
+      <div className="mt-5 flex max-w-xl flex-col gap-4">
         {steps.map((s) => (
           <div key={s.n} className="flex gap-4 border-t border-white/15 pt-4 first:border-t-0 first:pt-0">
             <span className="font-display text-[20px] font-semibold text-ochre-300">{s.n}</span>

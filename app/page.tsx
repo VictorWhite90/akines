@@ -55,7 +55,7 @@ export default function Courtyard() {
         <h2>Bring together the right people around a shared purpose.</h2>
         <p>Build trust, support one another and create something meaningful—without the noise of another group chat.</p>
         <div className="hero-actions">
-          <Link className="join" href="/circles">Start a KinCircle</Link>
+          <Link className="join" href="/circles/new">Start a KinCircle</Link>
           <Link className="ghost" href="/circles">See how it works</Link>
         </div>
       </div>
