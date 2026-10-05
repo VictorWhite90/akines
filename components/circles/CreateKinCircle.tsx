@@ -65,13 +65,14 @@ export default function CreateKinCircle() {
   };
 
   return (
-    <div className="min-h-screen bg-paper-100">
-      <div className="flex items-center justify-between px-6 py-5 sm:px-10">
+    <div className="flex min-h-screen flex-col bg-paper-100">
+      <div className="flex items-center gap-5 px-6 py-5 sm:px-10">
         <Link href="/" className="font-display text-[20px] text-ink-950">Akines</Link>
         <Link href="/circles" className="text-[13px] text-mute hover:text-ink-950">Exit</Link>
       </div>
 
-      <div className="mx-auto flex max-w-5xl flex-col overflow-hidden sm:mb-12 sm:flex-row sm:rounded-[28px] sm:shadow-[var(--shadow-lift)]">
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center overflow-hidden px-0 py-6 sm:px-6 sm:py-10">
+      <div className="flex w-full flex-col overflow-hidden sm:flex-row sm:rounded-[28px] sm:shadow-[var(--shadow-lift)]">
         {/* Left rail */}
         <aside className="flex-none bg-ink-950 px-6 py-8 sm:w-[300px] sm:px-8 sm:py-10">
           <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold tracking-[1.5px] text-ochre-300 uppercase">
@@ -231,6 +232,7 @@ export default function CreateKinCircle() {
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
