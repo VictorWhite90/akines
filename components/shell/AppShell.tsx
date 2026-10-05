@@ -12,7 +12,7 @@ import { isActive } from "./nav";
 const MOBILE = [
   { href: "/", label: "Home", glyph: "⌂" },
   { href: "/rooms", label: "Rooms", glyph: "◉" },
-  { href: "/circles", label: "Circles", glyph: "◎" },
+  { href: "/circles", label: "KinCircle", glyph: "◎" },
   { href: "/shop", label: "Shop", glyph: "□" },
 ];
 

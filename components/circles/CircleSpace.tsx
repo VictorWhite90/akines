@@ -258,7 +258,7 @@ export default function CircleSpace({ circle, startTab }: { circle: Circle; star
       <aside className={`rs-side${info ? " open" : ""}`}>
         <button className="close show-sm" onClick={() => setInfo(false)} aria-label="Close">×</button>
         <div className="about">
-          <div className="banner"><Pic name={circle.photo} sizes="360px" /><span>Creative circle</span></div>
+          <div className="banner"><Pic name={circle.photo} sizes="360px" /><span>KinCircle</span></div>
           <h2>{circle.name}</h2>
           <p className="blurb">{circle.blurb}</p>
           <div className="invite">
