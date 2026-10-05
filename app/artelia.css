@@ -29,6 +29,7 @@
 .app .welcome h1 em,.app .emph em{color:var(--orange);font-weight:500;font-style:italic}
 .app .date{font-size:12px;color:var(--muted)}
 .app .home-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,.78fr);gap:24px}
+.app .home-grid>*{min-width:0}
 .app .hero{height:376px;border-radius:26px;overflow:hidden;position:relative;background:#384c43;box-shadow:var(--shadow)}
 .app .hero>img{width:100%;height:100%;object-fit:cover}
 .app .hero:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(21,16,11,.88) 0%,rgba(28,20,13,.46) 54%,rgba(28,20,13,.04))}
@@ -59,6 +60,9 @@
 .app .match-actions button{flex:1;border-radius:10px;padding:9px;border:1px solid #cfc9bb;background:transparent;font-size:11px;font-weight:600}
 .app .match-actions .connect{background:var(--ink);color:#fff;border-color:var(--ink)}
 .app .sent-note{font-size:11px;background:#eef1db;border-radius:10px;padding:10px 12px;color:#415232}
+.app .home-gap{margin-top:25px}
+.app .home-section{margin-top:25px;background:#fff;border-radius:24px;padding:24px;border:1px solid var(--line)}
+.app .home-section .section-title{margin-top:0}
 .app .section-title{display:flex;justify-content:space-between;align-items:end;margin:30px 0 14px}
 .app .section-title h2{font-family:var(--font-playfair),serif;font-size:24px;margin:0;font-weight:600}
 .app .section-title p{margin:4px 0 0;color:var(--muted);font-size:12px}
@@ -76,6 +80,7 @@
 .app .story p{font-size:11px;color:var(--muted);margin:0 0 12px;line-height:1.45}
 .app .react{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
 .app .side-stack{display:grid;gap:18px;align-content:start}
+.app .side-stack>*{min-width:0}
 .app .mood{background:#fff;border:1px solid var(--line)}
 .app .mood h3{font-family:var(--font-playfair),serif;font-size:21px;margin:0;font-weight:600}
 .app .mood p{font-size:12px;color:var(--muted);line-height:1.5}

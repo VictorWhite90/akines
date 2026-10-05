@@ -116,44 +116,50 @@ export default function Courtyard() {
             </div>
           </section>
 
-          <Composer />
+          <div className="home-gap"><Composer /></div>
 
-          <div className="section-title">
-            <div><h2>Stories with a pulse</h2><p>Not a feed. A few moments a week, chosen for what they say.</p></div>
-            <Link href="/stories">Explore all →</Link>
-          </div>
-          <div className="cards">
-            {STORIES.slice(0, 3).map((s, i) => (
-              <StoryTile key={s.id} href={`/stories/${s.id}`} photo={s.photo} type={s.kind} voice={s.voice} by={s.by} title={s.title} text={s.excerpt} left={["♡ 128 felt this", "♡ 96 felt this", "♡ 211 felt this"][i]} right={`${s.reflections} reflections`} />
-            ))}
-          </div>
+          <section className="home-section">
+            <div className="section-title">
+              <div><h2>Stories with a pulse</h2><p>Not a feed. A few moments a week, chosen for what they say.</p></div>
+              <Link href="/stories">Explore all →</Link>
+            </div>
+            <div className="cards">
+              {STORIES.slice(0, 3).map((s, i) => (
+                <StoryTile key={s.id} href={`/stories/${s.id}`} photo={s.photo} type={s.kind} voice={s.voice} by={s.by} title={s.title} text={s.excerpt} left={["♡ 128 felt this", "♡ 96 felt this", "♡ 211 felt this"][i]} right={`${s.reflections} reflections`} />
+              ))}
+            </div>
+          </section>
 
           <div className="section-title">
             <div><h2>Your circles&rsquo; feed</h2><p>What people are sharing in the circles you&rsquo;ve joined.</p></div>
           </div>
           <HomeFeed circleIds={joinedCircles.map((c) => c.id)} />
 
-          <div className="section-title">
-            <div><h2>Witness the journey</h2><p>Living journals and the legacy every artwork carries.</p></div>
-            <Link href="/journal">Open journals →</Link>
-          </div>
-          <div className="cards">
-            {journals.map((j) => (
-              <StoryTile key={j.id} href="/journal" photo={j.photo!} type={j.kind === "artist" ? "Artist journal" : "Collector journal"} by={j.by} title={j.title} text={j.text.split(". ")[0] + "."} left={j.mood ?? ""} right={j.date} />
-            ))}
-            <StoryTile href={`/stories/${ARTWORK.id}#legacy`} photo={ARTWORK.photo} type="Art Legacy" by={ARTWORK.artist} title="This painting has had three homes." text="Made in Accra, acquired in Casablanca, and now asked about every morning." left="5 chapters" right="Read its story →" />
-          </div>
+          <section className="home-section">
+            <div className="section-title">
+              <div><h2>Witness the journey</h2><p>Living journals and the legacy every artwork carries.</p></div>
+              <Link href="/journal">Open journals →</Link>
+            </div>
+            <div className="cards">
+              {journals.map((j) => (
+                <StoryTile key={j.id} href="/journal" photo={j.photo!} type={j.kind === "artist" ? "Artist journal" : "Collector journal"} by={j.by} title={j.title} text={j.text.split(". ")[0] + "."} left={j.mood ?? ""} right={j.date} />
+              ))}
+              <StoryTile href={`/stories/${ARTWORK.id}#legacy`} photo={ARTWORK.photo} type="Art Legacy" by={ARTWORK.artist} title="This painting has had three homes." text="Made in Accra, acquired in Casablanca, and now asked about every morning." left="5 chapters" right="Read its story →" />
+            </div>
+          </section>
 
-          <div className="section-title">
-            <div><h2>Step inside the studio</h2><p>Live, virtual, 360° or VR. Talk to the maker directly.</p></div>
-            <Link href="/studios">All visits →</Link>
-          </div>
-          <div className="cards">
-            {STUDIOS.slice(0, 3).map((v) => {
-              const a = PEOPLE[v.artist];
-              return <StoryTile key={v.id} href="/studios" photo={v.photo} type={v.mode} by={v.artist} title={`${a.name}'s studio`} text={v.blurb} left={v.when} right={v.place} />;
-            })}
-          </div>
+          <section className="home-section">
+            <div className="section-title">
+              <div><h2>Step inside the studio</h2><p>Live, virtual, 360° or VR. Talk to the maker directly.</p></div>
+              <Link href="/studios">All visits →</Link>
+            </div>
+            <div className="cards">
+              {STUDIOS.slice(0, 3).map((v) => {
+                const a = PEOPLE[v.artist];
+                return <StoryTile key={v.id} href="/studios" photo={v.photo} type={v.mode} by={v.artist} title={`${a.name}'s studio`} text={v.blurb} left={v.when} right={v.place} />;
+              })}
+            </div>
+          </section>
 
           <ShopStrip />
         </div>
