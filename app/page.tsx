@@ -1,6 +1,7 @@
 import Link from "next/link";
-import Avatar from "@/components/ui/Avatar";
+import Avatar, { AvatarStack } from "@/components/ui/Avatar";
 import Composer from "@/components/feed/Composer";
+import HeroCarousel from "@/components/home/HeroCarousel";
 import HomeFeed from "@/components/home/HomeFeed";
 import Pic from "@/components/home/Pic";
 import ShopStrip from "@/components/home/ShopStrip";
@@ -43,6 +44,44 @@ function StoryTile({ href, photo, type, voice, by, title, text, left, right }: {
 export default function Courtyard() {
   const joinedCircles = CIRCLES.filter((c) => c.joined);
   const journals = JOURNAL.filter((j) => j.photo).slice(0, 2);
+  const circleFaces = ["ayo", "zuri", "thandi"].map((id) => PEOPLE[id as keyof typeof PEOPLE]);
+  const circleMembers = joinedCircles.reduce((sum, c) => sum + c.members, 0);
+
+  const kincircleSlide = (
+    <>
+      <Pic name="kincircleHero" sizes="(max-width: 1060px) 100vw, 900px" priority position="center 32%" />
+      <div className="hero-copy">
+        <span className="pill"><span className="live-dot" /> KinCircle</span>
+        <h2>Bring together the right people around a shared purpose.</h2>
+        <p>Build trust, support one another and create something meaningful—without the noise of another group chat.</p>
+        <div className="hero-actions">
+          <Link className="join" href="/circles">Start a KinCircle</Link>
+          <Link className="ghost" href="/circles">See how it works</Link>
+        </div>
+      </div>
+      <div className="attendees">
+        <AvatarStack people={circleFaces} size={32} max={3} ringClass="ring-white" />
+        <span className="count">{joinedCircles.length} circles · {circleMembers} creatives</span>
+      </div>
+    </>
+  );
+
+  const roomSlide = (
+    <>
+      <Pic name="heroStudio" sizes="(max-width: 1060px) 100vw, 900px" position="center 30%" />
+      <div className="hero-copy">
+        <span className="pill"><span className="live-dot" /> Presence Room · {room.when}</span>
+        <h2>{room.title}</h2>
+        <p>{room.blurb} Hosted by {host.role.toLowerCase()} {host.name}. No audience, not recorded, no performance. Just presence.</p>
+        <ReserveButtons roomId={room.id} />
+      </div>
+      <div className="attendees">
+        {room.seated.slice(0, 3).map((id) => <span className="avatar-wrap" key={id}><Avatar person={PEOPLE[id]} size={32} /></span>)}
+        <span className="count">{room.seated.length} of 6 joined</span>
+      </div>
+    </>
+  );
+
   return (
     <>
       <div className="welcome">
@@ -53,21 +92,10 @@ export default function Courtyard() {
         <div className="date">{today}</div>
       </div>
 
+      <div className="home-hero"><HeroCarousel slides={[kincircleSlide, roomSlide]} /></div>
+
       <div className="home-grid">
         <div>
-          <section className="hero">
-            <Pic name="heroStudio" sizes="(max-width: 1060px) 100vw, 900px" priority position="center 30%" />
-            <div className="hero-copy">
-              <span className="pill"><span className="live-dot" /> Presence Room · {room.when}</span>
-              <h2>{room.title}</h2>
-              <p>{room.blurb} Hosted by {host.role.toLowerCase()} {host.name}. No audience, not recorded, no performance. Just presence.</p>
-              <ReserveButtons roomId={room.id} />
-            </div>
-            <div className="attendees">
-              {room.seated.slice(0, 3).map((id) => <span className="avatar-wrap" key={id}><Avatar person={PEOPLE[id]} size={32} /></span>)}
-              <span className="count">{room.seated.length} of 6 joined</span>
-            </div>
-          </section>
 
           <section className="collab-hub">
             <div className="collab-intro">

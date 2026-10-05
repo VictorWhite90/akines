@@ -12,6 +12,7 @@ const raw = (src: string, alt: string): Photo => ({ src, alt });
 export const PHOTO = {
   // Photos used by the approved reference design
   heroStudio: raw("https://a.storyblok.com/f/119968/1200x1600/2208abd25f/christian-luiten-avant-arte-isshaq-001.jpg", "An artist working in a colourful studio"),
+  kincircleHero: raw("/kincirclebg.png", "Five creatives gathered around a laptop and a spread of prints, deep in conversation"),
   collabArt: u("1579783902614-a3fb3927b6a5", "Colourful contemporary artwork"),
   exhibitionAfrican: raw("https://www.meer.com/attachments/e5187f686f05a7feaa33428247aa795c6b03f338/store/fill/1860/1395/3a905f1e862b811f7636a07a57c47b9c6218b56531fffafde5f06d6f7d13/In-Our-Days-by-Oluwole-Omofemi-at-Signature-African-Art-London-Photo-c-Mora-Ltd.jpg", "A contemporary African art exhibition"),
   galleryModern: raw("https://artlogic-res.cloudinary.com/w_2400%2Ch_2400%2Cc_limit%2Cf_auto%2Cfl_lossy%2Cq_auto/ws-artlogicwebsite1562/usr/library/images/main/pages/23/0028.jpg", "A modern African art gallery"),
