@@ -65,10 +65,10 @@ export default function CreateKinCircle() {
   };
 
   return (
-    <div className="min-h-screen bg-ink-950">
+    <div className="min-h-screen bg-paper-100">
       <div className="flex items-center justify-between px-6 py-5 sm:px-10">
-        <Link href="/" className="font-display text-[20px] text-white">Akines</Link>
-        <Link href="/circles" className="text-[13px] text-white/60 hover:text-white">Exit</Link>
+        <Link href="/" className="font-display text-[20px] text-ink-950">Akines</Link>
+        <Link href="/circles" className="text-[13px] text-mute hover:text-ink-950">Exit</Link>
       </div>
 
       <div className="mx-auto flex max-w-5xl flex-col overflow-hidden sm:mb-12 sm:flex-row sm:rounded-[28px] sm:shadow-[var(--shadow-lift)]">

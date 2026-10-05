@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import Avatar, { AvatarStack } from "@/components/ui/Avatar";
 import Composer from "@/components/feed/Composer";
@@ -48,7 +49,7 @@ export default function Courtyard() {
   const circleMembers = joinedCircles.reduce((sum, c) => sum + c.members, 0);
 
   const kincircleSlide = (
-    <>
+    <Fragment key="kincircle">
       <Pic name="kincircleHero" sizes="(max-width: 1060px) 100vw, 900px" priority position="center 32%" />
       <div className="hero-copy">
         <span className="pill"><span className="live-dot" /> KinCircle</span>
@@ -63,11 +64,11 @@ export default function Courtyard() {
         <AvatarStack people={circleFaces} size={32} max={3} ringClass="ring-white" />
         <span className="count">{joinedCircles.length} circles · {circleMembers} creatives</span>
       </div>
-    </>
+    </Fragment>
   );
 
   const roomSlide = (
-    <>
+    <Fragment key="room">
       <Pic name="heroStudio" sizes="(max-width: 1060px) 100vw, 900px" position="center 30%" />
       <div className="hero-copy">
         <span className="pill"><span className="live-dot" /> Presence Room · {room.when}</span>
@@ -79,7 +80,7 @@ export default function Courtyard() {
         {room.seated.slice(0, 3).map((id) => <span className="avatar-wrap" key={id}><Avatar person={PEOPLE[id]} size={32} /></span>)}
         <span className="count">{room.seated.length} of 6 joined</span>
       </div>
-    </>
+    </Fragment>
   );
 
   return (
