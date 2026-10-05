@@ -158,9 +158,9 @@ body {
      Fixed so that band stays put on screen as you scroll — every section
      passes under the same light, not just the very top of the page. */
   background:
-    linear-gradient(180deg, rgba(21, 16, 11, 0.5) 0%, rgba(21, 16, 11, 0.26) 16%, rgba(21, 16, 11, 0.04) 34%, transparent 46%),
-    radial-gradient(900px 520px at 14% 0%, rgba(234, 176, 84, 0.42), transparent 62%),
-    radial-gradient(760px 460px at 100% -5%, rgba(239, 116, 63, 0.24), transparent 58%),
+    linear-gradient(180deg, rgba(21, 16, 11, 0.78) 0%, rgba(21, 16, 11, 0.5) 20%, rgba(21, 16, 11, 0.16) 40%, transparent 56%),
+    radial-gradient(900px 520px at 14% 0%, rgba(234, 176, 84, 0.46), transparent 62%),
+    radial-gradient(760px 460px at 100% -5%, rgba(239, 116, 63, 0.26), transparent 58%),
     var(--color-paper-100);
   background-attachment: fixed;
   color: var(--color-night);
