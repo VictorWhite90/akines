@@ -153,12 +153,14 @@ html {
 }
 
 body {
-  /* A calm, low sun: a warm gold glow from the top-left, a quieter amber
-     wash from the top-right, both fading into the paper tone below. Fixed
-     so it reads as ambient light on the room, not something that scrolls. */
+  /* Dusk, everywhere: a dark warm band across the top of the viewport with
+     the gold "sun" glowing through it, fading into the paper tone below it.
+     Fixed so that band stays put on screen as you scroll — every section
+     passes under the same light, not just the very top of the page. */
   background:
-    radial-gradient(1300px 760px at 8% -12%, rgba(234, 176, 84, 0.28), transparent 58%),
-    radial-gradient(1000px 620px at 102% -8%, rgba(239, 116, 63, 0.16), transparent 55%),
+    linear-gradient(180deg, rgba(21, 16, 11, 0.5) 0%, rgba(21, 16, 11, 0.26) 16%, rgba(21, 16, 11, 0.04) 34%, transparent 46%),
+    radial-gradient(900px 520px at 14% 0%, rgba(234, 176, 84, 0.42), transparent 62%),
+    radial-gradient(760px 460px at 100% -5%, rgba(239, 116, 63, 0.24), transparent 58%),
     var(--color-paper-100);
   background-attachment: fixed;
   color: var(--color-night);

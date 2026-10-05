@@ -25,9 +25,11 @@
 .app .content{max-width:1440px;margin:auto;padding:29px 34px 60px}
 .app .welcome{display:flex;align-items:end;justify-content:space-between;margin-bottom:23px}
 .app .ac-eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:10px;font-weight:700;color:#8a6656}
-.app .welcome h1{font-family:var(--font-playfair),serif;font-size:38px;line-height:1.05;margin:7px 0 0;font-weight:600}
+.app .welcome h1{font-family:var(--font-playfair),serif;font-size:38px;line-height:1.05;margin:7px 0 0;font-weight:600;color:#fdf9f2}
 .app .welcome h1 em,.app .emph em{color:var(--orange);font-weight:500;font-style:italic}
+.app .welcome .ac-eyebrow{color:#f0dcb8}
 .app .date{font-size:12px;color:var(--muted)}
+.app .welcome .date{color:#d9c7a3}
 .app .home-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,.78fr);gap:24px}
 .app .hero{height:376px;border-radius:26px;overflow:hidden;position:relative;background:#384c43;box-shadow:var(--shadow)}
 .app .hero>img{width:100%;height:100%;object-fit:cover}
