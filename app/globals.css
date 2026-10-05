@@ -152,6 +152,42 @@ html {
   scroll-behavior: smooth;
 }
 
+/*
+ * Shared utilities for the plain-Tailwind pages (Collaborate, DNA, Wellbeing,
+ * Journal, Stories, Kindred, Shop, and the home/collab card components).
+ * These class names were referenced across those files but never defined,
+ * so every "card" rendered with no border, background or shadow at all.
+ */
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.card {
+  background-color: var(--color-paper-50);
+  border: 1px solid var(--color-line);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+.card-lift {
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+.card-lift:hover {
+  box-shadow: var(--shadow-lift);
+  transform: translateY(-2px);
+}
+
+/* A faint woven cross-hatch, nodding at Kuba cloth geometry, for section backdrops. */
+.pattern-kuba {
+  background-image:
+    repeating-linear-gradient(45deg, rgba(21, 16, 11, 0.035) 0 2px, transparent 2px 18px),
+    repeating-linear-gradient(-45deg, rgba(21, 16, 11, 0.035) 0 2px, transparent 2px 18px);
+}
+
 body {
   /* Plain and flat, like the reference's "A relationship with direction"
      section — no overlay, no glow. Individual panels carry colour now, not

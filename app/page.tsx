@@ -107,7 +107,7 @@ export default function Courtyard() {
               <Link href="/collaborate" className="launch-collab">Explore collaborations <span>↗</span></Link>
             </div>
             <div className="collab-strip">
-              <article className="project-card featured-project">
+              <Link href={`/collaborate/${collab.id}`} className="project-card featured-project">
                 <div className="project-visual">
                   <Pic name="collabArt" sizes="(max-width: 760px) 100vw, 300px" />
                   <span className="project-tag">Featured collaboration</span>
@@ -123,7 +123,7 @@ export default function Courtyard() {
                   <div className="progress-line"><i style={{ width: `${collab.progress}%` }} /></div>
                   <div className="progress-label"><span>Making</span><span>{collab.progress}% · {collab.next.toLowerCase()}</span></div>
                 </div>
-              </article>
+              </Link>
               <article className="open-call">
                 <div className="call-top"><span className="call-type">Curator open call</span><span className="deadline">{call.days} days left</span></div>
                 <h3>{call.title}</h3>
@@ -132,7 +132,7 @@ export default function Courtyard() {
                 <div className="curator-row">
                   <Avatar person={callBy} size={35} />
                   <div><b>{callBy.name}</b><small>Verified curator · {call.city}</small></div>
-                  <Link href="/collaborate#calls">View call</Link>
+                  <Link href={`/collaborate/calls/${call.id}`}>View call</Link>
                 </div>
               </article>
             </div>

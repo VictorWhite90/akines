@@ -24,7 +24,7 @@ export function StageTracker({ stage, progress, dark = false }: { stage: number;
 
 export function CollabCard({ c, className }: { c: Collab; className?: string }) {
   return (
-    <Link href="/collaborate" className={cn("card card-lift group block overflow-hidden", className)}>
+    <Link href={`/collaborate/${c.id}`} className={cn("card card-lift group block overflow-hidden", className)}>
       <Photo name={c.photo} ratio="16/9" sizes="(max-width: 768px) 100vw, 420px" className="transition-transform duration-500 [&_img]:group-hover:scale-105">
         <span className="absolute top-3 left-3 rounded-full bg-paper-50 px-3 py-1 text-[11px] font-bold tracking-wide text-ink-900 uppercase shadow-soft">Shared creation</span>
         <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-ink-950/70 px-3 py-1 text-xs font-medium text-paper-50 backdrop-blur"><span aria-hidden>⌖</span>{c.route}</span>
@@ -46,7 +46,7 @@ export function CollabCard({ c, className }: { c: Collab; className?: string }) 
 export function CallCard({ c, className }: { c: OpenCall; className?: string }) {
   const by = PEOPLE[c.by];
   return (
-    <Link href="/collaborate#calls" className={cn("card card-lift group flex flex-col overflow-hidden", className)}>
+    <Link href={`/collaborate/calls/${c.id}`} className={cn("card card-lift group flex flex-col overflow-hidden", className)}>
       <Photo name={c.photo} ratio="16/9" sizes="(max-width: 768px) 100vw, 420px" position="center 25%" className="[&_img]:transition-transform [&_img]:duration-500 [&_img]:group-hover:scale-105">
         <span className="absolute top-3 left-3 rounded-full bg-ochre-400 px-3 py-1 text-[11px] font-bold tracking-wide text-ink-950 uppercase">Curator open call</span>
         <span className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-ink-950/70 px-3 py-1 text-xs font-semibold text-paper-50 backdrop-blur"><span aria-hidden>◷</span>{c.days} days left</span>
