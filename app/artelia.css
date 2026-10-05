@@ -1,9 +1,5 @@
 :root{--ink:#15100b;--muted:#7a6a58;--paper:#f7f0e2;--cream:#fdf9f2;--forest:#17120d;--lime:#eab054;--orange:#ef743f;--line:#e6dccb;--white:#fff;--shadow:0 18px 55px rgba(23,18,13,.10)}
 .app{min-height:100vh;display:grid;grid-template-columns:238px 1fr}
-/* A soft, cream-coloured glow behind every heading: invisible on the light cards (shadow blends
-   into their own background) but keeps dark ink text legible wherever it lands directly on the
-   darker part of the page body (see body's background in app/globals.css). */
-.app h1,.app h2{text-shadow:0 1px 18px rgba(253,249,242,.65),0 1px 3px rgba(253,249,242,.5)}
 .app .ac-side{position:fixed;inset:0 auto 0 0;width:238px;background:var(--forest);color:#fff;padding:27px 18px;display:flex;flex-direction:column;z-index:10;overflow-y:auto}
 .app .brand{font-family:var(--font-playfair),serif;font-size:27px;letter-spacing:-.5px;padding:0 12px 28px;font-weight:600;color:#fff;text-decoration:none;display:block}
 .app .brand span{color:var(--lime);font-family:var(--font-dmsans),sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-left:5px;font-weight:400}
@@ -19,7 +15,7 @@
 .app .mini-profile .signout:hover{color:var(--lime)}
 .app .mini-profile small{display:block;color:#a9bab3;font-size:13px}
 .app .main{grid-column:2;min-width:0}
-.app .topbar{height:78px;background:linear-gradient(100deg,rgba(234,176,84,.22) 0%,rgba(253,249,242,.93) 38%,rgba(253,249,242,.93) 100%);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:24px;padding:0 34px;position:sticky;top:0;z-index:8}
+.app .topbar{height:78px;background:rgba(253,249,242,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:24px;padding:0 34px;position:sticky;top:0;z-index:8}
 .app .search{flex:1;max-width:470px;position:relative}
 .app .search input{width:100%;border:1px solid var(--line);background:var(--cream);border-radius:50px;padding:12px 45px 12px 17px;outline:none;font-size:16px}
 .app .search button{position:absolute;right:5px;top:5px;width:34px;height:34px;border:0;border-radius:50%;background:var(--ink);color:#fff}
@@ -29,11 +25,9 @@
 .app .content{max-width:1440px;margin:auto;padding:29px 34px 60px}
 .app .welcome{display:flex;align-items:end;justify-content:space-between;margin-bottom:23px}
 .app .ac-eyebrow{text-transform:uppercase;letter-spacing:2px;font-size:10px;font-weight:700;color:#8a6656}
-.app .welcome h1{font-family:var(--font-playfair),serif;font-size:38px;line-height:1.05;margin:7px 0 0;font-weight:600;color:#fdf9f2}
+.app .welcome h1{font-family:var(--font-playfair),serif;font-size:38px;line-height:1.05;margin:7px 0 0;font-weight:600}
 .app .welcome h1 em,.app .emph em{color:var(--orange);font-weight:500;font-style:italic}
-.app .welcome .ac-eyebrow{color:#f0dcb8}
 .app .date{font-size:12px;color:var(--muted)}
-.app .welcome .date{color:#d9c7a3}
 .app .home-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,.78fr);gap:24px}
 .app .hero{height:376px;border-radius:26px;overflow:hidden;position:relative;background:#384c43;box-shadow:var(--shadow)}
 .app .hero>img{width:100%;height:100%;object-fit:cover}
@@ -53,7 +47,7 @@
 .app .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
 .app .panel-head h3{font-size:15px;margin:0}
 .app .panel-head button,.app .panel-head a{border:0;background:none;color:var(--muted);font-size:12px;text-decoration:none}
-.app .match-card{background:#e7e0cf;border-radius:17px;padding:15px;display:flex;gap:13px;align-items:center}
+.app .match-card{background:#fff;border:1px solid var(--line);border-radius:17px;padding:15px;display:flex;gap:13px;align-items:center}
 .app .match-card .avatar-wrap{border:3px solid #fff;border-radius:50%;display:inline-flex}
 .app .match-card h4{margin:0 0 3px;font-size:14px}
 .app .match-card p{font-size:11px;color:var(--muted);margin:0;line-height:1.4}
@@ -82,13 +76,13 @@
 .app .story p{font-size:11px;color:var(--muted);margin:0 0 12px;line-height:1.45}
 .app .react{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
 .app .side-stack{display:grid;gap:18px;align-content:start}
-.app .mood{background:#ead9ce;border:0}
+.app .mood{background:#fff;border:1px solid var(--line)}
 .app .mood h3{font-family:var(--font-playfair),serif;font-size:21px;margin:0;font-weight:600}
-.app .mood p{font-size:12px;color:#665a54;line-height:1.5}
+.app .mood p{font-size:12px;color:var(--muted);line-height:1.5}
 .app .moods{display:flex;justify-content:space-between;margin:17px 0 12px}
-.app .mood-btn{width:42px;height:42px;border:1px solid rgba(65,58,52,.15);background:rgba(255,255,255,.35);border-radius:50%;font-size:19px;transition:.2s}
-.app .mood-btn:hover,.app .mood-btn.selected{background:var(--white);transform:scale(1.1);box-shadow:0 5px 16px rgba(70,55,45,.12)}
-.app .mood-reply{font-size:12px;line-height:1.5;color:#4d423c;background:rgba(255,255,255,.5);border-radius:12px;padding:10px 12px;margin:0 0 12px}
+.app .mood-btn{width:42px;height:42px;border:1px solid var(--line);background:var(--paper);border-radius:50%;font-size:19px;transition:.2s}
+.app .mood-btn:hover,.app .mood-btn.selected{background:var(--white);border-color:var(--orange);transform:scale(1.1);box-shadow:0 5px 16px rgba(23,18,13,.1)}
+.app .mood-reply{font-size:12px;line-height:1.5;color:var(--ink);background:var(--paper);border-radius:12px;padding:10px 12px;margin:0 0 12px}
 .app .private-note{font-size:9px;color:#8a766d;display:flex;gap:5px}
 .app .circle-list{display:grid;gap:13px}
 .app .circle{display:flex;gap:12px;align-items:center;color:inherit;text-decoration:none}
@@ -96,12 +90,12 @@
 .app .circle h4{margin:0 0 3px;font-size:13px}
 .app .circle small{color:var(--muted);font-size:10px}
 .app .circle .open{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 10px;font-size:10px}
-.app .insight{background:var(--forest);color:#fff;border:0;overflow:hidden;position:relative}
-.app .insight:after{content:'✦';position:absolute;right:-8px;bottom:-30px;font-size:110px;color:rgba(234,176,84,.09)}
-.app .insight .ac-eyebrow{color:var(--lime)}
+.app .insight{background:#fff;color:var(--ink);border:1px solid var(--line);overflow:hidden;position:relative}
+.app .insight:after{content:'✦';position:absolute;right:-8px;bottom:-30px;font-size:110px;color:rgba(234,176,84,.14)}
+.app .insight .ac-eyebrow{color:var(--orange)}
 .app .insight h3{font-family:var(--font-playfair),serif;font-size:21px;line-height:1.2;margin:10px 0;font-weight:600}
-.app .insight p{color:#c9d4d0;font-size:11px;line-height:1.5}
-.app .insight a{border:0;background:var(--lime);border-radius:30px;padding:9px 13px;font-size:10px;font-weight:700;color:var(--ink);display:inline-block;text-decoration:none;position:relative;z-index:1}
+.app .insight p{color:var(--muted);font-size:11px;line-height:1.5}
+.app .insight a{border:0;background:var(--ink);border-radius:30px;padding:9px 13px;font-size:10px;font-weight:700;color:#fff;display:inline-block;text-decoration:none;position:relative;z-index:1}
 .app .modal{position:fixed;inset:0;background:rgba(21,16,11,.66);backdrop-filter:blur(8px);z-index:70;display:none;place-items:center;padding:20px}
 .app .modal.open{display:grid}
 .app .modal-card{width:min(560px,100%);max-height:calc(100vh - 40px);overflow:auto;background:var(--cream);border-radius:24px;padding:25px;box-shadow:0 30px 90px rgba(0,0,0,.3);position:relative}
@@ -117,7 +111,7 @@
 .app .intent-answer a{background:var(--lime);color:var(--ink);border-radius:30px;padding:9px 14px;font-size:12px;font-weight:700;text-decoration:none;display:inline-block}
 .app .modal .primary{width:100%}
 .app .mobile-nav{display:none}
-.app .collab-hub{margin-top:25px;background:#e7dfcf;border-radius:24px;padding:24px;border:1px solid #d8d0c0}
+.app .collab-hub{margin-top:25px;background:#fff;border-radius:24px;padding:24px;border:1px solid var(--line)}
 .app .collab-intro{display:flex;justify-content:space-between;align-items:end;gap:24px}
 .app .collab-intro h2{font-family:var(--font-playfair),serif;font-size:27px;line-height:1.1;margin:7px 0;font-weight:600}
 .app .collab-intro h2 em{color:#ad5633;font-style:italic;font-weight:500}
