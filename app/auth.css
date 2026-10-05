@@ -49,7 +49,7 @@
 .auth-label{margin:20px 0 9px}
 .auth-label small,.auth-field label small{font-weight:400;color:var(--muted)}
 .auth-input{display:flex;background:#fbf9f4;border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.auth-input:focus-within{border-color:var(--forest);box-shadow:0 0 0 3px rgba(23,60,50,.12)}
+.auth-input:focus-within{border-color:var(--forest);box-shadow:0 0 0 3px rgba(60,45,23,.12)}
 .auth-input.bad{border-color:var(--orange)}
 .auth-input input{flex:1;min-width:0;border:0;outline:0;background:none;padding:12px 15px;font:inherit;font-size:15px;color:var(--ink)}
 .auth-input button{border:0;background:none;padding:0 15px;font-size:12px;font-weight:700;color:var(--muted)}

@@ -56,7 +56,7 @@
 .app .act-seg{display:inline-flex;background:#ebe6da;border-radius:30px;padding:3px}
 .app .act-seg button{border:0;background:none;border-radius:30px;padding:6px 14px;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
 .app .act-seg button:hover{color:var(--ink)}
-.app .act-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(23,60,50,.14)}
+.app .act-seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(60,45,23,.14)}
 .app .act-select{position:relative;display:inline-flex}
 .app .act-select:after{content:'';position:absolute;right:14px;top:50%;width:6px;height:6px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
 .app .act-select select{appearance:none;border:1px solid var(--line);background:#fff;border-radius:30px;padding:8px 36px 8px 14px;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;outline:0}
@@ -65,12 +65,12 @@
 /* event cards */
 .app .act-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
 .app .act-card{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .15s,transform .15s}
-.app .act-card:hover{box-shadow:0 10px 28px rgba(23,60,50,.1);transform:translateY(-2px)}
+.app .act-card:hover{box-shadow:0 10px 28px rgba(60,45,23,.1);transform:translateY(-2px)}
 .app .act-card .ph{position:relative;display:block;aspect-ratio:2/1}
 .app .act-card .date{position:absolute;left:10px;bottom:10px;display:grid;justify-items:center;background:#fff;border-radius:10px;padding:5px 9px;font-size:11px;font-weight:600;color:var(--muted);line-height:1.2;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .app .act-card .date b{font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--orange)}
-.app .act-card .mode{position:absolute;top:10px;right:10px;background:rgba(15,42,35,.72);backdrop-filter:blur(6px);color:#fff;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.3px}
-.app .act-card .mode.virtual{background:rgba(216,235,110,.95);color:var(--forest)}
+.app .act-card .mode{position:absolute;top:10px;right:10px;background:rgba(35,24,14,.72);backdrop-filter:blur(6px);color:#fff;border-radius:20px;padding:3px 9px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.app .act-card .mode.virtual{background:rgba(234,176,84,.95);color:var(--forest)}
 .app .act-card .bd{padding:12px 14px 14px;display:flex;flex-direction:column;gap:5px;flex:1}
 .app .act-card h3{margin:0;font-family:var(--font-playfair),serif;font-size:16px;line-height:1.25;font-weight:600}
 .app .act-card .ft{margin-top:auto;padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px}

@@ -55,7 +55,7 @@ export default function StudiosBoard() {
           <div className="relative min-h-[260px] bg-paper-200">
             <Photo name={next.photo} sizes="(max-width: 768px) 100vw, 520px" className="absolute inset-0 h-full" position="center 40%" />
             <Link href={`/studios/${next.id}`} aria-label={`Visit ${nextArtist.name}'s studio`} className="absolute inset-0 z-[1]" />
-            <span className="pointer-events-none absolute top-4 left-4 z-[2] flex items-center gap-2 rounded-full bg-night/80 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur"><span className="live-dot" style={{ width: 7, height: 7, background: "#d9ed6c", borderRadius: "50%", boxShadow: "0 0 0 4px rgba(217,237,108,.2)" }} />Live · {next.when}</span>
+            <span className="pointer-events-none absolute top-4 left-4 z-[2] flex items-center gap-2 rounded-full bg-night/80 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur"><span className="live-dot" style={{ width: 7, height: 7, background: "#eab054", borderRadius: "50%", boxShadow: "0 0 0 4px rgba(234,176,84,.2)" }} />Live · {next.when}</span>
           </div>
           <div className="flex flex-col p-6 md:p-8">
             <p className="ac-eyebrow">Next live visit</p>

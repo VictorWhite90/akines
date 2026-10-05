@@ -28,7 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app">
       <Sidebar open={menu} onNavigate={() => setMenu(false)} />
-      {menu && <div style={{ position: "fixed", inset: 0, background: "rgba(12,23,19,.5)", zIndex: 80 }} onClick={() => setMenu(false)} aria-hidden />}
+      {menu && <div style={{ position: "fixed", inset: 0, background: "rgba(21,16,11,.5)", zIndex: 80 }} onClick={() => setMenu(false)} aria-hidden />}
       <main className="main">
         <Topbar onIntent={() => setIntent(true)} onCompanion={() => setCompanion(true)} />
         <div className="content" id="main">{children}</div>

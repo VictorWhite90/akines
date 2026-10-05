@@ -43,7 +43,7 @@ export default function Rooms() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#0f1c17]/85 via-[#12261f]/35 to-transparent" />
         <div className="relative grid items-center gap-8 p-7 md:p-10 lg:grid-cols-[minmax(0,1fr)_auto]">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-[11px] backdrop-blur"><span className="h-[7px] w-[7px] rounded-full bg-[#d9ed6c] shadow-[0_0_0_5px_rgba(217,237,108,.17)]" />{featured.status === "live" ? "Live now" : featured.when} · {featured.tag}</span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-[11px] backdrop-blur"><span className="h-[7px] w-[7px] rounded-full bg-[#eab054] shadow-[0_0_0_5px_rgba(234,176,84,.17)]" />{featured.status === "live" ? "Live now" : featured.when} · {featured.tag}</span>
             <h2 className="font-display mt-4 max-w-xl text-[34px] leading-[1.05] md:text-[42px]">{featured.title}</h2>
             <p className="mt-3 flex items-center gap-2.5 text-[13px] text-paper-100/90"><Avatar person={fHost} size={30} />Hosted by <b className="font-semibold text-paper-50">{fHost.name}</b> · {fHost.role}, {fHost.city}</p>
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-[#d9e1dd]">{featured.blurb}</p>
