@@ -153,16 +153,18 @@ html {
 }
 
 body {
-  /* Dusk, everywhere: a dark warm band across the top of the viewport with
-     the gold "sun" glowing through it, fading into the paper tone below it.
-     Fixed so that band stays put on screen as you scroll — every section
-     passes under the same light, not just the very top of the page. */
+  /* Dusk, everywhere: darkest right at the top, settling into a constant
+     dark-warm wash for the rest of the page — it never fades back out to
+     plain paper, no matter how long the page is. Pixel stops (not percent)
+     tied to the page itself (default 'scroll' attachment, not 'fixed') so
+     this doesn't depend on fixed-attachment repainting correctly during a
+     real scroll, which Chrome can get wrong on a page with sticky/backdrop-
+     filter elements like ours. */
   background:
-    linear-gradient(180deg, rgba(21, 16, 11, 0.78) 0%, rgba(21, 16, 11, 0.5) 20%, rgba(21, 16, 11, 0.16) 40%, transparent 56%),
-    radial-gradient(900px 520px at 14% 0%, rgba(234, 176, 84, 0.46), transparent 62%),
-    radial-gradient(760px 460px at 100% -5%, rgba(239, 116, 63, 0.26), transparent 58%),
+    linear-gradient(180deg, rgba(21, 16, 11, 0.78) 0px, rgba(21, 16, 11, 0.46) 220px, rgba(21, 16, 11, 0.34) 520px, rgba(21, 16, 11, 0.32) 30000px),
+    radial-gradient(900px 520px at 14% 0px, rgba(234, 176, 84, 0.46), transparent 62%),
+    radial-gradient(760px 460px at 100% -40px, rgba(239, 116, 63, 0.26), transparent 58%),
     var(--color-paper-100);
-  background-attachment: fixed;
   color: var(--color-night);
   font-family: var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
 }
