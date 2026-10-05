@@ -6,8 +6,8 @@
 .auth-side .bg{position:absolute;inset:0}
 .auth-side .bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(21,16,11,.82) 0%,rgba(21,16,11,.35) 38%,rgba(21,16,11,.9) 100%)}
 .auth-side>*:not(.bg){position:relative;z-index:1}
-.auth-brand{font-family:var(--font-playfair),serif;font-size:32px;font-weight:600;color:#fff;text-decoration:none;letter-spacing:-.5px}
-.auth-brand span{color:var(--lime);font-family:var(--font-dmsans),sans-serif;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;margin-left:5px;font-weight:400}
+.auth-brand{display:block;text-decoration:none}
+.auth-brand img{display:block;height:38px;width:auto}
 .auth-quote{margin-top:0}
 .auth-collage{flex:1;min-height:200px;margin:30px 0;display:grid;grid-template-columns:1.15fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:12px}
 .auth-collage .t{position:relative;border-radius:22px;overflow:hidden;box-shadow:0 12px 30px rgba(0,0,0,.28)}
@@ -101,7 +101,8 @@
   .auth{display:block}
   .auth-side{display:none}
   .auth-main{padding:20px 18px 40px}
-  .auth-top .mbrand{display:block;font-family:var(--font-playfair),serif;font-size:22px;font-weight:600;color:var(--ink);border:0}
+  .auth-top .mbrand{display:flex;align-items:center;background:var(--ink);padding:7px 12px;border-radius:10px;border:0}
+  .auth-top .mbrand img{display:block;height:20px;width:auto}
   .auth-top{margin-bottom:0}
   .auth-card h1{font-size:30px}
   .intent-tiles{grid-template-columns:1fr 1fr}

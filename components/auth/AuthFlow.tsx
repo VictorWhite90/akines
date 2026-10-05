@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import Pic from "@/components/home/Pic";
@@ -80,7 +81,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
     <div className="auth">
       <aside className="auth-side">
         <div className="bg pattern-adire" aria-hidden />
-        <Link href="/" className="auth-brand">Akines</Link>
+        <Link href="/" className="auth-brand"><Image src="/akines_logo_transparent.png" alt="Akines" width={168} height={45} priority /></Link>
         <div className="auth-collage" aria-hidden>
           <div className="t a"><Pic name="heroStudio" sizes="30vw" position="50% 30%" priority /></div>
           <div className="t b"><Pic name="redPatterned" sizes="20vw" position="50% 15%" priority /></div>
@@ -102,7 +103,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
 
       <section className="auth-main">
         <div className="auth-top">
-          <Link href="/" className="mbrand">Akines</Link>
+          <Link href="/" className="mbrand"><Image src="/akines_logo_transparent.png" alt="Akines" width={168} height={45} /></Link>
           {mode === "signup" ? (
             <span>Already a member? <Link href="/login">Sign in</Link></span>
           ) : (

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -66,8 +67,10 @@ export default function CreateKinCircle() {
 
   return (
     <div className="flex min-h-screen flex-col bg-paper-100">
-      <div className="flex flex-col px-6 py-5 sm:px-10">
-        <Link href="/" className="font-display text-[20px] text-ink-950">Akines</Link>
+      <div className="flex flex-col items-start px-6 py-5 sm:px-10">
+        <Link href="/" className="inline-flex items-center rounded-lg bg-ink-950 px-3 py-2">
+          <Image src="/akines_logo_transparent.png" alt="Akines" width={168} height={45} className="h-5 w-auto" priority />
+        </Link>
         <Link href="/circles" className="mt-1 text-[13px] text-mute hover:text-ink-950">Exit</Link>
       </div>
 

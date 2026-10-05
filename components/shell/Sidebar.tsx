@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Avatar from "@/components/ui/Avatar";
@@ -9,7 +10,7 @@ import { NAV_GROUPS, isActive } from "./nav";
 export function Wordmark() {
   return (
     <Link href="/" className="brand" aria-label="Akines home">
-      Akines
+      <Image src="/akines_logo_transparent.png" alt="Akines" width={168} height={45} priority />
     </Link>
   );
 }

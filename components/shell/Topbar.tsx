@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { allPeople } from "@/lib/data/people";
@@ -50,6 +51,9 @@ export default function Topbar({ onIntent, onCompanion }: { onIntent: () => void
 
   return (
     <header className="topbar">
+      <Link href="/" className="topbar-brand" aria-label="Akines home">
+        <Image src="/akines_logo_transparent.png" alt="Akines" width={168} height={45} />
+      </Link>
       <div className="search" ref={box}>
         <input aria-label="Search Akines" placeholder="Search artists, stories, circles…" value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setFocus(true)} />
         <button aria-label="Search">⌕</button>
