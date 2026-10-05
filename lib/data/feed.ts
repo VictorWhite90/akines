@@ -2,7 +2,7 @@ import type { PhotoKey } from "./images";
 import type { PersonId } from "./people";
 
 /**
- * Kinnect's Home feed, section 8–9 of the brief: typed posts (not one generic "post"),
+ * Akines's Home feed, section 8–9 of the brief: typed posts (not one generic "post"),
  * and reactions that are a gateway to human interaction rather than a popularity count.
  */
 export type PostType = "share" | "ask" | "discuss" | "invite" | "help" | "collaborate";

@@ -6,7 +6,7 @@ import Spectrum from "@/components/ui/Spectrum";
 import { AiTag } from "@/components/ui/Chip";
 import { CAPTIONS, COLLECTOR_TYPES, DNA_SUMMARY, DNA_TITLE, RADAR, SPECTRA } from "@/lib/data/dna";
 
-export const metadata: Metadata = { title: "Creative DNA · Kinnect" };
+export const metadata: Metadata = { title: "Creative DNA · Akines" };
 
 export default function Dna() {
   return (

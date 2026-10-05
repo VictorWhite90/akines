@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import JournalBoard from "@/components/home/JournalBoard";
 import PageHeader from "@/components/ui/PageHeader";
 
-export const metadata: Metadata = { title: "Journals · Kinnect" };
+export const metadata: Metadata = { title: "Journals · Akines" };
 
 export default async function Journal({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { tab } = await searchParams;

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { OwnStudioPreview } from "@/components/studio/PublicStudio";
 
-export const metadata: Metadata = { title: "My studio, as a visitor · Kinnect" };
+export const metadata: Metadata = { title: "My studio, as a visitor · Akines" };
 
 /** Your own studio, the way visitors see it. `?demo=1` uses seeded sample data. */
 export default async function OwnStudio({ searchParams }: { searchParams: Promise<{ demo?: string }> }) {

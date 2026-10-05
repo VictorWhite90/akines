@@ -16,7 +16,7 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dmsans", weight: ["400", "500", "600", "700"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Kinnect: the home of African creativity",
+  title: "Akines: the home of African creativity",
   description: "A living, trusted community where artists, collectors, curators and the African diaspora form lasting relationships through art.",
 };
 

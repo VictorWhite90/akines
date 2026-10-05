@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import StudioApp from "@/components/studio/StudioApp";
 
-export const metadata: Metadata = { title: "My studio · Kinnect" };
+export const metadata: Metadata = { title: "My studio · Akines" };
 
 /**
  * `?demo=1` shows a seeded studio without touching storage; `?demo=live` opens the live view;

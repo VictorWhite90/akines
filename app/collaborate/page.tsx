@@ -7,7 +7,7 @@ import Photo from "@/components/ui/Photo";
 import { CALLS, COLLABS } from "@/lib/data/community";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 
-export const metadata: Metadata = { title: "Collaborate · Kinnect" };
+export const metadata: Metadata = { title: "Collaborate · Akines" };
 
 const PAIRS: { a: PersonId; b: PersonId; why: string; route: string }[] = [
   { a: "ayo", b: "wanjiru", why: "Cloth and photography both hold memory. Ayo's dye work has no image record yet; Wanjiru's archive has no cloth.", route: "Nigeria × Kenya" },

@@ -36,7 +36,7 @@ export default function ThreadView({ id }: { id: PersonId }) {
       <div className="msg-gate">
         <Avatar person={p} size={56} />
         <h2>You haven&apos;t connected with {first(id)} yet</h2>
-        <p>Kinnect keeps messaging for people you&apos;ve chosen to acknowledge. Say hello, and a conversation opens here.</p>
+        <p>Akines keeps messaging for people you&apos;ve chosen to acknowledge. Say hello, and a conversation opens here.</p>
         <button type="button" className="go" onClick={() => add(id)}>Say hello to {first(id)} →</button>
       </div>
     );

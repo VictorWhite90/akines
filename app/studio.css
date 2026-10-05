@@ -1,5 +1,5 @@
 /* My studio: the member's own studio, public studio pages and the "Open your studio" wizard. */
-.app .sd{--sd-wall:#173c32;--sd-deep:#0f2a23;--sd-on:#fff;--sd-on-soft:#b9c8c2;--sd-accent:#d8eb6e;--sd-accent-on:#18231f;--sd-mark:#173c32;--sd-tint:#e3ede6;color:var(--ink)}
+.app .sd{--sd-wall:#17120d;--sd-deep:#0d0906;--sd-on:#fff;--sd-on-soft:#c7bbac;--sd-accent:#eab054;--sd-accent-on:#15100b;--sd-mark:#17120d;--sd-tint:#ede6d8;color:var(--ink)}
 .app .sd button,.app .sd input,.app .sd textarea{font-family:inherit}
 .app .sd button{cursor:pointer}
 .app .sd h1,.app .sd h2,.app .sd h3,.app .sd h4{margin:0}
@@ -14,7 +14,7 @@
 .app .sd-btn.ghost{background:color-mix(in srgb,var(--sd-on) 14%,transparent);color:var(--sd-on);border-color:color-mix(in srgb,var(--sd-on) 30%,transparent)}
 .app .sd-btn.ghost:hover{background:color-mix(in srgb,var(--sd-on) 24%,transparent)}
 .app .sd-btn.quiet{background:transparent;border-color:transparent;color:var(--muted);padding-left:10px;padding-right:10px}
-.app .sd-btn.quiet:hover{color:var(--ink);background:rgba(24,35,31,.05)}
+.app .sd-btn.quiet:hover{color:var(--ink);background:rgba(21,16,11,.05)}
 .app .sd-btn.done{background:#eef1db;color:#415232;border-color:#d6dfae}
 .app .sd-btn.small{padding:8px 14px;font-size:12.5px}
 .app .sd-btn.big{padding:14px 26px;font-size:15px}
@@ -23,7 +23,7 @@
 .app .sd-link{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--ink);text-decoration:none;border-bottom:1.5px solid var(--orange);padding-bottom:1px;margin-top:8px}
 .app .sd-link:hover{color:var(--orange)}
 .app .sd-x{border:0;background:transparent;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
-.app .sd-x:hover{background:rgba(24,35,31,.07);color:var(--ink)}
+.app .sd-x:hover{background:rgba(21,16,11,.07);color:var(--ink)}
 
 /* ---- studio hero (home + public) ---- */
 .app .sd-hero{border-radius:22px;overflow:hidden;background:var(--sd-wall);color:var(--sd-on);box-shadow:var(--shadow)}
@@ -140,7 +140,7 @@
 .app .sd-visits .rsvp{display:flex;align-items:center;gap:9px;font-size:11.5px;color:var(--muted)}
 .app .sd-visits .rsvp b{color:var(--ink)}
 .app .mode{display:inline-flex;gap:5px;align-items:center;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:#fbe3d6;color:#8f3813;white-space:nowrap}
-.app .mode.virtual{background:#e3ede6;color:#173c32}
+.app .mode.virtual{background:#e3ede6;color:#17120d}
 .app .mode.m360{background:#e9f3ab;color:#3d4a0c}
 .app .mode.past{background:#ebe6dc;color:var(--muted)}
 .app .sd-people{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
@@ -176,7 +176,7 @@
 .app .sd-picker .tick{position:absolute;right:5px;top:5px;width:20px;height:20px;border-radius:50%;background:var(--orange);color:#fff;font-size:11px;display:grid;place-items:center;z-index:1}
 .app .sd-swatches{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
 .app .sd-swatches button{border:1.5px solid var(--line);background:#fff;border-radius:14px;padding:7px 7px 9px;text-align:left;display:grid;gap:2px}
-.app .sd-swatches button i{display:block;height:36px;border-radius:9px;margin-bottom:5px;border:1px solid rgba(24,35,31,.1)}
+.app .sd-swatches button i{display:block;height:36px;border-radius:9px;margin-bottom:5px;border:1px solid rgba(21,16,11,.1)}
 .app .sd-swatches b{font-size:12px}
 .app .sd-swatches small{font-size:10.5px;color:var(--muted);line-height:1.25}
 .app .sd-swatches button.on{border-color:var(--orange);background:#fff6f0}
@@ -276,7 +276,7 @@
 .app .sd-live .big .shade{position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(6,14,10,.6))}
 .app .sd-live .nm{position:absolute;left:14px;bottom:14px;display:inline-flex;gap:8px;align-items:center;background:rgba(10,20,16,.6);backdrop-filter:blur(6px);border-radius:24px;padding:5px 12px 5px 5px;font-size:12.5px;font-weight:600}
 .app .sd-live .now{position:absolute;right:14px;bottom:14px;background:rgba(251,249,244,.92);color:var(--ink);border-radius:24px;padding:6px 13px;font-size:12px;font-weight:600}
-.app .sd-live .camoff{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#2a5346,#173c32);display:grid;place-content:center;justify-items:center;gap:8px;font-size:12px;color:#c9d4d0}
+.app .sd-live .camoff{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#2a5346,#17120d);display:grid;place-content:center;justify-items:center;gap:8px;font-size:12px;color:#c9d4d0}
 .app .sd-live .guests{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
 .app .sd-live .g{display:flex;align-items:center;gap:8px;background:#122a22;border:2px solid transparent;border-radius:14px;padding:8px 10px;font-size:12px;font-weight:600;min-width:0}
 .app .sd-live .g span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -294,7 +294,7 @@
 .app .sd-live .msgs{flex:1;overflow-y:auto;padding:14px 14px 8px;display:flex;flex-direction:column;gap:9px;background-color:#f1ede2}
 .app .sd-live .row{display:flex;gap:8px;align-items:flex-end;max-width:92%}
 .app .sd-live .row.mine{align-self:flex-end;flex-direction:row-reverse}
-.app .sd-live .bub{background:#fff;border-radius:14px 14px 14px 4px;padding:7px 11px 5px;box-shadow:0 1px 1px rgba(22,43,35,.08)}
+.app .sd-live .bub{background:#fff;border-radius:14px 14px 14px 4px;padding:7px 11px 5px;box-shadow:0 1px 1px rgba(23,18,13,.08)}
 .app .sd-live .row.mine .bub{background:#e6f0b4;border-radius:14px 14px 4px 14px}
 .app .sd-live .bub b{font-size:11.5px;color:var(--forest);display:block}
 .app .sd-live .bub p{font-size:13.5px;line-height:1.4;color:var(--ink)}

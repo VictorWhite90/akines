@@ -74,7 +74,7 @@ export function MoodCheckin() {
   return (
     <section className="panel mood">
       <h3>How is your creative self today?</h3>
-      <p>A small check-in helps Kinnect support—not judge—you.</p>
+      <p>A small check-in helps Akines support—not judge—you.</p>
       <div className="moods" role="radiogroup" aria-label="Today's mood">
         {MOOD_GLYPHS.map((m) => (
           <button key={m.id} role="radio" aria-checked={picked === m.id} aria-label={MOODS.find((x) => x.id === m.id)?.word} className={`mood-btn${picked === m.id ? " selected" : ""}`} onClick={() => setPicked(m.id)}>{m.glyph}</button>

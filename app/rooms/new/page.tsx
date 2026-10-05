@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import CreateRoom from "@/components/rooms/CreateRoom";
 
-export const metadata: Metadata = { title: "Create a room · Kinnect" };
+export const metadata: Metadata = { title: "Create a room · Akines" };
 
 export default async function NewRoomPage({ searchParams }: { searchParams: Promise<{ circle?: string }> }) {
   const { circle } = await searchParams;

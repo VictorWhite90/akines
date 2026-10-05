@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 /*
- * Kinnect design tokens.
+ * Akines design tokens.
  *
  * Brand colour scales are copied from the Artelia buyer site's palette as a
- * starting point. Kinnect adds a warm "sand" paper for its calmer,
+ * starting point. Akines adds a warm "sand" paper for its calmer,
  * community-first surfaces, and three trust tones that keep verified facts,
  * self-declared information and AI suggestions visibly distinct everywhere.
  */
@@ -12,33 +12,33 @@
   --font-display: var(--font-playfair), "Iowan Old Style", Georgia, serif;
   --font-sans: var(--font-dmsans), ui-sans-serif, system-ui, sans-serif;
 
-  /* Deep forest green: sidebar, dark cards, and its tints for text on dark. */
-  --color-ink-50: #eef3f0;
-  --color-ink-100: #dbe5e0;
-  --color-ink-200: #b9c8c2;
-  --color-ink-300: #8fa39b;
-  --color-ink-400: #68736e;
-  --color-ink-500: #4a6158;
-  --color-ink-600: #315047;
-  --color-ink-700: #24463b;
-  --color-ink-800: #1c4036;
-  --color-ink-900: #173c32;
-  --color-ink-950: #0f2a23;
-  /* Near-black green for primary buttons and headings. */
-  --color-night: #18231f;
+  /* Warm near-black: sidebar, dark cards, and its tints for text on dark. */
+  --color-ink-50: #f2efec;
+  --color-ink-100: #e3dcd4;
+  --color-ink-200: #c7bbac;
+  --color-ink-300: #a3917d;
+  --color-ink-400: #7a6a58;
+  --color-ink-500: #5c4d3f;
+  --color-ink-600: #423628;
+  --color-ink-700: #2e251a;
+  --color-ink-800: #201810;
+  --color-ink-900: #17120d;
+  --color-ink-950: #0d0906;
+  /* Near-black for primary buttons and headings. */
+  --color-night: #15100b;
 
-  --color-paper-50: #fbf9f3;
-  --color-paper-100: #f5f1e8;
-  --color-paper-200: #e7e0cf;
-  --color-paper-300: #d8cfb9;
-  --color-paper-400: #c2b596;
+  --color-paper-50: #fdf9f2;
+  --color-paper-100: #f7f0e2;
+  --color-paper-200: #ebe0c9;
+  --color-paper-300: #ddcca8;
+  --color-paper-400: #c9b384;
 
-  /* Lime: the bright accent on buttons and dark surfaces. (Kept under the old "ochre" name.) */
-  --color-ochre-200: #e9f3ab;
-  --color-ochre-300: #d9eb6d;
-  --color-ochre-400: #d9eb6d;
-  --color-ochre-500: #b9cd45;
-  --color-ochre-600: #6f8012;
+  /* Gold: the sun-warm accent on buttons and dark surfaces. (Kept under the old "ochre" name.) */
+  --color-ochre-200: #f3e0ab;
+  --color-ochre-300: #eab054;
+  --color-ochre-400: #eab054;
+  --color-ochre-500: #cd8f2e;
+  --color-ochre-600: #8a5f17;
 
   /* Orange: italic accents, badges and progress. */
   --color-clay-100: #fbe3d6;
@@ -56,11 +56,11 @@
 
   --color-rose-300: #e2a2b0;
   --color-cocoa: #896656;
-  --color-mute: #68736e;
-  --color-line: #e3ddcc;
+  --color-mute: #7a6a58;
+  --color-line: #e6dccb;
 
-  --shadow-soft: 0 1px 2px rgb(24 35 31 / 0.05);
-  --shadow-lift: 0 2px 4px rgb(24 35 31 / 0.05), 0 18px 40px -18px rgb(24 35 31 / 0.3);
+  --shadow-soft: 0 1px 2px rgb(21 16 11 / 0.05);
+  --shadow-lift: 0 2px 4px rgb(21 16 11 / 0.05), 0 18px 40px -18px rgb(21 16 11 / 0.3);
 
   --animate-breathe: breathe 8s ease-in-out infinite;
   --animate-rise: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;

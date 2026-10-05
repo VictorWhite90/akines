@@ -9,7 +9,7 @@ import RoomCard from "@/components/rooms/RoomCard";
 import { ROOMS } from "@/lib/data/community";
 import { PEOPLE } from "@/lib/data/people";
 
-export const metadata: Metadata = { title: "Presence Rooms · Kinnect" };
+export const metadata: Metadata = { title: "Presence Rooms · Akines" };
 
 const RULES = [
   ["Six seats", "Never more. Everyone is heard."],

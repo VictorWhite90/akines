@@ -80,7 +80,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
     <div className="auth">
       <aside className="auth-side">
         <div className="bg pattern-adire" aria-hidden />
-        <Link href="/" className="auth-brand">Kinnect</Link>
+        <Link href="/" className="auth-brand">Akines</Link>
         <div className="auth-collage" aria-hidden>
           <div className="t a"><Pic name="heroStudio" sizes="30vw" position="50% 30%" priority /></div>
           <div className="t b"><Pic name="redPatterned" sizes="20vw" position="50% 15%" priority /></div>
@@ -88,25 +88,25 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
           <div className="t d"><Pic name="yellowPrint" sizes="20vw" position="50% 30%" priority /></div>
         </div>
         <div className="auth-quote">
-          <div className="auth-kicker">kinnect.art</div>
+          <div className="auth-kicker">akines.art</div>
           <h2>Where African creativity <em>finds its people.</em></h2>
-          <p>Kinnect is where artists, collectors and curators meet through the work they make, keep and love.</p>
+          <p>Akines is where artists, collectors and curators meet through the work they make, keep and love.</p>
           <div className="auth-points">
             <div><b>◇</b>Introductions that come with a reason, not a wall of profiles.</div>
             <div><b>◎</b>Circles, studio visits and collaborations in one place.</div>
             <div><b>♡</b>Kind by design: no follower counts, and AI that never diagnoses.</div>
           </div>
-          <small className="auth-copy">© 2026 Kinnect. Original African art.</small>
+          <small className="auth-copy">© 2026 Akines. Original African art.</small>
         </div>
       </aside>
 
       <section className="auth-main">
         <div className="auth-top">
-          <Link href="/" className="mbrand">Kinnect</Link>
+          <Link href="/" className="mbrand">Akines</Link>
           {mode === "signup" ? (
             <span>Already a member? <Link href="/login">Sign in</Link></span>
           ) : (
-            <span>New to Kinnect? <Link href="/signup">Create an account</Link></span>
+            <span>New to Akines? <Link href="/signup">Create an account</Link></span>
           )}
         </div>
 
@@ -121,7 +121,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
               <h1>{mode === "signup" ? <>Take a seat. <em>Stay awhile.</em></> : <>Good to see <em>you again.</em></>}</h1>
               <p className="auth-lead">
                 {mode === "signup"
-                  ? "Create your Kinnect account. It takes a minute, and the next questions are what make the place feel like yours."
+                  ? "Create your Akines account. It takes a minute, and the next questions are what make the place feel like yours."
                   : "Sign in to pick up where you left off."}
               </p>
 

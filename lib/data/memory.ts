@@ -1,7 +1,7 @@
 import type { PersonId } from "./people";
 
 /**
- * Relationship Memory (brief §14): quiet context Kinnect remembers about how a relationship
+ * Relationship Memory (brief §14): quiet context Akines remembers about how a relationship
  * started, so reconnecting has a hook. Shown only to the member, about their own Kinnections.
  */
 export type Memory = { metVia: string; since: string };

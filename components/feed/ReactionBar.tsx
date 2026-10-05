@@ -5,7 +5,7 @@ import { REACTIONS, type Post, type ReactionKey } from "@/lib/data/feed";
 import { usePosts } from "./usePosts";
 
 /**
- * Kinnect's reactions, section 9 of the brief: a gateway to human interaction, not a popularity count.
+ * Akines's reactions, section 9 of the brief: a gateway to human interaction, not a popularity count.
  * Shows the top two or three reactions with their counts, and a picker for the rest.
  */
 export default function ReactionBar({ post }: { post: Post }) {

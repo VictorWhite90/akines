@@ -1,5 +1,5 @@
 /**
- * Stock photography (Unsplash) standing in for real Kinnect content.
+ * Stock photography (Unsplash) standing in for real Akines content.
  * Every photo here was checked by eye; keys say what the picture shows so
  * pages can pick by subject. People are fictional and the portraits are
  * models, not the artists named beside them.

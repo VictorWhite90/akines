@@ -1,6 +1,6 @@
-/* Kinnect's typed posts, reactions and composer — feed cards inspired by X/Facebook: soft
+/* Akines's typed posts, reactions and composer — feed cards inspired by X/Facebook: soft
    shadow instead of hard borders, no loud chrome, content does the talking. */
-.app .kn-composer{background:#fff;border-radius:16px;padding:10px 14px;display:grid;gap:8px;box-shadow:0 1px 2px rgba(24,35,31,.05),0 1px 8px rgba(24,35,31,.04)}
+.app .kn-composer{background:#fff;border-radius:16px;padding:10px 14px;display:grid;gap:8px;box-shadow:0 1px 2px rgba(21,16,11,.05),0 1px 8px rgba(21,16,11,.04)}
 .app .kn-composer .types{display:flex;gap:2px;flex-wrap:wrap}
 .app .kn-composer .types button{display:inline-flex;gap:5px;align-items:center;border:0;background:transparent;color:var(--muted);border-radius:20px;padding:4px 9px;font:inherit;font-size:11.5px;cursor:pointer;transition:background .15s,color .15s}
 .app .kn-composer .types button:hover{background:var(--paper);color:var(--ink)}
@@ -24,8 +24,8 @@
 .app .kn-composer .actions .go:hover:not(:disabled){background:var(--ink)}
 .app .kn-composer .actions .go:disabled{opacity:.4;cursor:not-allowed}
 
-.app .kn-post{position:relative;background:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 1px 2px rgba(24,35,31,.05),0 1px 8px rgba(24,35,31,.04);transition:box-shadow .2s}
-.app .kn-post:hover{box-shadow:0 1px 2px rgba(24,35,31,.06),0 4px 18px rgba(24,35,31,.08)}
+.app .kn-post{position:relative;background:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 1px 2px rgba(21,16,11,.05),0 1px 8px rgba(21,16,11,.04);transition:box-shadow .2s}
+.app .kn-post:hover{box-shadow:0 1px 2px rgba(21,16,11,.06),0 4px 18px rgba(21,16,11,.08)}
 .app .kn-post+.kn-post{margin-top:8px}
 .app .kn-post header{display:flex;gap:9px}
 .app .kn-post .who{flex:1;min-width:0}
@@ -61,7 +61,7 @@
 .app .kn-reactions .pick-wrap{position:relative}
 .app .kn-reactions .pick-btn{display:inline-flex;gap:5px;align-items:center;border:0;background:transparent;border-radius:20px;padding:5px 10px;font:inherit;font-size:12.5px;color:var(--muted);cursor:pointer;transition:background .15s,color .15s}
 .app .kn-reactions .pick-btn:hover{background:var(--paper);color:var(--ink)}
-.app .kn-reactions .pick-menu{position:absolute;bottom:calc(100% + 6px);left:0;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(24,35,31,.16);padding:5px;display:grid;gap:1px;min-width:170px;z-index:10}
+.app .kn-reactions .pick-menu{position:absolute;bottom:calc(100% + 6px);left:0;background:#fff;border-radius:14px;box-shadow:0 8px 30px rgba(21,16,11,.16);padding:5px;display:grid;gap:1px;min-width:170px;z-index:10}
 .app .kn-reactions .pick-menu button{display:flex;gap:9px;align-items:center;border:0;background:none;border-radius:10px;padding:7px 9px;font:inherit;font-size:12.5px;color:var(--ink);cursor:pointer;text-align:left}
 .app .kn-reactions .pick-menu button:hover,.app .kn-reactions .pick-menu button.on{background:var(--paper)}
 @media(max-width:760px){.app .kn-post .photo{height:190px}}

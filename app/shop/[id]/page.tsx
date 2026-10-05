@@ -9,7 +9,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const p = SEED_PRODUCTS.find((x) => x.id === id);
-  return { title: p ? `${p.title} · Shop art` : "Shop art · Kinnect" };
+  return { title: p ? `${p.title} · Shop art` : "Shop art · Akines" };
 }
 
 export default async function ProductPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ demo?: string }> }) {

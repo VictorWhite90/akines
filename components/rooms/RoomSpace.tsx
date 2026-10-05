@@ -143,7 +143,7 @@ export default function RoomSpace({ room, demo }: { room: Room; demo?: string })
         {live && !joined && (
           <div className="rs-strip">
             <span className="rec"><span className="dot" /> LIVE {mmss(clockSecs)}</span>
-            <AvatarStack people={inCall.map((i) => PEOPLE[i])} size={26} max={4} ringClass="ring-[#173c32]" />
+            <AvatarStack people={inCall.map((i) => PEOPLE[i])} size={26} max={4} ringClass="ring-[#17120d]" />
             <p><b>{topic}</b><small>{inCallCount} talking · six seats, {6 - inCallCount} open</small></p>
             <button onClick={joinCall}>Join</button>
           </div>

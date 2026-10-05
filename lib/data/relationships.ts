@@ -1,7 +1,7 @@
 import type { PersonId } from "./people";
 
 /**
- * Kinnect's fundamental unit is the relationship, not the follower.
+ * Akines's fundamental unit is the relationship, not the follower.
  * Kinnections are relationships the member has chosen to acknowledge — never a public follower count.
  */
 export const KINNECTIONS_KEY = "kn:kinnections";

@@ -92,7 +92,7 @@ export default function ActivitiesGrid() {
         <>
           {soon.length > 0 && (
             <section className="act-sec">
-              <SecHead title="Up next" sub="The soonest things on across Kinnect" />
+              <SecHead title="Up next" sub="The soonest things on across Akines" />
               <div className="act-agenda">
                 {soon.map((a) => (
                   <AgendaRow key={a.id} a={a} going={rsvpOf(a.id)} onRsvp={() => toggleRsvp(a.id)} />

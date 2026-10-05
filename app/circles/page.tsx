@@ -5,7 +5,7 @@ import Photo from "@/components/ui/Photo";
 import CircleJoin from "@/components/circles/CircleJoin";
 import { CIRCLES } from "@/lib/data/community";
 
-export const metadata: Metadata = { title: "Creative Circles · Kinnect" };
+export const metadata: Metadata = { title: "Creative Circles · Akines" };
 
 export default function Circles() {
   return (

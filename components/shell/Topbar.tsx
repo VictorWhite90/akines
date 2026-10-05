@@ -51,7 +51,7 @@ export default function Topbar({ onIntent, onCompanion }: { onIntent: () => void
   return (
     <header className="topbar">
       <div className="search" ref={box}>
-        <input aria-label="Search Kinnect" placeholder="Search artists, stories, circles…" value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setFocus(true)} />
+        <input aria-label="Search Akines" placeholder="Search artists, stories, circles…" value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setFocus(true)} />
         <button aria-label="Search">⌕</button>
         {focus && q.trim() && (
           <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: "var(--cream)", border: "1px solid var(--line)", borderRadius: 18, padding: 6, boxShadow: "var(--shadow)" }}>

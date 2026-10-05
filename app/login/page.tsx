@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import AuthFlow from "@/components/auth/AuthFlow";
 
-export const metadata: Metadata = { title: "Sign in · Kinnect" };
+export const metadata: Metadata = { title: "Sign in · Akines" };
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ step?: string }> }) {
   const { step } = await searchParams;

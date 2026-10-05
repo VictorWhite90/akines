@@ -6,7 +6,7 @@ import Photo from "@/components/ui/Photo";
 import ToggleButton from "@/components/ui/Toggle";
 import { CARE_TEAM } from "@/lib/data/community";
 
-export const metadata: Metadata = { title: "Breathing room · Kinnect" };
+export const metadata: Metadata = { title: "Breathing room · Akines" };
 
 const TOOLS = ["Creative burnout check", "Artist anxiety reflection", "Collector reflection", "Daily mood canvas", "Expressive art journaling", "Breathing exercises", "Mindfulness", "Gratitude", "Licensed therapists", "Art therapists"];
 
@@ -30,7 +30,7 @@ export default function Wellbeing() {
       </section>
 
       <section id="care" className="scroll-mt-28">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow text-clay-600">Real people, when you need them</p><h2 className="font-display mt-1 text-[32px] font-medium">Licensed therapists & art therapists</h2></div><p className="max-w-sm text-sm text-mute">Independent professionals. Sessions are remote and confidential, and Kinnect never sees what you discuss.</p></div>
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow text-clay-600">Real people, when you need them</p><h2 className="font-display mt-1 text-[32px] font-medium">Licensed therapists & art therapists</h2></div><p className="max-w-sm text-sm text-mute">Independent professionals. Sessions are remote and confidential, and Akines never sees what you discuss.</p></div>
         <ul className="grid gap-5 md:grid-cols-3">
           {CARE_TEAM.map((c) => (
             <li key={c.name} className="card flex flex-col p-6">

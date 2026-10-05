@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Messages · Kinnect" };
+export const metadata: Metadata = { title: "Messages · Akines" };
 
 /** Right-hand prompt shown until a conversation is picked from the sidebar (see app/messages/layout.tsx). */
 export default function MessagesPage() {
