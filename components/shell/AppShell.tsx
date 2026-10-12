@@ -22,8 +22,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [companion, setCompanion] = useState(false);
   const [intent, setIntent] = useState(false);
 
-  // Sign-in, sign-up and the KinCircle creation wizard are full-screen flows, without the sidebar or topbar.
-  if (pathname === "/login" || pathname === "/signup" || pathname === "/circles/new") return <>{children}</>;
+  // Sign-in, sign-up, the KinCircle creation wizard and the public About page are full-screen, without the sidebar or topbar.
+  if (pathname === "/login" || pathname === "/signup" || pathname === "/circles/new" || pathname === "/about") return <>{children}</>;
 
   return (
     <div className="app">

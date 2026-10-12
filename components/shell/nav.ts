@@ -36,6 +36,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/wellbeing", label: "Creative wellbeing", glyph: "♡" },
       { href: "/dna", label: "Creative DNA", glyph: "◐" },
+      { href: "/about", label: "About Akines", glyph: "ⓘ" },
     ],
   },
 ];

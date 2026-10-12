@@ -1,0 +1,80 @@
+/* About Akines: public marketing page, built from the "01 - akine / about" Figma frame. */
+.ak{
+  --ak-ink:#1f363d;          /* Text/Brand/Primary */
+  --ak-muted:#6f6f6f;        /* Text/Secondary */
+  --ak-inverse:#fefefe;      /* Text/Inverse */
+  --ak-orange:#f4a63a;       /* Action/Brand/Secondary/Default */
+  --ak-orange-hover:#e8962a;
+  --ak-line:#dadada;         /* Action/Neutral/Outline/Disabled */
+  --ak-cream:#fdf6ee;
+  --ak-night:#161616;
+  font-family:var(--font-manrope),system-ui,sans-serif;
+  color:var(--ak-ink);
+  background:var(--ak-cream);
+  min-height:100vh;
+}
+.ak *{box-sizing:border-box}
+.ak-wrap{width:100%;max-width:1440px;margin:0 auto;padding:0 112px}
+
+/* Nav */
+.ak-nav{position:sticky;top:0;z-index:20;background:#fafafa;border-bottom:1px solid #eee}
+.ak-nav-in{height:84px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.ak-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ak-ink);font-size:20px;font-weight:600;line-height:1.4}
+.ak-brand img{width:32px;height:32px;display:block}
+.ak-links{display:flex;gap:40px}
+.ak-links a{color:var(--ak-muted);text-decoration:none;font-size:16px;line-height:1.2;transition:color .15s}
+.ak-links a:hover{color:var(--ak-ink)}
+
+/* Buttons */
+.ak-btn{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--ak-orange);color:var(--ak-ink);font-weight:700;text-decoration:none;white-space:nowrap;border:1px solid transparent;transition:background .15s,transform .15s}
+.ak-btn:hover{background:var(--ak-orange-hover)}
+.ak-btn:active{transform:translateY(1px)}
+.ak-btn-m{padding:8px 16px;font-size:16px;line-height:1.4}
+.ak-btn-xl{padding:16px 32px;font-size:20px;line-height:1.4}
+.ak-btn-outline{background:rgba(254,254,254,.25);border-color:var(--ak-line);color:var(--ak-inverse);backdrop-filter:blur(4px)}
+.ak-btn-outline:hover{background:rgba(254,254,254,.38)}
+
+/* Hero */
+.ak-hero{position:relative;min-height:min(790px,calc(100vh - 84px - 88px));min-height:max(560px,min(790px,calc(100svh - 84px - 88px)));display:flex;align-items:flex-end;justify-content:center;overflow:hidden;background:#2a2a2a}
+.ak-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ak-hero-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,.25) 45%,rgba(0,0,0,.55) 100%)}
+.ak-hero-content{position:relative;width:640px;max-width:100%;padding:0 0 104px;display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;color:var(--ak-inverse)}
+.ak-eyebrow{margin:0;font-size:20px;font-weight:700;line-height:1.4;text-transform:uppercase}
+.ak-hero h1{margin:0;font-size:56px;font-weight:600;line-height:1.2;letter-spacing:-.5px;color:var(--ak-inverse)}
+.ak-lede{margin:0;max-width:534px;font-size:20px;line-height:1.4;opacity:.92}
+.ak-ctas{display:flex;gap:24px;justify-content:center}
+
+/* Feature marquee */
+.ak-marquee{background:var(--ak-night);color:var(--ak-inverse);overflow:hidden;height:88px;display:flex;align-items:center}
+.ak-marquee-track{display:flex;width:max-content;animation:ak-scroll 32s linear infinite}
+.ak-marquee:hover .ak-marquee-track{animation-play-state:paused}
+.ak-marquee ul{display:flex;margin:0;padding:0;list-style:none}
+.ak-marquee li{display:flex;align-items:center;gap:30px;padding-left:30px;padding-right:2px;font-size:24px;font-weight:500;text-transform:uppercase;white-space:nowrap}
+.ak-marquee li::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--ak-orange)}
+@keyframes ak-scroll{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ak-marquee-track{animation:none}}
+
+.ak-body{min-height:240px}
+
+/* Responsive */
+@media (max-width:1180px){
+  .ak-wrap{padding:0 40px}
+  .ak-links{gap:24px}
+}
+@media (max-width:960px){
+  .ak-links{display:none}
+}
+@media (max-width:640px){
+  .ak-wrap{padding:0 16px}
+  .ak-nav-in{height:68px}
+  .ak-brand{font-size:18px}
+  .ak-btn-m{font-size:14px;padding:8px 14px}
+  .ak-hero-content{padding:0 16px 64px;gap:18px}
+  .ak-eyebrow{font-size:14px}
+  .ak-hero h1{font-size:38px}
+  .ak-lede{font-size:16px}
+  .ak-btn-xl{font-size:16px;padding:14px 24px;width:100%}
+  .ak-ctas{width:100%;gap:12px;flex-direction:column}
+  .ak-marquee{height:64px}
+  .ak-marquee li{font-size:18px;gap:20px;padding-left:20px}
+}
