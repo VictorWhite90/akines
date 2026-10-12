@@ -1,0 +1,44 @@
+<svg width="434" height="434" viewBox="0 0 434 434" fill="none" xmlns="http://www.w3.org/2000/svg">
+<style>
+svg { overflow: visible; }
+@keyframes kf_Loading_Indicator_transform_0 {
+  0% {
+    transform: translateX(0px) translateY(-16.5px) translate(200px, 217px) rotate(0rad) translate(-200px, -217px);
+  }
+  100% {
+    transform: translateX(0px) translateY(-16.5px) translate(200px, 217px) rotate(6.283rad) translate(-200px, -217px);
+  }
+}
+#Loading_Indicator {
+  transform-origin: 0 0;
+  animation: kf_Loading_Indicator_transform_0 20s linear infinite;
+}
+@keyframes kf_Loading_Indicator_2_transform_0 {
+  0% {
+    transform: translateX(417px) translateY(0px) translate(-217px, 200px) rotate(0rad) translate(217px, -200px) rotate(1.571rad) scaleX(1) scaleY(1) skewX(0rad);
+  }
+  100% {
+    transform: translateX(417px) translateY(0px) translate(-217px, 200px) rotate(6.283rad) translate(217px, -200px) rotate(1.571rad) scaleX(1) scaleY(1) skewX(0rad);
+  }
+}
+#Loading_Indicator_2 {
+  transform-origin: 0 0;
+  animation: kf_Loading_Indicator_2_transform_0 20s linear infinite;
+}
+</style>
+<g id="Animation">
+<circle id="Ellipse_4" cx="200" cy="200" r="200" stroke="#DADADA" stroke-width="0.5"/>
+<g id="Loading_Indicator" transform="translate(-8.10623e-05 -16.5)">
+<circle id="Ellipse_8" transform="translate(209.5 415) rotate(90)" cx="9.5" cy="9.5" r="9.5" fill="#F4A63A"/>
+<circle id="Ellipse_9" transform="translate(209.5 1.30735e-06) rotate(90)" cx="9.5" cy="9.5" r="9.5" fill="#F4A63A"/>
+<path id="Ellipse_5" transform="translate(8.10623e-05 16.5)" d="M165.366 3.02165C187.714 -0.90774 210.567 -1.00547 232.948 2.73263" stroke="#F4A63A" stroke-width="10" stroke-linecap="round"/>
+<path id="Ellipse_6" transform="translate(8.10623e-05 16.5)" d="M236.585 396.625C214.277 400.776 191.426 401.1 169.009 397.584" stroke="#F4A63A" stroke-width="10" stroke-linecap="round"/>
+</g>
+<g id="Loading_Indicator_2" transform="translate(417 9.48537e-06) rotate(90)">
+<path id="Ellipse_5_2" transform="translate(0 17)" d="M165.366 3.02165C187.714 -0.90774 210.567 -1.00547 232.948 2.73263" stroke="#30B0C7" stroke-width="10" stroke-linecap="round"/>
+<path id="Ellipse_6_2" transform="translate(0 17)" d="M236.585 396.625C214.277 400.776 191.426 401.1 169.009 397.584" stroke="#30B0C7" stroke-width="10" stroke-linecap="round"/>
+<circle id="Ellipse_7" transform="translate(191 19) rotate(-90)" cx="9.5" cy="9.5" r="9.5" fill="#30B0C7"/>
+<circle id="Ellipse_7_2" transform="translate(191 434) rotate(-90)" cx="9.5" cy="9.5" r="9.5" fill="#30B0C7"/>
+</g>
+</g>
+</svg>

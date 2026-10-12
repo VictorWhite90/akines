@@ -95,6 +95,40 @@
 .ak-guide-nav button:hover:not(:disabled){background:rgba(254,254,254,.1)}
 .ak-guide-nav button:disabled{opacity:.3;cursor:default}
 
+/* Experiences: "Connection through doing." */
+.ak-features{background:#fafafa;padding:96px 0}
+.ak-features .ak-label{color:#969696}
+.ak-features-head{display:flex;flex-direction:column;gap:24px;margin-bottom:48px}
+.ak-features-head h2{margin:0;font-size:60px;font-weight:600;line-height:1.2;letter-spacing:-.02em;color:#181818}
+
+.ak-exp{display:flex;flex-direction:column;gap:24px}
+.ak-exp-tabs{display:flex;flex-wrap:wrap;gap:24px}
+.ak-exp-tab{padding:9px 17px;border-radius:999px;border:1px solid #c0c0c0;background:transparent;color:#969696;font:400 16px/1.2 var(--font-manrope),system-ui,sans-serif;cursor:pointer;transition:background .15s,color .15s,border-color .15s}
+.ak-exp-tab:hover{color:#181818;border-color:#969696}
+.ak-exp-tab.is-active{background:var(--ak-orange);border-color:var(--ak-orange);color:#181818;font-weight:600}
+.ak-exp-tab:focus-visible{outline:2px solid #181818;outline-offset:2px}
+
+.ak-exp-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:24px;background:#fef6ec;border:.5px solid var(--ak-orange);border-radius:32px;overflow:hidden}
+.ak-exp-visual{--tint:#c27a2b;position:relative;height:532px;overflow:hidden;color:var(--ak-inverse);display:flex;align-items:flex-end;
+  background:
+    linear-gradient(180deg,rgba(18,24,28,0) 45%,rgba(18,24,28,.55) 100%),
+    conic-gradient(from 200deg at 50% 50%,#1b2830 0deg,#22323b 70deg,#3a3a35 140deg,color-mix(in srgb,var(--tint) 75%,#2a2a2a) 190deg,var(--tint) 215deg,color-mix(in srgb,var(--tint) 60%,#1b2830) 270deg,#1b2830 360deg);
+  transition:background .4s}
+.ak-exp-orbit{position:absolute;left:50%;top:50%;width:434px;height:434px;transform:translate(-50%,-50%);pointer-events:none}
+.ak-exp-visual-copy{position:relative;z-index:1;padding:0 48px 48px;display:flex;flex-direction:column;gap:24px}
+.ak-exp-tag{margin:0;font-size:20px;font-weight:500;line-height:1.4;text-transform:uppercase;color:#dadada}
+.ak-exp-visual-copy h3{margin:0;font-size:32px;font-weight:600;line-height:1.2;color:var(--ak-inverse)}
+.ak-exp-visual-copy p:last-child{margin:0;font-size:20px;line-height:1.4;color:#ededed}
+
+.ak-exp-content{padding:48px 64px;display:flex;flex-direction:column;gap:48px}
+.ak-exp-intro{display:flex;flex-direction:column;gap:24px}
+.ak-exp-intro h3{margin:0;font-size:32px;font-weight:600;line-height:1.2;color:#181818}
+.ak-exp-intro p{margin:0;font-size:20px;line-height:1.4;color:#969696}
+.ak-exp-benefits{list-style:none;margin:0;padding:0}
+.ak-exp-benefits li{display:flex;align-items:center;gap:24px;padding:24px 0;border-bottom:1px solid #e5e5e5;font-size:20px;line-height:1.4;color:#181818}
+.ak-exp-benefits svg{flex:none}
+.ak-exp-cta{height:56px;width:100%;font-size:16px;font-weight:600;color:#181818}
+
 /* Responsive */
 @media (max-width:1180px){
   .ak-wrap{padding:0 40px}
@@ -103,6 +137,9 @@
   .ak-rhythm-intro{flex-direction:column}
   .ak-step-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
   .ak-step-row li{flex:0 0 245px;scroll-snap-align:start}
+  .ak-exp-card{grid-template-columns:1fr;align-items:stretch}
+  .ak-exp-visual{height:480px}
+  .ak-features-head h2{font-size:48px}
   .ak-links{gap:24px}
 }
 @media (max-width:960px){
@@ -124,6 +161,18 @@
   .ak-guide-copy{flex-basis:calc(100% - 72px)}
   .ak-guide-copy p{font-size:16px}
   .ak-guide-nav{margin-left:auto}
+  .ak-features{padding:64px 0}
+  .ak-features-head h2{font-size:38px}
+  .ak-exp-tabs{gap:10px}
+  .ak-exp-card{border-radius:24px}
+  .ak-exp-visual{height:400px}
+  .ak-exp-orbit{width:320px;height:320px}
+  .ak-exp-visual-copy{padding:0 24px 28px;gap:12px}
+  .ak-exp-tag{font-size:14px}
+  .ak-exp-visual-copy h3,.ak-exp-intro h3{font-size:26px}
+  .ak-exp-visual-copy p:last-child,.ak-exp-intro p,.ak-exp-benefits li{font-size:16px}
+  .ak-exp-content{padding:28px 24px;gap:28px}
+  .ak-exp-benefits li{gap:14px;padding:16px 0}
   .ak-nav-in{height:68px}
   .ak-brand{font-size:18px}
   .ak-btn-m{font-size:14px;padding:8px 14px}

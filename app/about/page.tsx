@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Experiences from "./_components/Experiences";
 import Rhythm from "./_components/Rhythm";
 
 const NAV = [
@@ -80,6 +81,16 @@ export default function AboutPage() {
               </div>
             </header>
             <Rhythm />
+          </div>
+        </section>
+
+        <section className="ak-features" id="experiences">
+          <div className="ak-wrap">
+            <header className="ak-features-head">
+              <p className="ak-label">Choose what feels natural</p>
+              <h2>Connection through doing.</h2>
+            </header>
+            <Experiences />
           </div>
         </section>
       </main>
