@@ -116,9 +116,9 @@
   transition:background .4s}
 .ak-exp-orbit{position:absolute;left:50%;top:50%;width:434px;height:434px;transform:translate(-50%,-50%);pointer-events:none}
 .ak-exp-visual-copy{position:relative;z-index:1;padding:0 48px 48px;display:flex;flex-direction:column;gap:24px}
-.ak-exp-tag{margin:0;font-size:20px;font-weight:500;line-height:1.4;text-transform:uppercase;color:#dadada}
+.ak-exp-tag{margin:0;font-size:20px;font-weight:600;line-height:1.4;text-transform:uppercase;color:#ccc}
 .ak-exp-visual-copy h3{margin:0;font-size:32px;font-weight:600;line-height:1.2;color:var(--ak-inverse)}
-.ak-exp-visual-copy p:last-child{margin:0;font-size:20px;line-height:1.4;color:#ededed}
+.ak-exp-visual-copy p:last-child{margin:0;font-size:20px;font-weight:600;line-height:1.4;color:#ccc}
 
 .ak-exp-content{padding:48px 64px;display:flex;flex-direction:column;gap:48px}
 .ak-exp-intro{display:flex;flex-direction:column;gap:24px}
@@ -128,6 +128,16 @@
 .ak-exp-benefits li{display:flex;align-items:center;gap:24px;padding:24px 0;border-bottom:1px solid #e5e5e5;font-size:20px;line-height:1.4;color:#181818}
 .ak-exp-benefits svg{flex:none}
 .ak-exp-cta{height:56px;width:100%;font-size:16px;font-weight:600;color:#181818}
+
+/* Matching: "Meet for a reason, not an algorithm." */
+.ak-matching{background:#fafafa;padding:96px 0}
+.ak-matching-in{display:flex;align-items:center;gap:24px}
+.ak-matching-copy{flex:0 0 536px;display:flex;flex-direction:column;align-items:flex-start;gap:32px}
+.ak-matching .ak-label{color:#969696}
+.ak-matching-intro{display:flex;flex-direction:column;gap:24px}
+.ak-matching-intro h2{margin:0;font-size:60px;font-weight:600;line-height:1.2;letter-spacing:-.02em;color:#181818}
+.ak-matching-intro p{margin:0;font-size:24px;line-height:1.4;color:#969696}
+.ak-matching-photo{flex:1 1 0;min-width:0;height:529px;object-fit:cover;border-radius:32px;display:block}
 
 /* Responsive */
 @media (max-width:1180px){
@@ -140,6 +150,10 @@
   .ak-exp-card{grid-template-columns:1fr;align-items:stretch}
   .ak-exp-visual{height:480px}
   .ak-features-head h2{font-size:48px}
+  .ak-matching-in{flex-direction:column;align-items:stretch}
+  .ak-matching-copy{flex:none}
+  .ak-matching-intro h2{font-size:48px}
+  .ak-matching-photo{flex:none;width:100%;height:auto;aspect-ratio:3/2}
   .ak-links{gap:24px}
 }
 @media (max-width:960px){
@@ -161,7 +175,12 @@
   .ak-guide-copy{flex-basis:calc(100% - 72px)}
   .ak-guide-copy p{font-size:16px}
   .ak-guide-nav{margin-left:auto}
-  .ak-features{padding:64px 0}
+  .ak-features,.ak-matching{padding:64px 0}
+  .ak-matching-intro h2{font-size:38px}
+  .ak-matching-intro p{font-size:18px}
+  .ak-matching-copy{gap:24px}
+  .ak-matching-copy .ak-btn-xl{width:100%}
+  .ak-matching-photo{border-radius:24px}
   .ak-features-head h2{font-size:38px}
   .ak-exp-tabs{gap:10px}
   .ak-exp-card{border-radius:24px}

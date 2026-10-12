@@ -93,6 +93,30 @@ export default function AboutPage() {
             <Experiences />
           </div>
         </section>
+
+        <section className="ak-matching" id="matching">
+          <div className="ak-wrap ak-matching-in">
+            <div className="ak-matching-copy">
+              <p className="ak-label">Meaningful matching</p>
+              <div className="ak-matching-intro">
+                <h2>Meet for a reason, not an algorithm.</h2>
+                <p>
+                  Your Creative DNA reflects how you create, communicate and connect. Akines uses it to explain why an
+                  introduction may matter—then leaves the choice with you.
+                </p>
+              </div>
+              <Link href="/dna" className="ak-btn ak-btn-xl">Build My Creative DNA</Link>
+            </div>
+            <img
+              className="ak-matching-photo"
+              src="/akines/people-together.jpg"
+              alt="Four friends sharing drinks and taking a selfie together outdoors"
+              width={1500}
+              height={1000}
+              loading="lazy"
+            />
+          </div>
+        </section>
       </main>
     </>
   );
