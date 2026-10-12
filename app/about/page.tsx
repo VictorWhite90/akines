@@ -105,7 +105,7 @@ export default function AboutPage() {
                   introduction may matter—then leaves the choice with you.
                 </p>
               </div>
-              <Link href="/dna" className="ak-btn ak-btn-xl">Build My Creative DNA</Link>
+              <Link href="/dna" className="ak-btn ak-btn-xl ak-matching-cta">Build My Creative DNA</Link>
             </div>
             <img
               className="ak-matching-photo"
