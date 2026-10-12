@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import { allPeople, ME, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
@@ -40,6 +40,9 @@ export type KinCircleDraft = {
   agreements: string[];
 };
 
+/** localStorage key other pages use to open the wizard with a draft already filled in. */
+export const KINCIRCLE_PREFILL = "ak:kincircle-prefill";
+
 export type SavedKinCircle = KinCircleDraft & { id: string; createdAt: string };
 
 const invitable = allPeople.filter((p) => p.id !== ME.id);
@@ -49,6 +52,21 @@ export default function CreateKinCircle() {
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<KinCircleDraft>({ type: "creative", name: "", purpose: "", invitees: [], agreements: [AGREEMENTS[0], AGREEMENTS[1]] });
   const [, setSaved] = useLocal<SavedKinCircle[]>("ak:kincircles", []);
+
+  // A Banter or a game can hand over a half-filled circle ("Turn into a KinCircle").
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(KINCIRCLE_PREFILL);
+      if (!raw) return;
+      localStorage.removeItem(KINCIRCLE_PREFILL);
+      const pre = JSON.parse(raw) as Partial<KinCircleDraft>;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time handover from another page
+      setDraft((d) => ({ ...d, ...pre, invitees: (pre.invitees ?? []).filter((id) => id !== ME.id) }));
+      setStep(1);
+    } catch {
+      /* no prefill */
+    }
+  }, []);
 
   const typeInfo = CIRCLE_TYPES.find((t) => t.id === draft.type)!;
   const last = step === STEPS.length - 1;

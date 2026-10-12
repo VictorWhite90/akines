@@ -15,10 +15,17 @@ const INDEX = [
   { label: "My store", kind: "Sell your work", href: "/store" },
   { label: "My studio", kind: "Your studio", href: "/studio" },
   { label: "Create a room", kind: "Presence Room", href: "/rooms/new" },
+  { label: "Banter", kind: "Talk freely", href: "/banter" },
+  { label: "Start a Banter", kind: "Banter", href: "/banter/new" },
+  { label: "Play Together", kind: "Games", href: "/play" },
+  { label: "Create a game", kind: "Play Together", href: "/play/new" },
+  { label: "Cliqs", kind: "Your people", href: "/cliqs" },
   ...STORIES.map((s) => ({ label: s.title, kind: s.kind, href: `/stories/${s.id}` })),
 ];
 
 const CREATE = [
+  { glyph: "❝", label: "Start a Banter", body: "One good question, for the people who matter", href: "/banter/new" },
+  { glyph: "☺", label: "Create a game", body: "Play together, live or slowly", href: "/play/new" },
   { glyph: "◉", label: "Create a room", body: "Chat, share and go live with up to six people", href: "/rooms/new" },
   { glyph: "✦", label: "Open my studio", body: "Show your work and let people visit", href: "/studio" },
   { glyph: "▣", label: "Add a product", body: "Sell from My store", href: "/store" },

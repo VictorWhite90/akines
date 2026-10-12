@@ -8,8 +8,11 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "Connect",
     items: [
       { href: "/kindred", label: "Discover people", glyph: "◇" },
+      { href: "/banter", label: "Banter", glyph: "❝", badge: "2 live" },
       { href: "/circles", label: "KinCircle", glyph: "◎" },
+      { href: "/cliqs", label: "Cliqs", glyph: "◌" },
       { href: "/rooms", label: "Presence rooms", glyph: "◉", badge: "3 live" },
+      { href: "/play", label: "Play Together", glyph: "☺" },
       { href: "/activities", label: "Activities", glyph: "▦" },
       { href: "/collaborate", label: "Collaborate", glyph: "⌘", badge: "12 open" },
       { href: "/messages", label: "Messages", glyph: "✉" },

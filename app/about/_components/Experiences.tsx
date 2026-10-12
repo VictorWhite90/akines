@@ -24,7 +24,7 @@ const EXPERIENCES = [
     title: "Easy conversation, no performance",
     body: "Drop into a short chat built around one good prompt, so talking to someone new feels natural rather than forced.",
     benefits: ["Pick a prompt that interests you", "Talk in small groups, never to a crowd", "Leave whenever you like, no pressure"],
-    cta: { label: "Join a Banter", href: "/rooms" },
+    cta: { label: "Start a Banter", href: "/banter" },
     tint: "#2f8fa8",
   },
   {
@@ -46,7 +46,7 @@ const EXPERIENCES = [
     title: "Connection that starts with fun",
     body: "Short, playful activities give people something to do side by side, so friendships form without anyone having to try too hard.",
     benefits: ["Choose a game or creative challenge", "Play with friends or meet new people", "Turn a good round into a next meetup"],
-    cta: { label: "Find an activity", href: "/activities" },
+    cta: { label: "Play together", href: "/play" },
     tint: "#d4a020",
   },
   {

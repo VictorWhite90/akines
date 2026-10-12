@@ -12,8 +12,8 @@ const NAV = [
 ];
 
 const FOOTER = [
-  { title: "Connect", links: [{ label: "KinCircles", href: "/circles" }, { label: "Banter", href: "/rooms" }, { label: "Introduction", href: "/kindred" }] },
-  { title: "Create", links: [{ label: "Collaboration Studio", href: "/collaborate" }, { label: "Play Together", href: "/activities" }, { label: "My Store", href: "/store" }] },
+  { title: "Connect", links: [{ label: "KinCircles", href: "/circles" }, { label: "Banter", href: "/banter" }, { label: "Introduction", href: "/kindred" }] },
+  { title: "Create", links: [{ label: "Collaboration Studio", href: "/collaborate" }, { label: "Play Together", href: "/play" }, { label: "My Store", href: "/store" }] },
   { title: "Trust", links: [{ label: "Wellbeing", href: "/wellbeing" }, { label: "Safety", href: "/wellbeing" }, { label: "Privacy", href: "#wellbeing" }] },
 ];
 
