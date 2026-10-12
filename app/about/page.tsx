@@ -11,6 +11,12 @@ const NAV = [
   { href: "#wellbeing", label: "Wellbeing" },
 ];
 
+const FOOTER = [
+  { title: "Connect", links: [{ label: "KinCircles", href: "/circles" }, { label: "Banter", href: "/rooms" }, { label: "Introduction", href: "/kindred" }] },
+  { title: "Create", links: [{ label: "Collaboration Studio", href: "/collaborate" }, { label: "Play Together", href: "/activities" }, { label: "My Store", href: "/store" }] },
+  { title: "Trust", links: [{ label: "Wellbeing", href: "/wellbeing" }, { label: "Safety", href: "/wellbeing" }, { label: "Privacy", href: "#wellbeing" }] },
+];
+
 const FEATURES = ["Banter", "Play Together", "Collaboration Studio", "Creative DNA", "My Store", "KinCircles"];
 
 export default function AboutPage() {
@@ -152,6 +158,9 @@ export default function AboutPage() {
 
         <section className="ak-final">
           <img className="ak-final-bg" src="/akines/find-your-people.jpg" alt="" width={1216} height={832} loading="lazy" />
+          <div className="ak-final-blur" aria-hidden>
+            <span /><span /><span /><span />
+          </div>
           <div className="ak-final-shade" aria-hidden />
           <div className="ak-wrap ak-final-in">
             <h2>Find your people.<br />Make something real.</h2>
@@ -160,6 +169,31 @@ export default function AboutPage() {
           </div>
         </section>
       </main>
+
+      <footer className="ak-footer">
+        <div className="ak-footer-in">
+          <div className="ak-footer-brand">
+            <Link href="/about" className="ak-brand" aria-label="Akines home">
+              <img src="/akines/mark.png" alt="" width={32} height={32} />
+              <span>AKINES</span>
+            </Link>
+            <p>Relationship intelligence for a less lonely, more creative world.</p>
+          </div>
+          <nav className="ak-footer-nav" aria-label="Footer">
+            {FOOTER.map((col) => (
+              <div key={col.title} className="ak-footer-col">
+                <h3>{col.title}</h3>
+                <ul>
+                  {col.links.map((l) => (
+                    <li key={l.label}><Link href={l.href}>{l.label}</Link></li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
+        </div>
+        <p className="ak-copyright">© 2026 Akines. Human connection, thoughtfully designed.</p>
+      </footer>
     </>
   );
 }

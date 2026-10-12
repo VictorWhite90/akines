@@ -175,10 +175,30 @@
 /* Final call to action */
 .ak-final{position:relative;min-height:982px;display:flex;align-items:flex-end;overflow:hidden;background:#3a3020}
 .ak-final-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.ak-final-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 40%,rgba(0,0,0,.45) 100%)}
+/* Figma: progressive background blur from 62.32% (0px) to 100% (25px) */
+.ak-final-blur{position:absolute;left:0;right:0;top:62.32%;bottom:0;pointer-events:none}
+.ak-final-blur span{position:absolute;inset:0}
+.ak-final-blur span:nth-child(1){backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);mask-image:linear-gradient(to bottom,transparent 0%,#000 25%);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 25%)}
+.ak-final-blur span:nth-child(2){backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);mask-image:linear-gradient(to bottom,transparent 20%,#000 50%);-webkit-mask-image:linear-gradient(to bottom,transparent 20%,#000 50%)}
+.ak-final-blur span:nth-child(3){backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);mask-image:linear-gradient(to bottom,transparent 45%,#000 75%);-webkit-mask-image:linear-gradient(to bottom,transparent 45%,#000 75%)}
+.ak-final-blur span:nth-child(4){backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);mask-image:linear-gradient(to bottom,transparent 70%,#000 100%);-webkit-mask-image:linear-gradient(to bottom,transparent 70%,#000 100%)}
+/* Figma: linear gradient #181818 at 0% → 45% opacity */
+.ak-final-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(24,24,24,0) 0%,rgba(24,24,24,.45) 100%)}
 .ak-final-in{position:relative;padding-bottom:96px;display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;color:var(--ak-inverse)}
 .ak-final h2{margin:0;font-size:96px;font-weight:700;line-height:1.2;letter-spacing:-.02em;color:#fff}
 .ak-final p{margin:0;font-size:24px;line-height:1.4;color:var(--ak-inverse)}
+
+/* Footer */
+.ak-footer{background:#fafafa}
+.ak-footer-in{max-width:1512px;margin:0 auto;padding:96px 24px 96px 96px;display:flex;gap:96px;border-bottom:1px solid #e5e5e5}
+.ak-footer-brand{flex:0 0 312px;display:flex;flex-direction:column;gap:24px}
+.ak-footer-brand p{margin:0;font-size:18px;line-height:1.6;color:#6f6f6f}
+.ak-footer-nav{flex:0 1 984px;display:grid;grid-template-columns:repeat(3,1fr);gap:50px}
+.ak-footer-col h3{margin:0 0 32px;font-size:20px;font-weight:600;line-height:1.4;color:#181818}
+.ak-footer-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:16px}
+.ak-footer-col a{font-size:16px;line-height:1.6;color:#6f6f6f;text-decoration:none;transition:color .15s}
+.ak-footer-col a:hover{color:#181818}
+.ak-copyright{margin:0;padding:24px 16px;text-align:center;font-size:18px;line-height:1.6;color:#969696}
 
 /* Responsive */
 @media (max-width:1180px){
@@ -199,6 +219,9 @@
   .ak-wcard{min-height:0}
   .ak-final{min-height:760px}
   .ak-final h2{font-size:72px}
+  .ak-footer-in{padding:64px 40px;flex-direction:column;gap:48px}
+  .ak-footer-brand{flex:none;max-width:312px}
+  .ak-footer-nav{flex:none}
   .ak-matching-photo{flex:none;width:100%;height:auto;aspect-ratio:3/2}
   .ak-links{gap:24px}
 }
@@ -236,6 +259,11 @@
   .ak-final-in{padding-bottom:56px}
   .ak-final h2{font-size:44px}
   .ak-final p{font-size:18px}
+  .ak-footer-in{padding:48px 16px;gap:40px}
+  .ak-footer-nav{grid-template-columns:1fr 1fr;gap:32px 24px}
+  .ak-footer-col h3{margin-bottom:16px}
+  .ak-footer-col ul{gap:12px}
+  .ak-copyright{font-size:14px}
   .ak-matching-intro h2{font-size:38px}
   .ak-matching-intro p{font-size:18px}
   .ak-matching-copy{gap:24px}
