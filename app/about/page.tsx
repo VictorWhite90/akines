@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Rhythm from "./_components/Rhythm";
 
 const NAV = [
   { href: "#how-it-works", label: "How it Works" },
@@ -55,7 +56,33 @@ export default function AboutPage() {
         </div>
       </div>
 
-      <main className="ak-body" />
+      <main>
+        <section className="ak-quote" id="philosophy">
+          <div className="ak-wrap ak-quote-in">
+            <p className="ak-label">Not another social network</p>
+            <blockquote>
+              Most platforms help you collect an audience. Akines helps you <em>build a relationship</em>—then gives
+              that relationship somewhere to grow.
+            </blockquote>
+          </div>
+        </section>
+
+        <section className="ak-rhythm" id="how-it-works">
+          <div className="ak-wrap">
+            <header className="ak-rhythm-head">
+              <p className="ak-label">The Akines rhythm</p>
+              <div className="ak-rhythm-intro">
+                <h2>Every gathering has a purpose.</h2>
+                <p>
+                  There is no endless feed and no pressure to perform. Each experience moves people from first contact
+                  to something worth continuing.
+                </p>
+              </div>
+            </header>
+            <Rhythm />
+          </div>
+        </section>
+      </main>
     </>
   );
 }
