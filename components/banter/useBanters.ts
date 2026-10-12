@@ -17,3 +17,17 @@ export function useBanters() {
 export function useBanterReplies(id: string) {
   return useLocal<BanterReply[]>(`ak:banter-replies:${id}`, []);
 }
+
+/** Banters the member said “I want to explore this” about. */
+export function useResonance() {
+  const [ids, setIds] = useLocal<string[]>("ak:banter-resonate", []);
+  const toggle = (id: string) => setIds((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+  return { ids, toggle };
+}
+
+/** The member's poll choice per Banter (option index). */
+export function usePollVotes() {
+  const [votes, setVotes] = useLocal<Record<string, number>>("ak:banter-votes", {});
+  const vote = (id: string, i: number) => setVotes((cur) => ({ ...cur, [id]: i }));
+  return { votes, vote };
+}

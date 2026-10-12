@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Photo from "@/components/ui/Photo";
 import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
-import { useBanterReplies, useBanters } from "./useBanters";
+import { useBanterReplies, useBanters, usePollVotes, useResonance } from "./useBanters";
 import { BANTER_LIFETIMES, BANTER_MOODS, REACTIONS, toneCheck, type BanterReply } from "@/lib/data/banter";
 import type { PhotoKey } from "@/lib/data/images";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
@@ -45,6 +45,8 @@ export default function BanterThread({ id }: { id: string }) {
   const [toast, setToast] = useState("");
   const [menu, setMenu] = useState(false);
   const [ai, setAi] = useState(false);
+  const { ids: resonated, toggle: toggleResonance } = useResonance();
+  const { votes, vote } = usePollVotes();
 
   useEffect(() => {
     if (!toast) return;
@@ -98,7 +100,7 @@ export default function BanterThread({ id }: { id: string }) {
     const spark = banter.spark;
     localStorage.setItem(
       KINCIRCLE_PREFILL,
-      JSON.stringify({ type: banter.type === "collab" ? "project" : "creative", name: spark?.suggestion ?? banter.prompt.slice(0, 40), purpose: `Started from a Banter: “${banter.prompt}”`, invitees: spark?.people ?? replies.map((r) => r.by) }),
+      JSON.stringify({ type: banter.type === "collab" ? "project" : "creative", name: spark?.suggestion ?? banter.prompt.slice(0, 40), purpose: `Started from a Banter: “${banter.prompt}”`, invitees: spark?.people ?? [banter.by, ...resonance, ...replies.map((r) => r.by)] }),
     );
     router.push("/circles/new");
   };
@@ -108,6 +110,11 @@ export default function BanterThread({ id }: { id: string }) {
     setInsights((cur) => (cur.includes(line) ? cur : [line, ...cur]));
     setToast("Insight saved. It stays after the Banter ends.");
   };
+
+  const iResonate = resonated.includes(banter.id);
+  const resonance = [...(banter.resonance ?? []), ...(iResonate ? [ME.id as PersonId] : [])];
+  const myVote = votes[banter.id];
+  const pollTotal = banter.poll ? banter.poll.votes.reduce((a, b) => a + b, 0) + (myVote !== undefined ? 1 : 0) : 0;
 
   const contributors = new Set(replies.map((r) => r.by));
   const unanswered = replies.filter((r) => r.text?.trim().endsWith("?"));
@@ -153,12 +160,38 @@ export default function BanterThread({ id }: { id: string }) {
           </div>
           <h1 className="font-display mt-3 text-[28px] leading-tight">{banter.prompt}</h1>
           {banter.photo && <Photo name={banter.photo} sizes="(max-width: 1024px) 100vw, 720px" className="mt-4 h-[260px] rounded-2xl" position="center 30%" />}
+          {banter.media && <p className="mt-3 inline-flex rounded-full bg-paper-200 px-3 py-1 text-[12.5px]">{banter.media.kind === "music" ? "♪" : "▶"} {banter.media.label}</p>}
+          {banter.poll && (
+            <ul className="mt-4 flex flex-col gap-1.5">
+              {banter.poll.options.map((o, i) => {
+                const n = banter.poll!.votes[i] + (myVote === i ? 1 : 0);
+                const pct = pollTotal ? Math.round((n / pollTotal) * 100) : 0;
+                return (
+                  <li key={o}>
+                    <button onClick={() => vote(banter.id, i)} className={`relative w-full overflow-hidden rounded-xl border px-4 py-2.5 text-left text-[14px] ${myVote === i ? "border-ink-950" : "border-line bg-white hover:border-ink-400"}`}>
+                      {myVote !== undefined && <span className="absolute inset-y-0 left-0 bg-ochre-200/70" style={{ width: `${pct}%` }} aria-hidden />}
+                      <span className="relative flex justify-between gap-3"><span>{o}{myVote === i && " ✓"}</span>{myVote !== undefined && <span className="text-mute">{pct}% · {n}</span>}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
           <div className="mt-4 flex flex-wrap items-center gap-2 text-[11.5px]">
             <span className={`rounded-full px-2.5 py-1 font-semibold ${mood.tone}`}>{mood.label}</span>
             <span className="text-mute">{mood.hint}</span>
             <span className="ml-auto rounded-full border border-line px-2.5 py-1 text-mute">{banter.closed ? "Closed" : life.id === "24h" ? "This Banter ends tonight" : life.short}</span>
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4">
+            <button onClick={() => toggleResonance(banter.id)} aria-pressed={iResonate} className={`rounded-full border px-4 py-2 text-[13px] font-semibold ${iResonate ? "border-ink-950 bg-ink-950 text-white" : "border-line bg-white hover:border-ink-400"}`}>✦ {iResonate ? "You want to explore this" : "I want to explore this"}</button>
+            {resonance.length > 0 && (
+              <span className="flex items-center gap-2 text-[12px] text-mute">
+                <span className="flex -space-x-1.5">{resonance.map((pid) => <Avatar key={pid} person={PEOPLE[pid]} size={22} ring />)}</span>
+                {resonance.length} want to explore this{banter.reach ? ` · sent to ${banter.reach}` : ""}
+              </span>
+            )}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
             {REACTIONS.map((r) => {
               const n = (banter.reactions[r] ?? 0) + (myReactions.includes(r) ? 1 : 0);
               return (
@@ -250,6 +283,7 @@ export default function BanterThread({ id }: { id: string }) {
             <button onClick={saveInsight} className="rounded-xl border border-line bg-white px-3.5 py-2.5 text-left hover:border-ink-400">❖ Save this insight</button>
             <Link href={`/messages`} className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400">✉ Continue privately</Link>
             <button onClick={turnIntoCircle} className="rounded-xl border border-line bg-white px-3.5 py-2.5 text-left hover:border-ink-400">◎ Turn into a KinCircle</button>
+            <Link href="/rooms/new" className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400">◉ Reserve a Presence Room</Link>
             <Link href="/collaborate" className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400">⌘ Create something from this</Link>
             <Link href="/play" className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400">☺ Play a game together</Link>
             {mine && !banter.closed && (

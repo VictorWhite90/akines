@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-import StartBanter from "@/components/banter/StartBanter";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Start a Banter · Akines" };
-
+/** Starting a Banter happens on one screen, at the top of /banter. */
 export default function NewBanterPage() {
-  return <StartBanter />;
+  redirect("/banter#compose");
 }

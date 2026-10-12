@@ -89,6 +89,14 @@ export type Banter = {
   spark?: { text: string; suggestion: string; people: PersonId[] };
   closed?: boolean;
   mine?: boolean;
+  /** A quick poll attached to the Banter. */
+  poll?: { options: string[]; votes: number[] };
+  /** A song or short video shared with it (a label, in the prototype). */
+  media?: { kind: "music" | "video"; label: string };
+  /** People who said “I want to explore this”. Resonance, not likes. */
+  resonance?: PersonId[];
+  /** How many people received it. */
+  reach?: number;
 };
 
 export const REACTIONS = ["😂", "🔥", "🤔", "❤️", "👏"] as const;
@@ -114,6 +122,8 @@ export const BANTERS: Banter[] = [
       { id: "r2", by: "tunde", kind: "voice", length: "0:48", text: "Why the empty space works, from a sculptor's point of view.", ago: "54m" },
       { id: "r3", by: "ayo", kind: "photo", photo: "textileHang", text: "I left this panel half-dyed on purpose. Absence carries memory.", ago: "30m" },
     ],
+    resonance: ["zuri", "tunde", "ayo"],
+    reach: 7,
     spark: {
       text: "Kwame, Zuri, Tunde and Ayo all keep returning to absence and memory in their work.",
       suggestion: "The Art of Absence",
@@ -130,6 +140,9 @@ export const BANTERS: Banter[] = [
     audienceLabel: "African Art KinCircle",
     lifetime: "1w",
     prompt: "Which Nigerian artist would you trust to redesign the national currency, and why?",
+    poll: { options: ["A textile artist", "A painter", "A sculptor", "A photographer"], votes: [9, 4, 3, 2] },
+    resonance: ["amara", "efua"],
+    reach: 11,
     ago: "5h",
     reactions: { "😂": 9, "🔥": 7, "🤔": 3 },
     replies: [
@@ -156,6 +169,8 @@ export const BANTERS: Banter[] = [
       { id: "m2", by: "fatou", kind: "text", text: "Dakar's Sandaga is half gone already. I can cover textiles and tailors.", ago: "18h" },
       { id: "m3", by: "nandi", kind: "text", text: "I'd host a room for anyone who wants to talk through consent with traders first.", ago: "12h" },
     ],
+    resonance: ["efua", "fatou", "nandi", "tunde"],
+    reach: 14,
     spark: {
       text: "This Banter has developed a clear shared intention. Five people bring complementary skills: photography, oral history, textiles and hosting.",
       suggestion: "West African Markets",
@@ -221,6 +236,8 @@ export const BANTERS: Banter[] = [
     audienceLabel: "Wider Akines community",
     lifetime: "3d",
     prompt: "Should artists explain their work, or should the art speak for itself?",
+    poll: { options: ["Explain it", "Let it speak", "Explain the making only"], votes: [5, 8, 11] },
+    reach: 40,
     ago: "2d",
     reactions: { "🤔": 16, "🔥": 4 },
     replies: [
@@ -238,6 +255,8 @@ export const BANTERS: Banter[] = [
     audienceLabel: "Ceramics KinCircle",
     lifetime: "24h",
     prompt: "What is one small thing that made you happy today?",
+    media: { kind: "music", label: "Fela Kuti · Water No Get Enemy" },
+    reach: 9,
     photo: "clayBowl",
     ago: "4h",
     reactions: { "❤️": 11 },
@@ -282,3 +301,49 @@ export const toneCheck = (text: string) => {
   const t = text.toLowerCase();
   return TONE_FLAGS.some((w) => t.includes(w));
 };
+
+/* ---------- Composer helpers ---------- */
+
+/** Starting points when someone isn't sure what to ask. One set per Banter type. */
+export const PROMPT_SPARKS: Record<BanterType, string[]> = {
+  everyday: ["What is one small thing that makes you happy today?", "What did you notice on your walk this morning?", "What are you avoiding this week, honestly?"],
+  creative: ["Which version of this feels more honest?", "Can an unfinished artwork still be honest?", "What part of your practice do you hide because it doesn't look productive?"],
+  culture: ["Which African proverb has become more meaningful as you grew older?", "What song would you play to explain your city to a stranger?", "What tradition do you wish more people understood?"],
+  debate: ["Should artists explain their work, or should the art speak for itself?", "Is AI helping or damaging African art?", "Should galleries hide sales figures?"],
+  memory: ["What object from your childhood home do you still remember clearly?", "What smell takes you straight back to your grandmother's house?", "A photo you wish you had taken?"],
+  collab: ["What could five artists from five African countries create together?", "Would anyone document disappearing markets with me?", "Who wants to make something about water?"],
+  support: ["I've been creatively blocked for two weeks. What helps you restart?", "How do you handle rejection from an open call?", "What do you do on days the studio feels lonely?"],
+  celebration: ["Someone in this circle just finished something big. Leave them a message.", "Share a small win from this month.", "Who helped you this year without being asked?"],
+};
+
+/** Plain-language reasons Akines gives for each recipient, so nobody gets a Banter without knowing why. */
+export const RECIPIENT_REASON: Record<string, string> = {
+  ayo: "Works with memory in textiles",
+  kwame: "Paints the people who raised him",
+  leila: "Collects work she can argue with",
+  zuri: "Curates diaspora conversations",
+  nandi: "Hosts small, gentle rooms",
+  tunde: "Sculptor in Lagos, likes a debate",
+  wanjiru: "Photographs everyday objects",
+  thandi: "Ceramicist who shares process",
+  fatou: "Designer interested in culture",
+  efua: "Art historian, loves an archive",
+  chidi: "Student, learning to look",
+};
+
+const SOFTER: [RegExp, string][] = [
+  [/\bstupid\b/gi, "unexpected"],
+  [/\bidiot\b/gi, "friend"],
+  [/\bugly\b/gi, "unusual"],
+  [/\buseless\b/gi, "not quite working yet"],
+  [/\bpathetic\b/gi, "disappointing"],
+  [/\bdumb\b/gi, "puzzling"],
+  [/shut up/gi, "hold on"],
+  [/\bhate\b/gi, "struggle with"],
+  [/\bworst\b/gi, "least favourite"],
+  [/\btrash\b/gi, "not for me"],
+  [/\bloser\b/gi, "underdog"],
+];
+
+/** The “suggest calmer wording” rewrite. The person always decides whether to use it. */
+export const softenWording = (text: string) => SOFTER.reduce((t, [re, to]) => t.replace(re, to), text);

@@ -89,7 +89,7 @@ export default function CliqsHome() {
               ))}
             </div>
             <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4 text-[12.5px] font-semibold">
-              <Link href="/banter/new" className="rounded-full bg-night px-4 py-2 text-white">Banter with this Cliq</Link>
+              <Link href="/banter#compose" className="rounded-full bg-night px-4 py-2 text-white">Banter with this Cliq</Link>
               <Link href="/banter" className="rounded-full border border-ink-900/20 px-4 py-2">Banter Now</Link>
               <Link href="/play" className="rounded-full border border-ink-900/20 px-4 py-2">Play a game</Link>
             </div>

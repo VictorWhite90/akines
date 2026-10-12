@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { allPeople } from "@/lib/data/people";
 import { CIRCLES, ROOMS } from "@/lib/data/community";
 import { STORIES } from "@/lib/data/stories";
+import CreateChooser from "./CreateChooser";
 
 const INDEX = [
   ...allPeople.map((p) => ({ label: p.name, kind: p.role, href: "/kindred" })),
@@ -16,22 +17,13 @@ const INDEX = [
   { label: "My studio", kind: "Your studio", href: "/studio" },
   { label: "Create a room", kind: "Presence Room", href: "/rooms/new" },
   { label: "Banter", kind: "Talk freely", href: "/banter" },
-  { label: "Start a Banter", kind: "Banter", href: "/banter/new" },
+  { label: "Start a Banter", kind: "Banter", href: "/banter#compose" },
   { label: "Play Together", kind: "Games", href: "/play" },
   { label: "Create a game", kind: "Play Together", href: "/play/new" },
   { label: "Cliqs", kind: "Your people", href: "/cliqs" },
   ...STORIES.map((s) => ({ label: s.title, kind: s.kind, href: `/stories/${s.id}` })),
 ];
 
-const CREATE = [
-  { glyph: "❝", label: "Start a Banter", body: "One good question, for the people who matter", href: "/banter/new" },
-  { glyph: "☺", label: "Create a game", body: "Play together, live or slowly", href: "/play/new" },
-  { glyph: "◉", label: "Create a room", body: "Chat, share and go live with up to six people", href: "/rooms/new" },
-  { glyph: "✦", label: "Open my studio", body: "Show your work and let people visit", href: "/studio" },
-  { glyph: "▣", label: "Add a product", body: "Sell from My store", href: "/store" },
-  { glyph: "▤", label: "Write a journal entry", body: "For you, or for the world", href: "/journal" },
-  { glyph: "⌘", label: "Start a collaboration", body: "Find someone to make with", href: "/collaborate" },
-];
 
 export default function Topbar({ onIntent, onCompanion }: { onIntent: () => void; onCompanion: () => void }) {
   const [q, setQ] = useState("");
@@ -83,21 +75,8 @@ export default function Topbar({ onIntent, onCompanion }: { onIntent: () => void
         <button className="icon-btn" aria-label="Ask the Companion" title="Creative Companion" onClick={onCompanion}>✦</button>
         <button className="icon-btn" aria-label="Notifications" title="Notifications">♢</button>
         <div className="create-wrap" ref={menuBox}>
-          <button className="primary" onClick={() => setMenu((v) => !v)} aria-haspopup="menu" aria-expanded={menu}>＋ Create</button>
-          {menu && (
-            <div className="create-menu" role="menu">
-              {CREATE.map((c) => (
-                <Link key={c.href} href={c.href} role="menuitem" onClick={() => setMenu(false)}>
-                  <span className="g" aria-hidden>{c.glyph}</span>
-                  <span><b>{c.label}</b><small>{c.body}</small></span>
-                </Link>
-              ))}
-              <button role="menuitem" onClick={() => { setMenu(false); onIntent(); }}>
-                <span className="g" aria-hidden>◐</span>
-                <span><b>Tell us what would feel meaningful</b><small>We&apos;ll suggest a first step</small></span>
-              </button>
-            </div>
-          )}
+          <button className="primary" onClick={() => setMenu((v) => !v)} aria-haspopup="dialog" aria-expanded={menu}>＋ Create</button>
+          <CreateChooser open={menu} onClose={() => setMenu(false)} onIntent={onIntent} />
         </div>
       </div>
     </header>
