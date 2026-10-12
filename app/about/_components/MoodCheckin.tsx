@@ -3,11 +3,11 @@
 import { useState } from "react";
 
 const MOODS = [
-  { face: "😞", label: "Low", reply: "Thank you for being honest. Would quiet company help?" },
-  { face: "😕", label: "Unsettled", reply: "That's okay. A small, gentle room might feel right today." },
-  { face: "😐", label: "Okay", reply: "Steady is good. Want a low-pressure way to connect?" },
-  { face: "🙂", label: "Good", reply: "Lovely. Maybe make something with someone today?" },
-  { face: "😄", label: "Great", reply: "Love that energy. Bring it to a KinCircle or a Banter." },
+  { face: "/akines/emoji1.png", label: "Low", reply: "Thank you for being honest. Would quiet company help?" },
+  { face: "/akines/emoji2.png", label: "Unsettled", reply: "That's okay. A small, gentle room might feel right today." },
+  { face: "/akines/emoji3.png", label: "Okay", reply: "Steady is good. Want a low-pressure way to connect?" },
+  { face: "/akines/emoji4.png", label: "Good", reply: "Lovely. Maybe make something with someone today?" },
+  { face: "/akines/emoji5.png", label: "Great", reply: "Love that energy. Bring it to a KinCircle or a Banter." },
 ];
 
 export default function MoodCheckin() {
@@ -26,7 +26,7 @@ export default function MoodCheckin() {
             className={`ak-mood-option${i === mood ? " is-active" : ""}`}
             onClick={() => setMood(i)}
           >
-            <span aria-hidden>{m.face}</span>
+            <img src={m.face} alt="" width={48} height={48} />
           </button>
         ))}
       </div>

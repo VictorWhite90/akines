@@ -165,7 +165,8 @@
 
 .ak-mood{display:flex;flex-direction:column;gap:24px}
 .ak-mood-options{display:flex;flex-wrap:wrap;gap:24px}
-.ak-mood-option{width:80px;height:80px;padding:16px;border-radius:50%;border:0;background:rgba(249,249,249,.35);display:grid;place-items:center;cursor:pointer;font-size:44px;line-height:1;transition:background .15s,transform .15s}
+.ak-mood-option{width:80px;height:80px;padding:16px;border-radius:50%;border:0;background:rgba(249,249,249,.35);display:grid;place-items:center;cursor:pointer;transition:background .15s,transform .15s}
+.ak-mood-option img{width:48px;height:48px;display:block}
 .ak-mood-option:hover{background:rgba(249,249,249,.6);transform:translateY(-2px)}
 .ak-mood-option.is-active{background:#f9f9f9}
 .ak-mood-option:focus-visible{outline:2px solid #181818;outline-offset:3px}
@@ -227,7 +228,8 @@
   .ak-wcard-eyebrow{font-size:16px}
   .ak-wcard-intro p{font-size:18px}
   .ak-mood-options{gap:10px}
-  .ak-mood-option{width:56px;height:56px;padding:8px;font-size:30px}
+  .ak-mood-option{width:56px;height:56px;padding:8px}
+  .ak-mood-option img{width:36px;height:36px}
   .ak-mood-reply{font-size:18px;min-height:0}
   .ak-wcard-ai .ak-btn{align-self:stretch}
   .ak-final{min-height:620px}
