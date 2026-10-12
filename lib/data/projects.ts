@@ -1,5 +1,5 @@
 import type { Project, ProjectStage } from "@/lib/types";
-import { IMG } from "./images";
+import { IMG } from "./legacyImages";
 
 /** The Collaboration Studio's seven stages, idea to legacy. */
 export const PROJECT_STAGES: { id: ProjectStage; label: string; outcome: string }[] = [

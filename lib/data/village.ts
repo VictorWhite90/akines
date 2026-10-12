@@ -1,5 +1,5 @@
 import { CIRCLES, ROOMS } from "./connect";
-import { IMG } from "./images";
+import { IMG } from "./legacyImages";
 
 /* ---------- Creative presence (replaces online/offline) ---------- */
 

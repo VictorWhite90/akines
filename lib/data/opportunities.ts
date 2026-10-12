@@ -1,5 +1,5 @@
 import type { Application, Candidate, OpenCall } from "@/lib/types";
-import { IMG } from "./images";
+import { IMG } from "./legacyImages";
 
 /** Structured open calls: every call carries the same standard fields. */
 export const OPEN_CALLS: OpenCall[] = [

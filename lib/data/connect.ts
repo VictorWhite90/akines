@@ -1,5 +1,5 @@
 import type { Circle, Introduction, PresenceRoom } from "@/lib/types";
-import { IMG } from "./images";
+import { IMG } from "./legacyImages";
 
 /** Meaningful Matching for the signed-in member. Every card explains itself. */
 export const INTRODUCTIONS: Introduction[] = [
