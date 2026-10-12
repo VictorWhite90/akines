@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Experiences from "./_components/Experiences";
+import MoodCheckin from "./_components/MoodCheckin";
 import Rhythm from "./_components/Rhythm";
 
 const NAV = [
@@ -105,7 +106,7 @@ export default function AboutPage() {
                   introduction may matter—then leaves the choice with you.
                 </p>
               </div>
-              <Link href="/dna" className="ak-btn ak-btn-xl ak-matching-cta">Build My Creative DNA</Link>
+              <Link href="/dna" className="ak-btn ak-btn-xl ak-cta-xl">Build My Creative DNA</Link>
             </div>
             <img
               className="ak-matching-photo"
@@ -115,6 +116,47 @@ export default function AboutPage() {
               height={1000}
               loading="lazy"
             />
+          </div>
+        </section>
+
+        <section className="ak-wellness" id="wellbeing">
+          <div className="ak-wrap">
+            <header className="ak-wellness-head">
+              <p className="ak-label">Private by design</p>
+              <h2>Connection includes how you feel.</h2>
+            </header>
+            <div className="ak-wellness-cards">
+              <article className="ak-wcard ak-wcard-checkin">
+                <div className="ak-wcard-top">
+                  <p className="ak-wcard-eyebrow">Your private check-in</p>
+                  <h3>How are you arriving today?</h3>
+                </div>
+                <MoodCheckin />
+              </article>
+              <article className="ak-wcard ak-wcard-ai">
+                <div className="ak-wcard-top">
+                  <p className="ak-wcard-eyebrow">Responsible AI</p>
+                  <div className="ak-wcard-intro">
+                    <h3>Support, without pretending to diagnose.</h3>
+                    <p>
+                      Akines can help you reflect on loneliness, burnout or creative blocks. When more support may help,
+                      it connects you with qualified people and trusted resources.
+                    </p>
+                  </div>
+                </div>
+                <Link href="/wellbeing" className="ak-btn ak-btn-xl ak-cta-xl ak-btn-dark">Explore Wellbeing Support</Link>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section className="ak-final">
+          <img className="ak-final-bg" src="/akines/find-your-people.jpg" alt="" width={1216} height={832} loading="lazy" />
+          <div className="ak-final-shade" aria-hidden />
+          <div className="ak-wrap ak-final-in">
+            <h2>Find your people.<br />Make something real.</h2>
+            <p>Join the early Akines community and help shape a healthier way to connect.</p>
+            <Link href="/signup" className="ak-btn ak-btn-xl ak-cta-xl">Find Your People</Link>
           </div>
         </section>
       </main>
