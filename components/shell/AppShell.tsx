@@ -30,7 +30,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const night = pathname === "/" || pathname.startsWith("/layouts");
 
   return (
-    <div className={`app nx${night ? " is-night" : ""}`}>
+    <div className={`app nx${night ? " is-night" : ""}${pathname.startsWith("/atelier") ? " is-bleed" : ""}`}>
       <Rail />
       <main className="main">
         <CommandBar onIntent={() => setIntent(true)} onCompanion={() => setCompanion(true)} />
