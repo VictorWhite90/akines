@@ -1,24 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
-import PageHeader from "@/components/ui/PageHeader";
-import { allPeople, ME, PEOPLE, type PersonId } from "@/lib/data/people";
+import Photo from "@/components/ui/Photo";
+import { CLIQS, type Cliq } from "@/lib/data/cliqs";
+import { allPeople, ME, PEOPLE, PRESENCE, type Person, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
 
-type Cliq = { id: string; name: string; why: string; people: PersonId[]; mine?: boolean };
-
-const SEED: Cliq[] = [
-  { id: "makers", name: "Makers' Cliq", why: "The people I trust with unfinished work.", people: ["thandi", "ayo", "fatou", "tunde", "kwame"] },
-  { id: "photo-lagos", name: "Photography Lagos", why: "Honest eyes on everything I shoot in the city.", people: ["wanjiru", "tunde", "chidi", "zuri", "efua", "leila"] },
-];
-const others = allPeople.filter((p) => p.id !== ME.id);
+const SAFFRON = "#e09a00";
+const c = { ["--c" as string]: SAFFRON } as React.CSSProperties;
 const MAX = 8;
+const others = allPeople.filter((p) => p.id !== ME.id);
+const DOT: Record<string, string> = { studio: "#ffb000", room: "#e5007e", quiet: "#c4c1cc", open: "#00a86b" };
+const KIND: Record<string, string> = { banter: "❝", voice: "◉", game: "☺", photo: "▣" };
+const RITUALS = ["One photo each, every Friday", "Sunday show-and-tell of something unfinished", "A monthly 20-minute Banter Now", "A slow game once a fortnight", "No ritual, just here when needed"];
 
 /** How Cliqs differ from the other ways of being together on Akines. */
 const COMPARE = [
-  { name: "Cliq", size: "5–8 people", body: "A trusted, recurring audience. The people you genuinely want to hear from." },
+  { name: "Cliq", size: "5–8 people", body: "A trusted, recurring audience. The people you genuinely want to hear from.", on: true },
   { name: "KinCircle", size: "3–12 people", body: "Small and purposeful, with a start, a journey and a decision about what's next." },
   { name: "Creative Circle", size: "Larger", body: "An ongoing community around a practice, a place or an interest." },
 ];
@@ -28,86 +28,151 @@ export default function CliqsHome() {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [why, setWhy] = useState("");
+  const [ritual, setRitual] = useState(RITUALS[0]);
   const [people, setPeople] = useState<PersonId[]>([]);
+  const [toast, setToast] = useState("");
 
-  const cliqs = [...mine, ...SEED];
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(""), 3000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const cliqs = [...mine, ...CLIQS];
+  const everyone = [...new Set(cliqs.flatMap((q) => q.people))];
+  const aroundNow = everyone.filter((id) => PEOPLE[id].presence === "open" || PEOPLE[id].presence === "studio");
   const toggle = (id: PersonId) => setPeople((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : cur.length >= MAX ? cur : [...cur, id]));
   const create = () => {
-    setMine((cur) => [{ id: newId("cliq"), name: name.trim(), why: why.trim(), people, mine: true }, ...cur]);
+    setMine((cur) => [{ id: newId("cliq"), name: name.trim(), why: why.trim(), people, ritual, active: "just started", mine: true }, ...cur]);
     setCreating(false);
     setName("");
     setWhy("");
     setPeople([]);
+    setToast(`“${name.trim()}” is ready. Nobody is told until you start something together.`);
   };
 
   return (
-    <div className="flex flex-col gap-9">
-      <PageHeader eyebrow="Cliqs" title={<>Your people, <em>on purpose.</em></>} sub="A Cliq is the five to eight people you genuinely want to hear from. Share a Banter with them, play together, or just check in.">
-        <button onClick={() => setCreating((c) => !c)} className="rounded-full bg-night px-6 py-3 text-[14px] font-semibold text-white hover:bg-ink-800">＋ Make a Cliq</button>
-      </PageHeader>
+    <div className="ap" style={c}>
+      <div className="ap-hello">
+        <div>
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: SAFFRON }}>Cliqs</p>
+          <h1 style={{ marginTop: 4 }}>Your people, on purpose.</h1>
+          <p>The five to eight people you genuinely want to hear from. Share a Banter, start a quick call or play together.</p>
+        </div>
+        <div className="ap-now">
+          <span className="cq-pill"><i style={{ background: "#00a86b" }} />{aroundNow.length} of your people around now</span>
+          <button onClick={() => setCreating((v) => !v)} className="cq-pill dark">＋ Make a Cliq</button>
+        </div>
+      </div>
+
+      {/* Around now */}
+      <section className="cq-around" aria-label="Around now">
+        {everyone.map((id) => {
+          const p: Person = PEOPLE[id];
+          return (
+            <Link key={id} href="/banter#compose" className="cq-person" title={`${p.name} · ${PRESENCE[p.presence].label}`}>
+              <span className="cq-ring" style={{ borderColor: DOT[p.presence] }}><Avatar person={p} size={52} /></span>
+              <b>{p.name.split(" ")[0]}</b>
+              <small>{p.note ?? PRESENCE[p.presence].label}</small>
+            </Link>
+          );
+        })}
+      </section>
 
       {creating && (
-        <section className="rounded-[22px] border border-line bg-paper-50 p-5 sm:p-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="flex flex-col gap-1.5 text-[13px] font-semibold">
-              Name
-              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Sunday sketch friends" className="rounded-xl border border-line bg-white px-4 py-3 text-[15px] font-normal outline-none focus:border-ink-900" />
-            </label>
-            <label className="flex flex-col gap-1.5 text-[13px] font-semibold">
-              What brings you together? <span className="font-normal text-mute">(only you see this)</span>
-              <input value={why} onChange={(e) => setWhy(e.target.value)} placeholder="People who tell me the truth kindly." className="rounded-xl border border-line bg-white px-4 py-3 text-[15px] font-normal outline-none focus:border-ink-900" />
-            </label>
+        <section className="cq-make">
+          <div className="kc-head" style={{ marginBottom: 6 }}>
+            <h2 style={{ fontSize: 20 }}>Make a Cliq</h2>
+            <button className="ap-btn" onClick={() => setCreating(false)}>Cancel</button>
           </div>
-          <p className="mt-4 text-[13px] font-semibold">Choose up to {MAX} people <span className="font-normal text-mute">({people.length} chosen)</span></p>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="cq-form">
+            <label>Name<input value={name} onChange={(e) => setName(e.target.value)} placeholder="Sunday sketch friends" /></label>
+            <label>What brings you together? <small>(only you see this)</small><input value={why} onChange={(e) => setWhy(e.target.value)} placeholder="People who tell me the truth kindly." /></label>
+          </div>
+          <p className="cq-label">A small ritual (optional)</p>
+          <div className="cq-chips">{RITUALS.map((r) => <button key={r} onClick={() => setRitual(r)} className={`ap-btn${ritual === r ? " on" : ""}`}>{r}</button>)}</div>
+          <p className="cq-label">Choose up to {MAX} people <span>({people.length} chosen)</span></p>
+          <div className="cq-chips">
             {others.map((p) => (
-              <button key={p.id} onClick={() => toggle(p.id as PersonId)} className={`flex items-center gap-2 rounded-full border py-1 pr-3 pl-1 text-[12.5px] ${people.includes(p.id as PersonId) ? "border-ink-900 bg-ink-900 text-white" : "border-line bg-white hover:border-ink-400"}`}>
-                <Avatar person={p} size={24} />{p.name}
+              <button key={p.id} onClick={() => toggle(p.id as PersonId)} className={`cq-pick${people.includes(p.id as PersonId) ? " on" : ""}`}>
+                <Avatar person={p} size={26} />{p.name}
               </button>
             ))}
           </div>
-          <div className="mt-5 flex items-center justify-between gap-3">
-            <p className="text-[12px] text-mute">People only see that they&apos;re in a Cliq with you if you start something together.</p>
-            <button onClick={create} disabled={!name.trim() || people.length < 2} className="rounded-full bg-ochre-400 px-6 py-3 text-[14px] font-semibold text-ink-950 disabled:opacity-40">Create Cliq</button>
+          <div className="ap-foot" style={{ marginTop: 18 }}>
+            <span className="ap-meta">People only see they&apos;re in a Cliq with you if you start something together.</span>
+            <button className="ap-cta" style={{ marginTop: 0, background: "#14121a", color: "#fff" }} onClick={create} disabled={!name.trim() || people.length < 2}>Create Cliq</button>
           </div>
         </section>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {cliqs.map((c) => (
-          <article key={c.id} className="flex flex-col rounded-[20px] border border-line bg-paper-50 p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 className="font-display text-[22px]">{c.name}</h2>
-                <p className="mt-0.5 text-[13px] text-mute">{c.why || "Your trusted people."}</p>
+      <div className="cq-grid">
+        {cliqs.map((q) => {
+          const latest = q.latest;
+          return (
+            <article key={q.id} className="cq-card">
+              <div className="cq-top">
+                {q.photo ? <Photo name={q.photo} sizes="120px" className="h-[86px] w-[86px] flex-none rounded-[20px]" /> : <span className="cq-mono">{q.name.slice(0, 1)}</span>}
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
+                    <h2>{q.name}</h2>
+                    <span className="ap-tag">{q.people.length} people</span>
+                  </div>
+                  <p className="cq-why">{q.why || "Your trusted people."}</p>
+                  {q.ritual && <p className="cq-ritual">↻ {q.ritual}</p>}
+                </div>
               </div>
-              <span className="rounded-full bg-paper-200 px-2.5 py-1 text-[11px]">{c.people.length} people</span>
-            </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {c.people.map((pid) => (
-                <span key={pid} className="flex items-center gap-1.5 rounded-full bg-white py-1 pr-3 pl-1 text-[12px]"><Avatar person={PEOPLE[pid]} size={22} />{PEOPLE[pid].name.split(" ")[0]}</span>
-              ))}
-            </div>
-            <div className="mt-5 flex flex-wrap gap-2 border-t border-line pt-4 text-[12.5px] font-semibold">
-              <Link href="/banter#compose" className="rounded-full bg-night px-4 py-2 text-white">Banter with this Cliq</Link>
-              <Link href="/banter" className="rounded-full border border-ink-900/20 px-4 py-2">Banter Now</Link>
-              <Link href="/play" className="rounded-full border border-ink-900/20 px-4 py-2">Play a game</Link>
-            </div>
-          </article>
-        ))}
+
+              <div className="cq-members">
+                {q.people.map((id) => (
+                  <span key={id} className="cq-m" title={`${PEOPLE[id].name} · ${PRESENCE[PEOPLE[id].presence].label}`}>
+                    <Avatar person={PEOPLE[id]} size={34} />
+                    <i style={{ background: DOT[PEOPLE[id].presence] }} />
+                  </span>
+                ))}
+                <span className="ap-meta" style={{ marginLeft: 6 }}>{q.active}</span>
+              </div>
+
+              {latest && (
+                <div className="cq-latest">
+                  <span className="cq-k">{KIND[latest.kind]}</span>
+                  <p><b>{PEOPLE[latest.by].name.split(" ")[0]}</b> {latest.text}</p>
+                  <small>{latest.ago}</small>
+                </div>
+              )}
+
+              {q.quiet && (
+                <div className="cq-quiet">
+                  <Avatar person={PEOPLE[q.quiet]} size={26} />
+                  <span>{PEOPLE[q.quiet].name.split(" ")[0]} has been quiet for a while.</span>
+                  <button onClick={() => setToast(`A gentle voice note is on its way to ${PEOPLE[q.quiet!].name.split(" ")[0]}.`)}>Check in</button>
+                </div>
+              )}
+
+              <div className="cq-actions">
+                <Link href="/banter#compose" className="cq-act lead"><span>❝</span>Banter</Link>
+                <Link href="/banter" className="cq-act"><span>◉</span>Banter Now</Link>
+                <Link href="/play" className="cq-act"><span>☺</span>Play</Link>
+                <button className="cq-act" onClick={() => setToast(`Voice note sent to ${q.name}.`)}><span>♪</span>Voice note</button>
+              </div>
+            </article>
+          );
+        })}
       </div>
 
-      <section className="rounded-[22px] bg-paper-200 p-5">
-        <h2 className="font-display text-[20px]">Cliqs, KinCircles and Creative Circles</h2>
-        <div className="mt-3 grid gap-3 md:grid-cols-3">
+      <section className="kc-section">
+        <div className="kc-head"><h2>Cliqs, KinCircles and Creative Circles</h2></div>
+        <div className="cq-compare">
           {COMPARE.map((x) => (
-            <div key={x.name} className="rounded-xl bg-paper-50 p-4">
-              <p className="text-[14.5px] font-semibold">{x.name} <span className="font-normal text-mute">· {x.size}</span></p>
-              <p className="mt-1 text-[12.5px] leading-relaxed text-mute">{x.body}</p>
+            <div key={x.name} className={x.on ? "on" : undefined}>
+              <b>{x.name}</b> <span>· {x.size}</span>
+              <p>{x.body}</p>
             </div>
           ))}
         </div>
       </section>
+
+      {toast && <div role="status" className="cq-toast">{toast}</div>}
     </div>
   );
 }
