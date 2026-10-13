@@ -174,3 +174,5 @@ html[data-theme="dark"] .app .rs-comp.ro button,
 html[data-theme="dark"] .app .rs-side .invite button,
 html[data-theme="dark"] .app .rs .sys button { background: var(--dk-btn); color: var(--dk-btn-ink); }
 html[data-theme="dark"] .app .rs .row.mine .bubble { background: #3b3352; color: #fff; }
+html[data-theme="dark"] .km-intent-menu button[aria-checked="true"],
+html[data-theme="dark"] .km-intent-menu button:hover { background: var(--dk-s2); color: var(--dk-ink); }

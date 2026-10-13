@@ -817,3 +817,32 @@ html[data-theme="dark"] .app .ap-calm.cs .rs-head .go { background: #12352a; col
 html[data-theme="dark"] .app .ap-calm :is(.rs-main, .rs-side) { background: var(--dk-s1); border-color: var(--dk-line); }
 .app .ap-calm .rs-comp.ro button { background: #14121a; color: #fff; }
 .app .ap-calm .rs .row.mine .bubble { background: #e6f7ef; }
+
+/* ---------- Game covers v2: photo + colour wash + prompt card ---------- */
+.gp:not(.absolute) { position: relative; }
+.gp { overflow: hidden; isolation: isolate; background: var(--gc-bg); }
+.gp-img { position: absolute !important; inset: 0; height: 100%; z-index: -2; transition: transform .7s cubic-bezier(.2,.8,.2,1); }
+a:hover .gp-img, .ap-card:hover .gp-img { transform: scale(1.06); }
+.gp-wash { position: absolute; inset: 0; z-index: -1; background: linear-gradient(115deg, color-mix(in srgb, var(--gc-bg) 78%, transparent) 0%, color-mix(in srgb, var(--gc-bg) 35%, transparent) 45%, rgba(20,18,26,.05) 75%); }
+.gp-card { position: absolute; right: 14px; bottom: -14px; width: min(58%, 230px); padding: 12px 14px 26px; border-radius: 14px; background: #fff; color: #14121a; transform: rotate(4deg); box-shadow: 0 16px 30px -12px rgba(0,0,0,.55); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+a:hover .gp-card { transform: rotate(0deg) translateY(-8px); }
+.gp-card small { display: block; margin-bottom: 6px; font: 700 9.5px/1 var(--ap-sans, sans-serif); letter-spacing: .1em; text-transform: uppercase; color: var(--gc-bg); filter: brightness(.8); }
+.gp-card em { font: 600 13px/1.35 var(--ap-sans, sans-serif); font-style: normal; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.gp.big .gp-card { width: min(52%, 280px); padding: 16px 18px 30px; }
+.gp.big .gp-card em { font-size: 16px; -webkit-line-clamp: 5; }
+.gp.compact .gp-card { width: 62%; }
+html[data-theme="dark"] .gp-card { background: #fff; color: #14121a; }
+
+/* KinMessage: the intent menu sits above the chat */
+.km-thread-head { position: relative; z-index: 6; }
+
+/* Dark mode: big "night" panels (AI Game Creator and friends) become a warm gradient, not a light slab */
+html[data-theme="dark"] .ap-calm :is(section, div, aside, article).bg-night {
+  background: radial-gradient(120% 140% at 0% 0%, #3a2312 0%, #1d1726 55%, #15121c 100%);
+  border: 1px solid #3b2c22;
+  color: #fff;
+}
+html[data-theme="dark"] .ap-calm :is(section, div, aside, article).bg-night.text-white,
+html[data-theme="dark"] .ap-calm :is(section, div, aside, article).bg-night .text-white { color: #fff; }
+html[data-theme="dark"] .ap-calm :is(section, div, aside, article).bg-night input { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.12); color: #fff; }
+.app .gp .gp-card em { color: #14121a !important; }

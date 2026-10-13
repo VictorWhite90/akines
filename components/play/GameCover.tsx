@@ -1,3 +1,4 @@
+import Photo from "@/components/ui/Photo";
 import type { Game, GameCategory } from "@/lib/data/games";
 
 /** One colour pair and wax-print pattern per game category. */
@@ -17,19 +18,18 @@ const LOOK: Record<GameCategory, { bg: string; ink: string; pattern: "dots" | "r
 };
 
 /**
- * A designed cover for a game: a fan of three playing cards in the game's colours,
- * with the game's real first prompt printed on the front card. Unique per game.
+ * A game's cover: its photo, washed in the category colour, with the game's real first
+ * prompt printed on a tilted white card. Unique per game.
  */
 export default function GameCover({ game, className = "", compact = false }: { game: Game; className?: string; compact?: boolean }) {
   const look = LOOK[game.category];
   return (
-    <div className={`gc gc-${look.pattern} ${compact ? "compact" : ""} ${className}`} style={{ ["--gc-bg" as string]: look.bg, ["--gc-ink" as string]: look.ink } as React.CSSProperties} aria-hidden>
-      <span className="gc-card back2" />
-      <span className="gc-card back1"><b>{look.glyph}</b></span>
-      <span className="gc-card front">
-        <small>Card 1 of {game.cards.length}</small>
+    <div className={`gp ${compact ? "compact" : ""} ${className}`} style={{ ["--gc-bg" as string]: look.bg } as React.CSSProperties} aria-hidden>
+      <Photo name={game.photo} sizes="(max-width: 760px) 90vw, 420px" className="gp-img" />
+      <span className="gp-wash" />
+      <span className="gp-card">
+        <small>{look.glyph} Card 1 of {game.cards.length}</small>
         <em>{game.cards[0]}</em>
-        <i>{look.glyph}</i>
       </span>
     </div>
   );
