@@ -27,7 +27,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Sign-in, sign-up, the KinCircle creation wizard and the public About page are full-screen, without the shell.
   if (pathname === "/login" || pathname === "/signup" || pathname === "/circles/new" || pathname === "/about") return <>{children}</>;
 
-  const night = pathname === "/";
+  const night = pathname === "/" || pathname.startsWith("/layouts");
 
   return (
     <div className={`app nx${night ? " is-night" : ""}`}>
