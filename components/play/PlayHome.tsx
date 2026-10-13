@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import PageHeader from "@/components/ui/PageHeader";
-import Photo from "@/components/ui/Photo";
+import GameCover from "./GameCover";
 import { useGames } from "./useGames";
 import { GAME_CATEGORIES, GAME_SAFEGUARDS, GAME_SESSIONS, PLAY_MODES, PLAY_OUTCOMES, PLAY_PURPOSES, type GameCategory, type PlayPurpose } from "@/lib/data/games";
 import { PEOPLE } from "@/lib/data/people";
@@ -73,10 +73,11 @@ export default function PlayHome() {
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             {games.map((g) => (
               <Link key={g.id} href={`/play/${g.id}`} className="group flex flex-col overflow-hidden rounded-[18px] border border-line bg-paper-50 transition-all hover:-translate-y-0.5 hover:shadow-lift">
-                <Photo name={g.photo} sizes="320px" className="h-[120px]">
+                <div className="relative h-[150px]">
+                  <GameCover game={g} className="absolute inset-0" />
                   <span className="absolute top-2.5 left-2.5 rounded-full bg-paper-50/95 px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase">{GAME_CATEGORIES.find((c) => c.id === g.category)!.label}</span>
                   {g.mine && <span className="absolute top-2.5 right-2.5 rounded-full bg-ochre-400 px-2.5 py-1 text-[10px] font-bold uppercase">Yours</span>}
-                </Photo>
+                </div>
                 <div className="flex flex-1 flex-col p-3.5">
                   <p className="text-[15px] leading-snug font-semibold">{g.name}</p>
                   <p className="mt-1 line-clamp-2 flex-1 text-[12px] leading-relaxed text-mute">{g.blurb}</p>

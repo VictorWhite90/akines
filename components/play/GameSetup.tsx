@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import Avatar from "@/components/ui/Avatar";
-import Photo from "@/components/ui/Photo";
+import GameCover from "./GameCover";
 import GameCircle from "./GameCircle";
 import { useGames } from "./useGames";
 import { GAME_CATEGORIES, PLAY_AUDIENCES, PLAY_MODES, PLAY_PURPOSES, type PlayMode } from "@/lib/data/games";
@@ -88,7 +88,7 @@ export default function GameSetup({ id }: { id: string }) {
         </div>
 
         <aside className="flex flex-col gap-4">
-          <Photo name={game.photo} ratio="4/3" sizes="340px" className="rounded-[20px]" />
+          <GameCover game={game} className="big aspect-[4/3] rounded-[20px]" />
           <section className="rounded-[20px] border border-line bg-paper-50 p-4">
             <h2 className="font-display text-[18px]">Cards in this game</h2>
             <ol className="mt-2 flex flex-col gap-2 text-[13px]">{game.cards.map((c, i) => <li key={c} className="flex gap-2"><span className="text-mute">{i + 1}.</span>{c}</li>)}</ol>

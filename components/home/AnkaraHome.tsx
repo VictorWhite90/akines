@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import Avatar, { AvatarStack } from "@/components/ui/Avatar";
 import Photo from "@/components/ui/Photo";
+import GameCover from "@/components/play/GameCover";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import Pic from "@/components/home/Pic";
 import { ReserveButtons } from "@/components/home/HomeClient";
@@ -243,7 +244,7 @@ export default function AnkaraHome() {
               const inn = games.includes(s.id);
               return (
                 <article key={s.id} className="ap-card" style={cvar(C.tangerine)}>
-                  <Link href={`/play/session/${s.id}`} className="ap-img"><Photo name={g.photo} sizes="360px" className="absolute inset-0 h-full" /><span className={`ap-tag${s.live ? " solid" : ""}`}>{s.when}</span></Link>
+                  <Link href={`/play/session/${s.id}`} className="ap-img"><GameCover game={g} className="absolute inset-0 h-full" /><span className={`ap-tag${s.live ? " solid" : ""}`}>{s.when}</span></Link>
                   <div className="ap-card-body">
                     <h3>{s.title}</h3>
                     <p>{s.why}</p>

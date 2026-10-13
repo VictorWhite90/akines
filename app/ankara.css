@@ -307,3 +307,33 @@
 .ap-page { --orange: var(--c); }
 .app .ap-page .msg-empty, .app .ap-page .msg-gate { align-content: center; }
 .app .ap-page .msg-empty .glyph { color: var(--c); }
+
+/* ---------- Game covers: a fan of cards with the game's first prompt ---------- */
+.gc:not(.absolute) { position: relative; }
+.gc { overflow: hidden; background-color: var(--gc-bg); color: var(--gc-ink); isolation: isolate; }
+.gc::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .16; color: var(--gc-ink); }
+.gc-dots::before { background-image: radial-gradient(circle, currentColor 3px, transparent 3.5px); background-size: 20px 20px; }
+.gc-rings::before { background-image: radial-gradient(circle, transparent 7px, currentColor 8px, currentColor 10px, transparent 11px); background-size: 32px 32px; }
+.gc-chevron::before { background-image: linear-gradient(135deg, currentColor 25%, transparent 25%), linear-gradient(225deg, currentColor 25%, transparent 25%); background-size: 26px 26px; opacity: .12; }
+.gc-waves::before { background-image: radial-gradient(circle at 50% 100%, transparent 14px, currentColor 15px, currentColor 18px, transparent 19px); background-size: 38px 22px; }
+.gc-diamonds::before { background-image: linear-gradient(45deg, currentColor 12%, transparent 12%, transparent 88%, currentColor 88%), linear-gradient(-45deg, currentColor 12%, transparent 12%, transparent 88%, currentColor 88%); background-size: 24px 24px; opacity: .14; }
+.gc-stripes::before { background-image: repeating-linear-gradient(90deg, currentColor 0 6px, transparent 6px 18px); opacity: .12; }
+.gc-card { position: absolute; left: 50%; bottom: -18%; width: 46%; height: 112%; border-radius: 12px; background: #fff; box-shadow: 0 10px 22px -10px rgba(0,0,0,.45); transform-origin: 50% 120%; transition: transform .35s cubic-bezier(.2,.8,.2,1); }
+.gc-card.back2 { transform: translateX(-50%) rotate(-14deg); background: color-mix(in srgb, var(--gc-bg) 30%, #fff); }
+.gc-card.back1 { transform: translateX(-50%) rotate(-6deg); background: color-mix(in srgb, var(--gc-bg) 14%, #fff); display: grid; place-items: start end; padding: 8px 10px; }
+.gc-card.back1 b { font-size: 14px; color: var(--gc-bg); opacity: .7; }
+.gc-card.front { transform: translateX(-50%) rotate(5deg); display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 0; color: #14121a; }
+.gc-card.front small { font: 700 8.5px/1 var(--ap-sans, sans-serif); letter-spacing: .1em; text-transform: uppercase; color: var(--gc-bg); filter: brightness(.8); }
+.gc-card.front em { font: 600 12px/1.3 var(--ap-sans, sans-serif); font-style: normal; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.gc-card.front i { position: absolute; right: 10px; top: 9px; font-style: normal; font-size: 12px; color: var(--gc-bg); }
+a:hover .gc .gc-card.back2, .ap-card:hover .gc .gc-card.back2 { transform: translateX(-62%) rotate(-20deg); }
+a:hover .gc .gc-card.back1, .ap-card:hover .gc .gc-card.back1 { transform: translateX(-54%) rotate(-9deg); }
+a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: translateX(-46%) rotate(8deg) translateY(-6px); }
+.gc.compact .gc-card { width: 52%; }
+.gc.big .gc-card { width: 40%; height: 92%; bottom: -10%; }
+.gc.big .gc-card.front { padding: 18px 18px 0; gap: 10px; }
+.gc.big .gc-card.front small { font-size: 10px; }
+.gc.big .gc-card.front em { font-size: 16px; -webkit-line-clamp: 6; }
+.app .gc .gc-card.front em { color: #14121a; }
+.gc-card { left: 62%; }
+.gc.big .gc-card { left: 55%; }
