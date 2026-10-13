@@ -89,7 +89,7 @@ export default function CreateRoom({ circle: circleParam }: { circle?: string })
   };
 
   return (
-    <div className="flex flex-col gap-7">
+    <div className="ap-calm flex flex-col gap-7" style={{ ["--c" as string]: "#e5007e" } as React.CSSProperties}>
       <div>
         <Link href="/rooms" className="text-[13px] font-semibold text-mute hover:text-night">← All rooms</Link>
         <p className="ac-eyebrow mt-4">Host a room</p>

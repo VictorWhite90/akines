@@ -115,7 +115,7 @@ export default function RoomSpace({ room, demo }: { room: Room; demo?: string })
   const voices = chat.msgs.filter((m) => m.kind === "voice").length;
 
   return (
-    <div className="rs">
+    <div className="rs ap-calm" style={{ ["--c" as string]: "#e5007e" } as React.CSSProperties}>
       <section className="rs-main">
         {/* header */}
         <header className="rs-head">

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Avatar from "@/components/ui/Avatar";
-import PageHeader from "@/components/ui/PageHeader";
 import Photo from "@/components/ui/Photo";
 import SeatTable from "@/components/ui/SeatTable";
 import MyRooms from "@/components/rooms/MyRooms";
@@ -23,31 +22,36 @@ export default function Rooms() {
   const fHost = PEOPLE[featured.host];
   const rest = ROOMS.filter((r) => r.id !== featured.id);
   return (
-    <div className="flex flex-col gap-10">
-      <PageHeader eyebrow="Art Presence Rooms" title={<>Six chairs. <em>One conversation.</em></>} sub="Artists sit with collectors, collectors with students, students with curators. Everybody learns, and nobody performs.">
-        <Link href="/rooms/new" className="inline-flex items-center gap-2 rounded-full bg-night px-6 py-3.5 text-[15px] font-semibold text-white hover:bg-ink-800">＋ Create a room</Link>
-      </PageHeader>
-
-      <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {RULES.map(([t, d]) => (
-          <li key={t} className="rounded-2xl border border-line bg-paper-50 px-4 py-3.5">
-            <p className="font-display text-[16px]">{t}</p>
-            <p className="mt-0.5 text-[11.5px] leading-snug text-mute">{d}</p>
-          </li>
-        ))}
-      </ul>
+    <div className="ap ap-calm flex flex-col gap-10" style={{ ["--c" as string]: "#e5007e" } as React.CSSProperties}>
+      <div className="bt-head" style={{ marginBottom: 0 }}>
+        <section className="bt-intro rm-intro">
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#e5007e" }}>Presence Rooms</p>
+          <h1>Six chairs. One conversation.</h1>
+          <p>Artists sit with collectors, collectors with students, students with curators. Everybody learns, and nobody performs.</p>
+          <div className="rm-rules">
+            {RULES.map(([t, d]) => <span key={t} title={d}><i /><b>{t}</b> {d}</span>)}
+          </div>
+        </section>
+        <div className="rm-host">
+          <span className="seatsdeco" aria-hidden />
+          <p style={{ textTransform: "uppercase", letterSpacing: ".12em", fontSize: 11, fontWeight: 700, color: "#ff8cc6" }}>Host a room</p>
+          <b>Have a question you&apos;d like to sit inside for an hour?</b>
+          <p>Pick a question, a time and who can come in. Six seats, always.</p>
+          <Link href="/rooms/new">＋ Create a room</Link>
+        </div>
+      </div>
 
       {/* Live now */}
       <section aria-label="Live now" className="relative overflow-hidden rounded-[26px] bg-ink-900 text-paper-50 shadow-lift">
         <Photo name={featured.photo} sizes="(max-width: 1060px) 100vw, 1200px" priority className="absolute inset-0 h-full" position="center 40%" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0f1c17]/85 via-[#12261f]/35 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#14121a]/85 via-[#14121a]/35 to-transparent" />
         <div className="relative grid items-center gap-8 p-7 md:p-10 lg:grid-cols-[minmax(0,1fr)_auto]">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-[11px] backdrop-blur"><span className="h-[7px] w-[7px] rounded-full bg-[#eab054] shadow-[0_0_0_5px_rgba(234,176,84,.17)]" />{featured.status === "live" ? "Live now" : featured.when} · {featured.tag}</span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-[11px] backdrop-blur"><span className="h-[7px] w-[7px] rounded-full bg-[#ff4fa8] shadow-[0_0_0_5px_rgba(229,0,126,.25)]" />{featured.status === "live" ? "Live now" : featured.when} · {featured.tag}</span>
             <h2 className="font-display mt-4 max-w-xl text-[34px] leading-[1.05] md:text-[42px]">{featured.title}</h2>
             <p className="mt-3 flex items-center gap-2.5 text-[13px] text-paper-100/90"><Avatar person={fHost} size={30} />Hosted by <b className="font-semibold text-paper-50">{fHost.name}</b> · {fHost.role}, {fHost.city}</p>
-            <p className="mt-4 max-w-md text-[14px] leading-relaxed text-[#d9e1dd]">{featured.blurb}</p>
-            <Link href={`/rooms/${featured.id}`} className="mt-6 inline-block text-[13px] font-semibold text-lime underline decoration-2 underline-offset-4">What we'll talk about →</Link>
+            <p className="mt-4 max-w-md text-[14px] leading-relaxed text-white/80">{featured.blurb}</p>
+            <Link href={`/rooms/${featured.id}`} className="mt-6 inline-block text-[13px] font-semibold text-white underline decoration-2 underline-offset-4">What we'll talk about →</Link>
           </div>
           <div className="rounded-[22px] border border-white/15 bg-night/30 p-5 backdrop-blur-sm">
             <SeatTable room={featured} size={220} tone="dark" />
@@ -71,15 +75,6 @@ export default function Rooms() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden rounded-[24px]">
-        <Photo name="talkLaugh" ratio="21/6" sizes="1100px" className="min-h-[190px]" position="center 40%" />
-        <div className="absolute inset-0 bg-gradient-to-r from-night/85 to-night/30" />
-        <div className="absolute inset-0 flex flex-col justify-center gap-2 p-8 text-paper-50 md:p-10">
-          <p className="ac-eyebrow" style={{ color: "var(--lime)" }}>Host a room</p>
-          <p className="font-display max-w-lg text-[26px] leading-tight md:text-[32px]">Have a question you'd like to sit inside for an hour?</p>
-          <Link href="/rooms/new" className="mt-2 inline-block w-fit rounded-full bg-lime px-5 py-2.5 text-[13px] font-bold text-ink-900">Create your room →</Link>
-        </div>
-      </section>
     </div>
   );
 }
