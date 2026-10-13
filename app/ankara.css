@@ -561,3 +561,55 @@ a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: trans
   .hc-panel { grid-column: auto; }
   .hw { columns: 1; }
 }
+
+/* =========================================================
+   Home v4: greeting row + slider, banner Banter, photo games, endless feed
+   ========================================================= */
+.hm .hm-hello { align-items: center; margin-bottom: 16px; }
+.hm .hm-hello h1 { font-size: 32px; }
+.hm .hm-hello h1 span { background: linear-gradient(90deg, #ffb000, #ff6b1a 50%, #e5007e); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hm-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.hm-stats a { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 16px 0 6px; border-radius: 99px; background: var(--ap-soft); border: 1px solid var(--ap-line); font-size: 13px; font-weight: 600; color: var(--ap-ink); text-decoration: none; transition: transform .15s; }
+.hm-stats a:hover { transform: translateY(-2px); }
+.hm-stats b { min-width: 30px; height: 30px; padding: 0 8px; border-radius: 99px; display: grid; place-items: center; background: #14121a; color: #fff; font-size: 14px; }
+.hm-stats b.live { background: #e5007e; box-shadow: 0 0 0 4px rgba(229,0,126,.15); }
+.hm-stats a.go { padding: 0 18px; background: #ffb000; border-color: #ffb000; }
+.ap.hm .hm-hero .hero { height: 440px; border-radius: 28px; }
+.hm .hm-hero { margin-bottom: 22px; }
+.hm .hm-hero .hero-copy h2 { font-size: 38px !important; letter-spacing: -.02em; }
+
+/* Today's Banter as a short banner */
+.hb-banner { display: grid; grid-template-columns: 150px minmax(0, 1fr) auto; align-items: center; gap: 18px; margin-bottom: 14px; padding: 10px 18px 10px 10px; border-radius: 22px; background: #14121a; color: #fff; text-decoration: none; transition: transform .2s; }
+.hb-banner:hover { transform: translateY(-2px); }
+.hb-banner-img { position: relative; height: 96px; border-radius: 16px; overflow: hidden; }
+.hb-banner-tx small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #ffd27a; }
+.hb-banner-tx b { display: block; margin-top: 4px; font-size: 18px; line-height: 1.3; }
+.hb-banner-go { padding: 10px 16px; border-radius: 99px; background: #ffb000; color: #14121a; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.hb .hb-list { display: flex; flex-direction: column; gap: 10px; }
+
+/* Games as photos with a prompt card */
+.hs-gph { position: relative; display: block; height: 170px; overflow: hidden; isolation: isolate; }
+.hs-gph > div:first-child { z-index: -2; transition: transform .6s; }
+.hs-game:hover .hs-gph > div:first-child { transform: scale(1.06); }
+.hs-gph::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(160deg, color-mix(in srgb, var(--gc) 55%, transparent) 0%, rgba(20,18,26,.15) 60%); }
+.hs-gcard { position: absolute; right: 12px; bottom: -8px; width: 58%; padding: 10px 12px 18px; border-radius: 12px; background: #fff; color: #14121a; font-size: 12px; font-weight: 600; line-height: 1.3; transform: rotate(4deg); box-shadow: 0 10px 22px -10px rgba(0,0,0,.55); transition: transform .3s; }
+.hs-game:hover .hs-gcard { transform: rotate(0) translateY(-6px); }
+.hs-gcard small { display: block; margin-bottom: 4px; font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gc); }
+.hs-gmode { position: absolute; left: 10px; top: 10px; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.92); font-size: 11px; font-weight: 700; color: #14121a; }
+
+/* Endless feed */
+.hm-more { display: grid; place-items: center; padding: 10px 0 30px; }
+.hm-more button { display: inline-flex; align-items: center; gap: 10px; height: 46px; padding: 0 24px; border-radius: 99px; border: 1px solid var(--ap-line); background: #fff; font: 700 13.5px var(--ap-sans); color: var(--ap-ink); cursor: pointer; }
+.hm-more button:hover:not(:disabled) { border-color: #14121a; }
+.hm-more p { margin: 0; padding: 14px 20px; border-radius: 99px; background: var(--ap-soft); font-size: 13.5px; color: var(--ap-mute); }
+.hm-more p a { color: var(--ap-ink); font-weight: 700; }
+.hm-spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ap-line); border-top-color: #14121a; animation: hm-spin .8s linear infinite; }
+@keyframes hm-spin { to { transform: rotate(360deg); } }
+@media (max-width: 720px) {
+  .hb-banner { grid-template-columns: 90px 1fr; }
+  .hb-banner-go { grid-column: span 2; text-align: center; }
+  .ap.hm .hm-hero .hero { height: 420px; }
+}
+.hw { columns: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; margin-bottom: 14px; }
+.app .hm .hw .kn-post { display: block; margin: 0; }
+@media (max-width: 720px) { .hw { grid-template-columns: 1fr; } }

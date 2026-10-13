@@ -1,8 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import Avatar from "@/components/ui/Avatar";
+import { Fragment, useEffect, useRef, useState } from "react";
+import Avatar, { AvatarStack } from "@/components/ui/Avatar";
+import HeroCarousel from "@/components/home/HeroCarousel";
+import Pic from "@/components/home/Pic";
+import { ReserveButtons } from "@/components/home/HomeClient";
+import { MORE_POSTS } from "@/lib/data/feedMore";
+import type { PhotoKey } from "@/lib/data/images";
 import Photo from "@/components/ui/Photo";
 import Composer from "@/components/feed/Composer";
 import PostCard from "@/components/feed/PostCard";
@@ -11,7 +16,6 @@ import { useJoined } from "@/components/circles/useJoined";
 import { CIRCLES, COLLABS, ROOMS, STAGES, STUDIOS } from "@/lib/data/community";
 import { GAME_SESSIONS, GAMES } from "@/lib/data/games";
 import { STORIES } from "@/lib/data/stories";
-import GameCover from "@/components/play/GameCover";
 import BanterCard from "@/components/banter/BanterCard";
 import { useBanters } from "@/components/banter/useBanters";
 import { TODAYS_BANTER } from "@/lib/data/banter";
@@ -26,6 +30,10 @@ const MOODS = [
   { face: "🙂", label: "Good" },
   { face: "😄", label: "Great" },
 ];
+
+/** Photos that show each game being played, with its category colour. */
+const GAME_PHOTO: Record<string, PhotoKey> = { remember: "photoAlbum", "two-truths": "talkLaugh", "city-eyes": "galleryViewer" };
+const GAME_TINT: Record<string, string> = { reconnection: "#e5007e", icebreakers: "#ffb000", creative: "#ff6b1a" };
 
 const LIVE = [
   { kind: "Presence Room", title: "Photography and memory", sub: "Live now · 5 of 6 seats", href: "/rooms/photography-memory", who: ["wanjiru", "zuri", "efua"] as PersonId[], dot: "#e5007e" },
@@ -42,7 +50,30 @@ export default function AnkaraHome() {
   const [hello, setHello] = useLocal<string[]>("ak:home-hellos", []);
 
   const joined = CIRCLES.filter((c) => joinedIds.includes(c.id));
-  const feed = posts.filter((p) => (tab === "all" ? true : tab === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === tab));
+  const [count, setCount] = useState(6);
+  const [loading, setLoading] = useState(false);
+  const sentinel = useRef<HTMLDivElement>(null);
+  const feed = [...posts, ...MORE_POSTS].filter((p) => (tab === "all" ? true : tab === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === tab));
+  const shown = feed.slice(0, count);
+  const done = count >= feed.length;
+  const loadMore = () => {
+    if (done || loading) return;
+    setLoading(true);
+    setTimeout(() => {
+      setCount((c) => c + 4);
+      setLoading(false);
+    }, 600);
+  };
+
+  // Keep loading as the member scrolls near the end of the feed.
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => entries[0].isIntersecting && loadMore(), { rootMargin: "400px" });
+    io.observe(el);
+    return () => io.disconnect();
+  });
+
   const collab = COLLABS[0];
   const spot = COLLABS[1];
   const match = MATCHES[0];
@@ -53,47 +84,74 @@ export default function AnkaraHome() {
   const hour = new Date().getHours();
   const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
+  const slides = [
+    <Fragment key="kincircle">
+      <Pic name="kincircleHero" sizes="(max-width: 1060px) 100vw, 1400px" priority position="center 32%" />
+      <div className="hero-copy">
+        <span className="pill"><span className="live-dot" /> KinCircle · Week 4 of 8</span>
+        <h2>Bring together the right people around a shared purpose.</h2>
+        <p>West African Markets meets on Thursday. This week: one photograph and one trader&apos;s story.</p>
+        <div className="hero-actions">
+          <Link className="join" href="/circles/new">Start a KinCircle</Link>
+          <Link className="ghost" href="/circles">Open your circle</Link>
+        </div>
+      </div>
+      <div className="attendees">
+        <AvatarStack people={(["wanjiru", "efua", "fatou"] as PersonId[]).map((id) => PEOPLE[id])} size={30} max={3} ringClass="ring-white" />
+        <span className="count">{joined.length} circles · {joined.reduce((s2, c) => s2 + c.members, 0)} creatives</span>
+      </div>
+    </Fragment>,
+    <Fragment key="room">
+      <Pic name="heroStudio" sizes="(max-width: 1060px) 100vw, 1400px" position="center 30%" />
+      <div className="hero-copy">
+        <span className="pill"><span className="live-dot" /> Presence Room · {room.when}</span>
+        <h2>{room.title}</h2>
+        <p>Hosted by {host.name}. Six seats, no audience, nothing recorded. {6 - room.seated.length} seats left.</p>
+        <ReserveButtons roomId={room.id} />
+      </div>
+    </Fragment>,
+    <Fragment key="banter">
+      <Pic name="talkLaugh" sizes="(max-width: 1060px) 100vw, 1400px" position="center 40%" />
+      <div className="hero-copy">
+        <span className="pill"><span className="live-dot" /> Banter Now · live</span>
+        <h2>Is AI helping or damaging African art?</h2>
+        <p>Tunde, Kwame and Zuri are talking right now. Twenty minutes, equal seats, nothing recorded.</p>
+        <div className="hero-actions">
+          <Link className="join" href="/banter/now/ai-art">Join the conversation</Link>
+          <Link className="ghost" href="/banter">See all Banter</Link>
+        </div>
+      </div>
+    </Fragment>,
+    <Fragment key="collab">
+      <Pic name="collabArt" sizes="(max-width: 1060px) 100vw, 1400px" position="center 45%" />
+      <div className="hero-copy">
+        <span className="pill"><span className="live-dot" /> Collaboration · {collab.route}</span>
+        <h2>Make something neither of you could make alone.</h2>
+        <p>{collab.title}: {collab.progress}% made, {collab.next.toLowerCase()}.</p>
+        <div className="hero-actions">
+          <Link className="join" href="/collaborate">Explore collaborations</Link>
+          <Link className="ghost" href={`/collaborate/${collab.id}`}>View the project</Link>
+        </div>
+      </div>
+    </Fragment>,
+  ];
+
   return (
     <div className="ap ap-calm hm" style={{ ["--c" as string]: "#14121a" } as React.CSSProperties}>
-      <section className="hc" aria-label="Today on Akines">
-        <div className="hc-panel">
-          <p className="hc-date">{today}</p>
-          <h1>{greet},<br /><span>{ME.name.split(" ")[0]}.</span></h1>
-          <p className="hc-lede">Three people are waiting on you, one room is live and your circle meets on Thursday.</p>
-          <div className="hc-stats">
-            <Link href="/banter"><b>8</b><span>Banters for you</span></Link>
-            <Link href="/rooms"><b>1</b><span>room live now</span></Link>
-            <Link href="/kindred"><b>2</b><span>introductions</span></Link>
-          </div>
-          <div className="hc-actions">
-            <Link href="/banter#compose" className="hc-primary">❝ Start a Banter</Link>
-            <Link href="/rooms" className="hc-ghost">◉ Take a seat</Link>
-            <Link href="/circles/new" className="hc-ghost">◎ Start a KinCircle</Link>
-          </div>
+      <header className="hm-hello">
+        <div>
+          <p>{today}</p>
+          <h1>{greet}, <span>{ME.name.split(" ")[0]}.</span></h1>
         </div>
+        <nav className="hm-stats" aria-label="Waiting for you">
+          <Link href="/banter"><b>8</b>Banters for you</Link>
+          <Link href="/rooms"><b className="live">1</b>room live now</Link>
+          <Link href="/kindred"><b>2</b>introductions</Link>
+          <Link href="/banter#compose" className="go">❝ Start a Banter</Link>
+        </nav>
+      </header>
 
-        <Link href="/circles" className="hc-tile big">
-          <Photo name="kincircleHero" sizes="(max-width: 1100px) 100vw, 560px" priority className="absolute inset-0 h-full" position="center 32%" />
-          <span className="hc-label"><i style={{ background: "#00a86b" }} />KinCircle · Week 4 of 8</span>
-          <span className="hc-cap"><b>West African Markets</b><em>Bring one photograph and one trader&apos;s story.</em></span>
-        </Link>
-        <Link href={`/rooms/${room.id}`} className="hc-tile">
-          <Photo name="heroStudio" sizes="360px" className="absolute inset-0 h-full" position="center 30%" />
-          <span className="hc-label"><i style={{ background: "#e5007e" }} />Presence Room · {room.when}</span>
-          <span className="hc-cap"><b>{room.title}</b><em>Hosted by {host.name.split(" ")[0]} · {6 - room.seated.length} seats left</em></span>
-        </Link>
-        <Link href="/banter/now/ai-art" className="hc-tile">
-          <Photo name="talkLaugh" sizes="360px" className="absolute inset-0 h-full" position="center 40%" />
-          <span className="hc-label live"><i style={{ background: "#ffb000" }} />Banter Now · live</span>
-          <span className="hc-cap"><b>Is AI helping or damaging African art?</b><em>Tunde, Kwame and Zuri are talking</em></span>
-        </Link>
-        <Link href={`/collaborate/${collab.id}`} className="hc-tile wide">
-          <Photo name={collab.photo} sizes="560px" className="absolute inset-0 h-full" position="center 45%" />
-          <span className="hc-label"><i style={{ background: "#2547d0" }} />Collaboration · {collab.route}</span>
-          <span className="hc-cap"><b>{collab.title}</b><em>{collab.progress}% made · {collab.next.toLowerCase()}</em></span>
-          <span className="hc-bar"><i style={{ width: `${collab.progress}%` }} /></span>
-        </Link>
-      </section>
+      <div className="hm-hero"><HeroCarousel slides={slides} /></div>
 
       <div className="hm-grid">
         <main className="hm-main">
@@ -106,18 +164,16 @@ export default function AnkaraHome() {
                 <Link href="/banter#compose" className="hb-start">＋ Start a Banter</Link>
               </div>
             </div>
-            <div className="hb-grid">
-              <Link href="/banter/unfinished" className="hb-today">
-                <Photo name="paintingWoman" sizes="320px" className="absolute inset-0 h-full" />
-                <span className="hb-today-tx">
-                  <small>Today&apos;s Banter</small>
-                  <b>“{TODAYS_BANTER}”</b>
-                  <span>Join the Banter →</span>
-                </span>
-              </Link>
-              <div className="hb-list">
-                {banters.filter((b) => !b.closed).slice(0, 2).map((b) => <BanterCard key={b.id} banter={b} />)}
-              </div>
+            <Link href="/banter/unfinished" className="hb-banner">
+              <span className="hb-banner-img"><Photo name="paintingWoman" sizes="260px" className="absolute inset-0 h-full" position="center 25%" /></span>
+              <span className="hb-banner-tx">
+                <small>Today&apos;s Banter</small>
+                <b>“{TODAYS_BANTER}”</b>
+              </span>
+              <span className="hb-banner-go">Join the Banter →</span>
+            </Link>
+            <div className="hb-list">
+              {banters.filter((b) => !b.closed).slice(0, 2).map((b) => <BanterCard key={b.id} banter={b} />)}
             </div>
           </section>
 
@@ -131,16 +187,16 @@ export default function AnkaraHome() {
               <Link href="/circles">Manage circles →</Link>
             </div>
             <div className="hm-tabs" role="tablist" aria-label="Filter the feed">
-              <button role="tab" aria-selected={tab === "mine"} className={tab === "mine" ? "on" : undefined} onClick={() => setTab("mine")}>Your circles</button>
+              <button role="tab" aria-selected={tab === "mine"} className={tab === "mine" ? "on" : undefined} onClick={() => { setTab("mine"); setCount(6); }}>Your circles</button>
               {joined.map((c) => (
-                <button key={c.id} role="tab" aria-selected={tab === c.id} className={tab === c.id ? "on" : undefined} onClick={() => setTab(c.id)}>
+                <button key={c.id} role="tab" aria-selected={tab === c.id} className={tab === c.id ? "on" : undefined} onClick={() => { setTab(c.id); setCount(6); }}>
                   <span className="hm-thumb"><Photo name={c.photo} sizes="24px" className="h-full" /></span>{c.name}
                 </button>
               ))}
-              <button role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : undefined} onClick={() => setTab("all")}>All circles</button>
+              <button role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : undefined} onClick={() => { setTab("all"); setCount(6); }}>All circles</button>
             </div>
             <div className="hm-feed">
-              <div className="hw">{feed.slice(0, 4).map((p) => <PostCard key={p.id} post={p} />)}</div>
+              <div className="hw">{shown.slice(0, 4).map((p) => <PostCard key={p.id} post={p} />)}</div>
 
               {/* Spotlight: a collaboration in progress */}
               <Link href={`/collaborate/${spot.id}`} className="hs-spot">
@@ -163,7 +219,11 @@ export default function AnkaraHome() {
                     const game = GAMES.find((x) => x.id === g.game)!;
                     return (
                       <Link key={g.id} href={`/play/session/${g.id}`} className="hs-game">
-                        <GameCover game={game} className="hs-cover" />
+                        <span className="hs-gph" style={{ ["--gc" as string]: GAME_TINT[game.category] ?? "#ff6b1a" } as React.CSSProperties}>
+                          <Photo name={GAME_PHOTO[game.id] ?? game.photo} sizes="320px" className="absolute inset-0 h-full" />
+                          <span className="hs-gcard"><small>Card 1</small>{game.cards[0]}</span>
+                          <span className="hs-gmode">{g.mode === "slow" ? "Slow play" : "Live play"}</span>
+                        </span>
                         <span className="hs-game-tx"><small>{g.when}</small><b>{g.title}</b><span className="ap-faces">{g.players.map((id) => <span key={id}><Avatar person={PEOPLE[id]} size={20} ring /></span>)}</span></span>
                       </Link>
                     );
@@ -171,13 +231,13 @@ export default function AnkaraHome() {
                 </div>
               </section>
 
-              <div className="hw">{feed.slice(4, 8).map((p) => <PostCard key={p.id} post={p} />)}</div>
+              <div className="hw">{shown.slice(4, 8).map((p) => <PostCard key={p.id} post={p} />)}</div>
 
               {/* Stories */}
               <section className="hs-strip">
                 <div className="hs-strip-head"><div><small>Stories with a pulse</small><h3>A few moments, chosen for what they say</h3></div><Link href="/stories">Explore all →</Link></div>
                 <div className="hs-row">
-                  {STORIES.slice(0, 3).map((st) => (
+                  {STORIES.filter((st) => st.id !== "five-voices").slice(0, 3).map((st) => (
                     <Link key={st.id} href={`/stories/${st.id}`} className="hs-story">
                       <Photo name={st.photo} sizes="300px" className="absolute inset-0 h-full" />
                       <span className="hs-story-tx"><small>{st.kind}{st.voice ? ` · ▶ ${st.voice}` : ""}</small><b>{st.title}</b><em>{PEOPLE[st.by].name}</em></span>
@@ -186,7 +246,7 @@ export default function AnkaraHome() {
                 </div>
               </section>
 
-              <div className="hw">{feed.slice(8).map((p) => <PostCard key={p.id} post={p} />)}</div>
+              <div className="hw">{shown.slice(8, 12).map((p) => <PostCard key={p.id} post={p} />)}</div>
 
               {/* Studio visits */}
               <section className="hs-strip">
@@ -200,6 +260,16 @@ export default function AnkaraHome() {
                   ))}
                 </div>
               </section>
+              <div className="hw">{shown.slice(12).map((p) => <PostCard key={p.id} post={p} />)}</div>
+
+              <div ref={sentinel} className="hm-more">
+                {feed.length > 0 && (done ? (
+                  <p>✓ You&apos;re all caught up. <Link href="/circles">Find another circle</Link> or <Link href="/banter#compose">start a Banter</Link>.</p>
+                ) : (
+                  <button onClick={loadMore} disabled={loading}>{loading ? <><span className="hm-spin" />Loading more from your circles…</> : `Show more · ${feed.length - count} older posts`}</button>
+                ))}
+              </div>
+
               {feed.length === 0 && (
                 <div className="hm-empty">
                   <p>Nothing here yet.</p>
