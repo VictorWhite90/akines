@@ -613,3 +613,189 @@ a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: trans
 .hw { columns: auto; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; margin-bottom: 14px; }
 .app .hm .hw .kn-post { display: block; margin: 0; }
 @media (max-width: 720px) { .hw { grid-template-columns: 1fr; } }
+
+/* =========================================================
+   KinMessage
+   ========================================================= */
+.km { display: grid; grid-template-columns: 330px minmax(0, 1fr) 320px; height: calc(100vh - 74px - 58px); min-height: 600px; border-radius: 26px; overflow: hidden; border: 1px solid var(--ap-line); background: #fff; }
+.km button { font-family: inherit; cursor: pointer; }
+.km-inbox { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--ap-line); background: #fbfafd; }
+.km-inbox-head { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 18px 12px; }
+.km-inbox-head h1 { margin: 0; font: 700 22px/1.1 var(--ap-sans); letter-spacing: -.02em; }
+.km-inbox-head p { margin: 4px 0 0; font-size: 12.5px; color: var(--ap-mute); }
+.km-new { width: 40px; height: 40px; border-radius: 14px; border: 0; background: #14121a; color: #fff; font-size: 20px; }
+.km-search { display: flex; align-items: center; gap: 8px; margin: 0 18px; padding: 0 14px; height: 40px; border-radius: 14px; background: #fff; border: 1px solid var(--ap-line); color: var(--ap-mute); }
+.km-search input { flex: 1; border: 0; outline: none; background: none; font: 13.5px var(--ap-sans); }
+.km-filters { display: flex; gap: 6px; padding: 12px 18px; overflow-x: auto; scrollbar-width: none; }
+.km-filters button { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px; border-radius: 99px; border: 1px solid var(--ap-line); background: #fff; font-size: 12.5px; font-weight: 600; color: var(--ap-ink); }
+.km-filters button i { width: 7px; height: 7px; border-radius: 50%; }
+.km-filters button.on { background: #14121a; color: #fff; border-color: #14121a; }
+.km-list { flex: 1; overflow-y: auto; padding: 0 10px 14px; }
+.km-group { margin: 10px 8px 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ap-mute); }
+.km-empty { padding: 20px; font-size: 13px; color: var(--ap-mute); text-align: center; }
+.km-rowc { display: flex; gap: 12px; width: 100%; padding: 10px; border: 0; border-radius: 18px; background: none; text-align: left; color: var(--ap-ink); transition: background .15s; }
+.km-rowc:hover { background: #f1eff6; }
+.km-rowc.on { background: #fff; box-shadow: 0 6px 18px -10px rgba(20,18,26,.3); }
+.km-rowc.needs .km-rowc-top b::after { content: ""; display: inline-block; width: 7px; height: 7px; margin-left: 6px; border-radius: 50%; background: #e5007e; vertical-align: middle; }
+.km-rowc-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.km-rowc-top { display: flex; justify-content: space-between; gap: 8px; }
+.km-rowc-top b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.km-rowc-top small { flex: none; font-size: 11.5px; color: var(--ap-mute); }
+.km-rowc-prev { font-size: 12.5px; color: var(--ap-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.km-rowc-tags { display: flex; justify-content: space-between; align-items: center; }
+.km-rowc-tags i { font-style: normal; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; color: var(--k); background: color-mix(in srgb, var(--k) 12%, #fff); }
+.km-rowc-tags em { font-style: normal; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: #e5007e; color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; }
+.km-cav { position: relative; flex: none; display: inline-block; border-radius: 14px; overflow: hidden; background: color-mix(in srgb, var(--k) 20%, #fff); box-shadow: 0 0 0 2px #fff, 0 0 0 4px color-mix(in srgb, var(--k) 45%, #fff); }
+.km-cav-n { position: absolute; right: 2px; bottom: 2px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 99px; background: var(--k); color: #fff; font-size: 10px; font-weight: 700; display: grid; place-items: center; }
+
+.km-thread { display: flex; flex-direction: column; min-width: 0; min-height: 0; background: linear-gradient(180deg, var(--tint), #fff 220px); transition: background .4s; }
+.km-thread-head { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--ap-line); background: rgba(255,255,255,.8); backdrop-filter: blur(10px); }
+.km-back { display: none; border: 0; background: none; font-size: 18px; }
+.km-who { flex: 1; min-width: 0; }
+.km-who b { display: block; font-size: 16px; }
+.km-who small { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ap-mute); }
+.km-who small i { width: 7px; height: 7px; border-radius: 50%; }
+.km-intent { position: relative; }
+.km-intent > button { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 99px; border: 1.5px solid var(--ic); background: #fff; color: var(--ic); font-size: 13px; font-weight: 700; }
+.km-intent > button em { font-style: normal; font-size: 10px; }
+.km-intent-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; width: 290px; padding: 8px; border-radius: 18px; background: #fff; border: 1px solid var(--ap-line); box-shadow: 0 24px 50px -20px rgba(20,18,26,.4); }
+.km-intent-menu p { margin: 6px 8px 8px; font-size: 12px; color: var(--ap-mute); }
+.km-intent-menu button { display: flex; gap: 10px; width: 100%; padding: 8px; border: 0; border-radius: 12px; background: none; text-align: left; color: var(--ap-ink); }
+.km-intent-menu button:hover, .km-intent-menu button[aria-checked="true"] { background: #f4f2f8; }
+.km-intent-menu b { display: block; font-size: 13.5px; }
+.km-intent-menu small { font-size: 12px; color: var(--ap-mute); }
+.km-icon { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--ap-line); background: #fff; color: var(--ap-ink); text-decoration: none; }
+
+.km-msgs { flex: 1; overflow-y: auto; padding: 18px 22px; display: flex; flex-direction: column; gap: 6px; }
+.km-day { align-self: center; margin: 0 0 8px; padding: 5px 12px; border-radius: 99px; background: rgba(255,255,255,.8); border: 1px solid var(--ap-line); font-size: 11.5px; color: var(--ap-mute); }
+.km-row { display: flex; align-items: flex-end; gap: 8px; max-width: 78%; }
+.km-row.mine { align-self: flex-end; flex-direction: row-reverse; }
+.km-ra { width: 30px; flex: none; }
+.km-bubble { position: relative; padding: 10px 14px 8px; border-radius: 20px 20px 20px 6px; background: #fff; border: 1px solid var(--ap-line); box-shadow: 0 4px 14px -10px rgba(20,18,26,.3); }
+.km-row.mine .km-bubble { border-radius: 20px 20px 6px 20px; background: #14121a; border-color: #14121a; color: #fff; }
+.km-bubble.k-photo { padding: 6px 6px 8px; }
+.km-author { margin: 0 0 3px; font-size: 12px; font-weight: 700; color: var(--ic); }
+.km-text { margin: 0; font-size: 14.5px; line-height: 1.5; }
+.k-photo .km-text { padding: 8px 8px 0; }
+.km-photo { width: 360px; max-width: 100%; height: 220px; border-radius: 15px; }
+.km-meta { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 4px; font-size: 11px; opacity: .55; }
+.km-pin { border: 0; background: none; color: inherit; font-size: 12px; opacity: 0; transition: opacity .15s; padding: 0; }
+.km-bubble:hover .km-pin { opacity: 1; }
+.km-react { position: absolute; right: 10px; bottom: -12px; padding: 2px 8px; border-radius: 99px; background: #fff; border: 1px solid var(--ap-line); font-size: 11.5px; color: var(--ap-ink); }
+.km-voice { display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 10px; min-width: 260px; }
+.km-voice button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: #ffb000; color: #14121a; font-size: 13px; }
+.km-voice.mine button { background: #fff; }
+.km-wave { display: flex; align-items: center; gap: 2px; height: 28px; }
+.km-wave i { flex: 1; border-radius: 2px; background: currentColor; opacity: .25; }
+.km-wave i.on { opacity: 1; }
+.km-voice small { font-size: 12px; opacity: .7; }
+.km-voice em { grid-column: 1 / -1; font-style: normal; font-size: 12.5px; opacity: .7; }
+.km-poll { display: flex; flex-direction: column; gap: 6px; min-width: 280px; }
+.km-poll b { font-size: 14.5px; margin-bottom: 2px; }
+.km-poll button { position: relative; display: flex; justify-content: space-between; overflow: hidden; padding: 9px 12px; border-radius: 12px; border: 1px solid var(--ap-line); background: #fff; color: #14121a; font-size: 13.5px; text-align: left; }
+.km-poll button.on { border-color: var(--ic); }
+.km-poll button i { position: absolute; inset: 0 auto 0 0; background: color-mix(in srgb, var(--ic) 16%, #fff); transition: width .4s; }
+.km-poll button span, .km-poll button em { position: relative; font-style: normal; }
+.km-poll small { font-size: 11.5px; opacity: .6; }
+.km-invite { display: flex; gap: 12px; min-width: 280px; }
+.km-invite-ic { width: 42px; height: 42px; flex: none; border-radius: 14px; display: grid; place-items: center; font-size: 18px; color: #fff; background: #e5007e; }
+.km-invite.i-banter .km-invite-ic { background: #ffb000; color: #14121a; }
+.km-invite.i-game .km-invite-ic { background: #ff6b1a; }
+.km-invite small { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .65; }
+.km-invite b { display: block; font-size: 14.5px; margin-top: 2px; }
+.km-invite p { margin: 2px 0 8px; font-size: 12.5px; opacity: .75; }
+.km-invite em { font-style: normal; font-size: 12.5px; opacity: .7; }
+.km-invite em.yes { opacity: 1; color: #00a86b; font-weight: 700; }
+.km-invite em a { color: inherit; }
+.km-invite-acts { display: flex; gap: 6px; }
+.km-invite-acts button { padding: 7px 14px; border-radius: 99px; border: 0; background: #14121a; color: #fff; font-size: 12.5px; font-weight: 700; }
+.km-invite-acts button.ghost { background: #f1eff6; color: #14121a; }
+.km-spark { align-self: center; display: flex; gap: 12px; max-width: 520px; margin: 8px 0; padding: 14px 16px; border-radius: 20px; background: linear-gradient(135deg, #eef1ff, #fff); border: 1px solid #dfe4fb; }
+.km-spark-ic { width: 36px; height: 36px; flex: none; border-radius: 12px; display: grid; place-items: center; background: #2547d0; color: #fff; }
+.km-spark b { font-size: 14.5px; }
+.km-spark p { margin: 3px 0 10px; font-size: 13px; color: var(--ap-mute); line-height: 1.45; }
+.km-spark small { display: block; margin-top: 8px; font-size: 11px; color: var(--ap-mute); }
+.km-spark-acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.km-spark-acts button { padding: 8px 14px; border-radius: 99px; border: 0; background: #2547d0; color: #fff; font-size: 12.5px; font-weight: 700; }
+.km-spark-acts button.ghost { background: #fff; color: #2547d0; border: 1px solid #dfe4fb; }
+
+.km-compose { padding: 10px 16px 14px; border-top: 1px solid var(--ap-line); background: #fff; }
+.km-quick { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; align-items: center; }
+.km-quick span { flex: none; font-size: 12px; font-weight: 700; color: var(--ic); }
+.km-quick button { flex: none; padding: 5px 12px; border-radius: 99px; border: 1px solid var(--ap-line); background: #fbfafd; font-size: 12.5px; color: var(--ap-ink); }
+.km-warn { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; padding: 10px 12px; border-radius: 14px; background: #fff6e0; font-size: 13px; }
+.km-warn button { padding: 5px 12px; border-radius: 99px; border: 0; background: #14121a; color: #fff; font-size: 12px; font-weight: 700; }
+.km-warn button + button { background: #fff; color: #14121a; border: 1px solid var(--ap-line); }
+.km-attach-photos { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 8px; }
+.km-attach-photos button { position: relative; height: 64px; border: 0; padding: 0; border-radius: 12px; overflow: hidden; }
+.km-attach-poll { display: grid; gap: 6px; margin-bottom: 8px; }
+.km-attach-poll input { height: 36px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--ap-line); font: 13.5px var(--ap-sans); outline: none; }
+.km-attach-poll button { justify-self: start; border: 0; background: none; font-size: 12.5px; font-weight: 700; }
+.km-bar { display: flex; align-items: flex-end; gap: 8px; padding: 6px; border-radius: 20px; border: 1px solid var(--ap-line); background: #fbfafd; }
+.km-tools { display: flex; gap: 2px; }
+.km-tools button { width: 34px; height: 34px; border-radius: 50%; border: 0; background: none; color: var(--ap-mute); font-size: 15px; }
+.km-tools button:hover, .km-tools button.on { background: #fff; color: var(--ap-ink); }
+.km-bar textarea { flex: 1; resize: none; border: 0; outline: none; background: none; padding: 8px 4px; font: 14.5px var(--ap-sans); max-height: 120px; }
+.km-send { height: 36px; padding: 0 18px; border-radius: 99px; border: 0; background: #14121a; color: #fff; font: 700 13px var(--ap-sans); }
+.km-send:disabled { opacity: .35; }
+.km-send.wide { width: 100%; height: 46px; margin-top: 12px; }
+.km-rec { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 20px; background: #fff0f6; font-size: 13.5px; }
+.km-rec-dot { width: 10px; height: 10px; border-radius: 50%; background: #e5007e; animation: ap-pulse 1s infinite; }
+.km-rec button { margin-left: auto; border: 0; background: none; font-size: 13px; }
+.km-rec button + button { margin-left: 0; }
+.km-rec .send { padding: 7px 14px; border-radius: 99px; background: #14121a; color: #fff; font-weight: 700; }
+
+.km-side { overflow-y: auto; border-left: 1px solid var(--ap-line); background: #fbfafd; }
+.km-hero { position: relative; height: 180px; overflow: hidden; isolation: isolate; }
+.km-hero::after { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, transparent 30%, rgba(20,18,26,.85)); }
+.km-hero-tx { position: absolute; left: 16px; right: 16px; bottom: 14px; z-index: 1; color: #fff; }
+.km-hero-tx small { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+.km-hero-tx b { display: block; margin: 2px 0 8px; font-size: 20px; }
+.km-card { margin: 12px; padding: 14px; border-radius: 20px; background: #fff; border: 1px solid var(--ap-line); }
+.km-h { display: block; margin-bottom: 10px; font-size: 14px; }
+.km-health-top { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.km-health-top span { padding: 3px 10px; border-radius: 99px; font-size: 11.5px; font-weight: 700; background: #eefaf4; color: #00845a; }
+.km-health-top span.h-growing { background: #eef1ff; color: #2547d0; }
+.km-health-top span.h-quiet { background: #fff0f6; color: #c2187a; }
+.km-health-top span.h-steady { background: #fff6e0; color: #b07600; }
+.km-health-bar { height: 7px; margin: 10px 0 12px; border-radius: 99px; background: #f1eff6; overflow: hidden; }
+.km-health-bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #2547d0, #00a86b); }
+.km-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.km-stats div { padding: 10px; border-radius: 14px; background: #fbfafd; }
+.km-stats b { display: block; font-size: 15px; }
+.km-stats small { font-size: 11.5px; color: var(--ap-mute); }
+.km-note { margin: 10px 0 0; font-size: 12px; line-height: 1.45; color: var(--ap-mute); }
+.km-go { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px; margin-bottom: 4px; border-radius: 14px; border: 0; background: none; color: var(--ap-ink); font: 600 13.5px var(--ap-sans); text-decoration: none; text-align: left; }
+.km-go:hover { background: #f4f2f8; }
+.km-go span { width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; color: #fff; font-size: 13px; }
+.km-go em { margin-left: auto; font-style: normal; color: var(--ap-mute); }
+.km-mem { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.km-mem li { padding-left: 12px; border-left: 3px solid #ffb000; }
+.km-mem b { display: block; font-size: 13.5px; }
+.km-mem span { font-size: 12.5px; color: var(--ap-mute); }
+.km-toggle { width: 44px; height: 26px; border-radius: 99px; border: 0; background: #e6e3ec; position: relative; transition: background .2s; }
+.km-toggle i { position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left .2s; }
+.km-toggle.on { background: #00a86b; }
+.km-toggle.on i { left: 21px; }
+.km-sum-btn { width: 100%; margin-top: 10px; height: 38px; border-radius: 99px; border: 1px solid #dfe4fb; background: #eef1ff; color: #2547d0; font-size: 13px; font-weight: 700; }
+.km-sum { margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: #eef1ff; font-size: 12.5px; line-height: 1.5; }
+.km-sum p { margin: 0 0 6px; }
+
+.km-modal { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; background: rgba(20,18,26,.55); backdrop-filter: blur(4px); }
+.km-modal-card { width: min(520px, 100%); padding: 22px; border-radius: 26px; background: #fff; }
+.km-label { margin: 16px 0 8px; font-size: 13px; font-weight: 700; }
+.km-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+.km-pick button { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; border-radius: 99px; border: 1px solid var(--ap-line); background: #fff; font-size: 13px; color: var(--ap-ink); }
+.km-pick button.on { background: #14121a; border-color: #14121a; color: #fff; }
+.km-modal-card textarea { width: 100%; padding: 12px; border-radius: 14px; border: 1px solid var(--ap-line); font: 14px var(--ap-sans); outline: none; resize: none; }
+
+@media (max-width: 1280px) { .km { grid-template-columns: 300px minmax(0, 1fr); } .km-side { display: none; } }
+@media (max-width: 800px) {
+  .km { grid-template-columns: 1fr; height: calc(100vh - 64px - 110px); border-radius: 20px; }
+  .km-thread { display: none; }
+  .km.show-thread .km-inbox { display: none; }
+  .km.show-thread .km-thread { display: flex; }
+  .km-back { display: block; }
+  .km-row { max-width: 92%; }
+  .km-photo { width: 100%; }
+}
