@@ -102,3 +102,20 @@
 @media (prefers-reduced-motion: reduce) {
   .ap-now i.pulse { animation: none; }
 }
+
+/* Toned down: colour as an accent, not a fill */
+.ap-block { background-color: color-mix(in srgb, var(--c) 7%, #fff) !important; color: var(--ap-ink) !important; border: 1px solid color-mix(in srgb, var(--c) 18%, #fff); }
+.ap-block::before { color: var(--c); opacity: 0.07 !important; }
+.ap-block::after { display: none; }
+.ap-block h2 { font-size: 22px; }
+.ap-block p { color: var(--ap-mute); opacity: 1; }
+.ap-glyph { background: var(--c); color: #fff; box-shadow: none; width: 44px; height: 44px; font-size: 20px; border-radius: 14px; }
+.ap-stat { color: color-mix(in srgb, var(--c) 70%, #14121a); opacity: 1; }
+.ap-cta { background: var(--ap-ink); color: #fff; }
+.ap-more { color: var(--ap-ink); }
+.ap-tag.solid { background: rgba(255, 255, 255, 0.95); color: var(--ap-ink); }
+.ap-img .ap-tag { background: rgba(255, 255, 255, 0.95); color: var(--ap-ink); }
+.ap-btn { border-color: var(--ap-line); color: var(--ap-ink); }
+.ap-btn.on, .ap-btn:hover { background: var(--ap-ink); border-color: var(--ap-ink); color: #fff; }
+.ap-card:hover { border-color: var(--ap-line); }
+.ap-hello h1 span { background: none; color: var(--ap-ink); -webkit-background-clip: border-box; background-clip: border-box; }
