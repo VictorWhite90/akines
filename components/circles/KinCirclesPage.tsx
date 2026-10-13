@@ -98,7 +98,7 @@ export default function KinCirclesPage() {
           </div>
           <div className="kc-active-side">
             <Photo name="talkGroup" sizes="420px" className="h-44 rounded-[18px]" />
-            <p className="ap-meta" style={{ margin: "14px 0 8px", fontWeight: 700, color: "#14121a" }}>Kept so far</p>
+            <p className="ap-meta" style={{ margin: "14px 0 8px", fontWeight: 700, color: "var(--ap-ink)" }}>Kept so far</p>
             <ul>
               {ACTIVE.done.map((d) => <li key={d}><span>✓</span>{d}</li>)}
             </ul>
@@ -156,7 +156,7 @@ export default function KinCirclesPage() {
 
       {/* Start one */}
       <section className="kc-section">
-        <div className="kc-head"><h2>What kind of circle?</h2><Link href="/circles/new" className="ap-meta" style={{ fontWeight: 700, color: "#14121a" }}>Open the builder →</Link></div>
+        <div className="kc-head"><h2>What kind of circle?</h2><Link href="/circles/new" className="ap-meta" style={{ fontWeight: 700, color: "var(--ap-ink)" }}>Open the builder →</Link></div>
         <div className="kc-types">
           {CIRCLE_TYPES.map((t) => (
             <Link key={t.id} href="/circles/new" className="kc-type">
@@ -201,7 +201,7 @@ export default function KinCirclesPage() {
             );
           })}
         </div>
-        {list.length === 0 && <p className="ap-meta" style={{ marginTop: 16 }}>No circles match. <Link href="/circles/new" style={{ fontWeight: 700, color: "#14121a" }}>Start your own</Link>.</p>}
+        {list.length === 0 && <p className="ap-meta" style={{ marginTop: 16 }}>No circles match. <Link href="/circles/new" style={{ fontWeight: 700, color: "var(--ap-ink)" }}>Start your own</Link>.</p>}
       </section>
     </div>
   );

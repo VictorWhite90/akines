@@ -1,0 +1,154 @@
+/* =========================================================
+   Akines · dark mode (html[data-theme="dark"])
+   Remaps the shared tokens, then fixes the surfaces that hard-code white.
+   ========================================================= */
+html[data-theme="dark"] {
+  --dk-bg: #0f0e14;
+  --dk-s1: #17151e;
+  --dk-s2: #1f1c28;
+  --dk-s3: #2a2635;
+  --dk-line: #2c2837;
+  --dk-ink: #f2f0f7;
+  --dk-mute: #a5a0b1;
+  --dk-btn: #f2f0f7;
+  --dk-btn-ink: #14121a;
+  color-scheme: dark;
+}
+html[data-theme="dark"] body { background: var(--dk-bg); color: var(--dk-ink); }
+
+/* Tokens used by the new pages, the calm scope and the older pages inside the shell */
+html[data-theme="dark"] .app.nx,
+html[data-theme="dark"] .ap,
+html[data-theme="dark"] .ap-calm {
+  --ap-ink: var(--dk-ink);
+  --ap-mute: var(--dk-mute);
+  --ap-line: var(--dk-line);
+  --ap-bg: var(--dk-bg);
+  --ap-soft: var(--dk-s2);
+  --color-paper-50: var(--dk-s1);
+  --color-paper-100: var(--dk-bg);
+  --color-paper-200: var(--dk-s2);
+  --color-paper-300: var(--dk-s3);
+  --color-line: var(--dk-line);
+  --color-mute: var(--dk-mute);
+  --color-night: var(--dk-s3);
+  --color-ink-800: #ddd9e6;
+  --color-ink-700: #c6c1d1;
+  --cream: var(--dk-s1);
+  --paper: var(--dk-s2);
+  --line: var(--dk-line);
+  --ink: var(--dk-ink);
+  --muted: var(--dk-mute);
+  --forest: var(--dk-s3);
+  --at-line: var(--dk-line);
+}
+
+/* Shell */
+html[data-theme="dark"] .app.nx,
+html[data-theme="dark"] .app.nx.is-ankara { background: var(--dk-bg); }
+html[data-theme="dark"] .app.nx .nx-top,
+html[data-theme="dark"] .app.nx.is-ankara .nx-top { background: rgba(15, 14, 20, 0.86); border-bottom-color: var(--dk-line); }
+html[data-theme="dark"] .nx-crumbs a { color: var(--dk-mute); }
+html[data-theme="dark"] .nx-crumbs a:hover { color: var(--dk-ink); background: var(--dk-s2); }
+html[data-theme="dark"] .app.nx .nx-crumbs a.on { background: var(--dk-btn); color: var(--dk-btn-ink); }
+html[data-theme="dark"] .nx-ask input,
+html[data-theme="dark"] .nx-icon { background: var(--dk-s1); border-color: var(--dk-line); color: var(--dk-ink); }
+html[data-theme="dark"] .app.nx .nx-begin { background: #ffb000; color: #14121a; }
+html[data-theme="dark"] .nx-rail { background: #0a0a0f; border-right-color: var(--dk-line); }
+
+/* Surfaces that hard-code white become the card surface */
+html[data-theme="dark"] :is(.ap-card, .kc-track i, .kc-prompt, .kc-type, .cq-make, .cq-pick, .cq-card, .cq-k, .cq-act, .bt-flow span, .rm-rules span,
+  .hm-tabs button, .hm-card, .hm-btn, .hm-moods button, .hs-stages i, .hs-game, .hs-visit, .hb-list article, .hm-more button,
+  .km, .km-search, .km-filters button, .km-rowc.on, .km-intent > button, .km-intent-menu, .km-icon, .km-bubble, .km-react,
+  .km-poll button, .km-compose, .km-card, .km-modal-card, .km-pick button, .cq-person:hover, .kc-search, .cq-form input,
+  .kn-composer, .kn-post, .bg-white) {
+  background-color: var(--dk-s1);
+  color: var(--dk-ink);
+  border-color: var(--dk-line);
+}
+html[data-theme="dark"] :is(.ap-btn, .km-warn button + button, .km-spark-acts button.ghost) { background: transparent; color: var(--dk-ink); border-color: var(--dk-line); }
+html[data-theme="dark"] :is(.kc-new:hover, .km-rowc:hover, .km-intent-menu button:hover, .km-go:hover, .hm-live:hover, .hm-circle:hover, .km-tools button:hover, .km-tools button.on) { background: var(--dk-s2); }
+
+/* Primary "ink" buttons flip to light so they still stand out */
+html[data-theme="dark"] :is(.ap-cta, .hm-btn.dark, .hb-start, .hs-go, .km-send, .km-new, .cq-act.lead, .cq-pill.dark, .ap-btn.on, .ap-btn:hover,
+  .hm-tabs button.on, .km-filters button.on, .km-pick button.on, .cq-pick.on, .hm-moods button.on, .km-invite-acts button, .km-warn button, .km-rec .send) {
+  background: var(--dk-btn) !important;
+  color: var(--dk-btn-ink) !important;
+  border-color: var(--dk-btn) !important;
+}
+html[data-theme="dark"] .ap-calm .bg-night,
+html[data-theme="dark"] .ap-page .bg-night { background-color: var(--dk-btn); }
+html[data-theme="dark"] .ap-calm .bg-night.text-white,
+html[data-theme="dark"] .ap-calm .bg-night .text-white { color: var(--dk-btn-ink); }
+html[data-theme="dark"] .hm-stats b { background: var(--dk-btn); color: var(--dk-btn-ink); }
+html[data-theme="dark"] .hm-stats b.live { background: #e5007e; color: #fff; }
+
+/* Feature tints: soften the pastel panels into deep tones */
+html[data-theme="dark"] .ap-block,
+html[data-theme="dark"] .kc-active,
+html[data-theme="dark"] .cq-around,
+html[data-theme="dark"] .bt-intro { background-color: color-mix(in srgb, var(--c, #ffb000) 12%, var(--dk-s1)) !important; border-color: color-mix(in srgb, var(--c, #ffb000) 30%, var(--dk-line)) !important; }
+html[data-theme="dark"] .hb { background: linear-gradient(135deg, #2a2110, var(--dk-s1) 70%); border-color: #4a3a14; }
+html[data-theme="dark"] .hs-strip { background: var(--dk-s1); border-color: var(--dk-line); }
+html[data-theme="dark"] .hs-spot { background: linear-gradient(135deg, #182046, var(--dk-s1) 60%); border-color: #2a3466; color: var(--dk-ink); }
+html[data-theme="dark"] .hs-stages i { background: transparent; }
+html[data-theme="dark"] .hs-stages i.done { background: #4a68ee; color: #fff; }
+html[data-theme="dark"] .hs-stages i.now { border-color: #8aa0ff; color: #8aa0ff; }
+html[data-theme="dark"] .hm-card.dark { background: #07070b; border-color: var(--dk-line); }
+html[data-theme="dark"] .hm-ask,
+html[data-theme="dark"] .hm-stats a,
+html[data-theme="dark"] .hm-more p,
+html[data-theme="dark"] .hm-sent,
+html[data-theme="dark"] .cq-latest,
+html[data-theme="dark"] .cq-compare div,
+html[data-theme="dark"] .kc-rhythm li,
+html[data-theme="dark"] .ap-now a { background: var(--dk-s2); border-color: var(--dk-line); color: var(--dk-ink); }
+html[data-theme="dark"] .hm-stats a.go { background: #ffb000; color: #14121a; border-color: #ffb000; }
+html[data-theme="dark"] .hm-empty { border-color: var(--dk-line); }
+
+/* Feed posts and composer */
+html[data-theme="dark"] .app .kn-composer textarea,
+html[data-theme="dark"] .app .kn-post .body,
+html[data-theme="dark"] .app .kn-post .who a { color: var(--dk-ink); }
+html[data-theme="dark"] .app .kn-composer .tools select { background: var(--dk-s2); color: var(--dk-ink); }
+
+/* KinMessage */
+html[data-theme="dark"] .km-inbox,
+html[data-theme="dark"] .km-side { background: var(--dk-bg); border-color: var(--dk-line); }
+html[data-theme="dark"] .km-thread { background: linear-gradient(180deg, color-mix(in srgb, var(--ic) 14%, var(--dk-bg)), var(--dk-bg) 240px); }
+html[data-theme="dark"] .km-thread-head { background: rgba(15,14,20,.8); border-color: var(--dk-line); }
+html[data-theme="dark"] .km-day { background: var(--dk-s1); border-color: var(--dk-line); }
+html[data-theme="dark"] .km-row.mine .km-bubble { background: #3b3352; border-color: #3b3352; color: #fff; }
+html[data-theme="dark"] .km-poll button i { background: color-mix(in srgb, var(--ic) 30%, var(--dk-s1)); }
+html[data-theme="dark"] .km-poll button { color: var(--dk-ink); }
+html[data-theme="dark"] .km-bar, html[data-theme="dark"] .km-quick button, html[data-theme="dark"] .km-stats div { background: var(--dk-s2); border-color: var(--dk-line); color: var(--dk-ink); }
+html[data-theme="dark"] .km-spark { background: linear-gradient(135deg, #182046, var(--dk-s1)); border-color: #2a3466; }
+html[data-theme="dark"] .km-sum, html[data-theme="dark"] .km-sum-btn { background: #182046; border-color: #2a3466; color: #c8d2ff; }
+html[data-theme="dark"] .km-warn { background: #3a2c0c; }
+html[data-theme="dark"] .km-rec { background: #3a1028; }
+html[data-theme="dark"] .km-toggle { background: var(--dk-s3); }
+html[data-theme="dark"] .km-attach-poll input, html[data-theme="dark"] .km-modal-card textarea { background: var(--dk-s2); border-color: var(--dk-line); color: var(--dk-ink); }
+html[data-theme="dark"] .km-health-top span { background: #12352a; color: #6fe0b4; }
+html[data-theme="dark"] .km-health-top span.h-growing { background: #182046; color: #8aa0ff; }
+html[data-theme="dark"] .km-health-top span.h-quiet { background: #3a1028; color: #ff8cc6; }
+html[data-theme="dark"] .km-health-top span.h-steady { background: #3a2c0c; color: #ffd27a; }
+
+/* Text colours inside the calm scope */
+html[data-theme="dark"] .ap-calm .text-ink-950,
+html[data-theme="dark"] .ap-calm .text-ink-900 { color: var(--dk-ink); }
+
+/* Tags and inputs */
+html[data-theme="dark"] .ap-tag { background: color-mix(in srgb, var(--c, #ffb000) 22%, var(--dk-s1)); color: color-mix(in srgb, var(--c, #ffb000) 55%, #fff); }
+html[data-theme="dark"] .ap-img .ap-tag,
+html[data-theme="dark"] .hc-label,
+html[data-theme="dark"] .hs-gmode { background: rgba(15,14,20,.85); color: #fff; }
+html[data-theme="dark"] .ap-calm :is(input, textarea, select) { color: var(--dk-ink); }
+html[data-theme="dark"] .ap-calm :is(input, textarea)::placeholder { color: #75707f; }
+
+/* Photos and covers keep their light cards so prompts stay readable */
+html[data-theme="dark"] .gc-card.front, html[data-theme="dark"] .hs-gcard { background: #fff; color: #14121a; }
+
+/* Pastel tags and hero buttons keep dark text */
+html[data-theme="dark"] :is([class*="bg-ochre-2"], [class*="bg-ink-100"], [class*="bg-clay-100"], [class*="bg-moss-100"], [class*="bg-sand-2"], [class*="bg-ruby-100"], [class*="bg-gold-3"], [class*="bg-rose-3"]) { color: #14121a !important; }
+html[data-theme="dark"] .app .hero .join, html[data-theme="dark"] .app .hero .hero-actions .join { color: #14121a; }
+html[data-theme="dark"] :is(.bt-today span, .rm-host a, .hb-banner-go) { color: #14121a; }

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Add, Notification, SearchNormal1 } from "iconsax-reactjs";
 import CreateChooser from "./CreateChooser";
+import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
 import { RAIL, activeGroup } from "./railGroups";
 import { allPeople } from "@/lib/data/people";
@@ -69,6 +70,7 @@ export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => 
       </div>
 
       <button className="nx-icon" aria-label="Ask the Creative Companion" title="Creative Companion" onClick={onCompanion}>✦</button>
+      <ThemeToggle />
       <button className="nx-icon" aria-label="Notifications" title="Notifications">
         <Notification size={20} color="currentColor" />
         <span className="nx-rail-dot" style={{ top: 9, right: 10 }} aria-hidden />

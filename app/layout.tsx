@@ -14,6 +14,7 @@ import "./messages.css";
 import "./night.css";
 import "./atelier.css";
 import "./ankara.css";
+import "./dark.css";
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["500", "600"], style: ["normal", "italic"], display: "swap" });
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", weight: ["400", "500", "600"], style: ["normal", "italic"], display: "swap" });
@@ -28,7 +29,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${playfair.variable} ${dmSans.variable} ${fraunces.variable} ${instrument.variable} ${dmMono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${dmSans.variable} ${fraunces.variable} ${instrument.variable} ${dmMono.variable}`}>
+      <head>
+        {/* Apply the saved theme before first paint, so dark mode never flashes light. */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var q=new URLSearchParams(location.search).get("theme");if(q==="dark"||q==="light"||q==="system")localStorage.setItem("ak:theme",q);var m=localStorage.getItem("ak:theme")||"light";var d=m==="dark"||(m==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light"}catch(e){}` }} />
+      </head>
       <body>
         <AppShell>{children}</AppShell>
       </body>
