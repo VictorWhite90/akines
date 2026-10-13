@@ -11,7 +11,14 @@ import Composer from "@/components/feed/Composer";
 import PostCard from "@/components/feed/PostCard";
 import { usePosts } from "@/components/feed/usePosts";
 import { useJoined } from "@/components/circles/useJoined";
-import { CIRCLES, ROOMS } from "@/lib/data/community";
+import { CIRCLES, COLLABS, ROOMS, STAGES, STUDIOS } from "@/lib/data/community";
+import { GAME_SESSIONS, GAMES } from "@/lib/data/games";
+import { STORIES } from "@/lib/data/stories";
+import GameCover from "@/components/play/GameCover";
+import BanterCard from "@/components/banter/BanterCard";
+import { useBanters } from "@/components/banter/useBanters";
+import { TODAYS_BANTER } from "@/lib/data/banter";
+import type { PhotoKey } from "@/lib/data/images";
 import { MATCHES } from "@/lib/data/matches";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
@@ -24,6 +31,13 @@ const MOODS = [
   { face: "😄", label: "Great" },
 ];
 
+const TILES: { title: string; stat: string; body: string; href: string; photo: PhotoKey; color: string; glyph: string }[] = [
+  { title: "Banter", stat: "8 waiting for you", body: "One honest question, to the right people.", href: "/banter", photo: "talkLaugh", color: "#ffb000", glyph: "❝" },
+  { title: "Presence Rooms", stat: "1 live · 3 this week", body: "Six seats. No audience. Nothing recorded.", href: "/rooms", photo: "talkMugs", color: "#e5007e", glyph: "◉" },
+  { title: "KinCircles", stat: "Week 4 of 8", body: "Small groups on a journey with purpose.", href: "/circles", photo: "talkGroup", color: "#00a86b", glyph: "◎" },
+  { title: "Collaborate", stat: "4 in progress · 3 calls", body: "Make what neither of you could alone.", href: "/collaborate", photo: "collabArt", color: "#2547d0", glyph: "⌘" },
+];
+
 const LIVE = [
   { kind: "Presence Room", title: "Photography and memory", sub: "Live now · 5 of 6 seats", href: "/rooms/photography-memory", who: ["wanjiru", "zuri", "efua"] as PersonId[], dot: "#e5007e" },
   { kind: "Banter Now", title: "Is AI helping or damaging African art?", sub: "Live now · 20 min", href: "/banter/now/ai-art", who: ["tunde", "kwame", "zuri"] as PersonId[], dot: "#ffb000" },
@@ -32,6 +46,7 @@ const LIVE = [
 
 export default function AnkaraHome() {
   const { posts } = usePosts();
+  const { all: banters } = useBanters();
   const { ids: joinedIds } = useJoined();
   const [tab, setTab] = useState<string>("mine");
   const [mood, setMood] = useLocal<number | null>("ak:home-mood", null);
@@ -39,6 +54,7 @@ export default function AnkaraHome() {
 
   const joined = CIRCLES.filter((c) => joinedIds.includes(c.id));
   const feed = posts.filter((p) => (tab === "all" ? true : tab === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === tab));
+  const collab = COLLABS[0];
   const match = MATCHES[0];
   const mp = PEOPLE[match.id as PersonId];
   const room = ROOMS[0];
@@ -101,6 +117,40 @@ export default function AnkaraHome() {
         <main className="hm-main">
           <div className="hm-hero"><HeroCarousel slides={slides} /></div>
 
+          <nav className="hs-tiles" aria-label="Jump back in">
+            {TILES.map((t) => (
+              <Link key={t.title} href={t.href} className="hs-tile" style={{ ["--t" as string]: t.color } as React.CSSProperties}>
+                <Photo name={t.photo} sizes="300px" className="absolute inset-0 h-full" />
+                <span className="hs-tile-shade" />
+                <span className="hs-tile-ic">{t.glyph}</span>
+                <span className="hs-tile-tx"><small>{t.stat}</small><b>{t.title}</b><em>{t.body}</em></span>
+              </Link>
+            ))}
+          </nav>
+
+          <section className="hb" aria-label="Banter">
+            <div className="hs-strip-head">
+              <div><small>Banter</small><h3>Questions waiting for you</h3></div>
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <Link href="/banter">See all →</Link>
+                <Link href="/banter#compose" className="hb-start">＋ Start a Banter</Link>
+              </div>
+            </div>
+            <div className="hb-grid">
+              <Link href="/banter/unfinished" className="hb-today">
+                <Photo name="paintingWoman" sizes="320px" className="absolute inset-0 h-full" />
+                <span className="hb-today-tx">
+                  <small>Today&apos;s Banter</small>
+                  <b>“{TODAYS_BANTER}”</b>
+                  <span>Join the Banter →</span>
+                </span>
+              </Link>
+              <div className="hb-list">
+                {banters.filter((b) => !b.closed).slice(0, 2).map((b) => <BanterCard key={b.id} banter={b} />)}
+              </div>
+            </div>
+          </section>
+
           <section className="hm-compose" aria-label="Share with your circles">
             <Composer />
           </section>
@@ -120,7 +170,67 @@ export default function AnkaraHome() {
               <button role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : undefined} onClick={() => setTab("all")}>All circles</button>
             </div>
             <div className="hm-feed">
-              {feed.map((p) => <PostCard key={p.id} post={p} />)}
+              {feed.slice(0, 2).map((p) => <PostCard key={p.id} post={p} />)}
+
+              {/* Spotlight: a collaboration in progress */}
+              <Link href={`/collaborate/${collab.id}`} className="hs-spot">
+                <span className="hs-spot-img"><Photo name={collab.photo} sizes="(max-width: 900px) 100vw, 420px" className="absolute inset-0 h-full" /></span>
+                <span className="hs-spot-tx">
+                  <small>Collaboration spotlight · {collab.route}</small>
+                  <b>{collab.title}</b>
+                  <em>{collab.blurb}</em>
+                  <span className="hs-stages">{STAGES.map((st, i) => <i key={st} className={i < collab.stage ? "done" : i === collab.stage ? "now" : undefined}>{st}</i>)}</span>
+                  <span className="hs-spot-foot"><span className="ap-faces">{collab.makers.map((id) => <span key={id}><Avatar person={PEOPLE[id]} size={28} ring /></span>)}</span>{collab.next}<span className="hs-go">View project →</span></span>
+                </span>
+              </Link>
+
+              {feed.slice(2, 4).map((p) => <PostCard key={p.id} post={p} />)}
+
+              {/* Play tonight */}
+              <section className="hs-strip">
+                <div className="hs-strip-head"><div><small>Play Together</small><h3>Games your people are playing</h3></div><Link href="/play">All games →</Link></div>
+                <div className="hs-row">
+                  {GAME_SESSIONS.map((g) => {
+                    const game = GAMES.find((x) => x.id === g.game)!;
+                    return (
+                      <Link key={g.id} href={`/play/session/${g.id}`} className="hs-game">
+                        <GameCover game={game} className="hs-cover" />
+                        <span className="hs-game-tx"><small>{g.when}</small><b>{g.title}</b><span className="ap-faces">{g.players.map((id) => <span key={id}><Avatar person={PEOPLE[id]} size={20} ring /></span>)}</span></span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {feed.slice(4, 6).map((p) => <PostCard key={p.id} post={p} />)}
+
+              {/* Stories */}
+              <section className="hs-strip">
+                <div className="hs-strip-head"><div><small>Stories with a pulse</small><h3>A few moments, chosen for what they say</h3></div><Link href="/stories">Explore all →</Link></div>
+                <div className="hs-row">
+                  {STORIES.slice(0, 3).map((st) => (
+                    <Link key={st.id} href={`/stories/${st.id}`} className="hs-story">
+                      <Photo name={st.photo} sizes="300px" className="absolute inset-0 h-full" />
+                      <span className="hs-story-tx"><small>{st.kind}{st.voice ? ` · ▶ ${st.voice}` : ""}</small><b>{st.title}</b><em>{PEOPLE[st.by].name}</em></span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+
+              {feed.slice(6).map((p) => <PostCard key={p.id} post={p} />)}
+
+              {/* Studio visits */}
+              <section className="hs-strip">
+                <div className="hs-strip-head"><div><small>Studio visits</small><h3>Step inside a studio this week</h3></div><Link href="/studios">All studios →</Link></div>
+                <div className="hs-row">
+                  {STUDIOS.slice(0, 3).map((v) => (
+                    <Link key={v.id} href={`/studios/${v.id}`} className="hs-visit">
+                      <span className="hs-visit-img"><Photo name={v.photo} sizes="300px" className="absolute inset-0 h-full" /><i>{v.mode}</i></span>
+                      <span className="hs-visit-tx"><Avatar person={PEOPLE[v.artist]} size={30} /><span><b>{PEOPLE[v.artist].name}</b><small>{v.place} · {v.when}</small></span></span>
+                    </Link>
+                  ))}
+                </div>
+              </section>
               {feed.length === 0 && (
                 <div className="hm-empty">
                   <p>Nothing here yet.</p>
