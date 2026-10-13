@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Avatar from "@/components/ui/Avatar";
+import Photo from "@/components/ui/Photo";
 import BanterCard from "./BanterCard";
 import BanterComposer from "./BanterComposer";
 import { useBanters, useResonance } from "./useBanters";
@@ -48,15 +49,27 @@ export default function BanterHome() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
-      <header className="flex flex-wrap items-end justify-between gap-5">
-        <div className="max-w-3xl">
-          <p className="eyebrow text-clay-600">The spark, not the destination</p>
-          <h1 className="font-display mt-2 text-[40px] leading-[1.05] md:text-[48px]">Start a Banter.</h1>
-          <p className="mt-2.5 max-w-2xl text-[16px] leading-relaxed text-mute">Share one honest question with the right people. A good exchange can grow into a KinCircle, a Presence Room or a collaboration.</p>
-        </div>
-        <button onClick={() => setStarting((v) => !v)} className="rounded-full border border-ink-900/20 px-5 py-3 text-[14px] font-semibold hover:bg-ink-900/5">◉ Banter Now</button>
-      </header>
+    <div className="ap ap-calm flex flex-col gap-8" style={{ ["--c" as string]: "#e09a00" } as React.CSSProperties}>
+      <div className="bt-head" style={{ marginBottom: 0 }}>
+        <section className="bt-intro">
+          <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#e09a00" }}>Banter · the spark, not the destination</p>
+          <h1>One honest question, to the right people.</h1>
+          <p>Not a feed and not built to go viral. Ask something real, see who it resonates with, and let a good exchange grow into a room, a KinCircle or a collaboration.</p>
+          <div className="bt-flow">
+            {["Ask", "Notice resonance", "Choose the next shape"].map((s, i) => <span key={s}><b>{i + 1}</b>{s}</span>)}
+          </div>
+          <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap" }}>
+            <a href="#compose" className="ap-cta" style={{ marginTop: 0, background: "#14121a", color: "#fff" }}>Start a Banter</a>
+            <button onClick={() => setStarting((v) => !v)} className="ap-btn" style={{ height: 42, padding: "0 18px" }}>◉ Banter Now</button>
+          </div>
+        </section>
+        <Link href="/banter/unfinished" className="bt-today">
+          <Photo name="paintingWoman" sizes="360px" className="absolute inset-0 h-full" />
+          <small>Today&apos;s Banter</small>
+          <b>“{TODAYS_BANTER}”</b>
+          <span>Join the Banter →</span>
+        </Link>
+      </div>
 
       {starting && (
         <section className="rounded-[22px] border border-line bg-paper-50 p-5 sm:p-6">
@@ -93,13 +106,6 @@ export default function BanterHome() {
 
       <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
         <div id="feed" className="flex min-w-0 scroll-mt-24 flex-col gap-4">
-          <Link href="/banter/unfinished" className="group flex flex-wrap items-center justify-between gap-3 rounded-[20px] bg-night px-5 py-4 text-white">
-            <span>
-              <span className="block text-[10.5px] font-bold tracking-[0.14em] text-ochre-300 uppercase">Today&apos;s Banter</span>
-              <span className="font-display mt-1 block text-[20px] leading-snug">“{TODAYS_BANTER}”</span>
-            </span>
-            <span className="rounded-full bg-white/10 px-4 py-2 text-[12.5px] font-semibold group-hover:bg-white/20">Join the Banter →</span>
-          </Link>
 
           <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Filter Banter">
             {[{ id: "all", label: "All" }, { id: "resonate", label: "✦ Exploring" }, ...BANTER_TYPES, { id: "mine", label: "Started by me" }].map((t) => (

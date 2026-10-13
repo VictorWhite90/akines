@@ -120,7 +120,7 @@ export default function BanterThread({ id }: { id: string }) {
   const unanswered = replies.filter((r) => r.text?.trim().endsWith("?"));
 
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_300px]">
+    <div className="ap-calm mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_300px]" style={{ ["--c" as string]: "#e09a00" } as React.CSSProperties}>
       <div className="flex min-w-0 flex-col gap-5">
         <div className="flex items-center justify-between">
           <Link href="/banter" className="text-[13px] text-mute hover:text-ink-900">← Banter</Link>

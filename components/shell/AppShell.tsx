@@ -28,7 +28,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (pathname === "/login" || pathname === "/signup" || pathname === "/circles/new" || pathname === "/about") return <>{children}</>;
 
   const night = pathname === "/constellation" || pathname.startsWith("/layouts");
-  const ankara = pathname === "/" || pathname === "/circles" || pathname === "/cliqs";
+  const ankara = pathname === "/" || pathname === "/circles" || pathname === "/cliqs" || pathname.startsWith("/banter");
 
   return (
     <div className={`app nx${night ? " is-night" : ""}${ankara ? " is-ankara" : ""}${pathname.startsWith("/atelier") || pathname === "/community" ? " is-bleed" : ""}`}>

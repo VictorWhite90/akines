@@ -54,7 +54,7 @@ export default function BanterNowRoom({ id }: { id: string }) {
 
   if (ended) {
     return (
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-6 py-6">
+      <div className="ap-calm mx-auto flex w-full max-w-2xl flex-col gap-6 py-6">
         <div className="text-center">
           <p className="eyebrow text-clay-600">Banter Now · ended</p>
           <h1 className="font-display mt-2 text-[34px] leading-tight">Did this conversation produce an idea worth continuing?</h1>
@@ -101,7 +101,7 @@ export default function BanterNowRoom({ id }: { id: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="ap-calm flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/banter" className="text-[13px] text-mute hover:text-ink-900">← Banter</Link>
         <div className="flex flex-wrap gap-2 text-[11.5px]">
