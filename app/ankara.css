@@ -799,3 +799,21 @@ a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: trans
   .km-row { max-width: 92%; }
   .km-photo { width: 100%; }
 }
+
+/* Inside a KinCircle: the shared room/chat layout in the calm style, emerald accent */
+.app .ap-calm.cs .cs-tabs { background: #fff; }
+.app .ap-calm.cs .cs-tabs button.on { border-bottom-color: #00a86b; }
+.app .ap-calm.cs .cs-chan { background: #fbfafd; }
+.app .ap-calm.cs .cs-chan button.on { background: #14121a; border-color: #14121a; }
+.app .ap-calm.cs .cs-on { color: #00a86b; }
+.app .ap-calm.cs .rs-head .go { background: #e6f7ef; color: #00704a; }
+.app .ap-calm.cs .rs-head .go:hover { background: #d3f1e3; }
+.app .ap-calm.cs .cs-scroll { background: #f7f6fa; }
+.app .ap-calm.cs .cs-pin { border-left-color: #00a86b; }
+.app .ap-calm.cs .rs-side .banner span { color: #14121a; }
+html[data-theme="dark"] .app .ap-calm.cs :is(.cs-tabs, .rs-head) { background: var(--dk-s1); }
+html[data-theme="dark"] .app .ap-calm.cs :is(.cs-chan, .rs-msgs, .cs-scroll) { background: var(--dk-bg); }
+html[data-theme="dark"] .app .ap-calm.cs .rs-head .go { background: #12352a; color: #6fe0b4; }
+html[data-theme="dark"] .app .ap-calm :is(.rs-main, .rs-side) { background: var(--dk-s1); border-color: var(--dk-line); }
+.app .ap-calm .rs-comp.ro button { background: #14121a; color: #fff; }
+.app .ap-calm .rs .row.mine .bubble { background: #e6f7ef; }

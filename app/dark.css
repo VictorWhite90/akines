@@ -152,3 +152,25 @@ html[data-theme="dark"] .gc-card.front, html[data-theme="dark"] .hs-gcard { back
 html[data-theme="dark"] :is([class*="bg-ochre-2"], [class*="bg-ink-100"], [class*="bg-clay-100"], [class*="bg-moss-100"], [class*="bg-sand-2"], [class*="bg-ruby-100"], [class*="bg-gold-3"], [class*="bg-rose-3"]) { color: #14121a !important; }
 html[data-theme="dark"] .app .hero .join, html[data-theme="dark"] .app .hero .hero-actions .join { color: #14121a; }
 html[data-theme="dark"] :is(.bt-today span, .rm-host a, .hb-banner-go) { color: #14121a; }
+
+/* Room and circle spaces (shared chat layout) */
+html[data-theme="dark"] .app :is(.cs-tabs, .cs-chan button, .cs-topics button, .cs-trend, .cs-trend .btns button, .cs-events li, .cs-events button, .cs-actions button,
+  .cs-pin, .cs-activity, .cs-activity .ft button, .rs-main, .rs-head, .rs-head .ic, .rs-stage .ctl button.off, .rs .sys > span, .rs .bubble, .rs-comp, .rs-comp .ic,
+  .rs-comp textarea, .rs-comp .recbar, .rs-comp .replying, .rs-comp .attach, .rs-side, .rs-side .st.away, .rs-side .ways button, .rs-modal .card, .rs-modal input,
+  .rs-modal .chips button, .rs-modal .mode button, .rs-side .invite, .myrooms a, .cr-step, .cr input[type=text], .cr input[type=date], .cr input[type=time],
+  .cr textarea, .cr-tags button, .cr-seg button, .cr-opt, .cr-people button, .cr-note) {
+  background-color: var(--dk-s1);
+  border-color: var(--dk-line);
+  color: var(--dk-ink);
+}
+html[data-theme="dark"] .app :is(.cs-chan, .cs-scroll, .rs-msgs, .rs .bubble .reply, .rs-head .back:hover, .rs-side .ways button:hover, .cs-topics button:hover) { background-color: var(--dk-s2); }
+html[data-theme="dark"] .app .rs .bubble { background-color: var(--dk-s2); }
+html[data-theme="dark"] .app .rs .bubble.me, html[data-theme="dark"] .app .rs .me .bubble { background-color: #3b3352; color: #fff; }
+html[data-theme="dark"] .app :is(.cs-chan button.on, .rs-modal .chips button.on, .cr-opt.on, .cr-people button.on) { background: var(--dk-btn); color: var(--dk-btn-ink); border-color: var(--dk-btn); }
+html[data-theme="dark"] .app .rs .bubble .name,
+html[data-theme="dark"] .app .rs-side .invite span { color: var(--dk-ink); }
+html[data-theme="dark"] .app .rs .day span { background: var(--dk-s2); border-color: var(--dk-line); color: var(--dk-mute); }
+html[data-theme="dark"] .app .rs-comp.ro button,
+html[data-theme="dark"] .app .rs-side .invite button,
+html[data-theme="dark"] .app .rs .sys button { background: var(--dk-btn); color: var(--dk-btn-ink); }
+html[data-theme="dark"] .app .rs .row.mine .bubble { background: #3b3352; color: #fff; }

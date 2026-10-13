@@ -120,7 +120,7 @@ export default function CircleSpace({ circle, startTab }: { circle: Circle; star
   };
 
   return (
-    <div className="rs cs">
+    <div className="rs cs ap-calm" style={{ ["--c" as string]: "#00a86b" } as React.CSSProperties}>
       <section className="rs-main">
         <header className="rs-head">
           <Link href="/circles" className="back" aria-label="All circles">←</Link>

@@ -281,3 +281,7 @@
   .lx-tile.w2 { grid-column: auto; }
   .lx-stage-card { padding: 20px; }
 }
+
+/* Never let page content push the app wider than the window (no sideways scroll). */
+.app.nx .main { overflow-x: clip; }
+html, body { overflow-x: clip; }

@@ -31,7 +31,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Pages restyled by remapping the older tokens inside a calm scope, each with its own accent.
   const CALM: [string, string][] = [["/kindred", "#2547d0"], ["/play", "#ff6b1a"], ["/activities", "#00a86b"], ["/collaborate", "#2547d0"], ["/messages", "#7b2ff7"]];
   const calm = CALM.find(([p]) => isActive(pathname, p));
-  const ankara = !!calm || pathname === "/" || pathname === "/circles" || pathname === "/cliqs" || pathname.startsWith("/banter") || pathname.startsWith("/rooms");
+  const ankara = !!calm || pathname === "/" || pathname.startsWith("/circles") || pathname === "/cliqs" || pathname.startsWith("/banter") || pathname.startsWith("/rooms");
 
   return (
     <div className={`app nx${night ? " is-night" : ""}${ankara ? " is-ankara" : ""}${pathname.startsWith("/atelier") || pathname === "/community" ? " is-bleed" : ""}`}>
