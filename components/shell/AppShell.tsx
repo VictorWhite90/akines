@@ -28,14 +28,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (pathname === "/login" || pathname === "/signup" || pathname === "/circles/new" || pathname === "/about") return <>{children}</>;
 
   const night = pathname === "/constellation" || pathname.startsWith("/layouts");
-  const ankara = pathname === "/" || pathname === "/circles" || pathname === "/cliqs" || pathname.startsWith("/banter") || pathname.startsWith("/rooms");
+  // Pages restyled by remapping the older tokens inside a calm scope, each with its own accent.
+  const CALM: [string, string][] = [["/kindred", "#2547d0"], ["/play", "#ff6b1a"], ["/activities", "#00a86b"], ["/collaborate", "#2547d0"], ["/messages", "#7b2ff7"]];
+  const calm = CALM.find(([p]) => isActive(pathname, p));
+  const ankara = !!calm || pathname === "/" || pathname === "/circles" || pathname === "/cliqs" || pathname.startsWith("/banter") || pathname.startsWith("/rooms");
 
   return (
     <div className={`app nx${night ? " is-night" : ""}${ankara ? " is-ankara" : ""}${pathname.startsWith("/atelier") || pathname === "/community" ? " is-bleed" : ""}`}>
       <Rail />
       <main className="main">
         <CommandBar onIntent={() => setIntent(true)} onCompanion={() => setCompanion(true)} />
-        <div className="content" id="main">{children}</div>
+        <div className="content" id="main">
+          {calm ? <div className="ap ap-calm ap-page" style={{ ["--c" as string]: calm[1] } as React.CSSProperties}>{children}</div> : children}
+        </div>
       </main>
 
       <nav className="nx-dock" aria-label="Quick navigation">

@@ -292,3 +292,18 @@
 .app .ap-calm .rs-head h1, .app .ap-calm .rs-side h2, .app .ap-calm .rs-modal h2, .app .ap-calm .myrooms .tx b, .app .ap-calm .cr-step h2 { font-family: var(--ap-sans); font-weight: 700; letter-spacing: -.01em; }
 .app .ap-calm .rs-side .ways span { font-family: var(--ap-sans); font-weight: 700; color: #e5007e; }
 .ap-calm .bg-ochre-400 { background-color: #e5007e; color: #fff; }
+
+/* ---------- Generic calm page (Discover, Play, Activities, Collaborate, Messages) ---------- */
+.ap-page h1.font-display, .ap-page .font-display { font-family: var(--ap-sans); font-weight: 700; letter-spacing: -.02em; }
+.ap-page h1.font-display em, .ap-page em { color: var(--c); font-style: normal; }
+.ap-page .text-clay-600, .ap-page .text-clay-500, .ap-page .text-clay-700 { color: var(--c) !important; }
+.ap-page .bg-clay-500, .ap-page .bg-ochre-400 { background-color: var(--c) !important; color: #fff !important; }
+.ap-page .bg-lime { background-color: color-mix(in srgb, var(--c) 18%, #fff) !important; }
+.ap-page .text-lime { color: var(--c) !important; }
+.app .ap-page [class*="font-playfair"], .app .ap-page h1, .app .ap-page h2, .app .ap-page h3 { font-family: var(--ap-sans); }
+/* Any older serif usage inside the calm scope becomes the clean sans. */
+.ap-calm { --font-playfair: var(--font-instrument); }
+/* On generic calm pages the old "orange" accent follows the page colour. */
+.ap-page { --orange: var(--c); }
+.app .ap-page .msg-empty, .app .ap-page .msg-gate { align-content: center; }
+.app .ap-page .msg-empty .glyph { color: var(--c); }
