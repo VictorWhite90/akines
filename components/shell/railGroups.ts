@@ -9,11 +9,12 @@ const group = (label: string) => NAV_GROUPS.find((g) => g.label === label)?.item
 export const RAIL: RailGroup[] = [
   {
     id: "sky",
-    label: "Your sky",
+    label: "Home",
     Icon: Star1,
     href: "/",
     items: [
-      { href: "/", label: "Constellation", glyph: "✶" },
+      { href: "/", label: "Home", glyph: "⌂" },
+      { href: "/constellation", label: "Constellation", glyph: "✶" },
       { href: "/community", label: "The Weekly (new)", glyph: "▦" },
       { href: "/community/classic", label: "Community board (classic)", glyph: "▤" },
       { href: "/atelier", label: "Today (new)", glyph: "◌" },

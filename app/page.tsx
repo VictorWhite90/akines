@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Constellation from "@/components/constellation/Constellation";
+import AnkaraHome from "@/components/home/AnkaraHome";
 
-export const metadata: Metadata = { title: "Your sky · Akines" };
+export const metadata: Metadata = { title: "Home · Akines" };
 
-/** Home is your constellation of relationships, not a feed. The previous home lives at /community. */
+/** Home: the hero carousel, then every core feature with its own colour and live feed. */
 export default function Home() {
-  return <Constellation />;
+  return <AnkaraHome />;
 }

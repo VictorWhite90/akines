@@ -27,10 +27,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Sign-in, sign-up, the KinCircle creation wizard and the public About page are full-screen, without the shell.
   if (pathname === "/login" || pathname === "/signup" || pathname === "/circles/new" || pathname === "/about") return <>{children}</>;
 
-  const night = pathname === "/" || pathname.startsWith("/layouts");
+  const night = pathname === "/constellation" || pathname.startsWith("/layouts");
+  const ankara = pathname === "/";
 
   return (
-    <div className={`app nx${night ? " is-night" : ""}${pathname.startsWith("/atelier") || pathname === "/community" ? " is-bleed" : ""}`}>
+    <div className={`app nx${night ? " is-night" : ""}${ankara ? " is-ankara" : ""}${pathname.startsWith("/atelier") || pathname === "/community" ? " is-bleed" : ""}`}>
       <Rail />
       <main className="main">
         <CommandBar onIntent={() => setIntent(true)} onCompanion={() => setCompanion(true)} />
