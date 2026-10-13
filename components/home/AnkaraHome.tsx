@@ -1,12 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useState } from "react";
-import Avatar, { AvatarStack } from "@/components/ui/Avatar";
+import { useState } from "react";
+import Avatar from "@/components/ui/Avatar";
 import Photo from "@/components/ui/Photo";
-import HeroCarousel from "@/components/home/HeroCarousel";
-import Pic from "@/components/home/Pic";
-import { ReserveButtons } from "@/components/home/HomeClient";
 import Composer from "@/components/feed/Composer";
 import PostCard from "@/components/feed/PostCard";
 import { usePosts } from "@/components/feed/usePosts";
@@ -18,7 +15,6 @@ import GameCover from "@/components/play/GameCover";
 import BanterCard from "@/components/banter/BanterCard";
 import { useBanters } from "@/components/banter/useBanters";
 import { TODAYS_BANTER } from "@/lib/data/banter";
-import type { PhotoKey } from "@/lib/data/images";
 import { MATCHES } from "@/lib/data/matches";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
@@ -29,13 +25,6 @@ const MOODS = [
   { face: "😐", label: "Okay" },
   { face: "🙂", label: "Good" },
   { face: "😄", label: "Great" },
-];
-
-const TILES: { title: string; stat: string; body: string; href: string; photo: PhotoKey; color: string; glyph: string }[] = [
-  { title: "Banter", stat: "8 waiting for you", body: "One honest question, to the right people.", href: "/banter", photo: "talkLaugh", color: "#ffb000", glyph: "❝" },
-  { title: "Presence Rooms", stat: "1 live · 3 this week", body: "Six seats. No audience. Nothing recorded.", href: "/rooms", photo: "talkMugs", color: "#e5007e", glyph: "◉" },
-  { title: "KinCircles", stat: "Week 4 of 8", body: "Small groups on a journey with purpose.", href: "/circles", photo: "talkGroup", color: "#00a86b", glyph: "◎" },
-  { title: "Collaborate", stat: "4 in progress · 3 calls", body: "Make what neither of you could alone.", href: "/collaborate", photo: "collabArt", color: "#2547d0", glyph: "⌘" },
 ];
 
 const LIVE = [
@@ -55,78 +44,59 @@ export default function AnkaraHome() {
   const joined = CIRCLES.filter((c) => joinedIds.includes(c.id));
   const feed = posts.filter((p) => (tab === "all" ? true : tab === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === tab));
   const collab = COLLABS[0];
+  const spot = COLLABS[1];
   const match = MATCHES[0];
   const mp = PEOPLE[match.id as PersonId];
   const room = ROOMS[0];
   const host = PEOPLE[room.host];
+  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
   const hour = new Date().getHours();
   const greet = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
-  const slides = [
-    <Fragment key="kincircle">
-      <Pic name="kincircleHero" sizes="(max-width: 1060px) 100vw, 1000px" priority position="center 32%" />
-      <div className="hero-copy">
-        <span className="pill"><span className="live-dot" /> KinCircle</span>
-        <h2>Bring together the right people around a shared purpose.</h2>
-        <div className="hero-actions">
-          <Link className="join" href="/circles/new">Start a KinCircle</Link>
-          <Link className="ghost" href="/circles">See how it works</Link>
-        </div>
-      </div>
-      <div className="attendees">
-        <AvatarStack people={(["ayo", "zuri", "thandi"] as PersonId[]).map((id) => PEOPLE[id])} size={30} max={3} ringClass="ring-white" />
-        <span className="count">{joined.length} circles · {joined.reduce((s, c) => s + c.members, 0)} creatives</span>
-      </div>
-    </Fragment>,
-    <Fragment key="room">
-      <Pic name="heroStudio" sizes="(max-width: 1060px) 100vw, 1000px" position="center 30%" />
-      <div className="hero-copy">
-        <span className="pill"><span className="live-dot" /> Presence Room · {room.when}</span>
-        <h2>{room.title}</h2>
-        <p>Hosted by {host.name}. Six seats, no audience, nothing recorded.</p>
-        <ReserveButtons roomId={room.id} />
-      </div>
-    </Fragment>,
-    <Fragment key="collab">
-      <Pic name="collabArt" sizes="(max-width: 1060px) 100vw, 1000px" position="center 45%" />
-      <div className="hero-copy">
-        <span className="pill"><span className="live-dot" /> Collaboration Studio</span>
-        <h2>Make something neither of you could make alone.</h2>
-        <div className="hero-actions">
-          <Link className="join" href="/collaborate">Explore collaborations</Link>
-          <Link className="ghost" href="/collaborate">Answer an open call</Link>
-        </div>
-      </div>
-    </Fragment>,
-  ];
-
   return (
     <div className="ap ap-calm hm" style={{ ["--c" as string]: "#14121a" } as React.CSSProperties}>
-      <header className="hm-hello">
-        <div>
-          <p>{greet}</p>
-          <h1>Welcome back, {ME.name.split(" ")[0]}.</h1>
+      <section className="hc" aria-label="Today on Akines">
+        <div className="hc-panel">
+          <p className="hc-date">{today}</p>
+          <h1>{greet},<br /><span>{ME.name.split(" ")[0]}.</span></h1>
+          <p className="hc-lede">Three people are waiting on you, one room is live and your circle meets on Thursday.</p>
+          <div className="hc-stats">
+            <Link href="/banter"><b>8</b><span>Banters for you</span></Link>
+            <Link href="/rooms"><b>1</b><span>room live now</span></Link>
+            <Link href="/kindred"><b>2</b><span>introductions</span></Link>
+          </div>
+          <div className="hc-actions">
+            <Link href="/banter#compose" className="hc-primary">❝ Start a Banter</Link>
+            <Link href="/rooms" className="hc-ghost">◉ Take a seat</Link>
+            <Link href="/circles/new" className="hc-ghost">◎ Start a KinCircle</Link>
+          </div>
         </div>
-        <Link href="/banter#compose" className="hm-ask">
-          <Avatar person={ME} size={30} />
-          <span>Ask your circles something honest…</span>
+
+        <Link href="/circles" className="hc-tile big">
+          <Photo name="kincircleHero" sizes="(max-width: 1100px) 100vw, 560px" priority className="absolute inset-0 h-full" position="center 32%" />
+          <span className="hc-label"><i style={{ background: "#00a86b" }} />KinCircle · Week 4 of 8</span>
+          <span className="hc-cap"><b>West African Markets</b><em>Bring one photograph and one trader&apos;s story.</em></span>
         </Link>
-      </header>
+        <Link href={`/rooms/${room.id}`} className="hc-tile">
+          <Photo name="heroStudio" sizes="360px" className="absolute inset-0 h-full" position="center 30%" />
+          <span className="hc-label"><i style={{ background: "#e5007e" }} />Presence Room · {room.when}</span>
+          <span className="hc-cap"><b>{room.title}</b><em>Hosted by {host.name.split(" ")[0]} · {6 - room.seated.length} seats left</em></span>
+        </Link>
+        <Link href="/banter/now/ai-art" className="hc-tile">
+          <Photo name="talkLaugh" sizes="360px" className="absolute inset-0 h-full" position="center 40%" />
+          <span className="hc-label live"><i style={{ background: "#ffb000" }} />Banter Now · live</span>
+          <span className="hc-cap"><b>Is AI helping or damaging African art?</b><em>Tunde, Kwame and Zuri are talking</em></span>
+        </Link>
+        <Link href={`/collaborate/${collab.id}`} className="hc-tile wide">
+          <Photo name={collab.photo} sizes="560px" className="absolute inset-0 h-full" position="center 45%" />
+          <span className="hc-label"><i style={{ background: "#2547d0" }} />Collaboration · {collab.route}</span>
+          <span className="hc-cap"><b>{collab.title}</b><em>{collab.progress}% made · {collab.next.toLowerCase()}</em></span>
+          <span className="hc-bar"><i style={{ width: `${collab.progress}%` }} /></span>
+        </Link>
+      </section>
 
       <div className="hm-grid">
         <main className="hm-main">
-          <div className="hm-hero"><HeroCarousel slides={slides} /></div>
-
-          <nav className="hs-tiles" aria-label="Jump back in">
-            {TILES.map((t) => (
-              <Link key={t.title} href={t.href} className="hs-tile" style={{ ["--t" as string]: t.color } as React.CSSProperties}>
-                <Photo name={t.photo} sizes="300px" className="absolute inset-0 h-full" />
-                <span className="hs-tile-shade" />
-                <span className="hs-tile-ic">{t.glyph}</span>
-                <span className="hs-tile-tx"><small>{t.stat}</small><b>{t.title}</b><em>{t.body}</em></span>
-              </Link>
-            ))}
-          </nav>
 
           <section className="hb" aria-label="Banter">
             <div className="hs-strip-head">
@@ -170,21 +140,20 @@ export default function AnkaraHome() {
               <button role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : undefined} onClick={() => setTab("all")}>All circles</button>
             </div>
             <div className="hm-feed">
-              {feed.slice(0, 2).map((p) => <PostCard key={p.id} post={p} />)}
+              <div className="hw">{feed.slice(0, 4).map((p) => <PostCard key={p.id} post={p} />)}</div>
 
               {/* Spotlight: a collaboration in progress */}
-              <Link href={`/collaborate/${collab.id}`} className="hs-spot">
-                <span className="hs-spot-img"><Photo name={collab.photo} sizes="(max-width: 900px) 100vw, 420px" className="absolute inset-0 h-full" /></span>
+              <Link href={`/collaborate/${spot.id}`} className="hs-spot">
+                <span className="hs-spot-img"><Photo name={spot.photo} sizes="(max-width: 900px) 100vw, 420px" className="absolute inset-0 h-full" /></span>
                 <span className="hs-spot-tx">
-                  <small>Collaboration spotlight · {collab.route}</small>
-                  <b>{collab.title}</b>
-                  <em>{collab.blurb}</em>
-                  <span className="hs-stages">{STAGES.map((st, i) => <i key={st} className={i < collab.stage ? "done" : i === collab.stage ? "now" : undefined}>{st}</i>)}</span>
-                  <span className="hs-spot-foot"><span className="ap-faces">{collab.makers.map((id) => <span key={id}><Avatar person={PEOPLE[id]} size={28} ring /></span>)}</span>{collab.next}<span className="hs-go">View project →</span></span>
+                  <small>Collaboration spotlight · {spot.route}</small>
+                  <b>{spot.title}</b>
+                  <em>{spot.blurb}</em>
+                  <span className="hs-stages">{STAGES.map((st, i) => <i key={st} className={i < spot.stage ? "done" : i === spot.stage ? "now" : undefined}>{st}</i>)}</span>
+                  <span className="hs-spot-foot"><span className="ap-faces">{spot.makers.map((id) => <span key={id}><Avatar person={PEOPLE[id]} size={28} ring /></span>)}</span>{spot.next}<span className="hs-go">View project →</span></span>
                 </span>
               </Link>
 
-              {feed.slice(2, 4).map((p) => <PostCard key={p.id} post={p} />)}
 
               {/* Play tonight */}
               <section className="hs-strip">
@@ -202,7 +171,7 @@ export default function AnkaraHome() {
                 </div>
               </section>
 
-              {feed.slice(4, 6).map((p) => <PostCard key={p.id} post={p} />)}
+              <div className="hw">{feed.slice(4, 8).map((p) => <PostCard key={p.id} post={p} />)}</div>
 
               {/* Stories */}
               <section className="hs-strip">
@@ -217,7 +186,7 @@ export default function AnkaraHome() {
                 </div>
               </section>
 
-              {feed.slice(6).map((p) => <PostCard key={p.id} post={p} />)}
+              <div className="hw">{feed.slice(8).map((p) => <PostCard key={p.id} post={p} />)}</div>
 
               {/* Studio visits */}
               <section className="hs-strip">
@@ -242,7 +211,7 @@ export default function AnkaraHome() {
         </main>
 
         <aside className="hm-side">
-          <section className="hm-card">
+          <section className="hm-card dark">
             <div className="hm-cardhead"><h3>Happening now</h3><span className="hm-pulse" /></div>
             {LIVE.map((l) => (
               <Link key={l.title} href={l.href} className="hm-live">
