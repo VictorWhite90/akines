@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { isSignedIn } from "@/lib/session";
 import { Add, Messages2, People, Star1 } from "iconsax-reactjs";
 import CommandBar from "./CommandBar";
 import Companion from "./Companion";
@@ -24,8 +25,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [companion, setCompanion] = useState(false);
   const [intent, setIntent] = useState(false);
 
-  // Sign-in, sign-up, the KinCircle creation wizard and the public About page are full-screen, without the shell.
-  if (pathname === "/login" || pathname === "/signup" || pathname === "/circles/new" || pathname === "/about") return <>{children}</>;
+  const router = useRouter();
+  const open = ["/login", "/signup", "/about", "/welcome"].includes(pathname);
+  const [gate, setGate] = useState<"checking" | "in" | "out">("checking");
+
+  // Prototype gate: signed-out visitors meet the Welcome screen first.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the browser session once per route
+    setGate(isSignedIn() ? "in" : "out");
+  }, [pathname]);
+  useEffect(() => {
+    if (gate === "out" && !open) router.replace("/welcome");
+  }, [gate, open, router]);
+
+  // Sign-in, sign-up, welcome, the KinCircle creation wizard and the public About page are full-screen, without the shell.
+  if (open || pathname === "/circles/new") return <>{children}</>;
+  if (gate !== "in") return <div className="gate-wait" aria-busy="true" />;
 
   const night = pathname === "/constellation" || pathname.startsWith("/layouts");
   // Pages restyled by remapping the older tokens inside a calm scope, each with its own accent.

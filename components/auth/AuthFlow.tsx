@@ -1,5 +1,6 @@
 "use client";
 
+import { SESSION_KEY } from "@/lib/session";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -17,7 +18,6 @@ const STEPS: Record<Mode, Step[]> = {
 const ROLES = ["Artist", "Collector", "Curator", "Art student", "Art historian", "Designer", "Art lover"];
 const MEDIA = ["Painting", "Sculpture", "Photography", "Textile", "Fashion", "Ceramics", "Digital", "Performance", "Film"];
 
-const SESSION_KEY = "artelia-connect:session";
 
 function remember(data: Record<string, unknown>) {
   try {

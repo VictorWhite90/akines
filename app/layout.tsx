@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { DM_Mono, DM_Sans, Fraunces, Instrument_Sans, Playfair_Display } from "next/font/google";
 import AppShell from "@/components/shell/AppShell";
+import Splash from "@/components/onboarding/Splash";
+import "./welcome.css";
 import "./globals.css";
 import "./artelia.css";
 import "./auth.css";
@@ -36,6 +38,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <script dangerouslySetInnerHTML={{ __html: `try{var q=new URLSearchParams(location.search).get("theme");if(q==="dark"||q==="light"||q==="system")localStorage.setItem("ak:theme",q);var m=localStorage.getItem("ak:theme")||"light";var d=m==="dark"||(m==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light"}catch(e){}` }} />
       </head>
       <body>
+        <Splash />
         <AppShell>{children}</AppShell>
       </body>
     </html>
