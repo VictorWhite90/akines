@@ -25,7 +25,7 @@ export default function Rail() {
               <g.Icon size={24} color="currentColor" variant={current.id === g.id ? "Bold" : "Linear"} />
               {g.dot && current.id !== g.id && <span className="nx-rail-dot" aria-hidden />}
             </Link>
-            <div className="nx-fly">
+            {g.items.length > 1 && <div className="nx-fly">
               <p>{g.label}</p>
               {g.items.map((i) => {
                 const on = i.href === "/" ? pathname === "/" : isActive(pathname, i.href);
@@ -37,7 +37,7 @@ export default function Rail() {
                   </Link>
                 );
               })}
-            </div>
+            </div>}
           </div>
         ))}
       </nav>

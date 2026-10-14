@@ -14,10 +14,6 @@ export const RAIL: RailGroup[] = [
     href: "/",
     items: [
       { href: "/", label: "Home", glyph: "⌂" },
-      { href: "/community/classic", label: "Community board (classic)", glyph: "▤" },
-      { href: "/atelier", label: "Today (new)", glyph: "◌" },
-      { href: "/atelier/introduction", label: "Introduction (new)", glyph: "∞" },
-      { href: "/atelier/room", label: "Presence room (new)", glyph: "◯" },
     ],
   },
   { id: "connect", label: "Connect", Icon: People, href: "/banter", items: group("Connect"), dot: true },
