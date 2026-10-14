@@ -1006,3 +1006,8 @@ html[data-theme="dark"] .bd-warn button + button { color: #ffe2a8; border-color:
   .bd-ask h2 { font-size: 24px; } .bd-photo { width: 90px; height: 90px; }
   .br-row { max-width: 92%; } .br-photo { width: 100%; }
 }
+.bd-headr { display: flex; flex-direction: column; align-items: flex-end; gap: 12px; }
+.bd-create { height: 46px; padding: 0 22px; border-radius: 99px; border: 0; background: #ffb000; color: #14121a; font: 700 14.5px var(--ap-sans); cursor: pointer; box-shadow: 0 10px 24px -12px rgba(224,154,0,.8); }
+.bd-create:hover { transform: translateY(-1px); }
+.bd-ask-box { scroll-margin-top: 100px; }
+@media (max-width: 1180px) { .bd-headr { align-items: flex-start; } }

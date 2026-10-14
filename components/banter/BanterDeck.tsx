@@ -147,11 +147,14 @@ export default function BanterDeck() {
           <p className="bd-kicker">Banter</p>
           <h1>One question. A small chat. It fades, or it grows.</h1>
         </div>
+        <div className="bd-headr">
+        <button className="bd-create" onClick={() => { const t = document.getElementById("bd-q") as HTMLTextAreaElement | null; t?.scrollIntoView({ behavior: "smooth", block: "center" }); t?.focus(); }}>＋ Start your own Banter</button>
         <ol className="bd-how">
           <li><b>1</b>Someone asks one honest question</li>
           <li><b>2</b>Their people join a short chat about it</li>
           <li><b>3</b>It fades away, or becomes a KinCircle, room or project</li>
         </ol>
+        </div>
       </header>
 
       <div className="bd-grid">
@@ -175,9 +178,11 @@ export default function BanterDeck() {
         </section>
 
         <aside className="bd-side">
-          <section className="bd-ask-box">
-            <h3>Ask your people something</h3>
-            <textarea value={q} onChange={(e) => { setQ(e.target.value); setAck(false); }} rows={3} placeholder="Can an unfinished artwork still be honest?" />
+          <section className="bd-ask-box" id="start">
+            <p className="bd-kicker" style={{ fontSize: 11 }}>Your turn</p>
+            <h3>Start your own Banter</h3>
+            <p className="bd-note" style={{ marginTop: -4, marginBottom: 10 }}>Write one honest question. You&apos;ll go straight into its chat room.</p>
+            <textarea id="bd-q" value={q} onChange={(e) => { setQ(e.target.value); setAck(false); }} rows={3} placeholder="Can an unfinished artwork still be honest?" />
             {issue === "harsh" && (
               <div className="bd-warn">
                 <b>This could sound personal rather than playful.</b>
