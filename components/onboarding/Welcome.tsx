@@ -8,18 +8,18 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { signOut, startGuest } from "@/lib/session";
 
 const CAST: { id: PersonId; color: string; reply: string }[] = [
-  { id: "kwame", color: "#ffb000", reply: "Leave the left edge open." },
-  { id: "zuri", color: "#e5007e", reply: "The unfinished part is the honest part." },
-  { id: "ayo", color: "#00a86b", reply: "I left a panel half-dyed on purpose." },
+  { id: "kwame", color: "#ffb000", reply: "How to fix a bike chain." },
+  { id: "zuri", color: "#e5007e", reply: "Negotiating your first salary." },
+  { id: "ayo", color: "#00a86b", reply: "Jollof, properly." },
   { id: "tunde", color: "#2547d0", reply: "Voice note · 0:48" },
-  { id: "thandi", color: "#ff6b1a", reply: "Make it useless on purpose." },
-  { id: "wanjiru", color: "#7b2ff7", reply: "Photograph it before you finish." },
+  { id: "thandi", color: "#ff6b1a", reply: "Reading a contract, fast." },
+  { id: "wanjiru", color: "#7b2ff7", reply: "Three chords on guitar." },
 ];
 
 const SCENES = [
-  { kicker: "Banter", title: "One honest question finds your people.", q: "Can an unfinished artwork still be honest?" },
-  { kicker: "KinCircle", title: "Small circles. Real purpose.", q: "Six of us. Eight weeks. One disappearing market." },
-  { kicker: "Together", title: "Talk, play and make something real.", q: "What could five artists from five countries create?" },
+  { kicker: "Banter", title: "One honest question finds your people.", q: "What could you teach a stranger in ten minutes?" },
+  { kicker: "KinCircle", title: "Small circles. Real purpose.", q: "Six of us. Eight weeks. One small business to launch." },
+  { kicker: "Together", title: "Talk, play and make something real.", q: "What could five people from five countries build together?" },
 ];
 
 /** First screen for people who aren't signed in: an animated scene of people gathering, then sign up or sign in. */
@@ -77,7 +77,7 @@ export default function Welcome({ signedOut = false }: { signedOut?: boolean }) 
         <section className="wl-copy">
           <p className="wl-kicker" key={`k${scene}`}>{s.kicker}</p>
           <h1 key={`t${scene}`}>{s.title}</h1>
-          <p className="wl-lede">Akines is where creative people find each other on purpose: fewer people, real conversations, things made together. No followers. No likes. No endless feed.</p>
+          <p className="wl-lede">Akines helps people from every line of work find each other on purpose: fewer people, real conversations, things made together. No followers. No likes. No endless feed.</p>
           <div className="wl-dots" role="tablist" aria-label="Scenes">
             {SCENES.map((x, i) => <button key={x.kicker} role="tab" aria-selected={i === scene} className={i === scene ? "on" : undefined} onClick={() => setScene(i)} aria-label={x.kicker} />)}
           </div>

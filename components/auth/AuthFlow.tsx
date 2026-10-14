@@ -15,8 +15,8 @@ const STEPS: Record<Mode, Step[]> = {
   login: ["account", "intent", "arrive"],
 };
 
-const ROLES = ["Artist", "Collector", "Curator", "Art student", "Art historian", "Designer", "Art lover"];
-const MEDIA = ["Painting", "Sculpture", "Photography", "Textile", "Fashion", "Ceramics", "Digital", "Performance", "Film"];
+const ROLES = ["Student", "Professional", "Founder", "Creative", "Educator", "Parent", "Community organiser", "Just here to connect"];
+const MEDIA = ["Tech", "Business", "Health", "Education", "Arts & design", "Music", "Sports", "Faith & community", "Food", "Travel", "Parenting", "Volunteering"];
 
 
 function remember(data: Record<string, unknown>) {
@@ -83,21 +83,21 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
         <div className="bg pattern-adire" aria-hidden />
         <Link href="/" className="auth-brand"><Image src="/akines_logo_transparent.png" alt="Akines" width={168} height={45} priority /></Link>
         <div className="auth-collage" aria-hidden>
-          <div className="t a"><Pic name="heroStudio" sizes="30vw" position="50% 30%" priority /></div>
-          <div className="t b"><Pic name="redPatterned" sizes="20vw" position="50% 15%" priority /></div>
-          <div className="t c"><Pic name="kenteVest" sizes="20vw" position="50% 20%" priority /></div>
-          <div className="t d"><Pic name="yellowPrint" sizes="20vw" position="50% 30%" priority /></div>
+          <div className="t a"><Pic name="kincircleHero" sizes="30vw" position="50% 30%" priority /></div>
+          <div className="t b"><Pic name="talkLaugh" sizes="20vw" position="50% 40%" priority /></div>
+          <div className="t c"><Pic name="talkCafe" sizes="20vw" position="50% 40%" priority /></div>
+          <div className="t d"><Pic name="talkGroup" sizes="20vw" position="50% 40%" priority /></div>
         </div>
         <div className="auth-quote">
-          <div className="auth-kicker">akines.art</div>
-          <h2>Where African creativity <em>finds its people.</em></h2>
-          <p>Akines is where artists, collectors and curators meet through the work they make, keep and love.</p>
+          <div className="auth-kicker">akines</div>
+          <h2>Less scrolling. <em>More belonging.</em></h2>
+          <p>Akines brings people together on purpose: friends, families, teams, students and professionals from every line of work, through honest conversation, small circles and things you make together.</p>
           <div className="auth-points">
             <div><b>◇</b>Introductions that come with a reason, not a wall of profiles.</div>
-            <div><b>◎</b>Circles, studio visits and collaborations in one place.</div>
+            <div><b>◎</b>Banter, KinCircles, live rooms and collaborations in one place.</div>
             <div><b>♡</b>Kind by design: no follower counts, and AI that never diagnoses.</div>
           </div>
-          <small className="auth-copy">© 2026 Akines. Original African art.</small>
+          <small className="auth-copy">© 2026 Akines. Built for real connection.</small>
         </div>
       </aside>
 
@@ -185,14 +185,14 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
             <div>
               <div className="ac-eyebrow">A little about you</div>
               <h1>Which chair <em>are you sitting in?</em></h1>
-              <p className="auth-lead">Optional, and only used to introduce you to the right people. You can change every answer later in your Creative DNA.</p>
+              <p className="auth-lead">Optional, and only used to introduce you to the right people. You can change every answer later.</p>
 
               <div className="auth-label">I am mostly a… <small>choose one</small></div>
               <div className="auth-pills">
                 {ROLES.map((r) => <button key={r} type="button" className={`auth-pill${role === r ? " on" : ""}`} onClick={() => setRole(r)}>{r}</button>)}
               </div>
 
-              <div className="auth-label">What do you make, collect or love? <small>pick any</small></div>
+              <div className="auth-label">What are you into, or working on? <small>pick any</small></div>
               <div className="auth-pills">
                 {MEDIA.map((m) => <button key={m} type="button" className={`auth-pill${media.includes(m) ? " on" : ""}`} onClick={() => toggle(m)}>{m}</button>)}
               </div>

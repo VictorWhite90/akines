@@ -26,8 +26,8 @@ const dmMono = DM_Mono({ subsets: ["latin"], variable: "--font-dmmono", weight: 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dmsans", weight: ["400", "500", "600", "700"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Akines: the home of African creativity",
-  description: "A living, trusted community where artists, collectors, curators and the African diaspora form lasting relationships through art.",
+  title: "Akines: less scrolling, more belonging",
+  description: "Akines helps people from every line of work find each other on purpose: fewer people, honest conversation, small circles and things made together.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
