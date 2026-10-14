@@ -1038,3 +1038,24 @@ html[data-theme="dark"] .bd-warn button + button { color: #ffe2a8; border-color:
 .bd-seg button.on { background: var(--ap-bg, #fff); color: var(--ap-ink); box-shadow: 0 2px 8px -4px rgba(0,0,0,.3); }
 img.bd-photo { object-fit: cover; }
 img.br-open-photo { width: 100%; object-fit: cover; display: block; }
+
+/* Own photos at their real shape */
+img.br-open-photo.br-own { height: auto; max-height: 520px; object-fit: contain; background: var(--ap-soft); }
+img.bd-photo.bd-own { width: 200px; height: 240px; object-fit: cover; object-position: center 20%; transform: rotate(2deg); border: 5px solid #fff; }
+@media (max-width: 640px) { img.bd-photo.bd-own { width: 110px; height: 140px; } }
+
+/* Tagging */
+.bd-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.bd-tags span { display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 3px; border-radius: 99px; background: var(--ap-soft); border: 1px solid var(--ap-line); font-size: 12.5px; font-weight: 700; }
+.bd-tags button { width: 18px; height: 18px; border-radius: 50%; border: 0; background: transparent; color: var(--ap-mute); cursor: pointer; }
+.bd-tagpick { margin-top: 8px; padding: 8px; border-radius: 16px; border: 1px solid var(--ap-line); background: var(--ap-bg, #fff); box-shadow: 0 16px 30px -18px rgba(0,0,0,.35); max-height: 260px; overflow-y: auto; }
+.bd-tagpick p { margin: 4px 6px 6px; font-size: 11.5px; color: var(--ap-mute); }
+.bd-tagpick button { display: grid; grid-template-columns: auto 1fr; gap: 0 10px; align-items: center; width: 100%; padding: 6px; border: 0; border-radius: 12px; background: none; color: var(--ap-ink); text-align: left; cursor: pointer; }
+.bd-tagpick button:hover { background: var(--ap-soft); }
+.bd-tagpick button > span { grid-row: span 2; }
+.bd-tagpick b { font-size: 13px; }
+.bd-tagpick small { font-size: 11.5px; color: var(--ap-mute); }
+.bd-upload { flex-wrap: wrap; }
+.bd-upload > button.bd-add { background: transparent; font-family: var(--ap-sans); }
+.br-tagged { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 12px; color: var(--ap-mute); }
+.br-tagged span { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px 2px 2px; border-radius: 99px; background: var(--ap-soft); color: var(--ap-ink); font-weight: 700; }

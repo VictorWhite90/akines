@@ -75,6 +75,7 @@ export default function BanterRoom({ id }: { id: string }) {
   const life = lifeLeft(b);
   const by = PEOPLE[b.by];
   const inside = [...new Set([b.by, ...replies.map((r) => r.by)])];
+  const waiting = (b.tagged ?? []).filter((t) => !inside.includes(t));
   const iExplore = resonated.includes(b.id);
   const resonance = [...(b.resonance ?? []), ...(iExplore ? [ME_ID] : [])];
   const issue = ack ? null : toneIssue(text);
@@ -119,6 +120,9 @@ export default function BanterRoom({ id }: { id: string }) {
           {/* The opening question */}
           <div className="br-open">
             <p className="br-who"><Avatar person={by} size={32} /> <b>{b.mine ? "You" : by.name}</b> started this Banter · {b.ago}</p>
+            {b.tagged?.length ? (
+              <p className="br-tagged">Asked by name: {b.tagged.map((t) => <span key={t}><Avatar person={PEOPLE[t]} size={20} />@{PEOPLE[t].name.split(" ")[0]}</span>)}</p>
+            ) : null}
             <p className="br-open-q">{b.prompt}</p>
             {b.image ? (
               // eslint-disable-next-line @next/next/no-img-element -- member's own upload, stored as a data URL
@@ -206,6 +210,7 @@ export default function BanterRoom({ id }: { id: string }) {
       <aside className="br-side">
         <section className="hm-card">
           <h3>In this conversation</h3>
+          {waiting.length > 0 && <p className="br-sub">Waiting on {waiting.map((t) => PEOPLE[t].name.split(" ")[0]).join(", ")}, who you tagged.</p>}
           <p className="br-sub">{inside.length} talking · sent to {b.reach ?? inside.length} · {resonance.length} want to explore it</p>
           <div className="br-people">
             {inside.map((pid) => (

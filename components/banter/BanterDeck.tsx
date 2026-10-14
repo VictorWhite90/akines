@@ -74,7 +74,7 @@ function Card({ b, depth, onSkip }: { b: Banter; depth: number; onSkip: () => vo
 
       <div className="bd-body">
         <div className="bd-ask">
-          <p className="bd-who"><Avatar person={by} size={30} ring /> <b>{b.mine ? "You" : by.name.split(" ")[0]}</b> asks</p>
+          <p className="bd-who"><Avatar person={by} size={30} ring /> <b>{b.mine ? "You" : by.name.split(" ")[0]}</b> {b.mine ? "ask" : "asks"}{b.tagged?.length ? <> · with {b.tagged.map((t) => `@${PEOPLE[t].name.split(" ")[0]}`).join(", ")}</> : null}</p>
           <h2>{b.prompt}</h2>
           {b.poll && <p className="bd-chip">≡ Poll · {b.poll.options.length} options</p>}
           {b.media && <p className="bd-chip">{b.media.kind === "music" ? "♪" : "▶"} {b.media.label}</p>}
@@ -127,6 +127,16 @@ export default function BanterDeck() {
   const [minutes, setMinutes] = useState(20);
   const [image, setImage] = useState<string | null>(null);
   const [imgErr, setImgErr] = useState("");
+  const [tags, setTags] = useState<PersonId[]>([]);
+  const [tagOpen, setTagOpen] = useState(false);
+  const mention = q.match(/@(\w*)$/)?.[1];
+  const showTags = tagOpen || mention !== undefined;
+  const tagMatches = OTHERS.filter((id) => !tags.includes(id) && (!mention || PEOPLE[id].name.toLowerCase().includes(mention.toLowerCase()))).slice(0, 8);
+  const addTag = (id: PersonId) => {
+    setTags((t) => [...t, id]);
+    setQ((cur) => (/@\w*$/.test(cur) ? cur.replace(/@\w*$/, `@${PEOPLE[id].name.split(" ")[0]} `) : cur));
+    setTagOpen(false);
+  };
   const [, setSessions] = useLocal<BanterNow[]>("ak:banter-now", []);
 
   const pickImage = async (f?: File) => {
@@ -159,7 +169,7 @@ export default function BanterDeck() {
 
   const start = () => {
     if (shape === "live") {
-      const s: BanterNow = { id: newId("now"), topic: q.trim(), host: ME.id as PersonId, people: [ME.id as PersonId, ...audience.people.slice(0, 7)], minutes, context: audience.label, live: true };
+      const s: BanterNow = { id: newId("now"), topic: q.trim(), host: ME.id as PersonId, people: [ME.id as PersonId, ...[...new Set([...tags, ...audience.people])].slice(0, 7)], minutes, context: audience.label, live: true };
       setSessions((cur) => [s, ...cur]);
       router.push(`/banter/now/${s.id}`);
       return;
@@ -180,6 +190,7 @@ export default function BanterDeck() {
       resonance: [],
       reach: audience.reach,
       image: image ?? undefined,
+      tagged: tags.length ? tags : undefined,
       mine: true,
     };
     add(b);
@@ -238,7 +249,25 @@ export default function BanterDeck() {
                 <span>◉</span><b>Live talk</b><small>Voice, now, 2–8 people</small>
               </button>
             </div>
-            <textarea id="bd-q" value={q} onChange={(e) => { setQ(e.target.value); setAck(false); }} rows={3} placeholder={shape === "live" ? "Is AI helping or damaging African art?" : "Can an unfinished artwork still be honest?"} />
+            <textarea id="bd-q" value={q} onChange={(e) => { setQ(e.target.value); setAck(false); }} rows={3} placeholder={shape === "live" ? "Is AI helping or damaging African art?" : "Can an unfinished artwork still be honest? Type @ to tag someone"} />
+            {tags.length > 0 && (
+              <div className="bd-tags">
+                {tags.map((id) => (
+                  <span key={id}><Avatar person={PEOPLE[id]} size={20} />@{PEOPLE[id].name.split(" ")[0]}<button onClick={() => setTags(tags.filter((x) => x !== id))} aria-label={`Untag ${PEOPLE[id].name}`}>×</button></span>
+                ))}
+              </div>
+            )}
+            {showTags && (
+              <div className="bd-tagpick" role="listbox" aria-label="Tag people">
+                <p>{mention ? `People matching “${mention}”` : "Tag people: they'll be asked by name"}</p>
+                {tagMatches.map((id) => (
+                  <button key={id} role="option" aria-selected={false} onClick={() => addTag(id)}>
+                    <Avatar person={PEOPLE[id]} size={26} /><b>{PEOPLE[id].name}</b><small>{PEOPLE[id].role}</small>
+                  </button>
+                ))}
+                {tagMatches.length === 0 && <p>No one matches.</p>}
+              </div>
+            )}
             {shape === "chat" && (
               <div className="bd-upload">
                 {image ? (
@@ -253,6 +282,7 @@ export default function BanterDeck() {
                     ▣ Add your own photo
                   </label>
                 )}
+                <button className="bd-add" onClick={() => setTagOpen(!tagOpen)} aria-expanded={showTags}>＠ Tag people</button>
                 {imgErr && <small>{imgErr}</small>}
               </div>
             )}

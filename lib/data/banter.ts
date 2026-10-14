@@ -84,6 +84,8 @@ export type Banter = {
   photo?: PhotoKey;
   /** A member's own uploaded image (downscaled data URL). */
   image?: string;
+  /** People the asker tagged with @. */
+  tagged?: PersonId[];
   ago: string;
   reactions: Record<string, number>;
   replies: BanterReply[];
