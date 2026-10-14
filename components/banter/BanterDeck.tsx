@@ -10,13 +10,35 @@ import { BANTER_LIFETIMES, BANTER_MOODS, BANTER_NOW, MOOD_LOOK, lifeLeft, toneIs
 import { CLIQS } from "@/lib/data/cliqs";
 import { CIRCLES } from "@/lib/data/community";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
-import { newId } from "@/lib/useLocal";
+import { newId, useLocal } from "@/lib/useLocal";
+import type { BanterNow } from "@/lib/data/banter";
+import { allPeople } from "@/lib/data/people";
 
-const AUDIENCES = [
-  ...CLIQS.map((c) => ({ id: `cliq:${c.id}`, label: c.name, reach: c.people.length })),
-  ...CIRCLES.filter((c) => c.joined).map((c) => ({ id: `circle:${c.id}`, label: c.name, reach: 12 })),
-  { id: "community", label: "Wider Akines community", reach: 120 },
+const OTHERS = allPeople.filter((p) => p.id !== ME.id).map((p) => p.id as PersonId);
+const AUDIENCES: { id: string; label: string; reach: number; kind: string; people: PersonId[] }[] = [
+  ...CLIQS.map((c) => ({ id: `cliq:${c.id}`, label: c.name, reach: c.people.length, kind: "Cliq", people: c.people })),
+  ...CIRCLES.filter((c) => c.joined).map((c, k) => ({ id: `circle:${c.id}`, label: c.name, reach: 12, kind: "KinCircle", people: OTHERS.slice(k * 3, k * 3 + 6) })),
+  { id: "community", label: "Wider community", reach: 120, kind: "Everyone", people: OTHERS.slice(4, 10) },
 ];
+
+/** Shrink an uploaded image so it stays light enough to keep in the browser. */
+function downscale(file: File, max = 900): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * k);
+      c.height = Math.round(img.height * k);
+      c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL("image/jpeg", 0.8));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
 
 /** A small countdown ring showing how much of the Banter's life is left. */
 function LifeRing({ b }: { b: Banter }) {
@@ -57,7 +79,10 @@ function Card({ b, depth, onSkip }: { b: Banter; depth: number; onSkip: () => vo
           {b.poll && <p className="bd-chip">≡ Poll · {b.poll.options.length} options</p>}
           {b.media && <p className="bd-chip">{b.media.kind === "music" ? "♪" : "▶"} {b.media.label}</p>}
         </div>
-        {b.photo && <Photo name={b.photo} sizes="220px" className="bd-photo" />}
+        {b.image ? (
+          // eslint-disable-next-line @next/next/no-img-element -- member's own upload, stored as a data URL
+          <img src={b.image} alt="" className="bd-photo bd-own" />
+        ) : b.photo ? <Photo name={b.photo} sizes="220px" className="bd-photo" /> : null}
       </div>
 
       <div className="bd-inside">
@@ -98,6 +123,22 @@ export default function BanterDeck() {
   const [aud, setAud] = useState(AUDIENCES[0].id);
   const [life, setLife] = useState<BanterLifetime>("3d");
   const [ack, setAck] = useState(false);
+  const [shape, setShape] = useState<"chat" | "live">("chat");
+  const [minutes, setMinutes] = useState(20);
+  const [image, setImage] = useState<string | null>(null);
+  const [imgErr, setImgErr] = useState("");
+  const [, setSessions] = useLocal<BanterNow[]>("ak:banter-now", []);
+
+  const pickImage = async (f?: File) => {
+    if (!f) return;
+    if (!f.type.startsWith("image/")) return setImgErr("That isn't an image.");
+    try {
+      setImage(await downscale(f));
+      setImgErr("");
+    } catch {
+      setImgErr("Couldn't read that image. Try another.");
+    }
+  };
 
   const n = open.length;
   const next = () => setI((x) => (x + 1) % n);
@@ -117,6 +158,12 @@ export default function BanterDeck() {
   const audience = AUDIENCES.find((a) => a.id === aud)!;
 
   const start = () => {
+    if (shape === "live") {
+      const s: BanterNow = { id: newId("now"), topic: q.trim(), host: ME.id as PersonId, people: [ME.id as PersonId, ...audience.people.slice(0, 7)], minutes, context: audience.label, live: true };
+      setSessions((cur) => [s, ...cur]);
+      router.push(`/banter/now/${s.id}`);
+      return;
+    }
     const b: Banter = {
       id: newId("banter"),
       by: ME.id as PersonId,
@@ -132,6 +179,7 @@ export default function BanterDeck() {
       replies: [],
       resonance: [],
       reach: audience.reach,
+      image: image ?? undefined,
       mine: true,
     };
     add(b);
@@ -181,8 +229,33 @@ export default function BanterDeck() {
           <section className="bd-ask-box" id="start">
             <p className="bd-kicker" style={{ fontSize: 11 }}>Your turn</p>
             <h3>Start your own Banter</h3>
-            <p className="bd-note" style={{ marginTop: -4, marginBottom: 10 }}>Write one honest question. You&apos;ll go straight into its chat room.</p>
-            <textarea id="bd-q" value={q} onChange={(e) => { setQ(e.target.value); setAck(false); }} rows={3} placeholder="Can an unfinished artwork still be honest?" />
+            <p className="bd-note" style={{ marginTop: -4, marginBottom: 10 }}>Write one honest question, then choose how people join in.</p>
+            <div className="bd-shape" role="radiogroup" aria-label="How people join in">
+              <button role="radio" aria-checked={shape === "chat"} className={shape === "chat" ? "on" : undefined} onClick={() => setShape("chat")}>
+                <span>💬</span><b>Chat room</b><small>People reply in their own time</small>
+              </button>
+              <button role="radio" aria-checked={shape === "live"} className={shape === "live" ? "on" : undefined} onClick={() => setShape("live")}>
+                <span>◉</span><b>Live talk</b><small>Voice, now, 2–8 people</small>
+              </button>
+            </div>
+            <textarea id="bd-q" value={q} onChange={(e) => { setQ(e.target.value); setAck(false); }} rows={3} placeholder={shape === "live" ? "Is AI helping or damaging African art?" : "Can an unfinished artwork still be honest?"} />
+            {shape === "chat" && (
+              <div className="bd-upload">
+                {image ? (
+                  <span className="bd-thumb">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- local preview of the member's upload */}
+                    <img src={image} alt="Your photo" />
+                    <button onClick={() => setImage(null)} aria-label="Remove photo">×</button>
+                  </span>
+                ) : (
+                  <label className="bd-add">
+                    <input type="file" accept="image/*" onChange={(e) => pickImage(e.target.files?.[0])} />
+                    ▣ Add your own photo
+                  </label>
+                )}
+                {imgErr && <small>{imgErr}</small>}
+              </div>
+            )}
             {issue === "harsh" && (
               <div className="bd-warn">
                 <b>This could sound personal rather than playful.</b>
@@ -203,15 +276,31 @@ export default function BanterDeck() {
                 <button key={m.id} onClick={() => setMood(m.id)} className={mood === m.id ? "on" : undefined} style={{ ["--m" as string]: MOOD_LOOK[m.id].bg } as React.CSSProperties}>{m.label}</button>
               ))}
             </div>
-            <div className="bd-two">
-              <label><span className="bd-l">Who hears it</span>
-                <select value={aud} onChange={(e) => setAud(e.target.value)}>{AUDIENCES.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}</select>
-              </label>
-              <label><span className="bd-l">How long</span>
-                <select value={life} onChange={(e) => setLife(e.target.value as BanterLifetime)}>{BANTER_LIFETIMES.map((l) => <option key={l.id} value={l.id}>{l.label}</option>)}</select>
-              </label>
+            <p className="bd-l">Who hears it</p>
+            <div className="bd-aud">
+              {AUDIENCES.map((a) => (
+                <button key={a.id} onClick={() => setAud(a.id)} className={aud === a.id ? "on" : undefined} aria-pressed={aud === a.id}>
+                  <b>{a.label}</b><small>{a.kind} · {a.reach}</small>
+                </button>
+              ))}
             </div>
-            <button className="bd-start" disabled={q.trim().length < 5 || !!issue} onClick={start}>Start the Banter</button>
+            {shape === "chat" ? (
+              <>
+                <p className="bd-l">How long it lives</p>
+                <div className="bd-seg">
+                  {BANTER_LIFETIMES.map((l) => <button key={l.id} onClick={() => setLife(l.id)} className={life === l.id ? "on" : undefined}>{l.id === "24h" ? "Tonight" : l.id === "3d" ? "3 days" : l.id === "1w" ? "A week" : l.id === "keep" ? "Keep" : "Until closed"}</button>)}
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="bd-l">How long you&apos;ll talk</p>
+                <div className="bd-seg">
+                  {[10, 20, 30].map((m) => <button key={m} onClick={() => setMinutes(m)} className={minutes === m ? "on" : undefined}>{m} min</button>)}
+                </div>
+                <p className="bd-note">Invites {Math.min(audience.people.length, 7)} people from {audience.label}. Everyone is equal; nothing is recorded.</p>
+              </>
+            )}
+            <button className="bd-start" disabled={q.trim().length < 5 || !!issue} onClick={start}>{shape === "live" ? "◉ Go live now" : "Start the Banter"}</button>
             <p className="bd-note">Goes to {audience.reach} {audience.reach === 1 ? "person" : "people"}, each told why. No likes, no followers. <Link href="/banter/classic#compose">More options</Link></p>
           </section>
 

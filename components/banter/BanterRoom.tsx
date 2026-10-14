@@ -120,7 +120,10 @@ export default function BanterRoom({ id }: { id: string }) {
           <div className="br-open">
             <p className="br-who"><Avatar person={by} size={32} /> <b>{b.mine ? "You" : by.name}</b> started this Banter · {b.ago}</p>
             <p className="br-open-q">{b.prompt}</p>
-            {b.photo && <Photo name={b.photo} sizes="460px" className="br-open-photo" />}
+            {b.image ? (
+              // eslint-disable-next-line @next/next/no-img-element -- member's own upload, stored as a data URL
+              <img src={b.image} alt="" className="br-open-photo br-own" />
+            ) : b.photo ? <Photo name={b.photo} sizes="460px" className="br-open-photo" /> : null}
             {b.media && <p className="br-chip">{b.media.kind === "music" ? "♪" : "▶"} {b.media.label}</p>}
             {b.poll && (
               <div className="br-poll">

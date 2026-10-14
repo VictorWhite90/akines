@@ -82,6 +82,8 @@ export type Banter = {
   lifetime: BanterLifetime;
   prompt: string;
   photo?: PhotoKey;
+  /** A member's own uploaded image (downscaled data URL). */
+  image?: string;
   ago: string;
   reactions: Record<string, number>;
   replies: BanterReply[];
