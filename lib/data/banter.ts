@@ -297,9 +297,49 @@ export const BANTER_NOW_RULES = [
 /** Words that can read as personal rather than playful. Used by the gentle tone check. */
 export const TONE_FLAGS = ["stupid", "idiot", "ugly", "useless", "pathetic", "dumb", "shut up", "hate", "worst", "trash", "loser"];
 
-export const toneCheck = (text: string) => {
+/** Sweeping judgements about a whole group, which read as attacks even without rude words. */
+const SWEEPING = [
+  /\b(all|every|those|these)\b[^.?!]{0,40}\b(need to|should|must)\b[^.?!]{0,20}\b(go|leave|replaced|removed|banned|stop|quit)\b/i,
+  /\b(are|is)\s+not\s+(real\s+)?(professionals?|artists?|serious|talented|good enough)\b/i,
+  /\b(no|none of the)\s+\w+\s+(can|knows?|is|are)\b/i,
+];
+
+export type ToneIssue = "harsh" | "sweeping" | null;
+
+/** What, if anything, might make this land badly. */
+export const toneIssue = (text: string): ToneIssue => {
   const t = text.toLowerCase();
-  return TONE_FLAGS.some((w) => t.includes(w));
+  if (TONE_FLAGS.some((w) => t.includes(w))) return "harsh";
+  if (SWEEPING.some((re) => re.test(text))) return "sweeping";
+  return null;
+};
+
+export const toneCheck = (text: string) => toneIssue(text) !== null;
+
+/** Shared look for each mood: the colour a Banter card takes on. */
+export const MOOD_LOOK: Record<BanterMood, { bg: string; ink: string }> = {
+  fun: { bg: "#ffb000", ink: "#14121a" },
+  honest: { bg: "#1f1b2b", ink: "#ffffff" },
+  debate: { bg: "#e5007e", ink: "#ffffff" },
+  think: { bg: "#2547d0", ink: "#ffffff" },
+  encourage: { bg: "#00a86b", ink: "#ffffff" },
+  feedback: { bg: "#ff6b1a", ink: "#ffffff" },
+  sensitive: { bg: "#7b2ff7", ink: "#ffffff" },
+  celebrate: { bg: "#ffd23f", ink: "#14121a" },
+};
+
+/** How much of a Banter's life is left, for the ring and the label. Mock values until the backend tracks real time. */
+export const lifeLeft = (b: { lifetime: BanterLifetime; closed?: boolean }): { label: string; pct: number } => {
+  if (b.closed) return { label: "Closed", pct: 0 };
+  return (
+    {
+      "24h": { label: "Ends tonight", pct: 0.28 },
+      "3d": { label: "2 days left", pct: 0.62 },
+      "1w": { label: "5 days left", pct: 0.74 },
+      keep: { label: "Kept in the circle", pct: 1 },
+      manual: { label: "Open until closed", pct: 1 },
+    } as const
+  )[b.lifetime];
 };
 
 /* ---------- Composer helpers ---------- */

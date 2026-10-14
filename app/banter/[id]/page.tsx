@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import BanterThread from "@/components/banter/BanterThread";
+import BanterRoom from "@/components/banter/BanterRoom";
 import { BANTERS } from "@/lib/data/banter";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -10,5 +10,5 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function BanterThreadPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <BanterThread id={id} />;
+  return <BanterRoom id={id} />;
 }
