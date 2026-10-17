@@ -59,9 +59,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </main>
 
       <nav className="nx-dock" aria-label="Quick navigation">
-        <Link href="/" className={pathname === "/" ? "on" : undefined}><Star1 size={22} color="currentColor" />Sky</Link>
+        <Link href="/" className={pathname === "/" ? "on" : undefined}><Star1 size={22} color="currentColor" />Home</Link>
         <Link href="/banter" className={isActive(pathname, "/banter") ? "on" : undefined}><Messages2 size={22} color="currentColor" />Banter</Link>
-        <button className="center" onClick={() => setBegin(true)} aria-label="Begin something"><Add size={26} color="currentColor" /></button>
+        <button className="center" onClick={() => setBegin(true)} aria-label="Create"><Add size={26} color="currentColor" /></button>
         <Link href="/circles" className={isActive(pathname, "/circles") ? "on" : undefined}><People size={22} color="currentColor" />Circles</Link>
         <button onClick={() => setMore(true)}><span style={{ fontSize: 20, lineHeight: "22px" }}>≡</span>More</button>
       </nav>

@@ -22,7 +22,7 @@ const INDEX = [
   ...RAIL.flatMap((g) => g.items.map((i) => ({ label: i.label, kind: g.label, href: i.href }))),
 ];
 
-/** Top bar: where you are, one box to search or ask, and Begin. */
+/** Top bar: where you are, one box to search or ask, and Create. */
 export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => void; onCompanion: () => void }) {
   const pathname = usePathname();
   const group = activeGroup(pathname);
@@ -76,7 +76,7 @@ export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => 
         <span className="nx-rail-dot" style={{ top: 9, right: 10 }} aria-hidden />
       </button>
       <button className="nx-begin" onClick={() => setBegin(true)} aria-haspopup="dialog">
-        <Add size={20} color="currentColor" /><span>Begin</span>
+        <Add size={20} color="currentColor" /><span>Create</span>
       </button>
       <CreateChooser open={begin} onClose={() => setBegin(false)} onIntent={onIntent} />
     </header>
