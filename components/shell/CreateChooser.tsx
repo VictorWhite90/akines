@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 type Item = { glyph: string; label: string; body: string; href: string; color: string };
 
@@ -36,17 +37,29 @@ const GROUPS: { title: string; items: Item[] }[] = [
 ];
 
 export default function CreateChooser({ open, onClose, onIntent }: { open: boolean; onClose: () => void; onIntent: () => void }) {
+  const [mounted, setMounted] = useState(false);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- the portal needs document.body, which only exists after mount
+  useEffect(() => setMounted(true), []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    // Keep the page behind still while the menu is open.
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
   }, [open, onClose]);
 
-  if (!open) return null;
-  return (
+  if (!open || !mounted) return null;
+  // Rendered on <body> so a blurred or transformed parent (the top bar) can't trap the fixed overlay.
+  return createPortal(
     <div className="cc-scrim" onClick={(e) => e.target === e.currentTarget && onClose()} role="dialog" aria-modal="true" aria-label="Create">
       <div className="cc">
+        <span className="cc-grab" aria-hidden />
         <div className="cc-head">
           <div>
             <p>Create</p>
@@ -73,6 +86,7 @@ export default function CreateChooser({ open, onClose, onIntent }: { open: boole
           <b>Not sure?</b> Tell us what you need and we&apos;ll suggest where to start →
         </button>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
