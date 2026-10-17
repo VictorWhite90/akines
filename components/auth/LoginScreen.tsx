@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ThemeToggle from "@/components/shell/ThemeToggle";
 import { FACE, type FaceKey } from "@/lib/data/images";
-import { SESSION_KEY } from "@/lib/session";
+import { SESSION_KEY, startGuest } from "@/lib/session";
 
 /** The ring of people around the mark, each on a soft colour like the design. */
 const RING: { face: FaceKey; bg: string }[] = [
@@ -84,7 +84,7 @@ export default function LoginScreen() {
             <div className="lg-orbit">
             {RING.map((p, i) => {
               const a = (i / RING.length) * Math.PI * 2 - Math.PI / 2 - Math.PI / RING.length;
-              const style = { left: `${50 + 41 * Math.cos(a)}%`, top: `${50 + 41 * Math.sin(a)}%`, ["--d" as string]: `${i * 60}ms` } as React.CSSProperties;
+              const style = { left: `${(50 + 40 * Math.cos(a)).toFixed(2)}%`, top: `${(50 + 40 * Math.sin(a)).toFixed(2)}%`, ["--d" as string]: `${i * 60}ms` } as React.CSSProperties;
               return (
                 <span key={i} className="lg-tile" style={{ ...style, ["--ring" as string]: p.bg } as React.CSSProperties}>
                   <span className="lg-face"><Image src={FACE[p.face].src} alt="" fill sizes="96px" className="object-cover" /></span>
@@ -132,6 +132,7 @@ export default function LoginScreen() {
               </button>
               <Link href="/signup" className="lg-outline">Create New Account</Link>
             </div>
+            <button type="button" className="lg-guest" onClick={() => { startGuest(); router.push("/"); }}>Just looking? Peek inside as a guest →</button>
             <p className="lg-fine">Prototype: nothing is sent anywhere. Any details will do.</p>
           </form>
         </section>
