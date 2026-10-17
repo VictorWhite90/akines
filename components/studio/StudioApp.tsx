@@ -11,7 +11,7 @@ export default function StudioApp({ demo }: { demo?: string }) {
 
   if (!state.ready) {
     return (
-      <div className="sd sd-skel" aria-busy="true" aria-label="Loading your studio">
+      <div className="sd sd-skel" aria-busy="true" aria-label="Loading your space">
         <div className="a" />
         <div className="b" />
       </div>

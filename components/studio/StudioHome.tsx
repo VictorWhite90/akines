@@ -17,9 +17,9 @@ import { cn } from "@/lib/cn";
 
 type Tab = "wall" | "progress" | "visits" | "about";
 const TABS: { id: Tab; label: string }[] = [
-  { id: "wall", label: "The wall" },
-  { id: "progress", label: "In progress" },
-  { id: "visits", label: "Visits" },
+  { id: "wall", label: "My space" },
+  { id: "progress", label: "Work in public" },
+  { id: "visits", label: "Open doors" },
   { id: "about", label: "About" },
 ];
 const MODE_GLYPH: Record<VisitMode, string> = { Live: "◉", Virtual: "◎", "360°": "◐" };
@@ -71,8 +71,8 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
           </button>
         </div>
         <div className="acts">
-          <button className="sd-btn accent" onClick={() => setLive(true)}><Ico n="live" size={16} /> Go live from the studio</button>
-          <button className="sd-btn ghost" onClick={() => { setTab("visits"); setModal("visit"); }}><Ico n="cal" size={16} /> Schedule a visit</button>
+          <button className="sd-btn accent" onClick={() => setLive(true)}><Ico n="live" size={16} /> Go live now</button>
+          <button className="sd-btn ghost" onClick={() => { setTab("visits"); setModal("visit"); }}><Ico n="cal" size={16} /> Host an open door</button>
           <Link className="sd-btn ghost" href={previewHref}><Ico n="eye" size={16} /> Preview as visitor</Link>
         </div>
       </section>
@@ -94,25 +94,25 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
             {tab === "wall" && (
               <>
                 <div className="sd-head">
-                  <div><h2>The wall</h2><p>Finished or nearly. Open any work to read the story behind it.</p></div>
-                  <button className="sd-btn dark" onClick={() => setModal("work")}>＋ Add a work</button>
+                  <div><h2>My space</h2><p>What you do and what you've made. Open anything to read the story behind it.</p></div>
+                  <button className="sd-btn dark" onClick={() => setModal("work")}>＋ Add to my space</button>
                 </div>
                 <div className="sd-works">
-                  <button className="sd-add" onClick={() => setModal("work")}><span>＋</span>Add a work<small>A title, a photo and the story</small></button>
+                  <button className="sd-add" onClick={() => setModal("work")}><span>＋</span>Add to my space<small>A title, a photo and the story</small></button>
                   {studio.works.map((w) => <WorkCard key={w.id} work={w} onOpen={() => setDetail(w)} />)}
                 </div>
-                {studio.works.length === 0 && <p className="sd-empty">Your wall is bare for now. The first work is always the hardest to hang.</p>}
+                {studio.works.length === 0 && <p className="sd-empty">Your space is empty for now. The first thing you share is always the hardest.</p>}
               </>
             )}
 
             {tab === "progress" && (
               <>
                 <div className="sd-head">
-                  <div><h2>In progress</h2><p>A pinboard of half-ideas. Visitors see it under &ldquo;Studio notes&rdquo;.</p></div>
-                  <button className="sd-btn dark" onClick={() => setModal("note")}>＋ Pin a note</button>
+                  <div><h2>Work in public</h2><p>Share the journey as it happens: progress, doubts and small wins. Your people follow along.</p></div>
+                  <button className="sd-btn dark" onClick={() => setModal("note")}>＋ Share an update</button>
                 </div>
                 {studio.notes.length === 0 ? (
-                  <p className="sd-empty">Nothing pinned yet. A sketch, a doubt or a colour test is plenty.</p>
+                  <p className="sd-empty">Nothing shared yet. One honest update about what you're working on is plenty.</p>
                 ) : (
                   <div className="sd-board">
                     {[...studio.notes].sort((a, b) => b.date.localeCompare(a.date)).map((n) => <NoteCard key={n.id} note={n} onRemove={() => update((s) => ({ ...s, notes: s.notes.filter((x) => x.id !== n.id) }))} />)}
@@ -124,11 +124,11 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
             {tab === "visits" && (
               <>
                 <div className="sd-head">
-                  <div><h2>Visits</h2><p>Six seats at most, so it stays a conversation.</p></div>
-                  <button className="sd-btn dark" onClick={() => setModal("visit")}><Ico n="cal" size={15} /> Schedule a visit</button>
+                  <div><h2>Visits</h2><p>Six seats at most, so it stays a real conversation: a live session, a class, a tour.</p></div>
+                  <button className="sd-btn dark" onClick={() => setModal("visit")}><Ico n="cal" size={15} /> Host an open door</button>
                 </div>
                 {visits.length === 0 ? (
-                  <p className="sd-empty">No visits planned. Set one up and invite people in.</p>
+                  <p className="sd-empty">No open doors planned. Host a live session, a class or a tour and invite people in.</p>
                 ) : (
                   <ul className="sd-visits">
                     {visits.map((v) => {
@@ -171,20 +171,20 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
           </div>
         </div>
 
-        <aside className="sd-side" aria-label="Studio at a glance">
+        <aside className="sd-side" aria-label="At a glance">
           <section className="sd-card">
             <p className="ac-eyebrow">At a glance</p>
             <dl className="sd-stats">
-              <div><dt>Works</dt><dd>{studio.works.length}</dd></div>
+              <div><dt>In my space</dt><dd>{studio.works.length}</dd></div>
               <div><dt>Visitors this month</dt><dd>{studio.visitsThisMonth}</dd></div>
-              <div><dt>Visits planned</dt><dd>{studio.visits.length}</dd></div>
+              <div><dt>Open doors planned</dt><dd>{studio.visits.length}</dd></div>
             </dl>
-            <p className="sd-fine">No follower or like counts, on purpose. Here you only count what you made and who came in.</p>
+            <p className="sd-fine">No follower or like counts, on purpose. Here you only count what you shared and who came in.</p>
           </section>
 
           {studio.now && (
             <section className="sd-card now">
-              <p className="ac-eyebrow">On the easel right now</p>
+              <p className="ac-eyebrow">Working on right now</p>
               <p className="q">&ldquo;{studio.now}&rdquo;</p>
             </section>
           )}
@@ -192,8 +192,8 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
           <section className="sd-card sell">
             <span className="ic"><Ico n="store" size={20} /></span>
             <div>
-              <h3>Sell from your studio</h3>
-              <p>{products.length > 0 ? `${products.length} ${products.length === 1 ? "piece" : "pieces"} in your store. Visitors can buy while they look around.` : "Nothing in your store yet. List a work and visitors can take it home."}</p>
+              <h3>Sell from your space</h3>
+              <p>{products.length > 0 ? `${products.length} ${products.length === 1 ? "piece" : "pieces"} in your store. Visitors can buy while they look around.` : "Nothing in your store yet. List a product or service and people can buy it."}</p>
               <Link href="/store" className="sd-link">{products.length > 0 ? "Open my store" : "Set up my store"} <Ico n="arrow" size={14} /></Link>
             </div>
           </section>
@@ -202,7 +202,7 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
             <span className="ic"><Ico n="pen" size={20} /></span>
             <div>
               <h3>Write in your journal</h3>
-              <p>Studio notes are for visitors. The journal is where you can be less polished.</p>
+              <p>Updates here are for your people. The journal is where you can be less polished.</p>
               <Link href="/journal" className="sd-link">Open my journal <Ico n="arrow" size={14} /></Link>
             </div>
           </section>
@@ -223,7 +223,7 @@ function WorkForm({ onClose, onSave }: { onClose: () => void; onSave: (w: Work) 
   const [f, setF] = useState<Work>(() => ({ id: newId("w"), title: "", medium: "", size: "", year: String(new Date().getFullYear()), photo: MAKE_CHOICES[0], story: "" }));
   const set = (p: Partial<Work>) => setF((x) => ({ ...x, ...p }));
   return (
-    <Modal onClose={onClose} eyebrow="The wall" title="Add a work" wide>
+    <Modal onClose={onClose} eyebrow="My space" title="Add something to your space" wide>
       <form className="sd-formgrid" onSubmit={(e) => { e.preventDefault(); if (f.title.trim()) onSave({ ...f, title: f.title.trim() }); }}>
         <Field label="Title"><input value={f.title} onChange={(e) => set({ title: e.target.value })} placeholder="What do you call it?" autoFocus maxLength={60} /></Field>
         <div className="sd-three">
@@ -233,12 +233,12 @@ function WorkForm({ onClose, onSave }: { onClose: () => void; onSave: (w: Work) 
         </div>
         <div className="sd-field">
           <span className="lb">Photo <small>From the catalogue for now</small></span>
-          <PhotoPicker keys={MAKE_CHOICES} value={f.photo} onChange={(k) => k && set({ photo: k })} label="Photo of the work" size="sm" />
+          <PhotoPicker keys={MAKE_CHOICES} value={f.photo} onChange={(k) => k && set({ photo: k })} label="Photo" size="sm" />
         </div>
         <Field label="The story behind it" hint="Optional, but it's what people remember">
           <textarea rows={3} value={f.story} onChange={(e) => set({ story: e.target.value })} placeholder="Where did it start? What nearly went wrong?" />
         </Field>
-        <button className="sd-btn dark full" type="submit" disabled={!f.title.trim()}>Hang it on the wall</button>
+        <button className="sd-btn dark full" type="submit" disabled={!f.title.trim()}>Add to my space</button>
       </form>
     </Modal>
   );
@@ -247,12 +247,12 @@ function WorkForm({ onClose, onSave }: { onClose: () => void; onSave: (w: Work) 
 function NoteForm({ onClose, onSave }: { onClose: () => void; onSave: (n: Note) => void }) {
   const [f, setF] = useState<Note>(() => ({ id: newId("n"), kind: "note", date: todayIso(), text: "" }));
   return (
-    <Modal onClose={onClose} eyebrow="In progress" title="Pin a note" wide>
+    <Modal onClose={onClose} eyebrow="Work in public" title="Share an update" wide>
       <form className="sd-formgrid" onSubmit={(e) => { e.preventDefault(); if (f.text.trim()) onSave({ ...f, text: f.text.trim() }); }}>
         <div className="sd-seg" role="radiogroup" aria-label="Kind">
           {(["note", "sketch"] as const).map((k) => <button type="button" key={k} role="radio" aria-checked={f.kind === k} className={f.kind === k ? "on" : ""} onClick={() => setF({ ...f, kind: k })}>{k === "note" ? "A note" : "A sketch"}</button>)}
         </div>
-        <Field label="What's on your mind?"><textarea rows={3} value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} placeholder="A doubt, a colour test, a thing you noticed today." autoFocus /></Field>
+        <Field label="What's on your mind?"><textarea rows={3} value={f.text} onChange={(e) => setF({ ...f, text: e.target.value })} placeholder="A win, a doubt, a step forward, something you learned today." autoFocus /></Field>
         <div className="sd-field">
           <span className="lb">A photo <small>Optional. Tap again to remove.</small></span>
           <PhotoPicker keys={MAKE_CHOICES} value={f.photo} onChange={(k) => setF({ ...f, photo: k })} label="Note photo" size="sm" />
@@ -266,9 +266,9 @@ function NoteForm({ onClose, onSave }: { onClose: () => void; onSave: (n: Note) 
 function VisitForm({ onClose, onSave }: { onClose: () => void; onSave: (v: Visit) => void }) {
   const [f, setF] = useState<Visit>(() => ({ id: newId("v"), title: "", date: addDays(todayIso(), 7), time: "17:00", mode: "Live", seats: MAX_SEATS, rsvps: [] }));
   return (
-    <Modal onClose={onClose} eyebrow="Visits" title="Schedule a visit">
-      <form className="sd-formgrid" onSubmit={(e) => { e.preventDefault(); onSave({ ...f, title: f.title.trim() || "Open studio hour" }); }}>
-        <Field label="Title"><input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="Open studio hour" maxLength={60} autoFocus /></Field>
+    <Modal onClose={onClose} eyebrow="Visits" title="Host an open door">
+      <form className="sd-formgrid" onSubmit={(e) => { e.preventDefault(); onSave({ ...f, title: f.title.trim() || "Open door hour" }); }}>
+        <Field label="Title"><input value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="Open door hour" maxLength={60} autoFocus /></Field>
         <div className="sd-two tight">
           <Field label="Date"><input type="date" value={f.date} onChange={(e) => setF({ ...f, date: e.target.value })} required /></Field>
           <Field label="Time"><input type="time" value={f.time} onChange={(e) => setF({ ...f, time: e.target.value })} required /></Field>
@@ -296,7 +296,7 @@ function AboutTab({ studio, update }: { studio: Studio; update: StudioState["upd
   return (
     <div className="sd-about">
       <div className="sd-head">
-        <div><h2>About your studio</h2><p>Changes save as you type.</p></div>
+        <div><h2>About your space</h2><p>Changes save as you type.</p></div>
       </div>
       <div className="sd-edit">
         <Field label="Studio name"><input value={studio.name} onChange={(e) => update({ name: e.target.value })} maxLength={48} /></Field>
@@ -311,7 +311,7 @@ function AboutTab({ studio, update }: { studio: Studio; update: StudioState["upd
             {DISCIPLINES.map((d) => <button type="button" key={d} aria-pressed={studio.disciplines.includes(d)} className={studio.disciplines.includes(d) ? "on" : ""} onClick={() => update({ disciplines: toggle(studio.disciplines, d) })}>{d}</button>)}
           </div>
         </div>
-        <Field label="About the studio"><textarea rows={4} value={studio.about} onChange={(e) => update({ about: e.target.value })} /></Field>
+        <Field label="About my space"><textarea rows={4} value={studio.about} onChange={(e) => update({ about: e.target.value })} /></Field>
         <Field label="What you're working on right now"><input value={studio.now} onChange={(e) => update({ now: e.target.value })} maxLength={120} /></Field>
 
         <div className="sd-field">

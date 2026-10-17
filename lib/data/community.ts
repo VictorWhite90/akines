@@ -136,15 +136,15 @@ export const WEEK_MOODS = ["restless", "open", "heavy", "tender", "open", "groun
 export type StudioVisit = { id: string; artist: PersonId; place: string; mode: "Live" | "Virtual" | "360°" | "VR"; when: string; photo: PhotoKey; blurb: string };
 
 export const STUDIOS: StudioVisit[] = [
-  { id: "tunde", artist: "tunde", place: "Yaba, Lagos", mode: "Live", when: "Wed 26 · 17:00", photo: "clayWheelTop", blurb: "Watch a firing day. Ask anything. Buy from the shelf if something follows you home." },
-  { id: "thandi", artist: "thandi", place: "Maboneng, Johannesburg", mode: "360°", when: "On demand", photo: "clayVases", blurb: "Walk the workshop at your own pace. Tap any vessel to hear how it was made." },
-  { id: "kwame", artist: "kwame", place: "Osu, Accra", mode: "Virtual", when: "Fri 28 · 15:00", photo: "studioEasel", blurb: "A guided hour among works in progress, six visitors at a time." },
-  { id: "ayo", artist: "ayo", place: "Bodija, Ibadan", mode: "VR", when: "Next month", photo: "textileHang", blurb: "Step inside the dye yard. Ten metres of indigo cloth move around you in the wind." },
-  { id: "fatou", artist: "fatou", place: "Médina, Dakar", mode: "Live", when: "Sat 29 · 16:00", photo: "kenteVest", blurb: "Fittings, fabric bins and a cutting table. Watch a garment go from pattern to person." },
-  { id: "efua", artist: "efua", place: "Adum, Kumasi", mode: "360°", when: "On demand", photo: "carvedRelief", blurb: "Walk the archive room among carved panels and hear where each one came from." },
-  { id: "nandi", artist: "nandi", place: "Avondale, Harare", mode: "Virtual", when: "Tue 30 · 17:30", photo: "galleryHall", blurb: "A curator's walk through a hang in progress: why this wall, why this order." },
-  { id: "leila", artist: "leila", place: "Gauthier, Casablanca", mode: "Virtual", when: "Thu 2 · 19:00", photo: "frameWall", blurb: "A collector's hallway. See how a small collection lives with a family, and why it's arranged this way." },
-  { id: "wanjiru", artist: "wanjiru", place: "Kilimani, Nairobi", mode: "Virtual", when: "Mon 1 · 18:30", photo: "studioDim", blurb: "A quiet hour with the contact sheets: how one picture gets chosen from three hundred." },
+  { id: "tunde", artist: "tunde", place: "Yaba, Lagos", mode: "Live", when: "Wed 26 · 17:00", photo: "talkYoung", blurb: "Watch an under-15s training session, then ask the coach anything." },
+  { id: "thandi", artist: "thandi", place: "Maboneng, Johannesburg", mode: "Live", when: "Thu · 15:00", photo: "journalCoffee", blurb: "Sit in on a reading hour in a primary classroom. Volunteers welcome." },
+  { id: "kwame", artist: "kwame", place: "Osu, Accra", mode: "Virtual", when: "Fri 28 · 15:00", photo: "studioBusy", blurb: "A live coding session: build a small app together, beginners first." },
+  { id: "ayo", artist: "ayo", place: "Bodija, Ibadan", mode: "Virtual", when: "Next month", photo: "calmBench", blurb: "What a night shift is really like, and how nurses look after each other." },
+  { id: "fatou", artist: "fatou", place: "Médina, Dakar", mode: "Live", when: "Sat 29 · 16:00", photo: "talkCafe", blurb: "A cooking class in a real restaurant kitchen. Six aprons, one big pot." },
+  { id: "efua", artist: "efua", place: "Adum, Kumasi", mode: "360°", when: "On demand", photo: "photoAlbum", blurb: "Walk the archive room and hear the family stories behind old photographs." },
+  { id: "nandi", artist: "nandi", place: "Avondale, Harare", mode: "Virtual", when: "Tue 30 · 17:30", photo: "talkMugs", blurb: "A gentle talk on burnout, followed by a small listening circle." },
+  { id: "leila", artist: "leila", place: "Gauthier, Casablanca", mode: "Virtual", when: "Thu 2 · 19:00", photo: "talkTwo", blurb: "Founder office hours: bring your idea or deck for honest feedback." },
+  { id: "wanjiru", artist: "wanjiru", place: "Kilimani, Nairobi", mode: "Virtual", when: "Mon 1 · 18:30", photo: "gallerySeated", blurb: "How one good photograph gets chosen from three hundred." },
 ];
 
 /* ---------- Therapists (fictional profiles) ---------- */

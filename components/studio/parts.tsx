@@ -99,8 +99,8 @@ export function StudioCard({ name, tagline, place, disciplines, cover, theme, vi
         <span className={`sd-status ${doorOpen ? "open" : "shut"}`}><i />{doorOpen ? "Door open" : "Door closed"}</span>
       </div>
       <div className="wall">
-        <h3 className="font-display">{name || "Your studio name"}</h3>
-        <p className="tag">{tagline || "A line about what you make."}</p>
+        <h3 className="font-display">{name || "Your space name"}</h3>
+        <p className="tag">{tagline || "A line about what you do."}</p>
         {place && <p className="where">{place}</p>}
         <div className="chips">
           {disciplines.slice(0, 3).map((d) => <span key={d}>{d}</span>)}
@@ -138,7 +138,7 @@ export function WorkDetail({ work, onClose, onRemove }: { work: Work; onClose: (
           <p className="story">{work.story || "No story written yet."}</p>
           <div className="btns">
             <button className="sd-btn" onClick={onClose}>Close</button>
-            {onRemove && <button className="sd-btn quiet" onClick={onRemove}><Ico n="trash" size={14} /> Take off the wall</button>}
+            {onRemove && <button className="sd-btn quiet" onClick={onRemove}><Ico n="trash" size={14} /> Remove from my space</button>}
           </div>
         </div>
       </div>

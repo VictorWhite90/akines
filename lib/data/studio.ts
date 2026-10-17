@@ -4,14 +4,15 @@ import type { PhotoKey } from "./images";
 import { PEOPLE, type PersonId } from "./people";
 
 /**
- * "My studio": the member's own studio, saved in localStorage under STUDIO_KEY.
+ * "My studio" (My space): who you are and what you do (My space), the journey as it happens
+ * (Work in public) and live sessions you host (Open doors). The member's own studio, saved in localStorage under STUDIO_KEY.
  * Everything a studio holds (works, notes, visits, visitors) lives on the one
  * object, so a later backend, or extra fields, only touch this file.
  * Follower and like counts are left out on purpose: this product hides them.
  */
 export const STUDIO_KEY = "ac:studio";
 
-export const DISCIPLINES = ["Painting", "Sculpture", "Textile", "Fashion", "Ceramics", "Photography", "Digital", "Beadwork", "Mixed media"] as const;
+export const DISCIPLINES = ["Food & cooking", "Tech & code", "Design", "Coaching & sport", "Teaching", "Health & care", "Business", "Music", "Photography", "Fashion", "Art & craft", "Writing"] as const;
 
 /* ---------- Look & feel ---------- */
 export type ThemeId = "forest" | "indigo" | "clay" | "cream" | "lime";
@@ -44,18 +45,14 @@ export const themeVars = (id: string): CSSProperties => {
 };
 
 /** Catalogue photos a member may choose as a cover. */
-export const COVER_CHOICES: PhotoKey[] = ["studioEasel", "studioDim", "studioBusy", "brushes", "paintingHand", "clayWheelTop", "clayVases", "clayHands", "textileHang", "textileRolls", "kenteVest", "galleryHall", "beadsHung", "woodFigure", "carvedRelief", "collabArt"];
+export const COVER_CHOICES: PhotoKey[] = [ "talkCafe", "talkGroup", "talkLaugh", "studioBusy", "journalCoffee", "calmWater", "studioEasel", "studioDim", "brushes", "paintingHand", "clayWheelTop", "clayVases", "clayHands", "textileHang", "textileRolls", "kenteVest", "galleryHall", "beadsHung", "woodFigure", "carvedRelief", "collabArt" ];
 /** Photos for works and notes. */
-export const MAKE_CHOICES: PhotoKey[] = [
-  "paintingWoman", "paintingDancers", "collabArt", "circleInner", "circleIndigo", "studioEasel", "paintingHand", "brushes",
-  "clayVases", "clayBrown", "clayBowl", "clayWet", "clayHands", "stoneBoy", "woodFigure", "carvedGroup", "carvedRelief", "bronzeHead",
-  "textileHang", "textileStack", "textileRolls", "waxPrint", "kenteVest", "headwrapOrange", "beadsRed", "beadsGold", "beadsHung", "photoAlbum", "journalOpen", "notebookWhite",
-];
+export const MAKE_CHOICES: PhotoKey[] = [ "talkCafe", "talkGroup", "talkLaugh", "talkTwo", "talkMugs", "studioBusy", "journalCoffee", "calmBench", "calmWater", "paintingWoman", "paintingDancers", "collabArt", "circleInner", "circleIndigo", "studioEasel", "paintingHand", "brushes", "clayVases", "clayBrown", "clayBowl", "clayWet", "clayHands", "stoneBoy", "woodFigure", "carvedGroup", "carvedRelief", "bronzeHead", "textileHang", "textileStack", "textileRolls", "waxPrint", "kenteVest", "headwrapOrange", "beadsRed", "beadsGold", "beadsHung", "photoAlbum", "journalOpen", "notebookWhite" ];
 
 /* ---------- The door ---------- */
 export type VisitingStyle = "open" | "appointment" | "private";
 export const VISITING: Record<VisitingStyle, { label: string; blurb: string }> = {
-  open: { label: "Open door", blurb: "Anyone may drop in during posted hours." },
+  open: { label: "Open door", blurb: "Anyone may drop in to your live sessions during posted hours." },
   appointment: { label: "By appointment", blurb: "Visitors ask first, and you choose who comes." },
   private: { label: "Private", blurb: "Invited guests only." },
 };
@@ -107,19 +104,19 @@ export const fmtShort = (iso: string) => at(iso).toLocaleDateString("en-GB", { d
 export const blankHours = (): Hours => ({ days: ["Wed", "Fri"], from: "16:00", to: "19:00" });
 
 export const sampleWorks = (): Work[] => [
-  { id: "w-indigo", title: "Room with the blue door", medium: "Oil on linen", size: "90 × 70 cm", year: "2025", photo: "paintingWoman", story: "Painted from a memory of my aunt's front room in Enugu. I kept repainting the door until it felt like the colour of waiting." },
-  { id: "w-dancers", title: "Three at the gate", medium: "Acrylic on canvas", size: "120 × 90 cm", year: "2025", photo: "paintingDancers", story: "Made the week after a wedding I nearly skipped. The figures are nobody in particular, and everyone I danced beside." },
-  { id: "w-bowls", title: "Morning bowls, set of four", medium: "Stoneware", size: "14 cm each", year: "2024", photo: "clayBowl", story: "My first ceramics that I trusted enough to eat from. Each glaze came out a little differently and I stopped minding." },
-  { id: "w-cloth", title: "Cloth for a long wall", medium: "Hand-dyed cotton", size: "3 m", year: "2024", photo: "textileHang", story: "A test piece for a bigger commission. It taught me how much the dye yard's weather decides." },
+  { id: "w-indigo", title: "Health app for nurses", medium: "Product design", size: "12 screens", year: "2025", photo: "studioBusy", story: "Designed with six nurses on night shift. They wanted fewer taps, not more features." },
+  { id: "w-dancers", title: "Sunday supper", medium: "Monthly gathering", size: "10 seats", year: "2025", photo: "talkCafe", story: "Started with four strangers at my table. Now there's a waiting list." },
+  { id: "w-bowls", title: "Market price tracker", medium: "Side project", size: "Web app", year: "2024", photo: "journalOpen", story: "A tiny tool my mum uses to compare tomato prices across three markets." },
+  { id: "w-cloth", title: "Design mentoring", medium: "Mentoring", size: "4 mentees", year: "2024", photo: "talkTwo", story: "Weekly calls with junior designers. I learn as much as they do." },
 ];
 export const sampleNotes = (base: string): Note[] => [
-  { id: "n-1", kind: "note", date: addDays(base, -1), text: "Second coat on the blue door is drying. Wondering if it wants a warmer edge, or if that's me being scared of finishing." },
-  { id: "n-2", kind: "sketch", date: addDays(base, -3), photo: "notebookWhite", text: "Thumbnail sketches for the gate series. Keeping the figures unfinished on purpose." },
-  { id: "n-3", kind: "note", date: addDays(base, -6), photo: "brushes", text: "Cleared the brushes and the desk. A tidy start is half the work." },
+  { id: "n-1", kind: "note", date: addDays(base, -1), text: "Second round of testing with the nurses. Two screens can go. Wondering if I'm brave enough to cut them." },
+  { id: "n-2", kind: "sketch", date: addDays(base, -3), photo: "notebookWhite", text: "Rough sketches for the new home screen. Keeping it simple on purpose." },
+  { id: "n-3", kind: "note", date: addDays(base, -6), photo: "journalCoffee", text: "Cleared my desk and my calendar. A tidy start is half the work." },
 ];
 export const sampleVisits = (base: string): Visit[] => [
-  { id: "v-1", title: "Open studio evening", date: addDays(base, 5), time: "17:00", mode: "Live", seats: 6, rsvps: ["leila", "zuri", "chidi"] },
-  { id: "v-2", title: "A walk through the gate series", date: addDays(base, 12), time: "18:30", mode: "Virtual", seats: 6, rsvps: ["efua"] },
+  { id: "v-1", title: "Open evening: design Q&A", date: addDays(base, 5), time: "17:00", mode: "Live", seats: 6, rsvps: ["leila", "zuri", "chidi"] },
+  { id: "v-2", title: "Supper planning call", date: addDays(base, 12), time: "18:30", mode: "Virtual", seats: 6, rsvps: ["efua"] },
 ];
 export const sampleVisitors = (): Visitor[] => [
   { who: "leila", when: "Yesterday" },
@@ -139,7 +136,7 @@ export function blankStudio(): Studio {
     city: "Lagos",
     country: "Nigeria",
     disciplines: [],
-    cover: "studioEasel",
+    cover: "talkCafe",
     theme: "forest",
     visiting: "open",
     hours: blankHours(),
@@ -160,17 +157,17 @@ export const DEMO_BASE = "2026-09-25";
 export function demoStudio(): Studio {
   return {
     ...blankStudio(),
-    name: "Room with a blue door",
-    tagline: "Paintings, bowls and cloth, made slowly in a back room in Yaba.",
+    name: "Amara's Table",
+    tagline: "Product designer by day, Sunday-supper host for people new to Lagos.",
     city: "Lagos",
     country: "Nigeria",
-    disciplines: ["Painting", "Ceramics", "Textile"],
-    cover: "studioEasel",
+    disciplines: ["Design", "Food & cooking"],
+    cover: "talkCafe",
     theme: "forest",
     visiting: "open",
     hours: { days: ["Wed", "Fri"], from: "16:00", to: "19:00" },
-    about: "I collected for years before I made anything. This studio is where I finally started. Come in, sit down, tell me what you see. I'd rather have a conversation than a compliment.",
-    now: "Finishing the second coat on the blue door, and firing the last set of bowls.",
+    about: "I design apps for a living and host a Sunday supper for people who've just moved to the city. Come in, sit down, tell me what you're working on. I'd rather have a conversation than a compliment.",
+    now: "Redesigning a health app for nurses, and planning next Sunday's supper.",
     works: sampleWorks(),
     notes: sampleNotes(DEMO_BASE),
     visits: sampleVisits(DEMO_BASE),
@@ -242,130 +239,102 @@ type Seed = {
 
 const SEEDS: Record<string, Seed> = {
   tunde: {
-    name: "The Clay Yard", tagline: "Figures that look back at you, fired in a small yard in Yaba.", disciplines: ["Sculpture", "Ceramics"], theme: "clay", visiting: "open", hours: "Wed, Sat · 15:00–18:00",
-    about: "Most days I am covered in clay and talking to the kiln. Visitors are welcome to watch, ask, and hold the offcuts.",
-    now: "A seated figure in three parts, and a firing at six.",
+    name: "Saturday Pitch", tagline: "Coaching under-15s, one Saturday at a time.", disciplines: ["Coaching & sport"], theme: "clay", visiting: "open", hours: "Wed, Sat · 15:00–18:00",
+    about: "Most days I'm on a dusty pitch in Yaba with twenty teenagers. Come and watch a session, or bring your kid to try.",
+    now: "Getting the team ready for the inter-school cup.",
     taken: ["leila", "zuri", "chidi"],
     works: [
-      ["Listener, seated", "Fired clay", "62 cm", "2025", "woodFigure", "A figure made to be spoken to. I keep the ears large on purpose."],
-      ["Two heads, one turned", "Terracotta", "34 cm", "2024", "stoneBoy", "Started as a portrait of my nephew and stopped being about him halfway."],
-      ["Wheel study 12", "Stoneware", "28 cm", "2025", "clayWheelTop", "One of a long run of throwing exercises. This is the one that didn't collapse."],
-      ["Small gathering", "Fired clay", "9 to 14 cm", "2024", "carvedGroup", "Pocket-sized figures, made in the gaps between bigger jobs."],
-      ["Crown study", "Cast bronze", "48 cm", "2023", "bronzeHead", "My first bronze. I still don't trust how heavy it is."],
+      ["The 4-3-3 that finally worked", "Training plan", "8 weeks", "2025", "talkYoung", "Took a season of losing to get here. The secret was passing, not shooting."],
+      ["Exams and football", "Programme", "1 term", "2025", "journalOpen", "Homework club before training. Six of my players passed every exam."],
+      ["Kit drive", "Community project", "200 kits", "2024", "talkGroup", "Collected boots and shirts from all over Lagos for kids who had none."],
     ],
-    notes: [["Kiln packed and lidded. Six hours of waiting and pretending not to check the pyrometer.", "clayWet"], ["The left shoulder is wrong. Everyone says it's fine. It is wrong.", null]],
+    notes: [["Lost 3–1 today. Proud of how they kept their heads up.", "talkLaugh"], ["Need a volunteer goalkeeping coach on Wednesdays.", null]],
   },
   thandi: {
-    name: "Slow Bowls", tagline: "Everyday vessels, made slowly, used daily.", disciplines: ["Ceramics"], theme: "cream", visiting: "open", hours: "Tue, Thu · 10:00–14:00",
-    about: "A shared workshop in Maboneng with two wheels and one temperamental kiln. Come and throw a bowl with me.",
-    now: "A run of tea bowls with a wood-ash glaze I keep getting wrong.",
-    taken: ["efua", "chidi"],
+    name: "Room 4B", tagline: "A primary school teacher who believes every child can read.", disciplines: ["Teaching"], theme: "cream", visiting: "open", hours: "Tue, Thu · 15:00–17:00",
+    about: "My classroom in Maboneng, and the reading corner I built from donated books. Parents and volunteers welcome.",
+    now: "A reading challenge: 30 books in a term for my class of 28.",
+    taken: ["ayo", "efua"],
     works: [
-      ["Tea bowl, ash glaze", "Stoneware", "10 cm", "2025", "clayBowl", "The third version of this glaze. The first two ran off the shelf."],
-      ["Vase set, grey", "Stoneware", "18 to 30 cm", "2025", "clayVases", "Three vases that live together. Sold separately, but they'd rather not be."],
-      ["Wet rim", "Stoneware", "22 cm", "2024", "clayWet", "The moment before the rim is trimmed. I photograph it because it never lasts."],
-      ["Brown jars", "Earthenware", "20 cm", "2024", "clayBrown", "Made with local clay that fights you the whole way. Worth it."],
-      ["Hands in", "Photograph", "A4 print", "2025", "clayHands", "A picture of my teacher's hands, which I'm still learning to copy."],
+      ["The reading corner", "Classroom project", "120 books", "2025", "journalCoffee", "Every book donated by a parent or neighbour."],
+      ["Pottery Fridays", "After-school club", "10 weeks", "2024", "clayHands", "My other love. The kids made bowls for their mums."],
     ],
-    notes: [["Glaze tests tiled on the shelf. Number 7 is the one, I can feel it.", "clayBrown"], ["Note to self: wedge longer.", null]],
+    notes: [["Thabo read a whole chapter book today. Cried in the staffroom.", null]],
   },
   kwame: {
-    name: "Third Layer", tagline: "Portraits of people who raised me, painted slowly.", disciplines: ["Painting"], theme: "indigo", visiting: "appointment", hours: "By appointment",
-    about: "A small studio above a print shop in Osu. I paint in layers and I'm never quite finished, so visits are about the unfinished ones.",
-    now: "The third layer of my mother's portrait. Still unsure.",
-    taken: ["nandi", "wanjiru", "ayo", "leila"],
+    name: "Ship Small", tagline: "Building payments tools in Accra, and teaching others to code.", disciplines: ["Tech & code"], theme: "indigo", visiting: "appointment", hours: "By appointment",
+    about: "I build fintech for small traders and run a free evening class for new developers. Ask me anything about getting started.",
+    now: "A mobile wallet for market traders.",
+    taken: ["chidi", "amara"],
     works: [
-      ["Mother at the window", "Oil on canvas", "100 × 80 cm", "2025", "paintingWoman", "Started three times. This is the version where she stopped looking at me and looked out."],
-      ["Gate", "Acrylic on canvas", "120 × 90 cm", "2024", "paintingDancers", "A celebration painted from the outside, the way I usually attend them."],
-      ["Layer study", "Oil on board", "40 × 30 cm", "2025", "circleIndigo", "A test of how many glazes a face can take before it turns into weather."],
-      ["Purple afternoon", "Acrylic", "60 × 60 cm", "2023", "circleInner", "Painted in an afternoon, which is unusual for me. I've been suspicious of it since."],
-      ["Easel, Tuesday", "Photograph", "A4 print", "2025", "studioEasel", "A corner of the studio, in the light I paint by."],
+      ["Market wallet", "Mobile app", "Beta", "2025", "studioBusy", "Built with twelve traders in Makola. They designed half of it."],
+      ["Code club curriculum", "Course", "8 lessons", "2024", "journalOpen", "Free, in plain English, for anyone over 14."],
     ],
-    notes: [["Third layer drying. If it dulls, I scrape back to the second.", "paintingHand"], ["Colour note: less green in the shadows.", null]],
+    notes: [["Shipped version 0.3. Two bugs, one happy trader.", "studioBusy"], ["Thinking about whether to quit my job and do this full-time.", null]],
   },
   ayo: {
-    name: "Indigo Yard", tagline: "Indigo, resist-dye and the memory a cloth keeps.", disciplines: ["Textile"], theme: "indigo", visiting: "appointment", hours: "By appointment",
-    about: "A dye yard behind my house in Bodija with tubs, poles and a lot of sky. Visits are best in the morning, when the cloth is wet.",
-    now: "Dyeing panel 7, and learning patience from a cassava resist.",
-    taken: ["fatou"],
+    name: "Night Shift Notes", tagline: "A nurse in Ibadan, looking after people and learning to look after myself.", disciplines: ["Health & care"], theme: "indigo", visiting: "appointment", hours: "By appointment",
+    about: "I run a free blood-pressure check at church on Sundays and a support group for new nurses.",
+    now: "Organising a free health day for our street.",
+    taken: ["thandi", "nandi"],
     works: [
-      ["Panel 6", "Hand-dyed cotton", "3 m", "2025", "textileHang", "Dipped nine times. Each dip changed my mind about the pattern."],
-      ["Rolled stock", "Hand-dyed cotton", "Various", "2025", "textileRolls", "The reserve: rolls waiting for a project to decide what they are."],
-      ["Green by mistake", "Hand-dyed cotton", "2 m", "2024", "textileStack", "The second bath came out greener than expected. I've decided it was on purpose."],
-      ["Blue skirt", "Wax print, sewn", "Size 12", "2024", "waxPrint", "Made with Fatou for a fitting. The cloth is not mine but the cut is a joint decision."],
-      ["Long wall", "Hand-dyed cotton", "10 m", "2025", "textileHang", "The piece that moves in the wind when you step into the yard."],
+      ["Sunday health checks", "Community clinic", "Weekly", "2025", "talkMugs", "Forty neighbours checked last month. Three found out they needed help."],
+      ["New nurses' circle", "Support group", "Monthly", "2024", "calmBench", "For the first-year nurses who cry in the car park. I was one."],
     ],
-    notes: [["Panel 7 is in the third bath. Not touching it until tomorrow.", "textileHang"], ["Ask the elders about the older cassava resist recipe.", null]],
+    notes: [["Three night shifts in a row. Sleeping all of Saturday.", null]],
   },
   fatou: {
-    name: "The Cutting Table", tagline: "Cut, cloth and the politics of what we wear.", disciplines: ["Fashion", "Textile"], theme: "lime", visiting: "open", hours: "Mon, Fri · 14:00–18:00",
-    about: "A fitting room, a cutting table and fabric bins I refuse to organise. Come and watch a garment go from a pattern to a person.",
-    now: "A gold kente vest for a friend's wedding, and a pattern I keep redrafting.",
-    taken: ["thandi", "efua"],
+    name: "Fatou's Table", tagline: "Cooking the dishes our grandmothers made, in Dakar.", disciplines: ["Food & cooking"], theme: "lime", visiting: "open", hours: "Mon, Fri · 14:00–18:00",
+    about: "My small restaurant kitchen. Come for a cooking class or just to taste what we're testing this week.",
+    now: "Opening night menu for the new restaurant.",
+    taken: ["leila", "zuri", "amara"],
     works: [
-      ["Gold vest", "Kente, cotton lining", "Size 10", "2025", "kenteVest", "Cut and sewn in six days. The stripes had to meet at the back, which took two of them."],
-      ["Orange wrap", "Printed cotton", "Size 12", "2025", "headwrapOrange", "A headwrap and dress pair. The print did most of the talking."],
-      ["Red robe", "Patterned cotton", "One size", "2024", "redPatterned", "A gift for my mother, who told me the sleeves were too short. She was right."],
-      ["Blue matched pair", "Print cotton", "Sizes 8, 10", "2024", "blueOutfits", "Two sisters, one cloth. I love it when the pair walk in step."],
-      ["Yellow print dress", "Print cotton", "Size 12", "2025", "yellowPrint", "Made to be worn sitting down, among baskets, all day."],
+      ["Thieboudienne, properly", "Recipe", "Serves 6", "2025", "talkCafe", "My grandmother's version. The secret is patience with the rice."],
+      ["Supper club", "Monthly event", "24 seats", "2024", "talkLaugh", "Strangers at one long table. Half of them leave as friends."],
     ],
-    notes: [["The collar sits wrong on the left. Unpicking it again.", null], ["Fabric came in. Three colours I did not order. All good.", "textileStack"]],
+    notes: [["Tested the new menu on my sisters. Two dishes survived.", "talkCafe"]],
   },
   efua: {
-    name: "The Archive Room", tagline: "Following objects home, one archive at a time.", disciplines: ["Mixed media"], theme: "cream", visiting: "appointment", hours: "By appointment",
-    about: "A study room in Kumasi full of carved panels, notebooks and provenance files. I don't make the work; I keep track of where it has been.",
-    now: "Tracing a carved panel back through three owners.",
-    taken: ["chidi"],
+    name: "The Archive Room", tagline: "A historian following family stories home.", disciplines: ["Writing"], theme: "cream", visiting: "appointment", hours: "By appointment",
+    about: "I help families record their elders' stories before they're lost. Bring your questions and old photos.",
+    now: "A book of twelve family histories from Kumasi.",
+    taken: ["zuri", "wanjiru"],
     works: [
-      ["Ship panel", "Carved wood", "80 cm", "Undated", "carvedRelief", "An intricate wooden panel of figures and a ship. I've spent a year on its journey."],
-      ["Crowned head", "Bronze", "38 cm", "Undated", "bronzeHead", "Holds a tall conical crown and a long story about who has held it."],
-      ["Figures in black and white", "Carved wood", "Various", "Undated", "tribalCarving", "A group I photograph often, because the light on them keeps changing my reading."],
-      ["Family album", "Photographs", "A4", "1970s", "photoAlbum", "An album a family lent me. The captions are as important as the pictures."],
-      ["Field notes", "Notebook", "A5", "2025", "journalOpen", "The notebook where every object gets a page of doubts."],
+      ["Twelve families", "Book in progress", "180 pages", "2025", "photoAlbum", "Interviews with grandparents about the street they grew up on."],
     ],
-    notes: [["Found a name on the back of the panel. Not sure if it's the maker or an owner.", "notebookWhite"], ["Reading list for the room on Friday.", null]],
+    notes: [["Found my own grandmother in a 1962 photograph today.", "photoAlbum"]],
   },
   nandi: {
-    name: "The Long Wall", tagline: "A curator's walk through a hang in progress.", disciplines: ["Mixed media"], theme: "forest", visiting: "open", hours: "Tue, Thu · 16:00–19:00",
-    about: "A borrowed gallery hall where I try hangs, get them wrong and try again. Come to argue with the order.",
-    now: "Rehanging the east wall so the small works stop shouting at the big one.",
-    taken: ["zuri", "leila"],
+    name: "The Quiet Room", tagline: "A therapist hosting small rooms where nobody has to perform.", disciplines: ["Health & care"], theme: "forest", visiting: "open", hours: "Tue, Thu · 16:00–19:00",
+    about: "I run free listening circles on Tuesdays and talks on looking after your mind.",
+    now: "A six-week course on burnout for young professionals.",
+    taken: ["ayo", "amara"],
     works: [
-      ["East wall, version 3", "Installation view", "Full wall", "2025", "galleryHall", "The current hang. It changes about once a week."],
-      ["Visitor", "Photograph", "A3", "2025", "galleryViewer", "I keep a picture of the first person to walk in each morning."],
-      ["Group before the big one", "Photograph", "A3", "2025", "galleryGroup", "What a large painting does to a room of strangers."],
-      ["Seated on the floor", "Photograph", "A3", "2024", "gallerySeated", "The best way to look at framed work is from the floor. I won't apologise for this."],
-      ["Paper wall", "Installation view", "Wall", "2024", "frameWall", "Framing choices matter more than we admit."],
+      ["Burnout, honestly", "Course", "6 weeks", "2025", "calmBench", "For people who are always busy and never rested."],
+      ["Listening circles", "Weekly sessions", "6 seats", "2024", "talkMugs", "No advice. Just being heard."],
     ],
-    notes: [["Moved the blue painting six inches left. Everyone can breathe now.", "galleryTwo"], ["Wall text should say less.", null]],
+    notes: [["Reminder to myself: rest is part of the work.", null]],
   },
   leila: {
-    name: "The Hallway", tagline: "A small collection and how it lives with a family.", disciplines: ["Mixed media"], theme: "cream", visiting: "private", hours: "Invited guests",
-    about: "A collector's hallway in Casablanca. It's private, because it's also where my children do their homework, but I open it for small invited visits.",
-    now: "Deciding whether the new purchase goes in the hallway or the kitchen.",
-    taken: ["zuri", "efua"],
+    name: "Second Start", tagline: "A second-time founder sharing what I'd do differently.", disciplines: ["Business"], theme: "cream", visiting: "private", hours: "Invited guests",
+    about: "Office hours for first-time founders. I'll read your pitch deck and be honest.",
+    now: "Raising a small round for my second company.",
+    taken: ["kwame", "amara"],
     works: [
-      ["The loveseat wall", "Collection view", "Wall", "Ongoing", "frameWall", "Twelve pieces, all bought with an argument at breakfast."],
-      ["Reading wall", "Collection view", "Wall", "Ongoing", "galleryTwo", "Where my youngest reads. The art is at her eye level on purpose."],
-      ["Bronze head, borrowed", "Bronze", "38 cm", "Loan", "bronzeHead", "On loan from a friend. I'm terrified of dusting it."],
-      ["Mounted photographs", "Prints", "A4", "Ongoing", "photoAlbum", "A shelf of family pictures I hang beside the art."],
-      ["Wall of paintings", "Collection view", "Wall", "Ongoing", "galleryHall", "My dream hall. Not mine yet."],
+      ["Founder office hours", "Mentoring", "Fridays", "2025", "talkTwo", "Thirty minutes, one honest question, no pitch required."],
     ],
-    notes: [["New piece arrives Friday. I have moved three frames to make room and regret nothing.", null], ["Asked my daughter which she likes best. She picked the ugly one.", "frameWall"]],
+    notes: [["Said no to an investor today. Felt right.", null]],
   },
   wanjiru: {
     name: "Contact Sheets", tagline: "Photographs of what people keep in their pockets.", disciplines: ["Photography"], theme: "indigo", visiting: "appointment", hours: "By appointment",
-    about: "A quiet room with a lightbox, a wall of prints and coffee. We look at how one picture gets chosen from three hundred.",
-    now: "Sequencing a set of pocket photographs I've collected for two years.",
-    taken: ["kwame", "zuri", "chidi"],
+    about: "Portrait sessions and a slow photo walk most Sundays. Bring one object that matters to you.",
+    now: "A series on the people who run Nairobi's markets.",
+    taken: ["zuri", "efua"],
     works: [
-      ["Album, page 12", "Silver gelatin print", "20 × 25 cm", "2024", "photoAlbum", "Someone else's family album, which I was allowed to photograph, page by page."],
-      ["Man in the gallery", "Archival print", "A3", "2025", "galleryViewer", "He stood in front of one painting for eleven minutes. I stood behind him for ten."],
-      ["Studio in low light", "Archival print", "A3", "2025", "studioDim", "Taken with the lights off, waiting for the window to do the work."],
-      ["Notebook, white", "Archival print", "A4", "2025", "notebookWhite", "A blank page is the hardest photograph."],
-      ["Hands and pen", "Archival print", "A4", "2024", "journalPen", "The same pen in three different hands."],
+      ["Pocket portraits", "Photo series", "24 portraits", "2025", "gallerySeated", "Strangers, and the one thing they always carry."],
+      ["Market dawn", "Photo walk", "Weekly", "2024", "journalCoffee", "Gikomba at 5am, before the noise."],
     ],
-    notes: [["Chose picture 88 out of 300. It's the boring one, and it's the right one.", "photoAlbum"], ["The pocket series wants a plainer title.", null]],
+    notes: [["Shot 300 frames this morning. Three are good.", "gallerySeated"]],
   },
 };
 

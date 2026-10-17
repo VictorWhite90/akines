@@ -29,8 +29,8 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Explore",
     items: [
-      { href: "/shop", label: "Shop art", glyph: "□" },
-      { href: "/studios", label: "Studio visits", glyph: "◈" },
+      { href: "/shop", label: "Marketplace", glyph: "□" },
+      { href: "/studios", label: "Open doors", glyph: "◈" },
       { href: "/stories", label: "Stories & legacy", glyph: "❖" },
     ],
   },

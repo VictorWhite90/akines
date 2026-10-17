@@ -9,7 +9,7 @@ _Last updated: 2026-10-17. Ideas and tasks to come back to, in rough priority or
 - [x] Part 2a: older feed posts, game copy, feed photos
 - [x] Circle chat, circle activities, comments
 - [ ] Stories and journals
-- [ ] Studio, Store, Shop: reframe for any maker or professional ("My space", "Marketplace")
+- [x] Studio: My space + Work in public + Open doors (Store and Shop copy still to broaden)
 - [ ] Small copy: Create a room form, Companion, Wellbeing
 
 ## Next up

@@ -31,10 +31,10 @@ function OpenYourStudio() {
     <Link href="/studio" className="sd-invite">
       <span className="glyph" aria-hidden>✦</span>
       <span className="tx">
-        <b>{mine ? mine.name : "Have a studio of your own?"}</b>
-        <small>{mine ? (mine.doorOpen ? "Your door is open. Step back into your studio." : "Your door is closed. Step back into your studio.") : "Open your studio: hang your work, pin what you're making, and invite people in."}</small>
+        <b>{mine ? mine.name : "Have a space of your own?"}</b>
+        <small>{mine ? (mine.doorOpen ? "Your door is open. Step back into your space." : "Your door is closed. Step back into your space.") : "Open your space: show what you do, share the journey, and host open doors."}</small>
       </span>
-      <span className="go">{mine ? "Go to my studio →" : "Open your own studio →"}</span>
+      <span className="go">{mine ? "Go to my space →" : "Open your own space →"}</span>
     </Link>
   );
 }
@@ -54,12 +54,12 @@ export default function StudiosBoard() {
         <div className="grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="relative min-h-[260px] bg-paper-200">
             <Photo name={next.photo} sizes="(max-width: 768px) 100vw, 520px" className="absolute inset-0 h-full" position="center 40%" />
-            <Link href={`/studios/${next.id}`} aria-label={`Visit ${nextArtist.name}'s studio`} className="absolute inset-0 z-[1]" />
+            <Link href={`/studios/${next.id}`} aria-label={`Visit ${nextArtist.name}'s space`} className="absolute inset-0 z-[1]" />
             <span className="pointer-events-none absolute top-4 left-4 z-[2] flex items-center gap-2 rounded-full bg-night/80 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur"><span className="live-dot" style={{ width: 7, height: 7, background: "#eab054", borderRadius: "50%", boxShadow: "0 0 0 4px rgba(234,176,84,.2)" }} />Live · {next.when}</span>
           </div>
           <div className="flex flex-col p-6 md:p-8">
-            <p className="ac-eyebrow">Next live visit</p>
-            <h2 className="font-display mt-2 text-[32px] leading-[1.06] md:text-[38px]">Firing day with <em>{nextArtist.name.split(" ")[0]}.</em></h2>
+            <p className="ac-eyebrow">Next open door</p>
+            <h2 className="font-display mt-2 text-[32px] leading-[1.06] md:text-[38px]">Step inside with <em>{nextArtist.name.split(" ")[0]}.</em></h2>
             <p className="mt-2 flex items-center gap-2.5 text-[13px] text-mute"><Avatar person={nextArtist} size={30} /><Link href={`/studios/${next.id}`} className="hover:text-night hover:underline">{nextArtist.name} · {nextArtist.role}, {next.place}</Link></p>
             <p className="mt-4 max-w-md text-[14px] leading-relaxed text-ink-800">{next.blurb}</p>
             <div className="mt-auto flex flex-wrap items-center gap-4 pt-6">
@@ -71,11 +71,11 @@ export default function StudiosBoard() {
       </section>
 
       {/* Browse */}
-      <section aria-label="All studio visits">
+      <section aria-label="All open doors">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="ac-eyebrow">Browse</p>
-            <h2 className="font-display mt-1 text-[26px] leading-tight">Choose how you'd like to visit</h2>
+            <h2 className="font-display mt-1 text-[26px] leading-tight">Choose how you'd like to join</h2>
           </div>
           <div role="tablist" aria-label="Visit type" className="flex flex-wrap gap-2">
             {MODES.map((m) => (

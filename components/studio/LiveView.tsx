@@ -52,7 +52,7 @@ export default function LiveView({ studio, onEnd }: { studio: Studio; onEnd: () 
   };
 
   return (
-    <div className="sd-live" role="dialog" aria-modal="true" aria-label="Live from the studio">
+    <div className="sd-live" role="dialog" aria-modal="true" aria-label="Live from my space">
       <div className="stage">
         <div className="bar">
           <span className="rec"><i />LIVE</span>

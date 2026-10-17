@@ -25,11 +25,11 @@ export default function PublicStudioView({ studio }: { studio: PublicStudio }) {
     <div className="sd sd-public" style={themeVars(studio.theme)}>
       {studio.own && (
         <div className="sd-banner" role="status">
-          <span><Ico n="eye" size={16} /> You&apos;re viewing your studio as a visitor</span>
-          <Link href={`/studio${studio.demo ? `?demo=${studio.demo}` : ""}`} className="sd-btn accent small">← Back to my studio</Link>
+          <span><Ico n="eye" size={16} /> You&apos;re viewing your space as a visitor</span>
+          <Link href={`/studio${studio.demo ? `?demo=${studio.demo}` : ""}`} className="sd-btn accent small">← Back to my space</Link>
         </div>
       )}
-      {!studio.own && <Link href="/studios" className="sd-back">← All studio visits</Link>}
+      {!studio.own && <Link href="/studios" className="sd-back">← All open doors</Link>}
 
       <section className="sd-hero" aria-label={studio.name}>
         <div className="cover">
@@ -88,23 +88,23 @@ export default function PublicStudioView({ studio }: { studio: PublicStudio }) {
               <div className="top">
                 <div>
                   <p className="ac-eyebrow">Visits</p>
-                  <h2>No visit scheduled yet</h2>
+                  <h2>No open door scheduled yet</h2>
                   <p className="when">{VISITING[studio.visiting].blurb}</p>
                 </div>
               </div>
             )}
           </section>
 
-          <section aria-label="The wall">
-            <div className="sd-head"><div><h2>The wall</h2><p>Open any work to read the story behind it.</p></div></div>
-            {studio.works.length === 0 ? <p className="sd-empty">Nothing hung on the wall yet.</p> : (
+          <section aria-label="My space">
+            <div className="sd-head"><div><h2>My space</h2><p>Open anything to read the story behind it.</p></div></div>
+            {studio.works.length === 0 ? <p className="sd-empty">Nothing in your space yet.</p> : (
               <div className="sd-works">{studio.works.map((w) => <WorkCard key={w.id} work={w} onOpen={() => setDetail(w)} />)}</div>
             )}
           </section>
 
           {studio.notes.length > 0 && (
             <section aria-label="Studio notes">
-              <div className="sd-head"><div><h2>Studio notes</h2><p>What&apos;s pinned up in the studio right now.</p></div></div>
+              <div className="sd-head"><div><h2>Work in public</h2><p>What you're working on, shared as it happens.</p></div></div>
               <div className="sd-board">{studio.notes.map((n) => <NoteCard key={n.id} note={n} />)}</div>
             </section>
           )}
@@ -127,8 +127,8 @@ export default function PublicStudioView({ studio }: { studio: PublicStudio }) {
           )}
           <section className="sd-card shop">
             <div className="thumbs">{studio.works.slice(0, 3).map((w) => <span key={w.id}><Pic name={w.photo} sizes="90px" /></span>)}</div>
-            <h3>Shop from this studio</h3>
-            <p>If a work follows you home, buy it straight from the maker.</p>
+            <h3>Shop from this space</h3>
+            <p>If something here is for sale, buy it straight from the person who made it.</p>
             <Link href="/shop" className="sd-link">Browse the shop <Ico n="arrow" size={14} /></Link>
           </section>
         </aside>
@@ -148,9 +148,9 @@ export function OwnStudioPreview({ demo }: { demo?: string }) {
       <div className="sd sd-public">
         <div className="sd-card empty-state">
           <p className="ac-eyebrow">Your studio</p>
-          <h2 className="font-display">You haven&apos;t opened a studio yet.</h2>
+          <h2 className="font-display">You haven&apos;t opened your space yet.</h2>
           <p>Open it first, then come back to see it the way visitors do.</p>
-          <Link href="/studio" className="sd-btn dark">Open my studio</Link>
+          <Link href="/studio" className="sd-btn dark">Open my space</Link>
         </div>
       </div>
     );

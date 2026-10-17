@@ -8,12 +8,12 @@ import { cn } from "@/lib/cn";
 const STEPS = ["Name it", "Look & feel", "The door"];
 const MOODS: Record<string, string> = { forest: "Calm and deep", indigo: "Night-shift focus", clay: "Warm, busy hands", cream: "Quiet daylight", lime: "Bright and awake" };
 
-/** "Open your studio": three warm steps with a live preview card. */
+/** "Open your space": three warm steps with a live preview card. */
 export default function Wizard({ onFinish, initialStep = 1, prefill = false }: { onFinish: (s: Studio) => void; initialStep?: 1 | 2 | 3; prefill?: boolean }) {
   const [step, setStep] = useState<number>(initialStep);
   const [draft, setDraft] = useState<Studio>(() =>
     prefill
-      ? { ...blankStudio(), name: "Room with a blue door", tagline: "Paintings, bowls and cloth, made slowly in Yaba.", disciplines: ["Painting", "Ceramics"], about: "Come in, sit down, tell me what you see." }
+      ? { ...blankStudio(), name: "My space", tagline: "Cooking, coaching, code or craft: what you do, in Yaba.", disciplines: ["Painting", "Ceramics"], about: "Come in, sit down, tell me what you see." }
       : blankStudio(),
   );
   const [samples, setSamples] = useState(true);
@@ -39,8 +39,8 @@ export default function Wizard({ onFinish, initialStep = 1, prefill = false }: {
     <div className="sd sd-wiz">
       <header className="sd-wiz-head">
         <p className="ac-eyebrow">My studio</p>
-        <h1 className="font-display">Every artist needs <em>a door.</em></h1>
-        <p>Open your studio in three small steps. You can change any of it later.</p>
+        <h1 className="font-display">Everyone needs <em>a door.</em></h1>
+        <p>Open your space in three small steps. You can change any of it later.</p>
       </header>
 
       <ol className="sd-steps" aria-label="Steps">
@@ -60,11 +60,11 @@ export default function Wizard({ onFinish, initialStep = 1, prefill = false }: {
               <Field label="Studio name">
                 <input value={draft.name} onChange={(e) => set({ name: e.target.value })} placeholder="e.g. Room with a blue door" maxLength={48} autoFocus />
               </Field>
-              <Field label="Tagline" hint="One line on what you make">
-                <input value={draft.tagline} onChange={(e) => set({ tagline: e.target.value })} placeholder="Paintings, bowls and cloth, made slowly." maxLength={90} />
+              <Field label="Tagline" hint="One line on what you do">
+                <input value={draft.tagline} onChange={(e) => set({ tagline: e.target.value })} placeholder="What you do, and why it matters to you." maxLength={90} />
               </Field>
               <div className="sd-field">
-                <span className="lb">What do you make? <small>Pick as many as fit</small></span>
+                <span className="lb">What do you do? <small>Pick as many as fit</small></span>
                 <div className="sd-chips" role="group" aria-label="Disciplines">
                   {DISCIPLINES.map((d) => (
                     <button type="button" key={d} aria-pressed={draft.disciplines.includes(d)} className={draft.disciplines.includes(d) ? "on" : ""} onClick={() => set({ disciplines: toggle(draft.disciplines, d as string) })}>{d}</button>
@@ -124,15 +124,15 @@ export default function Wizard({ onFinish, initialStep = 1, prefill = false }: {
                   <Field label="To"><input type="time" value={draft.hours.to} onChange={(e) => set({ hours: { ...draft.hours, to: e.target.value } })} /></Field>
                 </div>
               </div>
-              <Field label="About the studio">
-                <textarea rows={3} value={draft.about} onChange={(e) => set({ about: e.target.value })} placeholder="What is this place, and what happens here?" />
+              <Field label="About my space">
+                <textarea rows={3} value={draft.about} onChange={(e) => set({ about: e.target.value })} placeholder="Who are you, and what happens here?" />
               </Field>
               <Field label="What you're working on right now">
                 <input value={draft.now} onChange={(e) => set({ now: e.target.value })} placeholder="e.g. Finishing the second coat on a large canvas" maxLength={120} />
               </Field>
               <button type="button" role="switch" aria-checked={samples} className={cn("sd-sample", samples && "on")} onClick={() => setSamples((v) => !v)}>
                 <span className="sw" aria-hidden><i /></span>
-                <span><b>Start with sample works</b><small>A few placeholder works, notes and visits so the studio isn&apos;t empty. Edit or remove them any time.</small></span>
+                <span><b>Start with sample content</b><small>A few placeholder pieces, updates and open doors so your space isn&apos;t empty. Edit or remove them any time.</small></span>
               </button>
             </>
           )}
@@ -140,9 +140,9 @@ export default function Wizard({ onFinish, initialStep = 1, prefill = false }: {
           <div className="sd-nav">
             {step > 1 ? <button className="sd-btn quiet" onClick={() => setStep(step - 1)}>← Back</button> : <span />}
             {step < 3 ? (
-              <button className="sd-btn dark" disabled={!canNext} onClick={() => setStep(step + 1)}>{canNext ? "Continue →" : step === 1 ? "Add a name and a discipline" : "Continue"}</button>
+              <button className="sd-btn dark" disabled={!canNext} onClick={() => setStep(step + 1)}>{canNext ? "Continue →" : step === 1 ? "Add a name and what you do" : "Continue"}</button>
             ) : (
-              <button className="sd-btn dark big" onClick={finish}>Open my studio ✦</button>
+              <button className="sd-btn dark big" onClick={finish}>Open my space ✦</button>
             )}
           </div>
         </section>
@@ -150,7 +150,7 @@ export default function Wizard({ onFinish, initialStep = 1, prefill = false }: {
         <aside className="sd-preview" aria-label="Live preview">
           <p className="ac-eyebrow">Live preview</p>
           <StudioCard name={draft.name} tagline={draft.tagline} place={[draft.city, draft.country].filter(Boolean).join(", ")} disciplines={draft.disciplines} cover={draft.cover} theme={draft.theme} visiting={draft.visiting} hours={hoursText(draft.hours)} />
-          <p className="sd-hint">This is how your studio card looks to other members. No follower counts. No likes. Just your work.</p>
+          <p className="sd-hint">This is how your space looks to other members. No follower counts. No likes. Just you and what you do.</p>
         </aside>
       </div>
     </div>
