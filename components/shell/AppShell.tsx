@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { isSignedIn } from "@/lib/session";
-import { Add, Messages2, People, Star1 } from "iconsax-reactjs";
+import { Add, HamburgerMenu, Home2, Message, Messages2, People } from "iconsax-reactjs";
 import CommandBar from "./CommandBar";
 import Companion from "./Companion";
 import CreateChooser from "./CreateChooser";
 import IntentModal from "./IntentModal";
 import Rail from "./Rail";
+import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
 import { RAIL } from "./railGroups";
 
@@ -58,23 +59,35 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </main>
 
+      {/* Phones: a flat, edge-to-edge tab bar (icons only) and a floating Create button. */}
       <nav className="nx-dock" aria-label="Quick navigation">
-        <Link href="/" className={pathname === "/" ? "on" : undefined}><Star1 size={22} color="currentColor" />Home</Link>
-        <Link href="/banter" className={isActive(pathname, "/banter") ? "on" : undefined}><Messages2 size={22} color="currentColor" />Banter</Link>
-        <button className="center" onClick={() => setBegin(true)} aria-label="Create"><Add size={26} color="currentColor" /></button>
-        <Link href="/circles" className={isActive(pathname, "/circles") ? "on" : undefined}><People size={22} color="currentColor" />Circles</Link>
-        <button onClick={() => setMore(true)}><span style={{ fontSize: 20, lineHeight: "22px" }}>≡</span>More</button>
+        {[
+          { href: "/", label: "Home", Icon: Home2, on: pathname === "/" },
+          { href: "/banter", label: "Banter", Icon: Messages2, on: isActive(pathname, "/banter") },
+          { href: "/circles", label: "KinCircle", Icon: People, on: isActive(pathname, "/circles") },
+          { href: "/messages", label: "KinMessage", Icon: Message, on: isActive(pathname, "/messages") },
+        ].map(({ href, label, Icon, on }) => (
+          <Link key={href} href={href} className={on ? "on" : undefined} aria-label={label} aria-current={on ? "page" : undefined}>
+            <Icon size={24} color="currentColor" variant={on ? "Bold" : "Linear"} />
+          </Link>
+        ))}
+        <button onClick={() => setMore(true)} aria-label="More"><HamburgerMenu size={24} color="currentColor" /></button>
       </nav>
+      <button className="nx-fab" onClick={() => setBegin(true)} aria-label="Create" aria-haspopup="dialog"><Add size={26} color="currentColor" /></button>
 
       {more && (
         <div className="fixed inset-0 z-[90] flex items-end bg-black/50" onClick={(e) => e.target === e.currentTarget && setMore(false)}>
-          <div className="max-h-[80vh] w-full overflow-y-auto rounded-t-[28px] p-5" style={{ background: "var(--nx-dusk)", color: "var(--nx-text)", fontFamily: "var(--nx-sans)" }}>
+          <div className="nx-more max-h-[80vh] w-full overflow-y-auto rounded-t-[24px] p-4" style={{ background: "var(--nx-dusk)", color: "var(--nx-text)", fontFamily: "var(--nx-sans)" }}>
+            <div className="mb-4 flex items-center gap-2">
+              <button onClick={() => { setMore(false); setCompanion(true); }} className="flex-1 rounded-2xl px-3.5 py-2.5 text-left text-[13.5px] font-semibold" style={{ background: "var(--nx-dusk-2)", color: "var(--nx-brass)" }}>✦ Ask the Akines Companion</button>
+              <ThemeToggle />
+            </div>
             {RAIL.map((g) => (
               <div key={g.id} className="mb-4">
-                <p className="mb-2 text-[10.5px] font-bold tracking-[0.16em] uppercase" style={{ color: "var(--nx-brass)" }}>{g.label}</p>
+                <p className="mb-1.5 text-[10px] font-bold tracking-[0.16em] uppercase" style={{ color: "var(--nx-brass)" }}>{g.label}</p>
                 <div className="grid grid-cols-2 gap-2">
                   {g.items.map((i) => (
-                    <Link key={i.href} href={i.href} onClick={() => setMore(false)} className="rounded-2xl px-3.5 py-3 text-[14px]" style={{ background: "var(--nx-dusk-2)" }}>
+                    <Link key={i.href} href={i.href} onClick={() => setMore(false)} className="rounded-xl px-3 py-2.5 text-[13px]" style={{ background: "var(--nx-dusk-2)" }}>
                       <span className="mr-2 opacity-60">{i.glyph}</span>{i.label}
                     </Link>
                   ))}

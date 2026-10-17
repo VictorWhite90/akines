@@ -151,6 +151,19 @@ export default function AnkaraHome() {
         </nav>
       </header>
 
+      {/* Phones: what's live right now, in one row you can swipe. Replaces the greeting. */}
+      <nav className="hm-livebar" aria-label="Happening now">
+        {LIVE.map((l) => (
+          <Link key={l.href} href={l.href} className="hm-lb" style={{ ["--k" as string]: l.dot } as React.CSSProperties}>
+            <AvatarStack people={l.who.map((id) => PEOPLE[id])} size={26} max={3} ringClass="ring-transparent" />
+            <span className="hm-lb-tx"><b>{l.title}</b><small>{l.kind} · {l.sub.replace("Live now · ", "")}</small></span>
+            <span className="hm-bars" aria-hidden><i /><i /><i /></span>
+          </Link>
+        ))}
+        <Link href="/banter" className="hm-lb plain"><b className="n">8</b><span className="hm-lb-tx"><b>Banters for you</b></span></Link>
+        <Link href="/kindred" className="hm-lb plain"><b className="n">2</b><span className="hm-lb-tx"><b>Introductions</b></span></Link>
+      </nav>
+
       <div className="hm-hero"><HeroCarousel slides={slides} /></div>
 
       <div className="hm-grid">

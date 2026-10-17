@@ -8,7 +8,8 @@ import CreateChooser from "./CreateChooser";
 import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
 import { RAIL, activeGroup } from "./railGroups";
-import { allPeople } from "@/lib/data/people";
+import Avatar from "@/components/ui/Avatar";
+import { ME, allPeople } from "@/lib/data/people";
 import { CIRCLES, ROOMS } from "@/lib/data/community";
 import { BANTERS } from "@/lib/data/banter";
 import { GAMES } from "@/lib/data/games";
@@ -29,6 +30,7 @@ export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => 
   const [q, setQ] = useState("");
   const [focus, setFocus] = useState(false);
   const [begin, setBegin] = useState(false);
+  const [searching, setSearching] = useState(false);
   const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,7 +45,14 @@ export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => 
   }, [q]);
 
   return (
-    <header className="nx-top">
+    <header className={`nx-top${searching ? " is-searching" : ""}`}>
+      {/* Phones only: avatar, the mark in the middle, search and notifications. */}
+      <Link href="/dna" className="nx-m-me" aria-label="Your profile"><Avatar person={ME} size={32} /></Link>
+      <Link href="/" className="nx-m-logo" aria-label="Akines home">
+        {/* eslint-disable-next-line @next/next/no-img-element -- brand mark */}
+        <img src="/akines/mark.png" alt="" width={28} height={28} />
+      </Link>
+
       <nav className="nx-crumbs" aria-label={group.label}>
         {group.items.map((i) => {
           const on = i.href === "/" ? pathname === "/" : isActive(pathname, i.href);
@@ -53,11 +62,11 @@ export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => 
 
       <div className="nx-ask" ref={box}>
         <SearchNormal1 size={18} color="currentColor" aria-hidden />
-        <input aria-label="Search Akines or ask the Companion" placeholder="Search people, Banters, games… or ask" value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setFocus(true)} />
+        <input autoFocus={searching} aria-label="Search Akines or ask the Companion" placeholder="Search people, Banters, games… or ask" value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setFocus(true)} />
         {focus && q.trim() && (
           <div className="nx-results">
             {results.map((r) => (
-              <Link key={r.href + r.label} href={r.href} onClick={() => { setFocus(false); setQ(""); }}>
+              <Link key={r.href + r.label} href={r.href} onClick={() => { setFocus(false); setQ(""); setSearching(false); }}>
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.label}</span>
                 <small>{r.kind}</small>
               </Link>
@@ -69,9 +78,12 @@ export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => 
         )}
       </div>
 
+      <button className="nx-m-icon nx-m-search" aria-label={searching ? "Close search" : "Search"} onClick={() => { setSearching((v) => !v); setQ(""); }}>
+        {searching ? <span aria-hidden style={{ fontSize: 22, lineHeight: 1 }}>×</span> : <SearchNormal1 size={21} color="currentColor" />}
+      </button>
       <button className="nx-icon" aria-label="Ask the Akines Companion" title="Akines Companion" onClick={onCompanion}>✦</button>
-      <ThemeToggle />
-      <button className="nx-icon" aria-label="Notifications" title="Notifications">
+      <span className="nx-theme"><ThemeToggle /></span>
+      <button className="nx-icon nx-bell" aria-label="Notifications" title="Notifications">
         <Notification size={20} color="currentColor" />
         <span className="nx-rail-dot" style={{ top: 9, right: 10 }} aria-hidden />
       </button>

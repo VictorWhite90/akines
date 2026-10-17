@@ -24,26 +24,26 @@ export default function KinCircleHero() {
 
   return (
     <section className="relative overflow-hidden rounded-[28px] shadow-[var(--shadow-lift)]">
-      <div className="relative h-[560px] sm:h-[480px]">
+      <div className="relative h-[400px] sm:h-[480px]">
         <Image src={photo.src} alt={photo.alt} fill priority sizes="100vw" className="object-cover" style={{ objectPosition: "center 32%" }} />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-950/92 via-ink-950/55 to-ink-950/15 sm:bg-gradient-to-r sm:from-ink-950/92 sm:via-ink-950/58 sm:to-ink-950/10" />
 
         <div className="absolute inset-0 overflow-hidden">
           <div className="flex h-full transition-transform duration-500 ease-[cubic-bezier(.2,.7,.2,1)]" style={{ transform: `translateX(-${stage * 100}%)` }}>
             {/* Stage 0: intro */}
-            <div className="flex h-full w-full flex-none flex-col justify-end gap-4 px-7 pb-9 sm:justify-center sm:px-16 sm:py-10">
+            <div className="flex h-full w-full flex-none flex-col justify-end gap-3 px-5 pb-7 sm:justify-center sm:px-16 sm:py-10">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/15 px-3 py-1.5 text-[11px] text-white backdrop-blur-sm">
                 <span className="h-[7px] w-[7px] rounded-full bg-ochre-400" /> KinCircle
               </span>
-              <h2 className="font-display max-w-xl text-[32px] leading-[1.08] font-semibold text-white sm:text-[42px]">
+              <h2 className="font-display max-w-xl text-[23px] leading-[1.1] font-semibold text-white sm:text-[42px]">
                 Bring together the right people around a shared purpose.
               </h2>
-              <p className="max-w-md text-[14px] leading-relaxed text-white/80">
+              <p className="max-w-md text-[13px] leading-relaxed text-white/80 sm:text-[14px]">
                 Build trust, support one another and create something meaningful—without the noise of another group chat.
               </p>
-              <div className="mt-1 flex flex-wrap gap-3">
-                <Link href="/circles/new" className="rounded-full bg-ochre-400 px-5 py-3 text-[14px] font-bold text-ink-950">Start a KinCircle</Link>
-                <button type="button" onClick={() => setStage(1)} className="rounded-full border border-white/30 bg-white/10 px-5 py-3 text-[14px] text-white backdrop-blur-sm">See how it works</button>
+              <div className="mt-1 flex flex-wrap gap-2 sm:gap-3">
+                <Link href="/circles/new" className="rounded-full bg-ochre-400 px-4 py-2.5 text-[13px] font-bold text-ink-950 sm:px-5 sm:py-3 sm:text-[14px]">Start a KinCircle</Link>
+                <button type="button" onClick={() => setStage(1)} className="rounded-full border border-white/30 bg-white/10 px-4 py-2.5 text-[13px] text-white backdrop-blur-sm sm:px-5 sm:py-3 sm:text-[14px]">See how it works</button>
               </div>
             </div>
 

@@ -1,0 +1,109 @@
+/* =========================================================
+   Phones: compact header, X-style tab bar, floating Create,
+   a swipeable "happening now" row and a smaller type scale.
+   Loaded last so it wins over the page styles.
+   ========================================================= */
+.nx-m-me, .nx-m-logo, .nx-m-search, .nx-fab, .hm-livebar { display: none; }
+
+@media (max-width: 900px) {
+  /* ---- Header: avatar · mark · search · bell ---- */
+  .app.nx .nx-top { position: sticky; height: 52px; padding: 0 12px; gap: 4px; }
+  .nx-m-me { display: inline-flex; flex: none; border-radius: 50%; }
+  .nx-m-logo { display: grid; place-items: center; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+  .nx-m-logo img { width: 28px; height: 28px; }
+  .nx-m-icon { display: grid; place-items: center; width: 38px; height: 38px; flex: none; border: 0; border-radius: 50%; background: none; color: inherit; cursor: pointer; }
+  .nx-m-search { margin-left: auto; }
+  .app.nx .nx-top .nx-ask, .app.nx .nx-top .nx-theme, .app.nx .nx-top .nx-begin,
+  .app.nx .nx-top .nx-icon:not(.nx-bell) { display: none; }
+  .app.nx .nx-top .nx-icon.nx-bell { width: 38px; height: 38px; border: 0; background: none; }
+  .app.nx .nx-top .nx-bell .nx-rail-dot { top: 7px !important; right: 8px !important; }
+  /* Searching: the field takes the whole bar. */
+  .app.nx .nx-top.is-searching .nx-m-me, .app.nx .nx-top.is-searching .nx-m-logo, .app.nx .nx-top.is-searching .nx-bell { display: none; }
+  .app.nx .nx-top.is-searching .nx-ask { display: block; flex: 1; width: auto; margin: 0; }
+  .app.nx .nx-top.is-searching .nx-ask input { height: 38px; font-size: 14px; }
+  .app.nx .nx-top.is-searching .nx-ask svg { top: 10px; }
+  .app.nx .nx-top.is-searching .nx-m-search { margin-left: 0; }
+
+  /* ---- Tab bar: flat, edge to edge, icons only ---- */
+  .app.nx .main { padding-bottom: calc(56px + env(safe-area-inset-bottom)); }
+  .app .content { padding-bottom: 96px; }
+  .nx-dock { left: 0 !important; right: 0 !important; bottom: 0 !important; height: auto !important; padding: 0 4px env(safe-area-inset-bottom); border-radius: 0 !important; border: 0 !important; border-top: 1px solid rgba(20,18,26,.08) !important; background: rgba(255,255,255,.94) !important; justify-content: space-between !important; }
+  .nx-dock a, .nx-dock button { flex: 1; height: 54px; display: grid !important; place-items: center; color: #6b6774 !important; -webkit-tap-highlight-color: transparent; cursor: pointer; }
+  .nx-dock .on { color: #14121a !important; }
+  html[data-theme="dark"] .nx-dock { background: rgba(15,14,20,.94) !important; border-top-color: var(--dk-line) !important; }
+  html[data-theme="dark"] .nx-dock a, html[data-theme="dark"] .nx-dock button { color: var(--dk-mute) !important; }
+  html[data-theme="dark"] .nx-dock .on { color: var(--dk-ink) !important; }
+
+  /* ---- Floating Create, like X's compose button ---- */
+  .nx-fab { display: grid; place-items: center; position: fixed; z-index: 51; right: 16px; bottom: calc(54px + 16px + env(safe-area-inset-bottom)); width: 54px; height: 54px; border: 0; border-radius: 50%; background: #ffb000; color: #14121a; box-shadow: 0 10px 24px -8px rgba(0,0,0,.45); cursor: pointer; transition: transform .15s; }
+  .nx-fab:active { transform: scale(.94); }
+
+  /* ---- Home: live row instead of the greeting ---- */
+  .hm .hm-hello { display: none; }
+  .hm-livebar { display: flex; gap: 8px; margin: -10px -16px 14px; padding: 2px 16px 4px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .hm-livebar::-webkit-scrollbar { display: none; }
+  .hm-lb { flex: none; display: inline-flex; align-items: center; gap: 8px; height: 46px; max-width: 260px; padding: 0 12px 0 6px; border-radius: 99px; scroll-snap-align: start; text-decoration: none; color: #14121a; background: color-mix(in srgb, var(--k, #7b2ff7) 10%, #fff); border: 1px solid color-mix(in srgb, var(--k, #7b2ff7) 26%, transparent); }
+  .hm-lb .hm-lb-tx { min-width: 0; display: grid; }
+  .hm-lb .hm-lb-tx b { font-size: 13px; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hm-lb .hm-lb-tx small { font-size: 11px; line-height: 1.2; color: #6b6774; white-space: nowrap; }
+  .hm-lb.plain { --k: #14121a; padding-left: 6px; background: #f4f3f7; border-color: #ece9f1; }
+  .hm-lb .n { min-width: 32px; height: 32px; padding: 0 8px; display: grid; place-items: center; border-radius: 99px; background: #14121a; color: #fff; font-size: 13px; }
+  .hm-bars { display: inline-flex; align-items: flex-end; gap: 2px; height: 16px; margin-left: 2px; }
+  .hm-bars i { width: 3px; border-radius: 2px; background: var(--k); animation: hm-eq 1s ease-in-out infinite; }
+  .hm-bars i:nth-child(1) { height: 60%; }
+  .hm-bars i:nth-child(2) { height: 100%; animation-delay: -.35s; }
+  .hm-bars i:nth-child(3) { height: 45%; animation-delay: -.7s; }
+  @keyframes hm-eq { 50% { transform: scaleY(.4); } }
+  .hm-bars i { transform-origin: bottom; }
+  html[data-theme="dark"] .hm-lb { color: var(--dk-ink); background: color-mix(in srgb, var(--k, #7b2ff7) 20%, var(--dk-s1)); border-color: color-mix(in srgb, var(--k, #7b2ff7) 34%, transparent); }
+  html[data-theme="dark"] .hm-lb .hm-lb-tx small { color: var(--dk-mute); }
+  html[data-theme="dark"] .hm-lb.plain { background: var(--dk-s1); border-color: var(--dk-line); }
+  html[data-theme="dark"] .hm-lb .n { background: var(--dk-btn); color: var(--dk-btn-ink); }
+}
+
+@media (max-width: 640px) {
+  .app .content { padding-top: 14px; padding-left: 14px; padding-right: 14px; }
+  .hm-livebar { margin-left: -14px; margin-right: -14px; padding-left: 14px; padding-right: 14px; }
+
+  /* Home hero: shorter, smaller type, no arrows (swipe or dots instead). */
+  .ap.hm .hm-hero .hero { height: 270px !important; border-radius: 20px; }
+  .hm .hm-hero { margin-bottom: 16px; }
+  .app .hm-hero .hero-copy { left: 16px; right: 16px; bottom: 30px; width: auto; }
+  .hm .hm-hero .hero-copy h2 { font-size: 21px !important; line-height: 1.12; margin: 8px 0 6px; }
+  .app .hm-hero .hero p { font-size: 12.5px; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .app .hm-hero .hero .pill { font-size: 11px; padding: 4px 10px; }
+  .app .hm-hero .hero-actions { gap: 8px; }
+  .app .hm-hero .hero-actions a, .app .hm-hero .hero-actions button { height: auto; padding: 8px 14px; font-size: 12.5px; }
+  .app .hm-hero .hero-arrow, .app .hm-hero .attendees { display: none; }
+  .app .hm-hero .hero-dots { bottom: 12px; }
+
+  /* Section heads and cards on Home */
+  .hs-strip-head h3 { font-size: 16px; }
+  .hs-strip-head small { font-size: 10.5px; }
+  .hs-strip-head a { font-size: 12.5px; }
+  .hb-start { padding: 6px 11px !important; font-size: 12px !important; }
+  .hb { padding: 14px !important; border-radius: 20px !important; }
+  .hb-banner { gap: 12px; padding: 8px; border-radius: 18px; }
+  .hb-banner-img { height: 72px; border-radius: 12px; }
+  .hb-banner-tx b { font-size: 15px; }
+  .hb-banner-go { padding: 9px 14px; font-size: 12.5px; }
+  .hm-feedhead h2 { font-size: 17px; }
+  .app .hm .kn-post { padding: 12px 14px; border-radius: 18px; }
+  .app .hm .kn-post .body { font-size: 14px; }
+  .hm-card h3 { font-size: 14.5px; }
+
+  /* A smaller type scale for every page's big headings on phones (base sizes only, not sm:/md: ones). */
+  .app .content :is([class^="text-[4"], [class*=" text-[4"], [class^="text-[5"], [class*=" text-[5"], [class^="text-[6"], [class*=" text-[6"], [class^="text-[7"], [class*=" text-[7"]):is(h1, h2, h3, p, span, div) { font-size: 28px; line-height: 1.12; }
+  .app .content :is([class^="text-[30px"], [class*=" text-[30px"], [class^="text-[32px"], [class*=" text-[32px"], [class^="text-[34px"], [class*=" text-[34px"], [class^="text-[36px"], [class*=" text-[36px"], [class^="text-[38px"], [class*=" text-[38px"]):is(h1, h2, h3, p, span, div) { font-size: 23px; line-height: 1.15; }
+  .app .content h1 { font-size: 25px !important; line-height: 1.12 !important; }
+  .app .content :is([class^="text-[26px"], [class*=" text-[26px"], [class^="text-[28px"], [class*=" text-[28px"], [class^="text-3xl"], [class*=" text-3xl"], [class^="text-4xl"], [class*=" text-4xl"]):is(h2, h3, span) { font-size: 21px; line-height: 1.2; }
+  .app .content :is(.bd-ask h2, .hc-panel h1) { font-size: 21px !important; line-height: 1.2; }
+  .app .content .bd-ask h2 { margin-top: 8px; }
+  .app .content .hero h2 { font-size: 22px !important; line-height: 1.15; }
+  .app .content .hero p { font-size: 13px; }
+
+  /* KinMessage: never wider than the screen */
+  .km { grid-template-columns: minmax(0, 1fr) !important; }
+  .km-inbox, .km-inbox > * { min-width: 0; }
+  .km-filters { overflow-x: auto; scrollbar-width: none; }
+}
