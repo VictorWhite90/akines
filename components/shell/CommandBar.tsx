@@ -24,7 +24,7 @@ const INDEX = [
 ];
 
 /** Top bar: where you are, one box to search or ask, and Create. */
-export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => void; onCompanion: () => void }) {
+export default function CommandBar({ onIntent, onCompanion, onMenu }: { onIntent: () => void; onCompanion: () => void; onMenu: () => void }) {
   const pathname = usePathname();
   const group = activeGroup(pathname);
   const [q, setQ] = useState("");
@@ -46,8 +46,8 @@ export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => 
 
   return (
     <header className={`nx-top${searching ? " is-searching" : ""}`}>
-      {/* Phones only: avatar, the mark in the middle, search and notifications. */}
-      <Link href="/dna" className="nx-m-me" aria-label="Your profile"><Avatar person={ME} size={32} /></Link>
+      {/* Phones only: avatar (opens the menu drawer), the mark in the middle, search and notifications. */}
+      <button className="nx-m-me" onClick={onMenu} aria-label="Open menu" aria-haspopup="dialog"><Avatar person={ME} size={32} /></button>
       <Link href="/" className="nx-m-logo" aria-label="Akines home">
         {/* eslint-disable-next-line @next/next/no-img-element -- brand mark */}
         <img src="/akines/mark.png" alt="" width={28} height={28} />
