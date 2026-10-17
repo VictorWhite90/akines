@@ -27,7 +27,7 @@ export default function Rooms() {
         <section className="bt-intro rm-intro">
           <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: "#e5007e" }}>Presence Rooms</p>
           <h1>Six chairs. One conversation.</h1>
-          <p>Artists sit with collectors, collectors with students, students with curators. Everybody learns, and nobody performs.</p>
+          <p>Nurses sit with founders, students with parents, coaches with engineers. Everybody learns, and nobody performs.</p>
           <div className="rm-rules">
             {RULES.map(([t, d]) => <span key={t} title={d}><i /><b>{t}</b> {d}</span>)}
           </div>

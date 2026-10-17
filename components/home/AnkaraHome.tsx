@@ -36,8 +36,8 @@ const GAME_PHOTO: Record<string, PhotoKey> = { remember: "photoAlbum", "two-trut
 const GAME_TINT: Record<string, string> = { reconnection: "#e5007e", icebreakers: "#ffb000", creative: "#ff6b1a" };
 
 const LIVE = [
-  { kind: "Presence Room", title: "Photography and memory", sub: "Live now · 5 of 6 seats", href: "/rooms/photography-memory", who: ["wanjiru", "zuri", "efua"] as PersonId[], dot: "#e5007e" },
-  { kind: "Banter Now", title: "Is AI helping or damaging African art?", sub: "Live now · 20 min", href: "/banter/now/ai-art", who: ["tunde", "kwame", "zuri"] as PersonId[], dot: "#ffb000" },
+  { kind: "Presence Room", title: "Starting over in a new city", sub: "Live now · 5 of 6 seats", href: "/rooms/photography-memory", who: ["wanjiru", "zuri", "efua"] as PersonId[], dot: "#e5007e" },
+  { kind: "Banter Now", title: "Is AI going to take our jobs?", sub: "Live now · 20 min", href: "/banter/now/ai-art", who: ["tunde", "kwame", "zuri"] as PersonId[], dot: "#ffb000" },
   { kind: "Game night", title: "How Well Do We Remember?", sub: "Tonight · 20:00", href: "/play/session/uni-night", who: ["kwame", "tunde", "efua"] as PersonId[], dot: "#ff6b1a" },
 ];
 
@@ -90,7 +90,7 @@ export default function AnkaraHome() {
       <div className="hero-copy">
         <span className="pill"><span className="live-dot" /> KinCircle · Week 4 of 8</span>
         <h2>Bring together the right people around a shared purpose.</h2>
-        <p>West African Markets meets on Thursday. This week: one photograph and one trader&apos;s story.</p>
+        <p>Weekend Coding Club meets on Thursday. This week: plan the first lesson for twelve teenagers.</p>
         <div className="hero-actions">
           <Link className="join" href="/circles/new">Start a KinCircle</Link>
           <Link className="ghost" href="/circles">Open your circle</Link>
@@ -98,7 +98,7 @@ export default function AnkaraHome() {
       </div>
       <div className="attendees">
         <AvatarStack people={(["wanjiru", "efua", "fatou"] as PersonId[]).map((id) => PEOPLE[id])} size={30} max={3} ringClass="ring-white" />
-        <span className="count">{joined.length} circles · {joined.reduce((s2, c) => s2 + c.members, 0)} creatives</span>
+        <span className="count">{joined.length} circles · {joined.reduce((s2, c) => s2 + c.members, 0)} people</span>
       </div>
     </Fragment>,
     <Fragment key="room">
@@ -114,7 +114,7 @@ export default function AnkaraHome() {
       <Pic name="talkLaugh" sizes="(max-width: 1060px) 100vw, 1400px" position="center 40%" />
       <div className="hero-copy">
         <span className="pill"><span className="live-dot" /> Banter Now · live</span>
-        <h2>Is AI helping or damaging African art?</h2>
+        <h2>Is AI going to take our jobs?</h2>
         <p>Tunde, Kwame and Zuri are talking right now. Twenty minutes, equal seats, nothing recorded.</p>
         <div className="hero-actions">
           <Link className="join" href="/banter/now/ai-art">Join the conversation</Link>

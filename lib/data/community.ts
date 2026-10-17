@@ -44,13 +44,13 @@ export type Room = {
 };
 
 export const ROOMS: Room[] = [
-  { id: "home", title: "What does “home” mean in African art?", host: "nandi", when: "Tonight · 19:30", status: "soon", blurb: "A quiet, six-person conversation. Bring one work, place or memory that means home to you.", seated: ["nandi", "kwame", "leila"], photo: "frameWall", tag: "Identity" },
-  { id: "photography-memory", title: "Photography and memory", host: "wanjiru", when: "Live now", status: "live", blurb: "What does a photograph keep that a memory can't? We start from one picture each.", seated: ["wanjiru", "zuri", "efua", "tunde", "thandi"], photo: "photoAlbum", tag: "Photography" },
-  { id: "women-fashion", title: "Women redefining African fashion", host: "fatou", when: "Thu · 18:00", status: "later", blurb: "Designers, stylists and wearers on who gets to define what African fashion looks like.", seated: ["fatou", "ayo", "wanjiru", "chidi"], photo: "kenteVest", tag: "Fashion" },
-  { id: "benin-bronze", title: "The future of Benin Bronze", host: "efua", when: "Fri · 20:00", status: "later", blurb: "Return, restitution and the living craft of bronze casting today. Students especially welcome.", seated: ["efua", "zuri"], photo: "bronzeHead", tag: "History" },
-  { id: "masks", title: "The spirituality of masks", host: "tunde", when: "Sat · 17:00", status: "later", blurb: "When is a mask an object, and when is it something else? A room for careful listening.", seated: ["tunde"], photo: "tribalCarving", tag: "Tradition" },
-  { id: "indigo-memory", title: "Indigo, memory and cloth", host: "ayo", when: "Mon · 19:00", status: "later", blurb: "What a length of dyed cloth remembers that a photograph can't. Bring a cloth, or a story about one.", seated: ["ayo", "efua", "chidi"], photo: "textileHang", tag: "Textiles" },
-  { id: "collecting", title: "The business of collecting", host: "zuri", when: "Sun · 16:00", status: "later", blurb: "First purchase, first fear. Collectors, curators and artists trade honest numbers.", seated: ["zuri", "leila", "kwame"], photo: "galleryHall", tag: "Collecting" },
+  { id: "home", title: "What does “home” mean to you now?", host: "nandi", when: "Tonight · 19:30", status: "soon", blurb: "A quiet, six-person conversation. Bring one place, smell or memory that means home.", seated: ["nandi", "kwame", "leila"], photo: "talkMugs", tag: "Belonging" },
+  { id: "photography-memory", title: "Starting over in a new city", host: "wanjiru", when: "Live now", status: "live", blurb: "Moved recently? We share what helped, what didn't, and who we wish we'd met sooner.", seated: ["wanjiru", "zuri", "efua", "tunde", "thandi"], photo: "talkGroup", tag: "Life" },
+  { id: "women-fashion", title: "Women building businesses", host: "fatou", when: "Thu · 18:00", status: "later", blurb: "Founders, freelancers and side-hustlers trade honest numbers and first-year lessons.", seated: ["fatou", "leila", "wanjiru", "chidi"], photo: "talkCafe", tag: "Business" },
+  { id: "benin-bronze", title: "Burnout, honestly", host: "ayo", when: "Fri · 20:00", status: "later", blurb: "Nurses, teachers, engineers and parents on what tired really feels like, and what helps.", seated: ["ayo", "efua"], photo: "calmBench", tag: "Wellbeing" },
+  { id: "masks", title: "Is it okay to quit?", host: "tunde", when: "Sat · 17:00", status: "later", blurb: "Jobs, courses, teams, relationships. A room for careful listening, not advice.", seated: ["tunde"], photo: "talkTwo", tag: "Career" },
+  { id: "indigo-memory", title: "Learning a new skill after 30", host: "thandi", when: "Mon · 19:00", status: "later", blurb: "Coding, pottery, a language, an instrument. Bring what you're learning and where you're stuck.", seated: ["thandi", "efua", "chidi"], photo: "studioBusy", tag: "Growth" },
+  { id: "collecting", title: "Money talk: first salaries and first savings", host: "zuri", when: "Sun · 16:00", status: "later", blurb: "No shame, real numbers. Students, professionals and parents compare notes.", seated: ["zuri", "leila", "kwame"], photo: "talkLaugh", tag: "Money" },
 ];
 
 /* ---------- Creative Circles ---------- */
@@ -66,16 +66,16 @@ export type Circle = {
 };
 
 export const CIRCLES: Circle[] = [
-  { id: "african-fashion", name: "African Fashion", blurb: "Designers, stylists and cloth-makers trading process and critique.", members: 612, active: 24, photo: "kenteVest", starter: "How are you sourcing hand-woven cloth without pricing yourself out?" },
+  { id: "african-fashion", name: "Founders Circle", blurb: "Early-stage founders sharing wins, numbers and the hard weeks.", members: 612, active: 24, photo: "talkCafe", starter: "What's one thing you wish you'd known before raising money?" },
   { id: "photography", name: "Photography", blurb: "Street, studio and family archive. Weekly one-image critique.", members: 388, active: 15, photo: "gallerySeated", starter: "One image, no caption: what do you see first?" },
-  { id: "digital-art", name: "Digital Art", blurb: "Illustration, collage and motion rooted in African visual language.", members: 274, active: 11, photo: "waxPrint", starter: "Sharing a wax-print collage study. Where does it lose the pattern?" },
-  { id: "textiles", name: "Textiles & Adire", blurb: "Indigo, resist-dye, weaving and embroidery. Slow work, shared.", members: 416, active: 12, photo: "circleInner", joined: true, starter: "Second dye bath came out greener than expected. Anyone seen this with cassava resist?" },
-  { id: "ceramics", name: "Ceramics", blurb: "Wheel, hand-building, firing and glazes from local clay.", members: 233, active: 9, photo: "clayHands", starter: "Bisque firing schedule for a small gas kiln: sharing what worked." },
-  { id: "collectors", name: "Collectors", blurb: "First-time and seasoned collectors on buying with care.", members: 501, active: 18, photo: "circleIndigo", joined: true, starter: "What did you regret NOT buying?" },
-  { id: "curators", name: "Curators", blurb: "Exhibition thinking, open calls and honest studio-visit notes.", members: 142, active: 6, photo: "galleryHall", starter: "How do you write a wall text that doesn't explain too much?" },
-  { id: "diaspora", name: "Diaspora", blurb: "Belonging, return and what home looks like from far away.", members: 447, active: 20, photo: "bronzeHead", starter: "The object from home you keep in every apartment." },
-  { id: "young-artists", name: "Young Artists", blurb: "Students and first-decade artists. Gentle, direct and unpolished.", members: 359, active: 22, photo: "paintingDancers", starter: "First show. Ten things I'd tell anyone starting." },
-  { id: "traditional-arts", name: "Traditional Arts", blurb: "Carving, weaving, bronze and pottery: lineage and living practice.", members: 198, active: 7, photo: "carvedGroup", starter: "Learning from an elder: what did you have to unlearn?" },
+  { id: "digital-art", name: "Tech & Code", blurb: "Developers, designers and learners helping each other ship.", members: 274, active: 11, photo: "studioBusy", starter: "Stuck on a bug for two days. How do you ask for help without feeling stupid?" },
+  { id: "textiles", name: "New in the City", blurb: "Just moved? Meet people, find your spots and stop eating alone.", members: 416, active: 12, photo: "talkLaugh", joined: true, starter: "Where's the best place you've found to meet people that isn't a bar?" },
+  { id: "ceramics", name: "Health & Care Workers", blurb: "Nurses, doctors and carers looking after each other for once.", members: 233, active: 9, photo: "calmBench", starter: "How do you switch off after a hard shift?" },
+  { id: "collectors", name: "Book Club", blurb: "One book a month, honest opinions, and nobody judges if you didn't finish.", members: 501, active: 18, photo: "journalCoffee", joined: true, starter: "The book you'd hand a stranger who's having a hard year." },
+  { id: "curators", name: "Parents Together", blurb: "New and seasoned parents trading tips, sleep tricks and solidarity.", members: 142, active: 6, photo: "talkTwo", starter: "What's one thing about parenting nobody warned you about?" },
+  { id: "diaspora", name: "Diaspora", blurb: "Belonging, return and what home looks like from far away.", members: 447, active: 20, photo: "talkMugs", starter: "The object from home you keep in every apartment." },
+  { id: "young-artists", name: "Students & Grads", blurb: "Study groups, first jobs and figuring out what comes next.", members: 359, active: 22, photo: "talkYoung", starter: "First job interview next week. Ten things you'd tell me?" },
+  { id: "traditional-arts", name: "Creatives & Makers", blurb: "Artists, designers, musicians and makers sharing work in progress.", members: 198, active: 7, photo: "studioEasel", starter: "Show something unfinished you're proud of." },
 ];
 
 /* ---------- Shared creation ---------- */

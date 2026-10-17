@@ -25,13 +25,13 @@ const JOURNEY = [
 
 /** The member's live KinCircle, mid-journey. */
 const ACTIVE = {
-  name: "West African Markets",
+  name: "Weekend Coding Club",
   stage: 3,
   week: "Week 4 of 8",
   next: "Thursday · 18:00 · Presence Room",
-  prompt: "Bring one photograph and one trader's story you'd want remembered.",
+  prompt: "Plan one 45-minute lesson a teenager would actually enjoy.",
   people: ["wanjiru", "efua", "fatou", "nandi", "tunde"] as PersonId[],
-  done: ["Agreement signed by all 6", "12 of 20 interviews recorded", "Credit and ownership agreed"],
+  done: ["Agreement signed by all 6", "3 of 8 lessons planned", "Roles and safeguarding agreed"],
 };
 
 type Filter = "all" | "joined" | "open";
