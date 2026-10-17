@@ -7,7 +7,7 @@ _Last updated: 2026-10-17. Ideas and tasks to come back to, in rough priority or
 ### Broaden sample content beyond the art world
 - [x] Part 1: people, circles, rooms, Cliqs, Banters, Banter Now, home feed, introductions, KinMessage
 - [x] Part 2a: older feed posts, game copy, feed photos
-- [ ] Circle chat, circle activities, comments
+- [x] Circle chat, circle activities, comments
 - [ ] Stories and journals
 - [ ] Studio, Store, Shop: reframe for any maker or professional ("My space", "Marketplace")
 - [ ] Small copy: Create a room form, Companion, Wellbeing

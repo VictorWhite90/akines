@@ -20,47 +20,45 @@ export type Activity = {
 
 export const ACTIVITIES: Record<string, Activity[]> = {
   "african-fashion": [
-    { id: "af-market-walk", title: "Fabric market walk", when: "Sat · 10:00", where: "Balogun Market, Lagos", mode: "In person", blurb: "Sourcing trip with a few members who buy here every month. Bring cash and a trolley bag.", going: ["fatou", "ayo", "wanjiru"], photo: "textileRolls" },
-    { id: "af-pattern-cut", title: "Pattern-cutting meetup", when: "Wed · 18:30", where: "Video call", mode: "Virtual", blurb: "Bring a bodice block you're stuck on. We'll cut through it together, screen-share and all.", going: ["chidi", "fatou"], photo: "kenteVest" },
+    { id: "fo-pitch", title: "Pitch practice night", when: "Wed · 18:30", where: "Video call", mode: "Virtual", blurb: "Five minutes each, honest notes, no investors in the room.", going: ["leila", "kwame"], photo: "talkCafe" },
+    { id: "fo-cofounder", title: "Co-founder coffee", when: "Sat · 10:00", where: "Terra Café, Lagos", mode: "In person", blurb: "For anyone looking for, or tired of, a co-founder.", going: ["leila", "amara", "chidi"], photo: "talkMugs" },
   ],
-  photography: [
-    { id: "ph-golden-hour", title: "Golden-hour photo walk", when: "Sun · 17:15", where: "Meet at the old railway bridge", mode: "In person", blurb: "An hour of shooting, then coffee and a loose critique of whatever anyone got.", going: ["wanjiru", "zuri", "tunde"], photo: "galleryViewer" },
-    { id: "ph-print-swap", title: "Print & swap: family archives", when: "Sat · 14:00", where: "Community darkroom, 2nd floor", mode: "In person", blurb: "Bring a print from a family album. Swap it for one you didn't grow up with.", going: ["efua", "thandi"], photo: "photoAlbum" },
-    { id: "ph-contact-sheet", title: "Contact sheet review", when: "Thu · 19:00", where: "Video call", mode: "Virtual", blurb: "Share your unedited contact sheet, not just the keeper. We talk through the misses too.", going: ["zuri", "wanjiru", "nandi"], photo: "studioDim" },
+  "photography": [
+    { id: "ph-golden-hour", title: "Golden-hour photo walk", when: "Sun · 17:15", where: "Meet at the old railway bridge", mode: "In person", blurb: "An hour of shooting, then tea and one favourite frame each.", going: ["wanjiru", "zuri"], photo: "gallerySeated" },
+    { id: "ph-contact-sheet", title: "Photo review night", when: "Thu · 19:00", where: "Video call", mode: "Virtual", blurb: "Share your unedited set, not just the best one.", going: ["wanjiru", "efua"], photo: "photoAlbum" },
   ],
   "digital-art": [
-    { id: "da-collage-jam", title: "Collage jam night", when: "Fri · 20:00", where: "Video call", mode: "Virtual", blurb: "Ninety minutes, one shared mood board, no talking until the timer's up.", going: ["chidi", "nandi"], photo: "waxPrint" },
-    { id: "da-studio-visit", title: "Studio visit: motion & pattern", when: "Sat · 12:00", where: "Chidi's studio, Yaba", mode: "In person", blurb: "See a motion piece being rigged frame by frame. Small group, bring your laptop.", going: ["chidi", "wanjiru", "zuri"], photo: "studioBusy" },
+    { id: "tc-hack", title: "Saturday build session", when: "Sat · 11:00", where: "Video call", mode: "Virtual", blurb: "Bring a side project or a bug. We pair up for two hours.", going: ["kwame", "chidi"], photo: "studioBusy" },
+    { id: "tc-cv", title: "CV and portfolio swap", when: "Tue · 19:00", where: "Video call", mode: "Virtual", blurb: "Ten minutes each, screen-shared, kind but direct.", going: ["kwame", "amara"], photo: "journalOpen" },
   ],
-  textiles: [
-    { id: "tx-indigo-day", title: "Indigo dye day", when: "Sat · 09:00", where: "Ayo's backyard vat", mode: "In person", blurb: "A full day at the vat: resist-tying in the morning, dyeing after lunch. Wear clothes you don't mind staining.", going: ["ayo", "efua", "chidi"], photo: "textileHang" },
-    { id: "tx-weaving-circle", title: "Weaving circle", when: "Tue · 18:00", where: "The Loom Room, Surulere", mode: "In person", blurb: "Bring your own loom or borrow a lap one. We weave and talk, mostly in that order.", going: ["fatou", "ayo"], photo: "textileRolls" },
-    { id: "tx-adire-swap", title: "Adire swap & share", when: "Sun · 16:00", where: "Video call", mode: "Virtual", blurb: "Show one length of cloth and where it came from. No selling, just stories.", going: ["chidi", "efua", "ayo"], photo: "textileStack" },
+  "textiles": [
+    { id: "nc-supper", title: "Newcomers' supper", when: "Sun · 18:00", where: "Amara's place, Yaba", mode: "In person", blurb: "Bring a dish from wherever you're from. Ten seats.", going: ["amara", "zuri", "fatou"], photo: "talkCafe" },
+    { id: "nc-walk", title: "Saturday city walk", when: "Sat · 09:00", where: "Meet at Freedom Park", mode: "In person", blurb: "Two hours, a few favourite spots, and lunch after.", going: ["tunde", "chidi"], photo: "talkLaugh" },
+    { id: "nc-games", title: "Board games and suya", when: "Fri · 19:30", where: "The Hub, Ikeja", mode: "In person", blurb: "No experience needed. We teach every game.", going: ["ayo", "kwame"], photo: "talkYoung" },
   ],
-  ceramics: [
-    { id: "ce-glaze-test", title: "Glaze-testing Saturday", when: "Sat · 11:00", where: "Studio 4, the co-op kiln", mode: "In person", blurb: "Bring test tiles. We fire a shared load and compare notes once it's cool.", going: ["thandi", "leila"], photo: "clayWheelTop" },
-    { id: "ce-open-studio", title: "Wheel-throwing open studio", when: "Wed · 17:00", where: "Studio 4, the co-op kiln", mode: "In person", blurb: "Beginners welcome, wheels are shared. Come centre a lump of clay with company.", going: ["leila", "thandi", "zuri"], photo: "clayHands" },
-    { id: "ce-kiln-watch", title: "Kiln-opening watch party", when: "Fri · 19:00", where: "Video call", mode: "Virtual", blurb: "Live unloading of the bisque kiln, disasters and all. Comment your guesses first.", going: ["thandi", "leila"], photo: "clayBrown" },
+  "ceramics": [
+    { id: "hc-debrief", title: "After-shift debrief", when: "Thu · 21:00", where: "Video call", mode: "Virtual", blurb: "Thirty minutes to talk about the week. Cameras optional.", going: ["ayo", "nandi"], photo: "calmBench" },
+    { id: "hc-walk", title: "Early-morning walk", when: "Sun · 07:00", where: "Lekki Conservation Centre", mode: "In person", blurb: "Fresh air before the week starts again.", going: ["ayo", "thandi"], photo: "calmWater" },
   ],
-  collectors: [
-    { id: "cl-gallery-walk", title: "Gallery hall walk-through", when: "Sat · 15:00", where: "Meet at the main hall entrance", mode: "In person", blurb: "A slow, unhurried walk through the new group show, then drinks to argue about it.", going: ["zuri", "leila", "kwame"], photo: "galleryHall" },
-    { id: "cl-new-coffee", title: "New collectors' coffee", when: "Thu · 09:00", where: "Terra Café", mode: "In person", blurb: "For anyone who's bought fewer than five works. No question is too basic here.", going: ["kwame", "leila"], photo: "talkMugs" },
+  "collectors": [
+    { id: "bc-meet", title: "Monthly book night", when: "Thu · 19:00", where: "Terra Café", mode: "In person", blurb: "This month: a short novel. Come even if you didn't finish.", going: ["zuri", "efua", "amara"], photo: "journalCoffee" },
+    { id: "bc-swap", title: "Book swap Saturday", when: "Sat · 14:00", where: "Video call", mode: "Virtual", blurb: "Pitch one book in a minute; swap by post.", going: ["leila", "chidi"], photo: "journalOpen" },
   ],
-  curators: [
-    { id: "cu-studio-crawl", title: "Studio-visit crawl", when: "Sat · 13:00", where: "Three studios, Yaba to Surulere", mode: "In person", blurb: "Three back-to-back studio visits, twenty minutes each, then we compare shortlists.", going: ["efua", "zuri"], photo: "galleryTwo" },
-    { id: "cu-wall-text", title: "Wall-text writing workshop", when: "Tue · 18:00", where: "Video call", mode: "Virtual", blurb: "Bring a draft wall text. We cut it in half together and it's usually better for it.", going: ["efua", "zuri", "nandi"], photo: "journalWindow" },
+  "curators": [
+    { id: "pt-playdate", title: "Park play-date", when: "Sat · 10:00", where: "Ikoyi park", mode: "In person", blurb: "Kids play, parents finally talk.", going: ["thandi", "fatou"], photo: "talkTwo" },
+    { id: "pt-sleep", title: "Sleep tips swap", when: "Wed · 21:00", where: "Video call", mode: "Virtual", blurb: "For tired parents of under-fives. Pyjamas welcome.", going: ["thandi", "nandi"], photo: "calmBench" },
   ],
-  diaspora: [
-    { id: "di-dinner", title: "Home-cooked dinner & stories", when: "Sun · 18:00", where: "Nandi's place", mode: "In person", blurb: "Everyone brings a dish their family makes. We eat before we talk about why.", going: ["nandi", "kwame", "leila"], photo: "talkCafe" },
-    { id: "di-return", title: "Return journeys: a listening circle", when: "Wed · 19:30", where: "Video call", mode: "Virtual", blurb: "For anyone who's gone back, or is thinking about it. Mostly listening, gently facilitated.", going: ["nandi", "leila"], photo: "talkTwo" },
+  "diaspora": [
+    { id: "di-dinner", title: "Home-cooked dinner & stories", when: "Sun · 18:00", where: "Nandi's place", mode: "In person", blurb: "Everyone brings a dish their family makes.", going: ["nandi", "zuri", "leila"], photo: "talkCafe" },
+    { id: "di-return", title: "Return journeys: a listening circle", when: "Wed · 19:30", where: "Video call", mode: "Virtual", blurb: "For anyone who's gone back, or is thinking about it.", going: ["zuri", "efua"], photo: "talkMugs" },
   ],
   "young-artists": [
-    { id: "ya-critique-night", title: "First-show critique night", when: "Fri · 19:00", where: "The back room, Freedom Park", mode: "In person", blurb: "Bring documentation of your first show, real or upcoming. Kind, specific feedback only.", going: ["wanjiru", "chidi", "zuri"], photo: "talkLaugh" },
-    { id: "ya-portfolio", title: "Portfolio review morning", when: "Sat · 10:00", where: "Video call", mode: "Virtual", blurb: "Ten minutes each, screen-shared. We look at sequencing as much as the individual pieces.", going: ["wanjiru", "nandi"], photo: "journalOpen" },
+    { id: "sg-study", title: "Exam study group", when: "Mon · 18:00", where: "Video call", mode: "Virtual", blurb: "Two-hour focus sessions with breaks.", going: ["chidi", "thandi"], photo: "journalOpen" },
+    { id: "sg-interview", title: "Mock interview morning", when: "Sat · 10:00", where: "Video call", mode: "Virtual", blurb: "Practise with people who've hired before.", going: ["chidi", "leila", "kwame"], photo: "talkTwo" },
   ],
   "traditional-arts": [
-    { id: "ta-carving-day", title: "Elder & apprentice carving day", when: "Sat · 09:00", where: "Tunde's workshop", mode: "In person", blurb: "A whole day at the bench with an elder carver. Bring your own tools if you have them.", going: ["tunde", "efua"], photo: "carvedGroup" },
-    { id: "ta-mask-demo", title: "Mask-making demonstration", when: "Sun · 15:00", where: "Community hall, back room", mode: "In person", blurb: "Watch a mask carved start to finish, with time for questions between stages.", going: ["tunde"], photo: "tribalCarving" },
+    { id: "cm-wip", title: "Work-in-progress night", when: "Fri · 19:00", where: "The back room, Freedom Park", mode: "In person", blurb: "Show something unfinished. Get kind, honest notes.", going: ["wanjiru", "fatou"], photo: "studioEasel" },
+    { id: "cm-jam", title: "Open jam", when: "Sun · 16:00", where: "Community hall", mode: "In person", blurb: "Musicians, poets and anyone who wants to try.", going: ["tunde", "ayo"], photo: "talkLaugh" },
   ],
 };
 
