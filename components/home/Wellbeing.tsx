@@ -48,13 +48,13 @@ export function Breathing() {
   );
 }
 
-/* ---------- Creative burnout check ---------- */
+/* ---------- Burnout check ---------- */
 const QUESTIONS = [
-  "I feel drained after making, or after preparing work.",
+  "I feel drained after work, or before it even starts.",
   "I've struggled to start, even when I wanted to.",
-  "I've felt cut off from other artists or collectors.",
-  "I've worried about money or recognition more than the work itself.",
-  "I've doubted that my work is worth showing.",
+  "I've felt cut off from friends, family or the people I work with.",
+  "I've worried about money or what people think more than usual.",
+  "I've doubted that I'm good enough at what I do.",
 ];
 const SAFETY = "I've felt hopeless, or like I don't want to be here.";
 const OPTIONS = ["Not at all", "Some days", "Most days", "Nearly every day"];
@@ -69,7 +69,7 @@ export function BurnoutCheck() {
   const RESULTS = [
     { title: "You seem to be carrying this lightly", body: "Your answers don't suggest much strain right now. A small habit still helps: a two-minute pause after finishing something." },
     { title: "There are signs of strain", body: "A few of these have been showing up. Rest that isn't scrolling, a private journal page, and one conversation in a Presence Room can each help." },
-    { title: "This looks heavy, and you deserve support", body: "Several of these are showing up most days. Talking to a licensed therapist or art therapist could really help. That's a strength, not a failure." },
+    { title: "This looks heavy, and you deserve support", body: "Several of these are showing up most days. Talking to a licensed therapist or counsellor could really help. That's a strength, not a failure." },
   ];
 
   function set(q: number, v: number) {
@@ -90,7 +90,7 @@ export function BurnoutCheck() {
           </div>
         )}
         <div className="mt-5 flex flex-wrap gap-3">
-          <Button href="#care">See therapists & art therapists</Button>
+          <Button href="#care">See therapists & counsellors</Button>
           <Button variant="ghost" onClick={() => { setAnswers(Array(QUESTIONS.length + 1).fill(null)); setDone(false); }}>Start again</Button>
         </div>
         <p className="mt-5 text-xs text-mute">This is a reflection tool, not a medical assessment, and it can't diagnose anything. Your answers stay private and are never used for matching, ranking or ads.</p>
@@ -100,7 +100,7 @@ export function BurnoutCheck() {
 
   return (
     <div className="card p-7">
-      <p className="eyebrow text-clay-600">Creative burnout check</p>
+      <p className="eyebrow text-clay-600">Burnout check</p>
       <h3 className="font-display mt-1 text-[28px] leading-tight font-medium">How has the last month been?</h3>
       <p className="mt-2 text-sm text-mute">Six short questions. It helps you notice, and points to support if it would help.</p>
       <ol className="mt-6 space-y-6">

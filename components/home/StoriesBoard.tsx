@@ -8,12 +8,12 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { STORIES, type StoryKind } from "@/lib/data/stories";
 import { cn } from "@/lib/cn";
 
-const FILTERS: ("All" | StoryKind)[] = ["All", "Studio journal", "Collector reflection", "Curator's note", "Process story"];
+const FILTERS: ("All" | StoryKind)[] = ["All", "Life story", "Work story", "How I did it", "Community note"];
 const TAPE: Record<StoryKind, string> = {
-  "Studio journal": "bg-lime text-night",
-  "Collector reflection": "bg-clay-400 text-white",
-  "Curator's note": "bg-ink-900 text-paper-50",
-  "Process story": "bg-paper-50 text-night border border-line",
+  "Life story": "bg-lime text-night",
+  "Work story": "bg-clay-400 text-white",
+  "Community note": "bg-ink-900 text-paper-50",
+  "How I did it": "bg-paper-50 text-night border border-line",
 };
 /** Who replied to a story: reflections show people, never a tally of likes. */
 const REFLECTORS: PersonId[][] = [["ayo", "leila", "zuri"], ["kwame", "efua"], ["nandi", "thandi", "fatou", "amara"], ["tunde", "wanjiru"], ["chidi", "efua", "leila"], ["zuri", "nandi"], ["amara", "kwame", "thandi"]];

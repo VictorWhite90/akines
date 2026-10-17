@@ -13,15 +13,15 @@ export type Intent = {
 };
 
 export const INTENTS: Intent[] = [
-  { id: "inspiration", label: "I'm an artist looking for inspiration", headline: "Wander through other people's studios.", body: "Read this week's open journals: sketches, doubts and half-finished ideas from artists working in your medium.", cta: { label: "Read studio journals", href: "/journal" }, also: { label: "Visit a studio live", href: "/studios" }, photo: "studioDim" },
-  { id: "blocked", label: "I feel creatively blocked", headline: "Start smaller than a masterpiece.", body: "A two-minute breathing pause, a low-stakes prompt, and a way to check in on how you are, privately.", cta: { label: "Open Breathing Room", href: "/wellbeing" }, also: { label: "Take the burnout check", href: "/wellbeing#check" }, photo: "calmBench" },
-  { id: "heals", label: "I collect because art heals me", headline: "Your collection already has a story.", body: "Write about why you bought it and where it lives. Collector journals become part of the artwork's living history.", cta: { label: "Write a collector entry", href: "/journal?tab=collectors" }, also: { label: "See an artwork's legacy", href: "/stories/indigo-room" }, photo: "frameWall" },
-  { id: "identity", label: "I'm searching for my African identity", headline: "Sit with people asking the same question.", body: "The Diaspora circle meets in small rooms. Nobody needs the right answers, only an honest one.", cta: { label: "Join the Diaspora circle", href: "/circles/diaspora" }, also: { label: "Tonight's room on home", href: "/rooms/home" }, photo: "bronzeHead" },
-  { id: "lonely", label: "I'm lonely and enjoy discussing art", headline: "Six chairs. One conversation. Tonight.", body: "No audience, no recording, no followers. Take a seat in a Presence Room and just talk about what you see.", cta: { label: "Find a seat", href: "/rooms" }, also: { label: "Meet kindred people", href: "/kindred" }, photo: "talkTwo" },
-  { id: "artists", label: "I'm looking for African artists", headline: "Meet artists through their work in progress.", body: "Introductions come with a reason: the things you both noticed, made or kept. Not a wall of profiles.", cta: { label: "See who you'd click with", href: "/kindred" }, also: { label: "Browse creative circles", href: "/circles" }, photo: "galleryViewer" },
-  { id: "history", label: "I'm researching African history", headline: "Follow an object back through time.", body: "Every artwork keeps its provenance: makers, owners, exhibitions, and voices. The Companion reads alongside you.", cta: { label: "Explore artwork legacies", href: "/stories/indigo-room" }, also: { label: "Talk with an art historian", href: "/rooms" }, photo: "carvedRelief" },
-  { id: "fashion", label: "I'm interested in African fashion", headline: "Cut, cloth and the politics of dress.", body: "Designers, stylists and cloth-makers in one circle, trading process, fabric sources and honest critique.", cta: { label: "Enter African Fashion", href: "/circles/african-fashion" }, also: { label: "Women redefining fashion, a room", href: "/rooms" }, photo: "kenteVest" },
-  { id: "collaborators", label: "I'm looking for collaborators", headline: "Make something neither of you could make alone.", body: "Portfolio-first applications, roles and rights agreed up front, and a shared room for the work.", cta: { label: "Explore collaborations", href: "/collaborate" }, also: { label: "Answer an open call", href: "/collaborate#calls" }, photo: "textileStack" },
+  { id: "inspiration", label: "I want to see how others do their work", headline: "Look inside other people's working lives.", body: "Read this week's open journals: first tries, doubts and small wins from people in every line of work.", cta: { label: "Read work journals", href: "/journal?tab=work" }, also: { label: "Visit an Open door", href: "/studios" }, photo: "studioBusy" },
+  { id: "blocked", label: "I feel stuck or burnt out", headline: "Start smaller than a big plan.", body: "A two-minute breathing pause, a low-stakes prompt, and a way to check in on how you are, privately.", cta: { label: "Open Wellbeing", href: "/wellbeing" }, also: { label: "Take the burnout check", href: "/wellbeing#check" }, photo: "calmBench" },
+  { id: "heals", label: "I want to write about my life", headline: "Your life already has a story.", body: "Write about where you've been, what changed and who helped. Keep it private, or share it with your circles.", cta: { label: "Write a journal entry", href: "/journal?tab=life" }, also: { label: "Read members' stories", href: "/stories" }, photo: "journalPen" },
+  { id: "identity", label: "I'm far from home", headline: "Sit with people who understand.", body: "The Diaspora circle meets in small rooms. Nobody needs the right answers, only an honest one.", cta: { label: "Join the Diaspora circle", href: "/circles/diaspora" }, also: { label: "Tonight's room on home", href: "/rooms/home" }, photo: "kincircleHero" },
+  { id: "lonely", label: "I'm lonely and want to talk", headline: "Six chairs. One conversation. Tonight.", body: "No audience, no recording, no followers. Take a seat in a Presence Room and just talk.", cta: { label: "Find a seat", href: "/rooms" }, also: { label: "Meet kindred people", href: "/kindred" }, photo: "talkTwo" },
+  { id: "artists", label: "I want to meet people like me", headline: "Meet people through what you share.", body: "Introductions come with a reason: the things you both care about, do or have lived through. Not a wall of profiles.", cta: { label: "See who you'd click with", href: "/kindred" }, also: { label: "Browse KinCircles", href: "/circles" }, photo: "talkLaugh" },
+  { id: "history", label: "I want to learn something new", headline: "Learn from someone who's done it.", body: "Classes, mentors and members happy to share what they know. The Companion can help you find the right one.", cta: { label: "Browse classes", href: "/shop" }, also: { label: "Ask in a Presence Room", href: "/rooms" }, photo: "notebookWhite" },
+  { id: "fashion", label: "I'm starting a business", headline: "Build it with people a few steps ahead.", body: "Founders in one circle, trading honest advice on money, customers and the hard weeks.", cta: { label: "Enter Founders Circle", href: "/circles/african-fashion" }, also: { label: "Join a founders room", href: "/rooms" }, photo: "talkCafe" },
+  { id: "collaborators", label: "I'm looking for collaborators", headline: "Make something neither of you could make alone.", body: "Clear roles and fair credit agreed up front, and a shared room for the work.", cta: { label: "Explore collaborations", href: "/collaborate" }, also: { label: "See open calls", href: "/collaborate#calls" }, photo: "collabArt" },
 ];
 
 /* ---------- Art Presence Rooms ---------- */
@@ -53,7 +53,7 @@ export const ROOMS: Room[] = [
   { id: "collecting", title: "Money talk: first salaries and first savings", host: "zuri", when: "Sun · 16:00", status: "later", blurb: "No shame, real numbers. Students, professionals and parents compare notes.", seated: ["zuri", "leila", "kwame"], photo: "talkLaugh", tag: "Money" },
 ];
 
-/* ---------- Creative Circles ---------- */
+/* ---------- KinCircles ---------- */
 export type Circle = {
   id: string;
   name: string;
@@ -150,6 +150,6 @@ export const STUDIOS: StudioVisit[] = [
 /* ---------- Therapists (fictional profiles) ---------- */
 export const CARE_TEAM = [
   { name: "Dr Ifeoma Okeke", kind: "Licensed clinical psychologist", where: "Lagos · remote sessions", focus: "Burnout, anxiety, grief" },
-  { name: "Sade Bello, MA", kind: "Registered art therapist", where: "Ibadan · remote sessions", focus: "Creative blocks, expressive work" },
+  { name: "Sade Bello, MA", kind: "Registered art therapist", where: "Ibadan · remote sessions", focus: "Stress, change, expressive work" },
   { name: "Kofi Asare, LCSW", kind: "Licensed counsellor", where: "Accra · remote sessions", focus: "Loneliness, impostor feelings" },
 ];

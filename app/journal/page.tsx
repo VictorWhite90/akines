@@ -6,10 +6,10 @@ export const metadata: Metadata = { title: "Journals · Akines" };
 
 export default async function Journal({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const { tab } = await searchParams;
-  const initialTab = tab === "collectors" ? "collector" : tab === "artists" ? "artist" : "all";
+  const initialTab = tab === "life" ? "life" : tab === "work" ? "work" : "all";
   return (
     <div className="space-y-10">
-      <PageHeader eyebrow="Living journals" title={<>Witness the <em>journey.</em></>} sub="Artists share the sketch, the failed panel and the doubt. Collectors write why they bought, what changed and where it lives. Together they become the artwork's living history." />
+      <PageHeader eyebrow="Living journals" title={<>Witness the <em>journey.</em></>} sub="Write about the work you do and the life you live: the first try, the mistake, the doubt and the small win. Keep it private, or share it with your circles." />
       <JournalBoard initialTab={initialTab} />
     </div>
   );

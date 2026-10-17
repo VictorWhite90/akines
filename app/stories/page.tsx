@@ -7,7 +7,7 @@ import VoiceNote from "@/components/ui/VoiceNote";
 import { PEOPLE } from "@/lib/data/people";
 import { ARTWORK, STORIES } from "@/lib/data/stories";
 
-export const metadata: Metadata = { title: "Stories & legacy · Akines" };
+export const metadata: Metadata = { title: "Stories · Akines" };
 
 const WAVE = [10, 18, 28, 14, 34, 22, 40, 26, 14, 30, 42, 20, 12, 28, 36, 18, 10, 24, 32, 16, 12, 26, 38, 22, 14, 30, 20, 34, 16, 10, 24, 18, 28, 12, 20, 32];
 
@@ -18,13 +18,13 @@ export default function Stories() {
     <div className="space-y-20">
       {/* Header */}
       <header className="max-w-3xl">
-        <p className="ac-eyebrow">The story behind the work</p>
-        <h1 className="font-display mt-2 text-[44px] leading-[1.04] md:text-[56px]">People buy stories, <em>not objects.</em></h1>
-        <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-mute">Every artwork carries a voice note, the studio, what inspired it, what went wrong, and everyone who has owned it since.</p>
+        <p className="ac-eyebrow">Stories from members</p>
+        <h1 className="font-display mt-2 text-[44px] leading-[1.04] md:text-[56px]">Everyone has a story <em>worth telling.</em></h1>
+        <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-mute">Career changes, new cities, hard years and small wins, told by the people who lived them. Many come with a voice note.</p>
       </header>
 
       {/* The wall: one artwork, framed, with its museum label */}
-      <section aria-label="Featured artwork" className="relative overflow-hidden rounded-[30px] border border-[#d8d0c0] bg-[#e7dfcf] px-6 py-10 md:px-12 md:py-14">
+      <section aria-label="Featured story" className="relative overflow-hidden rounded-[30px] border border-[#d8d0c0] bg-[#e7dfcf] px-6 py-10 md:px-12 md:py-14">
         <span aria-hidden className="pointer-events-none absolute -top-10 -right-6 font-display text-[280px] leading-none text-night/[0.04] select-none">“</span>
         <div className="relative grid items-center gap-12 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-16">
           <Link href={`/stories/${ARTWORK.id}`} className="group relative mx-auto block w-full max-w-[420px] pb-8 lg:mx-0">
@@ -41,10 +41,10 @@ export default function Stories() {
           </Link>
 
           <div>
-            <p className="ac-eyebrow" style={{ color: "#ad5633" }}>Featured artwork story</p>
+            <p className="ac-eyebrow" style={{ color: "#ad5633" }}>Featured story</p>
             <h2 className="font-display mt-2 text-[40px] leading-[1.05] md:text-[52px]">{ARTWORK.title}</h2>
             <blockquote className="font-display mt-5 max-w-lg border-l-[3px] border-clay-500 pl-5 text-[22px] leading-snug text-[#39443f] italic">“{ARTWORK.challenges.split(". ")[0]}.”</blockquote>
-            <p className="mt-3 flex items-center gap-2.5 text-[13px] text-mute"><Avatar person={a} size={28} />{a.name}, on the day it nearly went under paint</p>
+            <p className="mt-3 flex items-center gap-2.5 text-[13px] text-mute"><Avatar person={a} size={28} />{a.name}, on the year she nearly closed the door</p>
             <div className="mt-6 max-w-lg"><VoiceNote length={ARTWORK.voice.length} caption={ARTWORK.voice.caption} /></div>
 
             <ol aria-label="Where it has been" className="relative mt-8 grid max-w-xl grid-cols-5 gap-2">
@@ -73,7 +73,7 @@ export default function Stories() {
             <p className="ac-eyebrow">In their own voice</p>
             <h2 className="font-display mt-1 text-[30px] leading-tight">Listen</h2>
           </div>
-          <p className="hidden max-w-xs text-right text-[13px] text-mute md:block">Two minutes each. Best with the studio light on.</p>
+          <p className="hidden max-w-xs text-right text-[13px] text-mute md:block">Two minutes each. Best with a cup of tea.</p>
         </div>
         <ul className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {listen.map((s, i) => {
@@ -109,9 +109,9 @@ export default function Stories() {
       </section>
 
       {/* Provenance strip */}
-      <section aria-label="Art legacy" className="on-dark rounded-[30px] bg-ink-900 px-6 py-10 text-paper-50 md:px-12">
-        <p className="ac-eyebrow" style={{ color: "var(--lime)" }}>Art Legacy</p>
-        <h2 className="font-display mt-2 max-w-2xl text-[32px] leading-[1.1] md:text-[40px]">Every owner adds a chapter. <em>Nothing is lost when it changes hands.</em></h2>
+      <section aria-label="Legacy" className="on-dark rounded-[30px] bg-ink-900 px-6 py-10 text-paper-50 md:px-12">
+        <p className="ac-eyebrow" style={{ color: "var(--lime)" }}>Legacy</p>
+        <h2 className="font-display mt-2 max-w-2xl text-[32px] leading-[1.1] md:text-[40px]">Every generation adds a chapter. <em>Nothing is lost when it's handed on.</em></h2>
         <ol className="scroll-x relative mt-9 flex snap-x gap-4 overflow-x-auto pb-3">
           {ARTWORK.legacy.map((l) => (
             <li key={l.year} className="relative w-[250px] shrink-0 snap-start rounded-[18px] border border-paper-50/15 bg-paper-50/[0.06] p-5">
@@ -123,7 +123,7 @@ export default function Stories() {
             </li>
           ))}
         </ol>
-        <Link href={`/stories/${ARTWORK.id}#legacy`} className="mt-4 inline-block rounded-full bg-lime px-5 py-2.5 text-[13px] font-bold text-night">See {ARTWORK.title}'s full legacy →</Link>
+        <Link href={`/stories/${ARTWORK.id}#legacy`} className="mt-4 inline-block rounded-full bg-lime px-5 py-2.5 text-[13px] font-bold text-night">See the full story of {ARTWORK.title} →</Link>
       </section>
     </div>
   );

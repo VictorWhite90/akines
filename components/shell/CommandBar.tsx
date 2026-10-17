@@ -69,7 +69,7 @@ export default function CommandBar({ onIntent, onCompanion }: { onIntent: () => 
         )}
       </div>
 
-      <button className="nx-icon" aria-label="Ask the Creative Companion" title="Creative Companion" onClick={onCompanion}>✦</button>
+      <button className="nx-icon" aria-label="Ask the Akines Companion" title="Akines Companion" onClick={onCompanion}>✦</button>
       <ThemeToggle />
       <button className="nx-icon" aria-label="Notifications" title="Notifications">
         <Notification size={20} color="currentColor" />

@@ -1,7 +1,7 @@
 import type { PhotoKey } from "./images";
 import type { PersonId } from "./people";
 
-export type StoryKind = "Studio journal" | "Collector reflection" | "Curator's note" | "Process story";
+export type StoryKind = "Work story" | "Life story" | "Community note" | "How I did it";
 
 export type Story = {
   id: string;
@@ -16,77 +16,77 @@ export type Story = {
 };
 
 export const STORIES: Story[] = [
-  { id: "indigo-room", kind: "Studio journal", title: "I almost painted over this", excerpt: "A work about my grandmother, indigo cloth, and the things families leave unsaid.", by: "kwame", photo: "paintingHand", voice: "1:42", reflections: 24, read: "6 min" },
-  { id: "breakfast-question", kind: "Collector reflection", title: "The painting that made my daughter ask", excerpt: "One question at breakfast changed how our family speaks about identity.", by: "leila", photo: "exhibitionAfrican", reflections: 18, read: "4 min" },
-  { id: "five-voices", kind: "Curator's note", title: "Five voices reshaping portraiture", excerpt: "Beyond the gaze: a personal walk through the artists changing the conversation.", by: "zuri", photo: "galleryModern", reflections: 37, read: "9 min" },
-  { id: "clay-remembers", kind: "Process story", title: "How clay remembers hands", excerpt: "Twelve years of throwing the same bowl, and what the last one taught me.", by: "thandi", photo: "clayWet", voice: "2:08", reflections: 12, read: "5 min" },
-  { id: "mask-photograph", kind: "Process story", title: "The mask I was allowed to photograph", excerpt: "Three visits, one conversation with the custodians, and the frame I didn't take.", by: "wanjiru", photo: "tribalCarving", reflections: 15, read: "7 min" },
-  { id: "mothers-cloth", kind: "Studio journal", title: "What my mother's cloth taught me about patience", excerpt: "Seven dye baths, one green surprise, and an afternoon of watching the light change it.", by: "ayo", photo: "textileHang", voice: "2:31", reflections: 21, read: "5 min" },
-  { id: "first-purchase", kind: "Collector reflection", title: "Buying my first work, slowly", excerpt: "Eleven months of instalments and the morning it finally came off the wall's waiting list.", by: "chidi", photo: "gallerySeated", reflections: 9, read: "4 min" },
+  { id: "indigo-room", kind: "Life story", title: "The kitchen I almost sold", excerpt: "My grandmother's twelve-seat kitchen, three generations, and the year I nearly let it go.", by: "fatou", photo: "talkCafe", voice: "1:42", reflections: 24, read: "6 min" },
+  { id: "breakfast-question", kind: "Life story", title: "The question my daughter asked at breakfast", excerpt: "Why I left a safe job, explained to a nine-year-old over cold toast.", by: "leila", photo: "journalCoffee", reflections: 18, read: "4 min" },
+  { id: "five-voices", kind: "Community note", title: "Five people who made London feel like home", excerpt: "A thank-you to the strangers who turned a new city into a neighbourhood.", by: "zuri", photo: "talkGroup", reflections: 37, read: "9 min" },
+  { id: "clay-remembers", kind: "Work story", title: "Twelve years in the same classroom", excerpt: "What teaching the same lesson every September taught me about patience.", by: "thandi", photo: "talkYoung", voice: "2:08", reflections: 12, read: "5 min" },
+  { id: "mask-photograph", kind: "Work story", title: "The photo I didn't take", excerpt: "Three visits, one conversation with a family, and the picture I left alone.", by: "wanjiru", photo: "journalWindow", reflections: 15, read: "7 min" },
+  { id: "mothers-cloth", kind: "How I did it", title: "Surviving my first year of night shifts", excerpt: "Sleep, food, friends and the small rules that kept me well on the ward.", by: "ayo", photo: "calmBench", voice: "2:31", reflections: 21, read: "5 min" },
+  { id: "first-purchase", kind: "How I did it", title: "Saving for my first laptop, slowly", excerpt: "Eleven months of small savings, and the morning I finally wrote my first line of code on it.", by: "chidi", photo: "notebookWhite", reflections: 9, read: "4 min" },
 ];
 
-/* ---------- One artwork, told in full ("Story behind every artwork" + "Art Legacy") ---------- */
+/* ---------- One story, told in full, with every chapter of its history ---------- */
 export const ARTWORK = {
   id: "indigo-room",
-  title: "Indigo Room",
-  artist: "kwame" as PersonId,
-  medium: "Oil and indigo pigment on linen",
-  size: "90 × 120 cm",
-  year: 2024,
-  price: "$1,900",
-  photo: "paintingWoman" as PhotoKey,
-  voice: { length: "1:42", caption: "Kwame on the day he almost painted over it" },
-  inspiration: "My grandmother dyed cloth in a yard behind her house. I remember the smell before I remember her face. This painting is the room I keep returning to in my head, not the room as it was.",
-  challenges: "The third layer killed it. Everything went flat and polite. For two weeks I wouldn't look at it. I turned it to the wall and painted something easier.",
-  meaning: "It taught me that finished isn't the same as true. I scraped back to the second layer and left the ruin showing. That's the painting now.",
-  music: { title: "Juju on my grandmother's old cassette", note: "Played on repeat through the whole third layer." },
-  poem: ["The cloth keeps the hand", "that pressed it into the dye,", "the way a name keeps a mouth", "long after the mouth is quiet."],
-  sketches: ["studioEasel", "brushes", "paintingHand", "studioDim"] as PhotoKey[],
+  title: "The Blue Door",
+  artist: "fatou" as PersonId,
+  medium: "A twelve-seat family kitchen",
+  size: "Médina, Dakar",
+  year: 1987,
+  price: "$25",
+  photo: "talkCafe" as PhotoKey,
+  voice: { length: "1:42", caption: "Fatou on the year she almost sold it" },
+  inspiration: "My grandmother opened a kitchen behind a blue door so the women on our street had somewhere to eat and talk after the market. I remember the smell of the thieboudienne before I remember her face. I cook there now.",
+  challenges: "In 2022 the rent doubled and I nearly sold it. For two months I stopped answering the door. I told myself a small kitchen couldn't survive in a city that was changing so fast.",
+  meaning: "It taught me that keeping something going isn't the same as keeping it the same. I cut the menu to three dishes, opened a Sunday supper club and started teaching. The kitchen is busier now than it has ever been.",
+  music: { title: "Youssou N'Dour on my grandmother's radio", note: "It still plays every morning while the rice is washed." },
+  poem: ["The pot keeps the hand", "that stirred it every morning,", "the way a street keeps a name", "long after the sign is gone."],
+  sketches: ["journalCoffee", "talkMugs", "talkLaugh", "kincircleHero"] as PhotoKey[],
   evolution: [
-    { step: "Sketch", note: "Charcoal study from memory: the yard, the poles, the cloth." },
-    { step: "First layer", note: "Warm ground and indigo washes. Confident, too confident." },
-    { step: "The third layer", note: "Everything went flat. I turned it to the wall." },
-    { step: "Scraped back", note: "Found the second layer underneath. Kept the damage." },
+    { step: "The start", note: "My grandmother's six stools and one pot, for the market women." },
+    { step: "Growing", note: "My mother added a second room and a lunch menu." },
+    { step: "The hard year", note: "The rent doubled. I nearly closed the door." },
+    { step: "Starting again", note: "Three dishes, a supper club and cooking classes." },
   ],
   legacy: [
-    { year: "Mar 2024", title: "Made", place: "Accra, studio at Osu", note: "Begun from a charcoal sketch.", who: "Kwame Mensah" },
-    { year: "Nov 2024", title: "First shown", place: "“Cloth & Memory”, Accra group show", note: "Hung between two textile works.", who: "Nandi Moyo (curator)" },
-    { year: "Feb 2025", title: "Acquired", place: "Casablanca", note: "“I bought it because I couldn't stop arguing with it.”", who: "Leila Benali" },
-    { year: "Sep 2025", title: "Shortlisted", place: "Emerging Voices Prize", note: "One of twelve works chosen from 480.", who: "Prize jury" },
-    { year: "Today", title: "At home", place: "A hallway in Casablanca", note: "Her daughter now asks about it every morning.", who: "Leila's reflection" },
+    { year: "1987", title: "Opened", place: "Médina, Dakar", note: "Six stools behind a blue door.", who: "Awa Diop, grandmother" },
+    { year: "2004", title: "Grew", place: "The room next door", note: "A second room and a proper lunch menu.", who: "Mariama Diop, mother" },
+    { year: "2019", title: "Handed on", place: "Dakar", note: "“Keep the door blue. Everything else is yours to change.”", who: "Fatou Diop" },
+    { year: "2022", title: "Nearly sold", place: "Dakar", note: "The rent doubled. Neighbours raised a month's rent between them.", who: "The street" },
+    { year: "Today", title: "Full again", place: "Suppers, classes, regulars", note: "Members from three cities have eaten there this year.", who: "Akines members" },
   ],
 };
 
-/** Short bodies for the stories that don't have a full artwork page. */
+/** Short bodies for the stories that don't have a full page. */
 export const STORY_BODY: Record<string, string[]> = {
   "mask-photograph": [
-    "I asked three times before anyone answered. The first visit was only to be seen; I left my camera in the car.",
-    "The custodians said I could photograph the mask, but not on the day it was worn. I could photograph the room it rests in, and the hands that keep it.",
-    "The frame I didn't take is the one I think about most. Some pictures are better kept as a promise.",
+    "I asked three times before the family said yes. The first visit was only to be seen; I left my camera in the car.",
+    "They said I could photograph the house, the kitchen and the children playing, but not their grandfather's last week. I could photograph the people who looked after him.",
+    "The picture I didn't take is the one I think about most. Some moments are better kept as a promise.",
   ],
   "mothers-cloth": [
-    "My mother dyed cloth in a yard behind our house. I remember the smell before I remember her face.",
-    "Seven baths in, the green came out stronger than I'd ever mixed. I'd planned to be annoyed. Instead I hung it in the yard and watched the light change it for an hour.",
-    "Patience isn't waiting. It's staying interested while the cloth decides.",
+    "My first month of night shifts, I lived on biscuits and coffee and slept through every phone call from my mother.",
+    "By the third month I had rules: one proper meal before the shift, curtains that block the sun, and one friend I called every Sunday no matter how tired I was.",
+    "The job didn't get easier. I got better at looking after the person doing it.",
   ],
   "first-purchase": [
-    "I couldn't afford it, so I asked whether I could pay over eleven months. The artist said yes before I'd finished the sentence.",
-    "Every instalment felt like a small conversation with the painting. By the last one I knew it better than I know most people.",
-    "It arrived on a Thursday. I hung it, stepped back, and then sat on the floor for a long time.",
+    "I couldn't afford a laptop, so I put a little aside every week for eleven months. Some weeks it was the price of a bus fare.",
+    "Every saving felt like a small promise to myself. By the end I'd planned every project I wanted to build.",
+    "It arrived on a Thursday. I opened it, wrote my first line of code, and then sat on the floor for a long time.",
   ],
   "breakfast-question": [
-    "I bought the painting for its colours. That was the honest reason. It hangs in our hallway, and one morning my daughter stopped on her way to school and asked, “Who is she waiting for?”",
-    "I had no answer. I'd been walking past her for months. We stood there until she was late, and it turned into the longest conversation we'd had about who we are and where the women in our family come from.",
-    "The artist wrote to me afterwards, and told me the woman isn't waiting for anyone. But she let my daughter keep her version.",
+    "I left a safe job to start a company. That was the honest reason I was tired all the time. One morning my daughter looked up from her toast and asked, “Are we poor now?”",
+    "I had no quick answer. We sat there until she was late for school, and it turned into the longest conversation we'd had about money, work and why I wanted to build something of my own.",
+    "She now asks how the company is doing every Friday. Some weeks her question is the hardest board meeting I have.",
   ],
   "five-voices": [
-    "Portraiture in Africa has never been one thing. It's the studio photograph and the commissioned oil, the passport picture and the memorial cloth.",
-    "These five artists are changing the terms: who looks, who is looked at, and who gets to say when the picture is finished.",
-    "What they share isn't style. It's that each of them has made a portrait in which the sitter looks back and isn't in a hurry.",
+    "Moving to London, I knew one person and the way to the station. Home felt very far away.",
+    "These five people changed that: a neighbour who left soup on my step, a barber who remembered my name, a pastor, a bus driver and a woman from my mother's town.",
+    "None of them did anything big. Each of them made a little room for me, and together that became a home.",
   ],
   "clay-remembers": [
-    "I've thrown the same bowl for twelve years. It's a simple shape: a wide mouth and a low foot. People say it's boring, and they're right, and that's the point.",
-    "Clay remembers everything you do to it. Every hurried pull, every doubt. You can see a bad week in a bowl.",
-    "The last bowl I made this month has no memory of anger in it. That took twelve years to learn, and it's the only thing I'm proud of.",
+    "I've taught the same lesson on fractions every September for twelve years. People say that must be boring, and some years it was.",
+    "Children remember everything you bring into the room. Every hurried explanation, every bad mood. You can see a bad week in a class.",
+    "This year a girl who'd said she hated maths stayed behind to ask for harder questions. That took twelve years to earn, and it's the thing I'm proudest of.",
   ],
 };

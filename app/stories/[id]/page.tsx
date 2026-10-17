@@ -46,7 +46,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
       <section className="grid gap-8 lg:grid-cols-12">
         <Photo name={A.photo} ratio="4/5" sizes="(max-width: 1024px) 100vw, 480px" priority position="center 15%" className="rounded-[28px] lg:col-span-5" />
         <div className="flex flex-col lg:col-span-7">
-          <Chip tone="clay" className="self-start">Story behind the artwork</Chip>
+          <Chip tone="clay" className="self-start">The full story</Chip>
           <h1 className="font-display mt-4 text-[52px] leading-none font-medium md:text-[72px]">{A.title}</h1>
           <div className="mt-4 flex items-center gap-3"><Avatar person={by} size={44} /><p className="text-[15px]"><b className="font-semibold">{by.name}</b> · {by.role}, {by.city}</p></div>
           <p className="mt-2 text-sm text-mute">{A.medium} · {A.size} · {A.year}</p>
@@ -54,7 +54,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
           <div className="mt-6 space-y-5">
             <div><p className="eyebrow text-clay-600">What inspired it</p><p className="font-display mt-1 text-[22px] leading-snug">{A.inspiration}</p></div>
           </div>
-          <div className="mt-auto flex flex-wrap items-center gap-4 pt-8"><Button href="/shop/indigo-room" size="lg" variant="clay">Acquire this work · {A.price}</Button><span className="text-sm text-mute">You'd inherit its story, too.</span></div>
+          <div className="mt-auto flex flex-wrap items-center gap-4 pt-8"><Button href="/shop/jollof-box" size="lg" variant="clay">Book a supper · {A.price}</Button><span className="text-sm text-mute">You'd be part of its story, too.</span></div>
         </div>
       </section>
 
@@ -64,8 +64,8 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
       </section>
 
       <section aria-label="Evolution" className="pattern-kuba rounded-[28px] border border-line bg-paper-200/70 p-7 md:p-10">
-        <p className="eyebrow text-clay-600">The evolution</p>
-        <h2 className="font-display mt-1 text-[32px] font-medium">Sketch to finished, failures included</h2>
+        <p className="eyebrow text-clay-600">How it changed</p>
+        <h2 className="font-display mt-1 text-[32px] font-medium">From the start to today, hard years included</h2>
         <div className="mt-7 grid gap-5 md:grid-cols-4">
           {A.evolution.map((e, i) => (
             <figure key={e.step} className="rounded-2xl bg-paper-50 p-3 shadow-soft">
@@ -77,13 +77,13 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
       </section>
 
       <section className="grid gap-6 md:grid-cols-2" aria-label="Music and poem">
-        <div className="pattern-adire on-dark rounded-[24px] bg-ink-900 p-7 text-paper-50"><p className="eyebrow flex items-center gap-2 text-ochre-300"><span aria-hidden>♪</span>The music that inspired it</p><p className="font-display mt-3 text-[26px] leading-tight">{A.music.title}</p><p className="mt-2 text-paper-100/80">{A.music.note}</p></div>
+        <div className="pattern-adire on-dark rounded-[24px] bg-ink-900 p-7 text-paper-50"><p className="eyebrow flex items-center gap-2 text-ochre-300"><span aria-hidden>♪</span>The music that goes with it</p><p className="font-display mt-3 text-[26px] leading-tight">{A.music.title}</p><p className="mt-2 text-paper-100/80">{A.music.note}</p></div>
         <div className="card p-7"><p className="eyebrow flex items-center gap-2 text-clay-600"><span aria-hidden>✎</span>The poem behind it</p><p className="font-display mt-3 text-[24px] leading-snug italic">{A.poem.map((l) => <span key={l} className="block">{l}</span>)}</p></div>
       </section>
 
-      <section id="legacy" aria-label="Art Legacy" className="scroll-mt-28">
-        <p className="eyebrow text-clay-600">Art Legacy</p>
-        <h2 className="font-display mt-1 max-w-2xl text-[34px] leading-[1.1] font-medium md:text-[44px]">Who made it, who owned it, where it travelled, <em>and what they felt.</em></h2>
+      <section id="legacy" aria-label="Legacy" className="scroll-mt-28">
+        <p className="eyebrow text-clay-600">Legacy</p>
+        <h2 className="font-display mt-1 max-w-2xl text-[34px] leading-[1.1] font-medium md:text-[44px]">Who started it, who kept it going, <em>and what they felt.</em></h2>
         <ol className="relative mt-8 space-y-7 border-l-2 border-dashed border-ink-200 pl-8 md:ml-4">
           {A.legacy.map((l, i) => (
             <li key={l.year} className="relative animate-rise" style={{ animationDelay: `${i * 70}ms` }}>
@@ -97,7 +97,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
             </li>
           ))}
         </ol>
-        <p className="mt-8 max-w-xl text-[15px] text-mute">The next owner inherits more than the canvas. They inherit every entry above, and can add their own.</p>
+        <p className="mt-8 max-w-xl text-[15px] text-mute">Whoever carries it next inherits every chapter above, and can add their own.</p>
       </section>
     </article>
   );

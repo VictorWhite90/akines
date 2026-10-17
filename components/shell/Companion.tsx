@@ -7,32 +7,30 @@ import { cn } from "@/lib/cn";
 
 type Msg = { from: "me" | "ai"; text: string; link?: { href: string; label: string } };
 
-const SUGGESTIONS = ["What is adire?", "Help me price my first ceramics", "Tell me about the Benin Bronzes", "I feel stuck and a bit flat", "How do I plan a small group show?"];
+const SUGGESTIONS = ["Help me break the ice with someone new", "Which circle should I join?", "How do I price my service?", "I feel stuck and a bit flat", "Plan a small get-together for me"];
 
-/** Prototype replies. In production these come from the Companion model trained on African art knowledge. */
+/** Prototype replies. In production these come from the Companion model. */
 function reply(input: string): Msg {
   const q = input.toLowerCase();
   if (/(stuck|block|burn|anxious|anxiety|sad|lonely|tired|overwhelm|grief|flat|hopeless)/.test(q))
     return {
       from: "ai",
-      text: "That sounds heavy, and it's a very common place for makers to be. I can't diagnose anything, but I can help you reflect. A two-minute breathing pause or a private mood check-in often loosens things. If this has been going on for a while, a licensed therapist or art therapist can genuinely help, and I can show you some. If you ever feel you might be in danger, please contact local emergency services.",
+      text: "That sounds heavy, and it's a very common place to be. I can't diagnose anything, but I can help you reflect. A two-minute breathing pause or a private mood check-in often loosens things. If this has been going on for a while, a licensed professional can help, and I can show you where to find one.",
       link: { href: "/wellbeing", label: "Open Breathing Room" },
     };
-  if (/(adire|indigo|resist)/.test(q))
-    return { from: "ai", text: "Adire is Yoruba resist-dyed indigo cloth. Makers block the dye with cassava paste (eleko), or tie (oniko) or stitch (alabere) the cloth before dipping it. Ibadan and Abeokuta are historic centres. Want me to find members in Kindred who work with it?", link: { href: "/kindred", label: "See kindred people" } };
-  if (/(benin|bronze)/.test(q))
-    return { from: "ai", text: "The Benin Bronzes are brass and bronze plaques and sculptures made for the Edo court at Benin City, cast by the lost-wax method. Many were taken in 1897, and their return is an active, still-changing conversation. There's a room on their future this Friday.", link: { href: "/rooms", label: "See the room" } };
-  if (/(pric|cost|sell|worth)/.test(q))
-    return { from: "ai", text: "A fair first pass: materials plus your hours at a fair rate, then a check against peers at a similar career stage, kept consistent by size. Tell me the medium, size and time and I'll sketch a range. This is guidance, not a valuation." };
-  if (/(exhibit|show|gallery|curat)/.test(q))
-    return { from: "ai", text: "Start from the idea, not the venue: three to six works that talk to each other, a one-paragraph statement, and a budget with a buffer. Then look for open calls or a small space. Curators in the Curators circle are happy to give a first read.", link: { href: "/collaborate#calls", label: "Browse open calls" } };
-  if (/(mask|sacred|ritual)/.test(q))
-    return { from: "ai", text: "Masks can be ritual objects, performance regalia and art at once. What's appropriate to show or photograph depends on the community that holds them. It's worth asking the custodians before you display or sell one." };
-  return { from: "ai", text: "Tell me a little more. I can help with African art history, materials and symbolism, exhibition planning, pricing guidance, collecting, or how you're feeling about your work today." };
+  if (/(ice|new|hello|start a conversation|talk to)/.test(q))
+    return { from: "ai", text: "Start with something you genuinely want to know, not small talk. Their space says what they're working on, so ask about that, or share one thing you have in common. A Banter or a short voice note often feels less awkward than a long message.", link: { href: "/kindred", label: "See who you might like to meet" } };
+  if (/(circle|join|community|group)/.test(q))
+    return { from: "ai", text: "Pick the circle that matches what you want right now: New in the City to meet people, Founders or Tech & Code for work, Parents Together or Book Club for life. You can join two and see which one feels like yours.", link: { href: "/circles", label: "Browse circles" } };
+  if (/(pric|cost|sell|worth|charge)/.test(q))
+    return { from: "ai", text: "A fair first pass: your time at a fair hourly rate, plus materials or costs, then a check against people doing similar work locally. Start a little lower for your first three clients and ask for honest feedback. This is guidance, not financial advice." };
+  if (/(event|get-together|party|meet ?up|plan)/.test(q))
+    return { from: "ai", text: "Keep it small: six to ten people, one clear reason to come, and a simple first activity so nobody has to perform. A game like Two truths and a story works well for strangers.", link: { href: "/play", label: "Find a game for it" } };
+  return { from: "ai", text: "Tell me a little more. I can help you meet the right people, find a circle, plan a get-together, price your work, or think through how you're feeling today." };
 }
 
 export default function Companion({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [msgs, setMsgs] = useState<Msg[]>([{ from: "ai", text: "Hello Amara. I'm your Creative Companion. Ask me about a technique, a tradition, or a stuck feeling. I'll say when I'm unsure." }]);
+  const [msgs, setMsgs] = useState<Msg[]>([{ from: "ai", text: "Hello Amara. I'm your Akines Companion. Ask me who to meet, what to join, or about a stuck feeling. I'll say when I'm unsure." }]);
   const [draft, setDraft] = useState("");
   const [thinking, setThinking] = useState(false);
   const end = useRef<HTMLDivElement>(null);
@@ -64,7 +62,7 @@ export default function Companion({ open, onClose }: { open: boolean; onClose: (
     <>
       <div className={cn("fixed inset-0 z-40 bg-ink-950/40 backdrop-blur-[2px] transition-opacity lg:bg-transparent lg:backdrop-blur-none", open ? "opacity-100" : "pointer-events-none opacity-0")} onClick={onClose} aria-hidden />
       <aside
-        aria-label="Creative Companion"
+        aria-label="Akines Companion"
         aria-hidden={!open}
         className={cn("fixed top-0 right-0 z-50 flex h-dvh w-full max-w-[420px] flex-col border-l border-line bg-paper-50 shadow-2xl transition-transform duration-300 ease-out", open ? "translate-x-0" : "translate-x-full")}
       >
@@ -73,7 +71,7 @@ export default function Companion({ open, onClose }: { open: boolean; onClose: (
             <span aria-hidden className="text-xl">✦</span>
           </span>
           <div className="flex-1">
-            <h2 className="font-display text-xl leading-tight">Creative Companion</h2>
+            <h2 className="font-display text-xl leading-tight">Akines Companion</h2>
             <p className="mt-0.5 text-xs text-ink-200">Trained on African art history, materials, symbolism, exhibition planning and collector education.</p>
           </div>
           <button onClick={onClose} aria-label="Close Companion" className="rounded-full p-1 text-ink-200 hover:text-paper-50">
@@ -122,7 +120,7 @@ export default function Companion({ open, onClose }: { open: boolean; onClose: (
             }}
             className="flex items-center gap-2 rounded-full border border-line bg-paper-100 py-1.5 pr-1.5 pl-4 focus-within:border-ink-500"
           >
-            <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Ask about art, craft or how you feel…" aria-label="Message the Companion" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-mute" />
+            <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Ask about people, plans or how you feel…" aria-label="Message the Companion" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-mute" />
             <button type="submit" aria-label="Send" className="flex h-9 w-9 items-center justify-center rounded-full bg-ink-900 text-paper-50 hover:bg-ink-700">
               <span aria-hidden className="text-base leading-none">↑</span>
             </button>

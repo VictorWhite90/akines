@@ -31,13 +31,13 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/shop", label: "Marketplace", glyph: "□" },
       { href: "/studios", label: "Open doors", glyph: "◈" },
-      { href: "/stories", label: "Stories & legacy", glyph: "❖" },
+      { href: "/stories", label: "Stories", glyph: "❖" },
     ],
   },
   {
     label: "Care",
     items: [
-      { href: "/wellbeing", label: "Creative wellbeing", glyph: "♡" },
+      { href: "/wellbeing", label: "Wellbeing", glyph: "♡" },
       { href: "/dna", label: "Creative DNA", glyph: "◐" },
       { href: "/about", label: "About Akines", glyph: "ⓘ" },
     ],

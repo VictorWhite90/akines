@@ -11,8 +11,8 @@ import { cn } from "@/lib/cn";
 
 const TABS = [
   { id: "all", label: "All" },
-  { id: "artist", label: "Artist journals" },
-  { id: "collector", label: "Collector journals" },
+  { id: "work", label: "Work" },
+  { id: "life", label: "Life" },
 ] as const;
 
 type Tab = (typeof TABS)[number]["id"];
@@ -23,7 +23,7 @@ export default function JournalBoard({ initialTab = "all" }: { initialTab?: Tab 
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [mood, setMood] = useState<string>("open");
-  const [kind, setKind] = useState<"artist" | "collector">("collector");
+  const [kind, setKind] = useState<"work" | "life">("life");
   const [visibility, setVisibility] = useState<"private" | "circle">("private");
 
   const shown = entries.filter((e) => tab === "all" || e.kind === tab);
@@ -54,7 +54,7 @@ export default function JournalBoard({ initialTab = "all" }: { initialTab?: Tab 
                   {j.photo && <Photo name={j.photo} sizes="220px" className="min-h-[180px] md:h-full" />}
                   <div className="p-6">
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="eyebrow text-[10px] text-clay-600">{j.kind === "artist" ? "Artist journal" : "Collector journal"}</span>
+                      <span className="eyebrow text-[10px] text-clay-600">{j.kind === "work" ? "Work journal" : "Life journal"}</span>
                       <span className="text-mute">· {j.date}</span>
                       {j.mood && <span className="rounded-full bg-paper-200 px-2.5 py-0.5 font-medium">{j.mood}</span>}
                     </div>
@@ -72,12 +72,12 @@ export default function JournalBoard({ initialTab = "all" }: { initialTab?: Tab 
       <form onSubmit={publish} className="card h-fit space-y-4 p-6 lg:sticky lg:top-28 lg:col-span-4" aria-label="Write a journal entry">
         <div className="flex items-center gap-3"><Avatar person={ME} size={40} /><div><p className="font-display text-xl leading-tight font-medium">Write in your journal</p><p className="text-xs text-mute">Private by default</p></div></div>
         <div className="flex gap-2" role="radiogroup" aria-label="Journal type">
-          {(["collector", "artist"] as const).map((k) => (
-            <button key={k} type="button" role="radio" aria-checked={kind === k} onClick={() => setKind(k)} className={cn("flex-1 rounded-full border py-2 text-[13px] font-semibold", kind === k ? "border-ink-900 bg-ink-900 text-paper-50" : "border-line hover:bg-paper-100")}>{k === "collector" ? "Collector" : "Artist"}</button>
+          {(["life", "work"] as const).map((k) => (
+            <button key={k} type="button" role="radio" aria-checked={kind === k} onClick={() => setKind(k)} className={cn("flex-1 rounded-full border py-2 text-[13px] font-semibold", kind === k ? "border-ink-900 bg-ink-900 text-paper-50" : "border-line hover:bg-paper-100")}>{k === "life" ? "Life" : "Work"}</button>
           ))}
         </div>
         <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="A title, or a first line" aria-label="Title" className="w-full rounded-xl border border-line bg-paper-100 px-4 py-3 text-[15px] outline-none focus:border-ink-500" />
-        <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} placeholder={kind === "collector" ? "Why you bought it. Where it lives. How it makes you feel." : "What you tried. What failed. What you might try next."} aria-label="Entry" className="w-full resize-none rounded-xl border border-line bg-paper-100 px-4 py-3 text-[15px] outline-none focus:border-ink-500" />
+        <textarea value={text} onChange={(e) => setText(e.target.value)} rows={5} placeholder={kind === "life" ? "What happened. Who was there. How it made you feel." : "What you tried. What failed. What you might try next."} aria-label="Entry" className="w-full resize-none rounded-xl border border-line bg-paper-100 px-4 py-3 text-[15px] outline-none focus:border-ink-500" />
         <div>
           <p className="mb-2 text-xs font-semibold text-mute">Today's colour</p>
           <div className="flex flex-wrap gap-2">{MOODS.map((m) => <button type="button" key={m.id} onClick={() => setMood(m.id)} aria-label={m.word} aria-pressed={mood === m.id} className={cn("h-7 w-7 rounded-full ring-offset-2 ring-offset-paper-50", m.hue, mood === m.id && "ring-2 ring-ink-900")} />)}</div>

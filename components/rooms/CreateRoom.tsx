@@ -14,7 +14,7 @@ import RoomCard from "./RoomCard";
 import { useMyRooms } from "./MyRooms";
 
 const COVERS: PhotoKey[] = ["frameWall", "textileHang", "paintingHand", "clayWet", "photoAlbum", "kenteVest", "bronzeHead", "studioDim", "galleryHall", "journalWindow", "beadsRed", "talkGroup"];
-const TAGS = ["Identity", "Fashion", "History", "Tradition", "Textiles", "Collecting", "Photography", "Painting", "Sculpture", "Writing", "Music", "Other"];
+const TAGS = ["Life", "Career", "Money", "Wellbeing", "Belonging", "Business", "Tech", "Parenting", "Faith", "Sport", "Creativity", "Other"];
 const VIS = [
   { id: "public", icon: "globe", title: "Anyone in Connect", body: "Shows on the Rooms page. Members request a seat." },
   { id: "circle", icon: "users", title: "One of my circles", body: "Only members of a circle you choose can see and join." },

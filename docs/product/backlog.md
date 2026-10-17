@@ -8,9 +8,9 @@ _Last updated: 2026-10-17. Ideas and tasks to come back to, in rough priority or
 - [x] Part 1: people, circles, rooms, Cliqs, Banters, Banter Now, home feed, introductions, KinMessage
 - [x] Part 2a: older feed posts, game copy, feed photos
 - [x] Circle chat, circle activities, comments
-- [ ] Stories and journals
-- [x] Studio: My space + Work in public + Open doors (Store and Shop copy still to broaden)
-- [ ] Small copy: Create a room form, Companion, Wellbeing
+- [x] Stories and journals
+- [x] Studio: My space + Work in public + Open doors (Store and Marketplace broadened too)
+- [x] Small copy: Create a room form, Companion, Wellbeing, "Not sure?" guide
 
 ## Next up
 

@@ -171,9 +171,9 @@ export default function Courtyard() {
             </div>
             <div className="cards">
               {journals.map((j) => (
-                <StoryTile key={j.id} href="/journal" photo={j.photo!} type={j.kind === "artist" ? "Artist journal" : "Collector journal"} by={j.by} title={j.title} text={j.text.split(". ")[0] + "."} left={j.mood ?? ""} right={j.date} />
+                <StoryTile key={j.id} href="/journal" photo={j.photo!} type={j.kind === "work" ? "Work journal" : "Life journal"} by={j.by} title={j.title} text={j.text.split(". ")[0] + "."} left={j.mood ?? ""} right={j.date} />
               ))}
-              <StoryTile href={`/stories/${ARTWORK.id}#legacy`} photo={ARTWORK.photo} type="Art Legacy" by={ARTWORK.artist} title="This painting has had three homes." text="Made in Accra, acquired in Casablanca, and now asked about every morning." left="5 chapters" right="Read its story →" />
+              <StoryTile href={`/stories/${ARTWORK.id}#legacy`} photo={ARTWORK.photo} type="Legacy" by={ARTWORK.artist} title="This kitchen has had three cooks." text="Opened by a grandmother in 1987, nearly sold in 2022, and full again today." left="5 chapters" right="Read its story →" />
             </div>
           </section>
 

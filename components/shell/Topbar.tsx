@@ -72,7 +72,7 @@ export default function Topbar({ onIntent, onCompanion }: { onIntent: () => void
         )}
       </div>
       <div className="top-actions">
-        <button className="icon-btn" aria-label="Ask the Companion" title="Creative Companion" onClick={onCompanion}>✦</button>
+        <button className="icon-btn" aria-label="Ask the Companion" title="Akines Companion" onClick={onCompanion}>✦</button>
         <button className="icon-btn" aria-label="Notifications" title="Notifications">♢</button>
         <div className="create-wrap" ref={menuBox}>
           <button className="primary" onClick={() => setMenu((v) => !v)} aria-haspopup="dialog" aria-expanded={menu}>＋ Create</button>

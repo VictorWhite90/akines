@@ -9,7 +9,7 @@ import type { PhotoKey } from "@/lib/data/images";
 /** Add or edit a product. Publishing makes it appear in Shop art straight away. */
 export default function ProductForm({ initial, onSave, onClose }: { initial?: Product; onSave: (p: Product) => void; onClose: () => void }) {
   const [title, setTitle] = useState(initial?.title ?? "");
-  const [category, setCategory] = useState<Category>(initial?.category ?? "Painting");
+  const [category, setCategory] = useState<Category>(initial?.category ?? "Services");
   const [price, setPrice] = useState(initial ? String(initial.price) : "");
   const [unique, setUnique] = useState(initial?.unique ?? true);
   const [stock, setStock] = useState(initial && !initial.unique ? String(initial.stock) : "5");

@@ -14,7 +14,7 @@ export default function MoodCanvas({ className }: { className?: string }) {
   return (
     <section className={cn("card p-6", className)} aria-labelledby="mood-title">
       <h3 id="mood-title" className="font-display text-xl leading-tight">Today's mood canvas</h3>
-      <p className="mt-1 text-sm text-mute">Pick a colour for how your creative self is. No score, no judgement.</p>
+      <p className="mt-1 text-sm text-mute">Pick a colour for how you feel today. No score, no judgement.</p>
 
       <div className="mt-5 grid grid-cols-7 gap-1.5" aria-label="Your last week in colour">
         {DAYS.map((d, i) => {

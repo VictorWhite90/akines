@@ -13,7 +13,7 @@ export default function Wizard({ onFinish, initialStep = 1, prefill = false }: {
   const [step, setStep] = useState<number>(initialStep);
   const [draft, setDraft] = useState<Studio>(() =>
     prefill
-      ? { ...blankStudio(), name: "My space", tagline: "Cooking, coaching, code or craft: what you do, in Yaba.", disciplines: ["Painting", "Ceramics"], about: "Come in, sit down, tell me what you see." }
+      ? { ...blankStudio(), name: "My space", tagline: "Cooking, coaching, code or craft: what you do, in Yaba.", disciplines: ["Design", "Food & cooking"], about: "Come in, sit down, tell me what you see." }
       : blankStudio(),
   );
   const [samples, setSamples] = useState(true);
