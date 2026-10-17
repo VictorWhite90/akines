@@ -81,15 +81,17 @@ export default function LoginScreen() {
           <h1>Building better <em>human connection.</em></h1>
 
           <div className="lg-ring" aria-hidden>
+            <div className="lg-orbit">
             {RING.map((p, i) => {
               const a = (i / RING.length) * Math.PI * 2 - Math.PI / 2 - Math.PI / RING.length;
               const style = { left: `${50 + 41 * Math.cos(a)}%`, top: `${50 + 41 * Math.sin(a)}%`, ["--d" as string]: `${i * 60}ms` } as React.CSSProperties;
               return (
                 <span key={i} className="lg-tile" style={{ ...style, ["--ring" as string]: p.bg } as React.CSSProperties}>
-                  <Image src={FACE[p.face].src} alt="" fill sizes="96px" className="object-cover" />
+                  <span className="lg-face"><Image src={FACE[p.face].src} alt="" fill sizes="96px" className="object-cover" /></span>
                 </span>
               );
             })}
+            </div>
             <span className="lg-core"><AkinesMark size={64} /></span>
           </div>
         </section>

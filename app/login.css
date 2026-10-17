@@ -25,6 +25,10 @@ html[data-theme="dark"] .lg {
 .lg-ring { position: relative; width: min(400px, 100%); aspect-ratio: 1; margin-top: 28px; }
 .lg-tile { position: absolute; width: 20%; aspect-ratio: 1; transform: translate(-50%, -50%) scale(.6); opacity: 0; overflow: hidden; border-radius: 50%; border: 4px solid var(--ring, var(--lg-tile-line)); background: var(--lg-field); box-shadow: 0 10px 24px -14px rgba(0,0,0,.45); animation: lg-pop .55s var(--d) cubic-bezier(.3,1.5,.5,1) forwards; }
 @keyframes lg-pop { to { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
+.lg-orbit { position: absolute; inset: 0; animation: lg-spin 40s linear infinite; }
+.lg-face { position: absolute; inset: 0; animation: lg-spin 40s linear infinite reverse; }
+@keyframes lg-spin { to { transform: rotate(360deg); } }
+.lg-ring:hover .lg-orbit, .lg-ring:hover .lg-face { animation-play-state: paused; }
 .lg-core { position: absolute; left: 50%; top: 50%; width: 34%; aspect-ratio: 1; transform: translate(-50%, -50%); display: grid; place-items: center; border-radius: 50%; background: var(--lg-core); border: 1.5px solid var(--lg-core-line); }
 .lg-core .lg-mark { width: 60%; height: auto; }
 
@@ -71,4 +75,5 @@ html[data-theme="dark"] .lg {
 }
 @media (prefers-reduced-motion: reduce) {
   .lg-tile { animation: none; opacity: 1; transform: translate(-50%, -50%); }
+  .lg-orbit, .lg-face { animation: none; }
 }
