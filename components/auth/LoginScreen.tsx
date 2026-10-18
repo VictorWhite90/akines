@@ -3,10 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ThemeToggle from "@/components/shell/ThemeToggle";
 import { FACE, type FaceKey } from "@/lib/data/images";
-import { SESSION_KEY, startGuest } from "@/lib/session";
+import { SESSION_KEY, signOut, startGuest } from "@/lib/session";
 
 /** The ring of people around the mark, each on a soft colour like the design. */
 const RING: { face: FaceKey; bg: string }[] = [
@@ -46,8 +46,12 @@ function remember(data: Record<string, unknown>) {
 }
 
 /** Sign in. After it, the member answers "What would feel meaningful today?" in the existing flow. */
-export default function LoginScreen() {
+export default function LoginScreen({ signedOut = false }: { signedOut?: boolean }) {
   const router = useRouter();
+  // ?signout=1 (from Sign out) clears the prototype session.
+  useEffect(() => {
+    if (signedOut) signOut();
+  }, [signedOut]);
   const [who, setWho] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);

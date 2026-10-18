@@ -33,7 +33,7 @@ export const ARTWORK = {
   medium: "A twelve-seat family kitchen",
   size: "Médina, Dakar",
   year: 1987,
-  price: "$25",
+  price: "$30",
   photo: "talkCafe" as PhotoKey,
   voice: { length: "1:42", caption: "Fatou on the year she almost sold it" },
   inspiration: "My grandmother opened a kitchen behind a blue door so the women on our street had somewhere to eat and talk after the market. I remember the smell of the thieboudienne before I remember her face. I cook there now.",

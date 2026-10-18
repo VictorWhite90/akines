@@ -54,7 +54,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
           <div className="mt-6 space-y-5">
             <div><p className="eyebrow text-clay-600">What inspired it</p><p className="font-display mt-1 text-[22px] leading-snug">{A.inspiration}</p></div>
           </div>
-          <div className="mt-auto flex flex-wrap items-center gap-4 pt-8"><Button href="/shop/jollof-box" size="lg" variant="clay">Book a supper · {A.price}</Button><span className="text-sm text-mute">You'd be part of its story, too.</span></div>
+          <div className="mt-auto flex flex-wrap items-center gap-4 pt-8"><Button href="/shop/cooking-class" size="lg" variant="clay">Book a cooking class · {A.price}</Button><span className="text-sm text-mute">You'd be part of its story, too.</span></div>
         </div>
       </section>
 

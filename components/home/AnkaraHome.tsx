@@ -147,7 +147,7 @@ export default function AnkaraHome() {
           <Link href="/banter"><b>8</b>Banters for you</Link>
           <Link href="/rooms"><b className="live">1</b>room live now</Link>
           <Link href="/kindred"><b>2</b>introductions</Link>
-          <Link href="/banter#compose" className="go">❝ Start a Banter</Link>
+          <Link href="/banter#start" className="go">❝ Start a Banter</Link>
         </nav>
       </header>
 
@@ -174,7 +174,7 @@ export default function AnkaraHome() {
               <div><small>Banter</small><h3>Questions waiting for you</h3></div>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 <Link href="/banter">See all →</Link>
-                <Link href="/banter#compose" className="hb-start">＋ Start a Banter</Link>
+                <Link href="/banter#start" className="hb-start">＋ Start a Banter</Link>
               </div>
             </div>
             <Link href="/banter/unfinished" className="hb-banner">
@@ -277,7 +277,7 @@ export default function AnkaraHome() {
 
               <div ref={sentinel} className="hm-more">
                 {feed.length > 0 && (done ? (
-                  <p>✓ You&apos;re all caught up. <Link href="/circles">Find another circle</Link> or <Link href="/banter#compose">start a Banter</Link>.</p>
+                  <p>✓ You&apos;re all caught up. <Link href="/circles">Find another circle</Link> or <Link href="/banter#start">start a Banter</Link>.</p>
                 ) : (
                   <button onClick={loadMore} disabled={loading}>{loading ? <><span className="hm-spin" />Loading more from your circles…</> : `Show more · ${feed.length - count} older posts`}</button>
                 ))}

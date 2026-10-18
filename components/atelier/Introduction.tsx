@@ -162,7 +162,7 @@ export default function Introduction() {
               {state === "mine" && <p className="at-hand" style={{ fontSize: 20, margin: 0 }}>We&apos;ve let {first} know, gently. Waiting for their yes…</p>}
               {joined && (
                 <>
-                  <Link href="/banter#compose" className="at-btn ink">Start a private Banter</Link>
+                  <Link href="/banter#start" className="at-btn ink">Start a private Banter</Link>
                   <Link href="/atelier/room" className="at-btn">Reserve two seats in a room</Link>
                 </>
               )}

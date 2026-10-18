@@ -51,7 +51,7 @@ export default function Rail() {
           <Link href="/dna"><span className="g">◐</span>Creative DNA</Link>
           <Link href="/studio"><span className="g">✦</span>My studio</Link>
           <Link href="/about"><span className="g">ⓘ</span>About Akines</Link>
-          <Link href="/welcome?signout=1"><span className="g">↩</span>Sign out</Link>
+          <Link href="/login?signout=1"><span className="g">↩</span>Sign out</Link>
         </div>
       </div>
     </aside>

@@ -43,7 +43,7 @@ export default function Sidebar({ open = false, onNavigate }: { open?: boolean; 
         <div>
           <strong>{ME.name}</strong>
           <small>Collector · Lagos</small>
-          <Link href="/login" className="signout" onClick={onNavigate}>Sign out</Link>
+          <Link href="/login?signout=1" className="signout" onClick={onNavigate}>Sign out</Link>
         </div>
       </div>
     </aside>

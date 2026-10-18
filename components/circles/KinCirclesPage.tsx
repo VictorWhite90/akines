@@ -91,8 +91,8 @@ export default function KinCirclesPage() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginTop: 16 }}>
               <span className="ap-faces">{ACTIVE.people.map((id) => <span key={id}><Avatar person={PEOPLE[id]} size={32} ring /></span>)}<span className="ap-meta" style={{ marginLeft: 10 }}>+ you</span></span>
               <div style={{ display: "flex", gap: 8 }}>
-                <Link href="/circles/photography" className="ap-btn">Open the circle</Link>
-                <Link href="/atelier/room" className="ap-cta" style={{ marginTop: 0, height: 36 }}>Join Thursday&apos;s room</Link>
+                <Link href="/messages/markets" className="ap-btn">Open the circle</Link>
+                <Link href="/rooms/coding-club" className="ap-cta" style={{ marginTop: 0, height: 36 }}>Join Thursday&apos;s room</Link>
               </div>
             </div>
           </div>

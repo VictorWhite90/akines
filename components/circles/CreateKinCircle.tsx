@@ -80,7 +80,7 @@ export default function CreateKinCircle() {
   const create = () => {
     const circle: SavedKinCircle = { ...draft, id: newId("kc"), createdAt: new Date().toISOString() };
     setSaved((cur) => [circle, ...cur]);
-    router.push("/circles#my-kincircles");
+    router.push("/circles#mine");
   };
 
   return (

@@ -49,7 +49,7 @@ export default function ProductDetail({ id, demo }: { id: string; demo?: string 
   return (
     <div className="sh">
       <nav className="sh-crumbs" aria-label="Breadcrumb">
-        <Link href="/shop">Shop</Link><span>/</span><Link href="/shop">{p.category}</Link><span>/</span><b>{p.title}</b>
+        <Link href="/shop">Shop</Link><span>/</span><Link href={`/shop?cat=${encodeURIComponent(p.category)}`}>{p.category}</Link><span>/</span><b>{p.title}</b>
       </nav>
 
       <div className="sh-detail">
@@ -79,7 +79,7 @@ export default function ProductDetail({ id, demo }: { id: string; demo?: string 
               <b>{mine && store ? store.name : seller.name}</b>
               <small>{mine ? `${seller.name} · ${store?.city ?? seller.city}` : `${seller.role} · ${seller.city}`}</small>
             </div>
-            {mine ? <Link href="/store" className="sh-btn ghost sm">My store</Link> : <Link href="/studios" className="sh-btn ghost sm">Visit studio</Link>}
+            {mine ? <Link href="/store" className="sh-btn ghost sm">My store</Link> : <Link href={`/studios/${p.seller}`} className="sh-btn ghost sm">Visit {first}&apos;s space</Link>}
           </div>
 
           <div className="sh-price">

@@ -17,7 +17,7 @@ const INDEX = [
   { label: "My studio", kind: "Your studio", href: "/studio" },
   { label: "Create a room", kind: "Presence Room", href: "/rooms/new" },
   { label: "Banter", kind: "Talk freely", href: "/banter" },
-  { label: "Start a Banter", kind: "Banter", href: "/banter#compose" },
+  { label: "Start a Banter", kind: "Banter", href: "/banter#start" },
   { label: "Play Together", kind: "Games", href: "/play" },
   { label: "Create a game", kind: "Play Together", href: "/play/new" },
   { label: "Cliqs", kind: "Your people", href: "/cliqs" },

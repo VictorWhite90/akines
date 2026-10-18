@@ -60,7 +60,7 @@ export default function Stories() {
 
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link href={`/stories/${ARTWORK.id}`} className="rounded-full bg-night px-6 py-3 text-[14px] font-semibold text-white hover:bg-ink-900">Read the whole story →</Link>
-              <Link href={`/stories/${ARTWORK.id}#legacy`} className="rounded-full border border-night/25 px-6 py-3 text-[14px] font-semibold hover:bg-night/5">Follow it home</Link>
+              <Link href={`/stories/${ARTWORK.id}#legacy`} className="rounded-full border border-night/25 px-6 py-3 text-[14px] font-semibold hover:bg-night/5">See its history</Link>
             </div>
           </div>
         </div>

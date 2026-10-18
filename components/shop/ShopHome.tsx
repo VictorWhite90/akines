@@ -31,12 +31,12 @@ export function OrderTimeline({ status }: { status: Order["status"] }) {
   );
 }
 
-export default function ShopHome({ demo, view, seller }: { demo?: string; view?: string; seller?: string }) {
+export default function ShopHome({ demo, view, seller, cat: initialCat }: { demo?: string; view?: string; seller?: string; cat?: string }) {
   const { products, orders: stored, mine, store, ready } = useShop();
   const { saved } = useSaved();
   const [tab, setTab] = useState<Tab>(demo === "orders" || view === "orders" ? "orders" : view === "saved" ? "saved" : "browse");
   const [q, setQ] = useState("");
-  const [cat, setCat] = useState<Category | "All">("All");
+  const [cat, setCat] = useState<Category | "All">((CATEGORIES as readonly string[]).includes(initialCat ?? "") ? (initialCat as Category) : "All");
   const [sort, setSort] = useState<"new" | "low" | "high">("new");
   const [price, setPrice] = useState("any");
   const [only, setOnly] = useState(seller);

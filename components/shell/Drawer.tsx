@@ -66,7 +66,7 @@ export default function Drawer({ open, onClose, onCompanion }: { open: boolean; 
           <button className="dr-companion" onClick={() => { onClose(); onCompanion(); }}><Magicpen size={18} color="currentColor" />Ask the Akines Companion</button>
           <div className="dr-row">
             <Link href="/about" onClick={onClose}><InfoCircle size={18} color="currentColor" />About</Link>
-            <Link href="/welcome?signout=1" onClick={onClose}><LogoutCurve size={18} color="currentColor" />Sign out</Link>
+            <Link href="/login?signout=1" onClick={onClose}><LogoutCurve size={18} color="currentColor" />Sign out</Link>
             <span className="dr-theme"><ThemeToggle /></span>
           </div>
         </footer>
