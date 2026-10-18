@@ -20,7 +20,7 @@ export default function Wellbeing() {
         <div className="text-[15px] leading-relaxed"><b className="font-semibold">The Companion is AI, not a clinician.</b> It doesn't diagnose or treat anything. It can help you reflect, and it will point you to licensed professionals whenever that would help. <span className="mt-1 flex items-center gap-1.5 text-sm text-mute"><span aria-hidden>⊛</span> Everything here is private and never shapes matching, ranking or ads.</span></div>
       </aside>
 
-      <div className="flex flex-wrap gap-2">{TOOLS.map((t) => <span key={t} className="rounded-full border border-line bg-paper-50 px-3.5 py-1.5 text-[13px] font-medium">{t}</span>)}</div>
+      <div className="wb-tools flex flex-wrap gap-2">{TOOLS.map((t) => <span key={t} className="rounded-full border border-line bg-paper-50 px-3.5 py-1.5 text-[13px] font-medium">{t}</span>)}</div>
 
       <section className="grid gap-6 lg:grid-cols-2"><MoodCanvas /><Breathing /></section>
 

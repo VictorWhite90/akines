@@ -6,7 +6,7 @@ import { CATEGORIES, PRODUCT_PHOTOS, nowStamp, type Category, type Product } fro
 import { newId } from "@/lib/useLocal";
 import type { PhotoKey } from "@/lib/data/images";
 
-/** Add or edit a product. Publishing makes it appear in Shop art straight away. */
+/** Add or edit a product. Publishing makes it appear in the Marketplace straight away. */
 export default function ProductForm({ initial, onSave, onClose }: { initial?: Product; onSave: (p: Product) => void; onClose: () => void }) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [category, setCategory] = useState<Category>(initial?.category ?? "Services");

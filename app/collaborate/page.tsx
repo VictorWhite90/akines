@@ -27,7 +27,7 @@ export default function Collaborate() {
     <div className="space-y-14">
       <PageHeader eyebrow="Shared creation" title={<>Make something <em>neither of you could make alone.</em></>} sub="Joint exhibitions, shared sketchbooks and cross-country collaborations, in a protected project room from first spark to exhibition." />
 
-      <ol className="grid gap-4 md:grid-cols-4">
+      <ol className="cb-steps grid gap-4 md:grid-cols-4">
         {STEPS.map((s, i) => (
           <li key={s.t} className="rounded-2xl border border-line bg-paper-50 p-5"><span className="text-[11px] font-bold text-clay-500">0{i + 1}</span><p className="font-display mt-1 text-xl font-medium">{s.t}</p><p className="mt-1 text-sm text-mute">{s.d}</p></li>
         ))}

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
@@ -8,6 +7,7 @@ import Photo from "@/components/ui/Photo";
 import { StageTracker } from "@/components/home/cards";
 import { COLLABS, STAGES } from "@/lib/data/community";
 import { PEOPLE } from "@/lib/data/people";
+import BackLink from "@/components/ui/BackLink";
 
 export function generateStaticParams() {
   return COLLABS.map((c) => ({ id: c.id }));
@@ -28,7 +28,7 @@ export default async function CollabRoom({ params }: { params: Promise<{ id: str
 
   return (
     <div className="space-y-10">
-      <Link href="/collaborate" className="text-sm font-semibold text-mute hover:text-ink-900">← All collaborations</Link>
+      <BackLink fallback="/collaborate" className="text-sm font-semibold text-mute hover:text-ink-900">← Back</BackLink>
 
       <section className="relative overflow-hidden rounded-[28px]">
         <Photo name={collab.photo} ratio="21/9" sizes="1100px" className="min-h-[260px]" priority />

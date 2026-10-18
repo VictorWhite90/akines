@@ -107,7 +107,7 @@ export default function StoreDashboard({ data }: { data: StoreData }) {
           {products.length === 0 ? (
             <div className="sh-empty">
               <b>Your shelf is empty, for now</b>
-              <p>Add your first product with a photo, a price and its story. Publish it and it shows up in Shop art straight away.</p>
+              <p>Add your first product with a photo, a price and its story. Publish it and it shows up in the Marketplace straight away.</p>
               <button className="sh-btn lime" onClick={() => setForm("new")}>＋ Add your first product</button>
             </div>
           ) : (

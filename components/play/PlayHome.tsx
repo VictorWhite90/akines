@@ -54,7 +54,7 @@ export default function PlayHome() {
       <section id="choose" className="scroll-mt-24">
         <h2 className="font-display text-[22px]">Why do you want to play?</h2>
         <p className="mt-1 text-[13px] text-mute">Akines recommends games that fit your intention.</p>
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="pl-swipe mt-3 flex flex-wrap gap-2">
           {PLAY_PURPOSES.map((p) => (
             <button key={p.id} onClick={() => setPurpose(purpose === p.id ? null : p.id)} aria-pressed={purpose === p.id} className={`flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] ${purpose === p.id ? "border-ink-900 bg-ink-900 text-white" : "border-line bg-paper-50 hover:border-ink-400"}`}>
               <span aria-hidden>{p.glyph}</span>{p.label}
@@ -65,7 +65,7 @@ export default function PlayHome() {
 
       <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
         <section className="min-w-0">
-          <div className="flex flex-wrap gap-2">
+          <div className="pl-swipe flex flex-wrap gap-2">
             {[{ id: "all", label: "All games" }, ...GAME_CATEGORIES].map((c) => (
               <button key={c.id} onClick={() => setCategory(c.id as typeof category)} className={`rounded-full border px-3 py-1.5 text-[12px] ${category === c.id ? "border-ink-900 bg-ink-900 text-white" : "border-line bg-paper-50 text-ink-700 hover:border-ink-400"}`}>{c.label}</button>
             ))}

@@ -8,6 +8,7 @@ import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
 import { BANTER_NOW, type BanterNow } from "@/lib/data/banter";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
+import BackLink from "@/components/ui/BackLink";
 
 export default function BanterNowRoom({ id }: { id: string }) {
   const router = useRouter();
@@ -103,7 +104,7 @@ export default function BanterNowRoom({ id }: { id: string }) {
   return (
     <div className="ap-calm flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/banter" className="text-[13px] text-mute hover:text-ink-900">← Banter</Link>
+        <BackLink fallback="/banter" className="text-[13px] text-mute hover:text-ink-900">← Back</BackLink>
         <div className="flex flex-wrap gap-2 text-[11.5px]">
           <span className="rounded-full bg-paper-200 px-3 py-1">Not recorded</span>
           <span className="rounded-full bg-paper-200 px-3 py-1">No audience</span>

@@ -8,6 +8,7 @@ import { DoorGlyph, Ico, NoteCard, VisitingChip, WorkCard, WorkDetail } from "./
 import { useStudioState } from "./useMyStudio";
 import { MAX_SEATS, VISITING, studioToPublic, themeVars, type PublicStudio, type Work } from "@/lib/data/studio";
 import { PEOPLE } from "@/lib/data/people";
+import BackLink from "@/components/ui/BackLink";
 
 const MODE_GLYPH: Record<string, string> = { Live: "◉", Virtual: "◎", "360°": "◐", VR: "◈" };
 
@@ -29,7 +30,7 @@ export default function PublicStudioView({ studio }: { studio: PublicStudio }) {
           <Link href={`/studio${studio.demo ? `?demo=${studio.demo}` : ""}`} className="sd-btn accent small">← Back to my space</Link>
         </div>
       )}
-      {!studio.own && <Link href="/studios" className="sd-back">← All open doors</Link>}
+      {!studio.own && <BackLink fallback="/studios" className="sd-back">← Back</BackLink>}
 
       <section className="sd-hero" aria-label={studio.name}>
         <div className="cover">

@@ -12,7 +12,7 @@ const INDEX = [
   ...allPeople.map((p) => ({ label: p.name, kind: p.role, href: "/kindred" })),
   ...CIRCLES.map((c) => ({ label: c.name, kind: "Circle", href: `/circles/${c.id}` })),
   ...ROOMS.map((r) => ({ label: r.title, kind: "Presence Room", href: `/rooms/${r.id}` })),
-  { label: "Shop art", kind: "Shop", href: "/shop" },
+  { label: "Marketplace", kind: "Shop", href: "/shop" },
   { label: "My store", kind: "Sell your work", href: "/store" },
   { label: "My studio", kind: "Your studio", href: "/studio" },
   { label: "Create a room", kind: "Presence Room", href: "/rooms/new" },

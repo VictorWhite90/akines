@@ -160,7 +160,7 @@ export default function CliqsHome() {
         })}
       </div>
 
-      <section className="kc-section">
+      <section className="kc-section cq-explain">
         <div className="kc-head"><h2>Cliqs, KinCircles and Creative Circles</h2></div>
         <div className="cq-compare">
           {COMPARE.map((x) => (

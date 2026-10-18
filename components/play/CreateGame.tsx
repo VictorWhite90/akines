@@ -1,12 +1,12 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useGames } from "./useGames";
 import { draftGameFromPrompt, GAME_CATEGORIES, PLAY_MODES, PLAY_PURPOSES, type Game, type GameDraft } from "@/lib/data/games";
 import { ME, type PersonId } from "@/lib/data/people";
 import { newId } from "@/lib/useLocal";
+import BackLink from "@/components/ui/BackLink";
 
 const BLANK: GameDraft = {
   name: "",
@@ -94,7 +94,7 @@ export default function CreateGame() {
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">
-      <Link href="/play" className="text-[13px] text-mute hover:text-ink-900">← Play Together</Link>
+      <BackLink fallback="/play" className="text-[13px] text-mute hover:text-ink-900">← Back</BackLink>
       <div>
         <p className="eyebrow text-clay-600">Create a Game</p>
         <h1 className="font-display mt-1 text-[38px] leading-tight">Make a game for your people.</h1>

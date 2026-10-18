@@ -8,6 +8,7 @@ import GameCircle from "./GameCircle";
 import { useGames } from "./useGames";
 import { GAME_CATEGORIES, PLAY_AUDIENCES, PLAY_MODES, PLAY_PURPOSES, type PlayMode } from "@/lib/data/games";
 import { allPeople, ME, type PersonId } from "@/lib/data/people";
+import BackLink from "@/components/ui/BackLink";
 
 const others = allPeople.filter((p) => p.id !== ME.id);
 
@@ -39,7 +40,7 @@ export default function GameSetup({ id }: { id: string }) {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-      <Link href="/play" className="text-[13px] text-mute hover:text-ink-900">← Play Together</Link>
+      <BackLink fallback="/play" className="text-[13px] text-mute hover:text-ink-900">← Back</BackLink>
 
       <div className="grid gap-6 md:grid-cols-[1fr_340px]">
         <div className="flex flex-col gap-5">

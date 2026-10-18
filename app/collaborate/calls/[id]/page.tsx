@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import Avatar from "@/components/ui/Avatar";
 import ToggleButton from "@/components/ui/Toggle";
@@ -7,6 +6,7 @@ import Chip from "@/components/ui/Chip";
 import Photo from "@/components/ui/Photo";
 import { CALLS } from "@/lib/data/community";
 import { PEOPLE } from "@/lib/data/people";
+import BackLink from "@/components/ui/BackLink";
 
 export function generateStaticParams() {
   return CALLS.map((c) => ({ id: c.id }));
@@ -27,7 +27,7 @@ export default async function CallDetail({ params }: { params: Promise<{ id: str
 
   return (
     <div className="space-y-8">
-      <Link href="/collaborate#calls" className="text-sm font-semibold text-mute hover:text-ink-900">← All open calls</Link>
+      <BackLink fallback="/collaborate#calls" className="text-sm font-semibold text-mute hover:text-ink-900">← Back</BackLink>
 
       <section className="relative overflow-hidden rounded-[28px]">
         <Photo name={call.photo} ratio="21/9" sizes="1100px" className="min-h-[220px]" priority position="center 25%" />

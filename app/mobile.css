@@ -140,3 +140,139 @@ html[data-theme="dark"] .dr { background: #0a0a0f; border-right: 1px solid var(-
 .dr-row a { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 10px; border-radius: 12px; color: rgba(242,240,247,.75); text-decoration: none; font-size: 13.5px; }
 .dr-theme { margin-left: auto; }
 @media (prefers-reduced-motion: reduce) { .dr, .dr-scrim { transition: none; } }
+
+/* =========================================================
+   Phones: chat screens behave like a messaging app.
+   Header at the top, messages scroll, the input never moves.
+   ========================================================= */
+@media (max-width: 760px) {
+  /* Circle chat, Presence Room, Banter conversation: full screen, no app chrome. */
+  .app.is-chat .nx-top, .app.is-chat .nx-dock, .app.is-chat .nx-fab { display: none !important; }
+  .app.is-chat .main { padding-bottom: 0 !important; }
+  .app.is-chat .content { padding: 0 !important; }
+  .app.is-chat .rs { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; height: auto !important; min-height: 0 !important; gap: 0; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); background: var(--ap-bg, #fff); }
+  .app.is-chat .rs-main { flex: 1; min-height: 0; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+  .app.is-chat .br { display: block; }
+  .app.is-chat .br-side { display: none; }
+  .app.is-chat .br-chat { position: fixed; inset: 0; z-index: 20; height: auto !important; min-height: 0 !important; border: 0; border-radius: 0; padding-bottom: env(safe-area-inset-bottom); }
+  html[data-theme="dark"] .app.is-chat .rs { background: var(--dk-bg); }
+
+  /* KinMessage: the inbox fits between the bars; an open chat takes the whole screen. */
+  .app:has(.km) .content { padding: 0 !important; }
+  .km { height: calc(100dvh - 52px - 55px - env(safe-area-inset-bottom)) !important; min-height: 0 !important; border: 0 !important; border-radius: 0 !important; }
+  .app:has(.km.show-thread) .nx-top, .app:has(.km.show-thread) .nx-dock, .app:has(.km.show-thread) .nx-fab { display: none !important; }
+  .app:has(.km.show-thread) .main { padding-bottom: 0 !important; }
+  .km.show-thread { position: fixed; inset: 0; z-index: 20; height: auto !important; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  .km.show-thread .km-thread { height: 100%; }
+
+  /* Chat headers: one tidy row. */
+  .km-thread-head { gap: 10px; padding: 10px 12px; }
+  .km-who b { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .km-who small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 11.5px; }
+  .km-intent > button { padding: 0 10px !important; height: 34px; gap: 4px; font-size: 0 !important; }
+  .km-intent > button span { font-size: 15px; }
+  .km-intent > button em { font-size: 10px; }
+  .km-msgs { padding: 12px 12px; }
+  .km-compose { padding: 8px 10px 10px; }
+
+  .app .rs-head { gap: 8px; padding: 10px 12px; }
+  .app .rs-head .thumb { width: 38px; height: 38px; border-radius: 12px; }
+  .app .rs-head h1 { font-size: 16px; }
+  .app .rs-head .who p { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .app .rs-head .go { width: 38px; height: 38px; padding: 0 !important; justify-content: center; border-radius: 50%; }
+  .app .rs-head .go .lbl { display: none; }
+
+  .br-head { gap: 10px; padding: 10px 12px; align-items: center; }
+  .br-back, .br-menu > button { width: 34px; height: 34px; }
+  .br-q p { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .br-mood { padding: 2px 8px; }
+  .br-q h1 { margin-top: 3px; font-size: 15.5px !important; line-height: 1.3 !important; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .br-msgs { padding: 12px; }
+  .br-compose { padding: 8px 10px 10px; }
+}
+.km-more { display: none; }
+@media (max-width: 760px) {
+  /* Headers in chats beat the general phone heading size. */
+  .app .content .rs-head h1 { font-size: 16px !important; line-height: 1.25 !important; }
+  .app .content .br-q h1 { font-size: 15.5px !important; line-height: 1.3 !important; }
+  .app .rs-head .go:has(.lbl) { width: 38px; }
+  /* KinMessage composer: one ＋ for the extras, so the text box gets the room. */
+  .km-bar { position: relative; gap: 6px; }
+  .km-more { display: grid; place-items: center; width: 36px; height: 36px; flex: none; border: 0; border-radius: 50%; background: var(--ap-soft, #f2f0f6); color: inherit; font-size: 18px; cursor: pointer; }
+  .km-tools { display: none !important; }
+  .km-tools.open { display: flex !important; position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 5; gap: 4px; padding: 6px; border-radius: 18px; background: var(--ap-bg, #fff); border: 1px solid var(--ap-line); box-shadow: 0 12px 30px -12px rgba(0,0,0,.3); }
+  .km-tools.open button { width: 40px; height: 40px; }
+  .km-bar textarea { min-width: 0; flex: 1; }
+  html[data-theme="dark"] .km-more { background: var(--dk-s2); }
+  html[data-theme="dark"] .km-tools.open { background: var(--dk-s1); border-color: var(--dk-line); }
+}
+
+/* =========================================================
+   Phones: fewer badges, no wrapped pills.
+   ========================================================= */
+@media (max-width: 760px) {
+  /* Circle → Trends: drop the source/AI badge, keep two neat buttons. */
+  .app .cs-trend .src { display: none; }
+  .app .cs-trend .ft { justify-content: flex-end; }
+  .app .cs-trend .btns button { white-space: nowrap; padding: 7px 12px; }
+  .app .cs-trend h3 { font-size: 15.5px; }
+  /* Circle → Coming up: no type badge, one-line button. */
+  .app .cs-events .k { display: none; }
+  .app .cs-events li { gap: 10px; padding: 10px; }
+  .app .cs-events li button { flex: none; white-space: nowrap; font-size: 12px; }
+  /* Small labels never wrap into a lumpy pill. */
+  .bd-mood, .br-mood, .cq-pill, .ap-tag, .km-cav, .sd-status, .reg, [class*="tracking-"][class*="uppercase"][class*="rounded-full"] { white-space: nowrap; }
+}
+@media (max-width: 760px) {
+  /* Cliqs: lighter cards, one row of small actions, no explainer block. */
+  .cq-explain { display: none; }
+  .cq-card { gap: 10px; padding: 14px; border-radius: 20px; }
+  .cq-top { gap: 12px; }
+  .cq-top > :first-child { width: 56px !important; height: 56px !important; border-radius: 14px; font-size: 22px; }
+  .cq-card h2 { font-size: 16.5px; }
+  .cq-card .ap-tag { display: none; }
+  .cq-why { font-size: 12.5px; }
+  .cq-ritual { font-size: 11.5px; }
+  .cq-latest { padding: 10px; font-size: 12.5px; }
+  .cq-actions { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -14px; padding: 0 14px; }
+  .cq-actions::-webkit-scrollbar { display: none; }
+  .cq-act { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 99px; white-space: nowrap; font-size: 12.5px; }
+  .cq-act span { font-size: 13px; }
+  .cs-regions { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; }
+}
+@media (max-width: 760px) {
+  .cq-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .cq-card, .cq-card > * { min-width: 0; }
+}
+@media (max-width: 760px) {
+  /* Explainers that only make sense with room to breathe. */
+  .bd-how, .kc-rhythm { display: none !important; }
+  .rm-rules { display: none !important; }
+  .kc-types { display: flex !important; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 0 -14px; padding: 0 14px 4px; }
+  .kc-types::-webkit-scrollbar { display: none; }
+  .kc-type { flex: none; width: 220px; }
+}
+@media (max-width: 760px) {
+  /* Long chip lists become one swipeable row. */
+  .pl-swipe { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; margin-left: -14px; margin-right: -14px; padding: 0 14px 2px; }
+  .pl-swipe::-webkit-scrollbar { display: none; }
+  .pl-swipe > * { flex: none; white-space: nowrap; }
+}
+@media (max-width: 760px) {
+  /* Discover people: each card is obviously "someone to meet"; skip the repeated heading and badge. */
+  .app .content .ic-head { display: none; }
+  .app .content .card:has(> .ic-head) { padding: 16px; }
+  /* Collaborate: no four-step explainer, no repeated "Shared creation" badge. */
+  .cb-steps, .cb-badge { display: none !important; }
+}
+@media (max-width: 760px) {
+  .wb-tools { display: none !important; }
+  /* Stories: the history line scrolls instead of squashing; no giant sparkle over the text. */
+  ol[aria-label="Where it has been"] { display: flex !important; gap: 4px; overflow-x: auto; scrollbar-width: none; max-width: none !important; }
+  ol[aria-label="Where it has been"] > li { flex: 0 0 74px; }
+  ol[aria-label="Where it has been"] > span { right: auto !important; width: 370px; }
+  .app .content [class*="text-[120px]"], .app .content [class*="text-[280px]"] { display: none; }
+}
+@media (max-width: 760px) {
+  .st-how { display: none !important; }
+}

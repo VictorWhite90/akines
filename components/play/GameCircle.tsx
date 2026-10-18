@@ -8,6 +8,7 @@ import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
 import { AFTER_GAME, PLAY_MODES, type Game, type PlayMode } from "@/lib/data/games";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
+import BackLink from "@/components/ui/BackLink";
 
 /** Warm, varied stand-in answers from the other players, so the prototype feels like a real round. */
 const ANSWERS = [
@@ -116,7 +117,7 @@ export default function GameCircle({ game, title, players, mode }: { game: Game;
     <div className="grid w-full gap-6 lg:grid-cols-[1fr_300px]">
       <div className="flex min-w-0 flex-col gap-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link href="/play" className="text-[13px] text-mute hover:text-ink-900">← Play Together</Link>
+          <BackLink fallback="/play" className="text-[13px] text-mute hover:text-ink-900">← Back</BackLink>
           <div className="flex flex-wrap gap-2 text-[11.5px]">
             <span className="rounded-full bg-paper-200 px-3 py-1">{modeLabel}</span>
             <span className="rounded-full bg-paper-200 px-3 py-1">No audience · no scores</span>

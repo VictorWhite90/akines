@@ -26,7 +26,7 @@ export function CollabCard({ c, className }: { c: Collab; className?: string }) 
   return (
     <Link href={`/collaborate/${c.id}`} className={cn("card card-lift group block overflow-hidden", className)}>
       <Photo name={c.photo} ratio="16/9" sizes="(max-width: 768px) 100vw, 420px" className="transition-transform duration-500 [&_img]:group-hover:scale-105">
-        <span className="absolute top-3 left-3 rounded-full bg-paper-50 px-3 py-1 text-[11px] font-bold tracking-wide text-ink-900 uppercase shadow-soft">Shared creation</span>
+        <span className="cb-badge absolute top-3 left-3 rounded-full bg-paper-50 px-3 py-1 text-[11px] font-bold tracking-wide text-ink-900 uppercase shadow-soft">Shared creation</span>
         <span className="absolute bottom-3 left-3 flex items-center gap-1.5 rounded-full bg-ink-950/70 px-3 py-1 text-xs font-medium text-paper-50 backdrop-blur"><span aria-hidden>⌖</span>{c.route}</span>
       </Photo>
       <div className="p-5">

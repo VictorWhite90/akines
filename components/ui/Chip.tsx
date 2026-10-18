@@ -17,7 +17,7 @@ export default function Chip({ tone = "paper", className, children }: { tone?: k
 /** Marks anything an AI produced, so it never passes for a person's or verified fact. */
 export function AiTag({ className }: { className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full border border-ink-900/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-mute", className)}>
+    <span className={cn("inline-flex items-center gap-1 rounded-full border border-ink-900/15 px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap uppercase tracking-[0.12em] text-mute", className)}>
       <span className="h-1.5 w-1.5 rounded-full bg-clay-500" />
       AI suggestion
     </span>

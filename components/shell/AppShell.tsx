@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { isSignedIn } from "@/lib/session";
+import { recordRoute } from "@/lib/navHistory";
 import { Add, Game, Home2, Message, Messages2, People } from "iconsax-reactjs";
 import CommandBar from "./CommandBar";
 import Companion from "./Companion";
@@ -35,6 +36,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     setGate(isSignedIn() ? "in" : "out");
   }, [pathname]);
   useEffect(() => {
+    recordRoute(pathname);
+  }, [pathname]);
+  useEffect(() => {
     if (gate === "out" && !open) router.replace("/login");
   }, [gate, open, router]);
 
@@ -46,10 +50,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   // Pages restyled by remapping the older tokens inside a calm scope, each with its own accent.
   const CALM: [string, string][] = [["/kindred", "#2547d0"], ["/play", "#ff6b1a"], ["/activities", "#00a86b"], ["/collaborate", "#2547d0"], ["/messages", "#7b2ff7"], ["/studio", "#7b2ff7"], ["/journal", "#00a86b"], ["/store", "#7b2ff7"], ["/shop", "#7b2ff7"], ["/studios", "#7b2ff7"], ["/stories", "#e5007e"], ["/wellbeing", "#00a86b"], ["/dna", "#2547d0"], ["/applications", "#2547d0"], ["/profile", "#2547d0"]];
   const calm = CALM.find(([p]) => isActive(pathname, p));
+  // Chat screens: on phones they fill the screen like a messaging app (see mobile.css).
+  const chat = /^\/(circles\/(?!new$)[^/]+|rooms\/(?!new$)[^/]+|banter\/(?!classic|now|new)[^/]+)$/.test(pathname);
   const ankara = !!calm || pathname === "/" || pathname.startsWith("/circles") || pathname === "/cliqs" || pathname.startsWith("/banter") || pathname.startsWith("/rooms");
 
   return (
-    <div className={`app nx${night ? " is-night" : ""}${ankara ? " is-ankara" : ""}${pathname.startsWith("/atelier") || pathname === "/community" ? " is-bleed" : ""}`}>
+    <div className={`app nx${night ? " is-night" : ""}${ankara ? " is-ankara" : ""}${pathname.startsWith("/atelier") || pathname === "/community" ? " is-bleed" : ""}${chat ? " is-chat" : ""}`}>
       <Rail />
       <main className="main">
         <CommandBar onIntent={() => setIntent(true)} onCompanion={() => setCompanion(true)} onMenu={() => setMore(true)} />

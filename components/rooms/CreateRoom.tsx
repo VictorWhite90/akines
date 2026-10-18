@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Ico } from "@/components/chat/bits";
@@ -12,6 +11,7 @@ import { ME, allPeople, type PersonId } from "@/lib/data/people";
 import { newId } from "@/lib/useLocal";
 import RoomCard from "./RoomCard";
 import { useMyRooms } from "./MyRooms";
+import BackLink from "@/components/ui/BackLink";
 
 const COVERS: PhotoKey[] = ["frameWall", "textileHang", "paintingHand", "clayWet", "photoAlbum", "kenteVest", "bronzeHead", "studioDim", "galleryHall", "journalWindow", "beadsRed", "talkGroup"];
 const TAGS = ["Life", "Career", "Money", "Wellbeing", "Belonging", "Business", "Tech", "Parenting", "Faith", "Sport", "Creativity", "Other"];
@@ -91,7 +91,7 @@ export default function CreateRoom({ circle: circleParam }: { circle?: string })
   return (
     <div className="ap-calm flex flex-col gap-7" style={{ ["--c" as string]: "#e5007e" } as React.CSSProperties}>
       <div>
-        <Link href="/rooms" className="text-[13px] font-semibold text-mute hover:text-night">← All rooms</Link>
+        <BackLink fallback="/rooms" className="text-[13px] font-semibold text-mute hover:text-night">← Back</BackLink>
         <p className="ac-eyebrow mt-4">Host a room</p>
         <h1 className="font-display mt-1 text-[38px] leading-[1.05] md:text-[46px]">Open a room. <em>Six chairs, your rules.</em></h1>
         <p className="mt-3 max-w-2xl text-[16px] leading-relaxed text-mute">Chat, share photos and voice notes, and go live together. Choose who can come in, and we&apos;ll tell them.</p>

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 import ChatThread from "@/components/chat/ChatThread";
@@ -19,6 +18,7 @@ import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { TRENDS, type Region, type Trend } from "@/lib/data/trends";
 import { newId, useLocal } from "@/lib/useLocal";
 import { useJoined } from "./useJoined";
+import BackLink from "@/components/ui/BackLink";
 
 type Tab = "chat" | "trends" | "rooms" | "activities";
 
@@ -123,14 +123,14 @@ export default function CircleSpace({ circle, startTab }: { circle: Circle; star
     <div className="rs cs ap-calm" style={{ ["--c" as string]: "#00a86b" } as React.CSSProperties}>
       <section className="rs-main">
         <header className="rs-head">
-          <Link href="/circles" className="back" aria-label="All circles">←</Link>
+          <BackLink fallback="/circles" className="back" aria-label="Back">←</BackLink>
           <div className="thumb"><Pic name={circle.photo} sizes="48px" /></div>
           <div className="who">
             <h1>{circle.name}</h1>
             <p>{circle.members} members · <span className="cs-on">{circle.active} active now</span></p>
           </div>
           <div className="acts">
-            <button className="go" onClick={() => makeRoom(true)}><Ico n="live" size={17} /> Quick huddle</button>
+            <button className="go" onClick={() => makeRoom(true)}><Ico n="live" size={17} /> <span className="lbl">Quick huddle</span></button>
             <button className="ic show-sm" onClick={() => setInfo((v) => !v)} aria-label="Circle info"><Ico n="info" /></button>
           </div>
         </header>

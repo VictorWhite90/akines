@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import Pic from "@/components/home/Pic";
 import Avatar from "@/components/ui/Avatar";
@@ -12,6 +11,7 @@ import { threadWith } from "@/lib/data/dms";
 import type { PhotoKey } from "@/lib/data/images";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import type { Msg } from "@/lib/data/roomChat";
+import BackLink from "@/components/ui/BackLink";
 
 /** A 1:1 conversation, built on the same ChatThread engine as Rooms and Circles. */
 export default function ThreadView({ id }: { id: PersonId }) {
@@ -48,7 +48,7 @@ export default function ThreadView({ id }: { id: PersonId }) {
     // here (.msg-panel .rs{display:contents}) since .msg-panel already provides the flex column.
     <div className="rs">
       <header className="rs-head">
-        <Link href="/messages" className="back" aria-label="All conversations">←</Link>
+        <BackLink fallback="/messages" className="back" aria-label="Back">←</BackLink>
         <Avatar person={p} size={46} />
         <div className="who">
           <h1>{p.name}</h1>

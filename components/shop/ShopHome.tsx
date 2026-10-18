@@ -62,9 +62,9 @@ export default function ShopHome({ demo, view, seller, cat: initialCat }: { demo
     <div className="sh">
       <header className="sh-head">
         <div>
-          <p className="eyebrow">Shop art</p>
-          <h1 className="font-display">Bring home a piece <em>with a story.</em></h1>
-          <p className="sub">Original work, prints and wearables from makers in our community. Buy straight from the artist.</p>
+          <p className="eyebrow">Marketplace</p>
+          <h1 className="font-display">Buy from people <em>you know.</em></h1>
+          <p className="sub">Food, classes, services and things people make, from members of the community. Buy straight from the person.</p>
         </div>
         <Link href="/store" className="sh-sell">
           <span className="ic" aria-hidden>▣</span>
@@ -99,7 +99,7 @@ export default function ShopHome({ demo, view, seller, cat: initialCat }: { demo
           <div className="sh-tools">
             <label className="sh-search">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search art, makers or materials" aria-label="Search the shop" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search food, classes, services or people" aria-label="Search the shop" />
             </label>
             <select value={price} onChange={(e) => setPrice(e.target.value)} aria-label="Price">
               {PRICES.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
@@ -119,7 +119,7 @@ export default function ShopHome({ demo, view, seller, cat: initialCat }: { demo
             <p className="sh-only">Showing work from <b>{only === "amara" && store ? store.name : PEOPLE[only as keyof typeof PEOPLE]?.name ?? only}</b> <button onClick={() => setOnly(undefined)}>Show everyone ×</button></p>
           )}
 
-          <div className="sh-sec"><h2>{filtering ? "Results" : "All work"}</h2><span>{ready ? `${shown.length} piece${shown.length === 1 ? "" : "s"}` : ""}</span></div>
+          <div className="sh-sec"><h2>{filtering ? "Results" : "Everything"}</h2><span>{ready ? `${shown.length} listing${shown.length === 1 ? "" : "s"}` : ""}</span></div>
           {shown.length ? (
             <ul className="sh-grid">{shown.map((p) => <li key={p.id}><ProductCard product={p} /></li>)}</ul>
           ) : (
@@ -130,11 +130,11 @@ export default function ShopHome({ demo, view, seller, cat: initialCat }: { demo
 
       {tab === "saved" && (
         <>
-          <div className="sh-sec"><h2>Saved pieces</h2><span>Tap the heart on any piece to keep it here</span></div>
+          <div className="sh-sec"><h2>Saved</h2><span>Tap the heart on anything to keep it here</span></div>
           {savedList.length ? (
             <ul className="sh-grid">{savedList.map((p) => <li key={p.id}><ProductCard product={p} /></li>)}</ul>
           ) : (
-            <div className="sh-empty"><b>No saved pieces yet</b><p>When something catches your eye, tap the heart and it will wait for you here.</p><button className="sh-btn dark" onClick={() => setTab("browse")}>Browse the shop</button></div>
+            <div className="sh-empty"><b>Nothing saved yet</b><p>When something catches your eye, tap the heart and it will wait for you here.</p><button className="sh-btn dark" onClick={() => setTab("browse")}>Browse the shop</button></div>
           )}
         </>
       )}

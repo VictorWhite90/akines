@@ -11,6 +11,7 @@ import { BANTER_MOODS, MOOD_LOOK, REACTIONS, lifeLeft, softenWording, toneIssue 
 import type { PhotoKey } from "@/lib/data/images";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
+import BackLink from "@/components/ui/BackLink";
 
 const ME_ID = ME.id as PersonId;
 const PHOTOS: PhotoKey[] = ["studioEasel", "clayBowl", "textileRolls", "beadsHung", "galleryHall", "talkMugs"];
@@ -99,7 +100,7 @@ export default function BanterRoom({ id }: { id: string }) {
     <div className="ap ap-calm br" style={{ ["--mood" as string]: look.bg, ["--mood-ink" as string]: look.ink } as React.CSSProperties}>
       <section className="br-chat" aria-label="The conversation">
         <header className="br-head">
-          <Link href="/banter" className="br-back" aria-label="Back to Banter">←</Link>
+          <BackLink fallback="/banter" className="br-back" aria-label="Back">←</BackLink>
           <div className="br-q">
             <p><span className="br-mood">{mood.label}</span> {b.audienceLabel} · {life.label}</p>
             <h1>{b.prompt}</h1>

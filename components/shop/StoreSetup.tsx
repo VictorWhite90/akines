@@ -51,14 +51,14 @@ export default function StoreSetup({ onCreate }: { onCreate: (s: StoreProfile) =
         <div>
           <p className="eyebrow">My store</p>
           <h1 className="font-display">Open your store, <em>sell what you make.</em></h1>
-          <p className="sub">Set up a small shop in a minute. Once it is open, you add products and other members can find and buy them in Shop art.</p>
+          <p className="sub">Set up a small shop in a minute. Once it is open, you add products and other members can find and buy them in the Marketplace.</p>
         </div>
       </header>
 
       <ol className="st-how" aria-label="How selling works">
         <li><i>1</i><b>Set up your store</b><small>Name, cover and what you make</small></li>
         <li><i>2</i><b>Add products</b><small>Photos, price and the story</small></li>
-        <li><i>3</i><b>Members buy in Shop art</b><small>Your work appears there right away</small></li>
+        <li><i>3</i><b>Members buy in the Marketplace</b><small>Your work appears there right away</small></li>
         <li><i>4</i><b>You ship, they receive</b><small>Track each order in My store</small></li>
       </ol>
 

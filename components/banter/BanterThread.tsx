@@ -11,6 +11,7 @@ import { BANTER_LIFETIMES, BANTER_MOODS, REACTIONS, toneCheck, type BanterReply 
 import type { PhotoKey } from "@/lib/data/images";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
+import BackLink from "@/components/ui/BackLink";
 
 const BOUNDARIES = ["Don't include me in this kind of Banter", "Mute this subject", "Leave quietly", "Report privately", "Ask the creator to clarify", "Limit mentions"];
 const REPLY_PHOTOS: PhotoKey[] = ["studioEasel", "clayBowl", "textileRolls", "beadsHung"];
@@ -123,7 +124,7 @@ export default function BanterThread({ id }: { id: string }) {
     <div className="ap-calm mx-auto grid w-full max-w-6xl gap-8 lg:grid-cols-[1fr_300px]" style={{ ["--c" as string]: "#e09a00" } as React.CSSProperties}>
       <div className="flex min-w-0 flex-col gap-5">
         <div className="flex items-center justify-between">
-          <Link href="/banter" className="text-[13px] text-mute hover:text-ink-900">← Banter</Link>
+          <BackLink fallback="/banter" className="text-[13px] text-mute hover:text-ink-900">← Back</BackLink>
           <div className="relative">
             <button onClick={() => setMenu((m) => !m)} className="rounded-full border border-line px-3.5 py-1.5 text-[12.5px] hover:border-ink-400" aria-expanded={menu}>Your boundaries ▾</button>
             {menu && (

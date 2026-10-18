@@ -141,7 +141,7 @@ export default function KinCirclesPage() {
       </section>
 
       {/* The rhythm */}
-      <section className="kc-section">
+      <section className="kc-section kc-rhythm">
         <div className="kc-head"><h2>Every circle follows one rhythm</h2><span className="ap-meta">A relationship with direction</span></div>
         <ol className="kc-rhythm">
           {JOURNEY.map((s) => (
@@ -155,7 +155,7 @@ export default function KinCirclesPage() {
       </section>
 
       {/* Start one */}
-      <section className="kc-section">
+      <section className="kc-section kc-kinds">
         <div className="kc-head"><h2>What kind of circle?</h2><Link href="/circles/new" className="ap-meta" style={{ fontWeight: 700, color: "var(--ap-ink)" }}>Open the builder →</Link></div>
         <div className="kc-types">
           {CIRCLE_TYPES.map((t) => (

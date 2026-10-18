@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import Avatar from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
@@ -8,6 +7,7 @@ import Photo from "@/components/ui/Photo";
 import VoiceNote from "@/components/ui/VoiceNote";
 import { PEOPLE } from "@/lib/data/people";
 import { ARTWORK, STORIES, STORY_BODY } from "@/lib/data/stories";
+import BackLink from "@/components/ui/BackLink";
 
 export function generateStaticParams() {
   return STORIES.map((s) => ({ id: s.id }));
@@ -28,7 +28,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
     const body = STORY_BODY[id] ?? [story.excerpt];
     return (
       <article className="mx-auto max-w-3xl space-y-8">
-        <Link href="/stories" className="text-sm font-semibold text-mute hover:text-ink-900">← All stories</Link>
+        <BackLink fallback="/stories" className="text-sm font-semibold text-mute hover:text-ink-900">← Back</BackLink>
         <header><Chip tone="clay">{story.kind}</Chip><h1 className="font-display mt-4 text-[42px] leading-[1.05] font-medium md:text-[56px]">{story.title}</h1><div className="mt-5 flex items-center gap-3"><Avatar person={by} size={44} /><p className="text-sm text-mute"><b className="font-semibold text-ink-900">{by.name}</b> · {by.role}, {by.city} · {story.read} read</p></div></header>
         <Photo name={story.photo} ratio="16/10" sizes="800px" className="rounded-[24px]" />
         {story.voice && <VoiceNote length={story.voice} caption={`${by.name.split(" ")[0]} reading this story`} />}
@@ -41,7 +41,7 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
   const A = ARTWORK;
   return (
     <article className="space-y-14">
-      <Link href="/stories" className="text-sm font-semibold text-mute hover:text-ink-900">← All stories</Link>
+      <BackLink fallback="/stories" className="text-sm font-semibold text-mute hover:text-ink-900">← Back</BackLink>
 
       <section className="grid gap-8 lg:grid-cols-12">
         <Photo name={A.photo} ratio="4/5" sizes="(max-width: 1024px) 100vw, 480px" priority position="center 15%" className="rounded-[28px] lg:col-span-5" />

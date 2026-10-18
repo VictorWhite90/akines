@@ -10,6 +10,7 @@ import { softenWording, toneCheck } from "@/lib/data/banter";
 import type { PhotoKey } from "@/lib/data/images";
 import { CONVOS, INTENTS, KIND_COLOR, KIND_LABEL, QUICK_REPLIES, type Convo, type ConvoKind, type IntentId, type KMsg } from "@/lib/data/kinmessage";
 import { allPeople, ME, PEOPLE, type PersonId } from "@/lib/data/people";
+import { canGoBack } from "@/lib/navHistory";
 import { newId, useLocal } from "@/lib/useLocal";
 
 type Filter = "all" | ConvoKind;
@@ -87,6 +88,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
   const [composeNew, setComposeNew] = useState(false);
   const [mobileThread, setMobileThread] = useState(!!initial);
   const [toast, setToast] = useState("");
+  const [tools, setTools] = useState(false);
   const scroller = useRef<HTMLDivElement>(null);
 
   const c = convos.find((x) => x.id === activeId) ?? CONVOS[0];
@@ -224,7 +226,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
       {/* Thread */}
       <section className="km-thread" aria-label={c.name} style={{ ["--tint" as string]: intent.tint, ["--ic" as string]: intent.color } as React.CSSProperties}>
         <header className="km-thread-head">
-          <button className="km-back" onClick={() => setMobileThread(false)} aria-label="Back to conversations">←</button>
+          <button className="km-back" onClick={() => (initial && canGoBack() ? router.back() : setMobileThread(false))} aria-label="Back">←</button>
           <ConvoAvatar c={c} size={44} />
           <div className="km-who">
             <b>{c.name}</b>
@@ -371,7 +373,8 @@ export default function KinMessage({ initial }: { initial?: string }) {
             </div>
           ) : (
             <div className="km-bar">
-              <div className="km-tools">
+              <button className="km-more" onClick={() => setTools((v) => !v)} aria-expanded={tools} aria-label="More: photo, voice, poll, meetup, Banter, game">{tools ? "×" : "＋"}</button>
+              <div className={`km-tools${tools ? " open" : ""}`} onClick={() => setTools(false)}>
                 <button onClick={() => setAttach(attach === "photo" ? null : "photo")} className={attach === "photo" ? "on" : undefined} title="Photo">▣</button>
                 <button onClick={() => setRecording(1)} title="Voice note">◉</button>
                 <button onClick={() => setAttach(attach === "poll" ? null : "poll")} className={attach === "poll" ? "on" : undefined} title="Poll">≡</button>

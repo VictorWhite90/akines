@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Pic from "@/components/home/Pic";
 import Avatar, { AvatarStack } from "@/components/ui/Avatar";
@@ -12,6 +11,7 @@ import { useChat } from "@/components/chat/useChat";
 import { FACE, type PhotoKey } from "@/lib/data/images";
 import { ME, PEOPLE, type Person, type PersonId } from "@/lib/data/people";
 import { membersOf, promptsOf, seedMessages } from "@/lib/data/roomChat";
+import BackLink from "@/components/ui/BackLink";
 
 function Tile({ id, speaking, muted, hand, video }: { id: PersonId; speaking: boolean; muted: boolean; hand: boolean; video: boolean }) {
   const p: Person = PEOPLE[id];
@@ -119,7 +119,7 @@ export default function RoomSpace({ room, demo }: { room: Room; demo?: string })
       <section className="rs-main">
         {/* header */}
         <header className="rs-head">
-          <Link href="/rooms" className="back" aria-label="All rooms">←</Link>
+          <BackLink fallback="/rooms" className="back" aria-label="Back">←</BackLink>
           <div className="thumb"><Pic name={room.photo} sizes="48px" /></div>
           <div className="who">
             <h1>{room.title}</h1>
@@ -133,7 +133,7 @@ export default function RoomSpace({ room, demo }: { room: Room; demo?: string })
             </p>
           </div>
           <div className="acts">
-            {!live && <button className="go" onClick={() => setStarting(true)}><Ico n="live" size={17} /> Start live session</button>}
+            {!live && <button className="go" onClick={() => setStarting(true)}><Ico n="live" size={17} /> <span className="lbl">Start live session</span></button>}
             {live && !joined && <button className="go hide-sm" onClick={joinCall}><span className="dot" /> Join live · {inCallCount}</button>}
             <button className="ic show-sm" onClick={() => setInfo((v) => !v)} aria-label="Room info"><Ico n="info" /></button>
           </div>

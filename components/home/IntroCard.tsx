@@ -16,7 +16,7 @@ export default function IntroCard({ match, compact = false }: { match: Match; co
 
   return (
     <div className="card flex h-full flex-col p-6">
-      <div className="flex items-center justify-between gap-3">
+      <div className="ic-head flex items-center justify-between gap-3">
         <h3 className="font-display text-xl leading-tight font-medium">{compact ? "Someone to meet" : "A meaningful introduction"}</h3>
         <AiTag />
       </div>
