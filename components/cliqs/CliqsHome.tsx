@@ -70,7 +70,7 @@ export default function CliqsHome() {
         {everyone.map((id) => {
           const p: Person = PEOPLE[id];
           return (
-            <Link key={id} href="/banter#start" className="cq-person" title={`${p.name} · ${PRESENCE[p.presence].label}`}>
+            <Link key={id} href={`/messages/${id}`} className="cq-person" title={`Message ${p.name} · ${PRESENCE[p.presence].label}`}>
               <span className="cq-ring" style={{ borderColor: DOT[p.presence] }}><Avatar person={p} size={52} /></span>
               <b>{p.name.split(" ")[0]}</b>
               <small>{p.note ?? PRESENCE[p.presence].label}</small>

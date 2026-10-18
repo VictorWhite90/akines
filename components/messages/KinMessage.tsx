@@ -65,8 +65,15 @@ export default function KinMessage({ initial }: { initial?: string }) {
   const [ai, setAi] = useLocal<boolean>("km:ai", false);
   const [read, setRead] = useLocal<string[]>("km:read", []);
 
-  const convos = [...extraConvos, ...CONVOS];
-  const [activeId, setActiveId] = useState(initial && convos.some((c) => c.id === initial) ? initial : CONVOS[0].id);
+  const saved = [...extraConvos, ...CONVOS];
+  // /messages/<person id> opens your chat with that person, or a fresh one if you haven't talked yet.
+  const person = initial && initial in PEOPLE && initial !== ME_ID ? (initial as PersonId) : null;
+  const existing = initial ? saved.find((x) => x.id === initial) ?? (person ? saved.find((x) => x.kind === "direct" && x.members[0] === person) : undefined) : undefined;
+  const draft: Convo | null = person && !existing
+    ? { id: person, kind: "direct", name: PEOPLE[person].name, members: [person], intent: "checkin", last: "", health: { label: "Growing", value: 10, exchanges: 0, shared: 0, reciprocity: "Just starting", lastMet: "Not yet" }, memories: [], msgs: [] }
+    : null;
+  const convos = draft ? [draft, ...saved] : saved;
+  const [activeId, setActiveId] = useState(existing?.id ?? draft?.id ?? CONVOS[0].id);
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
   const [text, setText] = useState("");
@@ -83,6 +90,10 @@ export default function KinMessage({ initial }: { initial?: string }) {
   const scroller = useRef<HTMLDivElement>(null);
 
   const c = convos.find((x) => x.id === activeId) ?? CONVOS[0];
+  useEffect(() => {
+    if (draft && (added[draft.id]?.length ?? 0) > 0) setExtraConvos([draft, ...extraConvos]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the first message lands
+  }, [added]);
   const intentId = intents[c.id] ?? c.intent;
   const intent = INTENTS.find((i) => i.id === intentId)!;
   const msgs = [...c.msgs, ...(added[c.id] ?? [])];

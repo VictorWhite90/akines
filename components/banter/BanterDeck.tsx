@@ -331,7 +331,7 @@ export default function BanterDeck() {
               </>
             )}
             <button className="bd-start" disabled={q.trim().length < 5 || !!issue} onClick={start}>{shape === "live" ? "◉ Go live now" : "Start the Banter"}</button>
-            <p className="bd-note">Goes to {audience.reach} {audience.reach === 1 ? "person" : "people"}, each told why. No likes, no followers. <Link href="/banter/classic#compose">More options</Link></p>
+            <p className="bd-note">Goes to {audience.reach} {audience.reach === 1 ? "person" : "people"}, each told why. No likes, no followers.</p>
           </section>
 
           <section className="bd-now">
