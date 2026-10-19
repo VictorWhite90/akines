@@ -33,7 +33,7 @@ export default function AboutPage() {
               <a key={n.href} href={n.href}>{n.label}</a>
             ))}
           </nav>
-          <Link href="/signup" className="ak-btn ak-btn-m">Find Your People</Link>
+          <Link href="/login" className="ak-btn ak-btn-m">Find Your People</Link>
         </div>
       </header>
 
@@ -48,7 +48,7 @@ export default function AboutPage() {
             confidants and a genuine part of your life.
           </p>
           <div className="ak-ctas">
-            <Link href="/dna" className="ak-btn ak-btn-xl">Discover my Creative DNA</Link>
+            <Link href="/login" className="ak-btn ak-btn-xl">Discover my Creative DNA</Link>
             <a href="#how-it-works" className="ak-btn ak-btn-xl ak-btn-outline">See How it Works</a>
           </div>
         </div>
@@ -135,7 +135,7 @@ export default function AboutPage() {
                   introduction may matter—then leaves the choice with you.
                 </p>
               </div>
-              <Link href="/dna" className="ak-btn ak-btn-xl ak-cta-xl">Build My Creative DNA</Link>
+              <Link href="/login" className="ak-btn ak-btn-xl ak-cta-xl">Build My Creative DNA</Link>
             </div>
             <img
               className="ak-matching-photo"
@@ -173,7 +173,7 @@ export default function AboutPage() {
                     </p>
                   </div>
                 </div>
-                <Link href="/wellbeing" className="ak-btn ak-btn-xl ak-cta-xl ak-btn-dark">Explore Wellbeing Support</Link>
+                <Link href="/login" className="ak-btn ak-btn-xl ak-cta-xl ak-btn-dark">Explore Wellbeing Support</Link>
               </article>
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function AboutPage() {
           <div className="ak-wrap ak-final-in">
             <h2>Find your people.<br />Make something real.</h2>
             <p>Join the early Akines community and help shape a healthier way to connect.</p>
-            <Link href="/signup" className="ak-btn ak-btn-xl ak-cta-xl">Find Your People</Link>
+            <Link href="/login" className="ak-btn ak-btn-xl ak-cta-xl">Find Your People</Link>
           </div>
         </section>
       </main>

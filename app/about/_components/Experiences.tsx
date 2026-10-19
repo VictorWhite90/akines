@@ -11,7 +11,7 @@ const EXPERIENCES = [
     visualTitle: "Build a KinCircle",
     visualBody: "A consistent group that grows through shared rituals, not random drop-ins.",
     title: "Your people, with a reason to return",
-    body: "Bring together up to eight people around a shared intention—from creative courage to collecting contemporary African art.",
+    body: "Bring together up to eight people around a shared intention—from launching a small business to settling into a new city.",
     benefits: ["Choose a clear purpose and duration", "Meet on a rhythm that suits everyone", "Grow trust through shared rituals"],
     cta: { label: "Create a KinCircle", href: "/circles/new" },
     tint: "#c27a2b",
@@ -108,7 +108,7 @@ export default function Experiences() {
               </li>
             ))}
           </ul>
-          <Link href={x.cta.href} className="ak-btn ak-exp-cta">{x.cta.label}</Link>
+          <Link href="/login" className="ak-btn ak-exp-cta">{x.cta.label}</Link>
         </div>
       </div>
     </div>

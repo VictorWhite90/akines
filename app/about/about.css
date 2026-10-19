@@ -319,3 +319,38 @@
   .ak-philo-right{padding-left:16px}
   .ak-philo-right .ak-philo-lead{font-size:17px}
 }
+
+/* Feature card (Figma "Feature Content"): the visual panel fills the card, 32px corners;
+   the orbit sits inside it with room to spin, so nothing is clipped. */
+.ak-exp-card{align-items:stretch;overflow:visible}
+.ak-exp-visual{height:auto;min-height:671px;border-radius:32px;padding:48px;align-items:flex-end}
+.ak-exp-orbit{width:390px;height:390px;top:42%}
+@media (max-width:1100px){.ak-exp-visual{min-height:560px}.ak-exp-orbit{width:340px;height:340px}}
+@media (max-width:760px){.ak-exp-visual{min-height:440px;padding:24px;border-radius:24px}.ak-exp-orbit{width:260px;height:260px;top:38%}}
+
+/* Core Philosophy, exact Figma values: Title 60, Subheading 2 (20/140%), Subheading 1 Bold (24/140%),
+   blockquote 2px #CCC left border + 24px padding, Button XL bold (60px tall). */
+.ak-philo{padding:96px 0;background:var(--ak-surface-subtle,#f9f9f9)}
+.ak-philo .ak-wrap{gap:48px}
+.ak-philo-grid{gap:48px;align-items:stretch}
+.ak-philo-left{gap:24px;min-height:360px}
+.ak-philo-left h2{font:600 60px/1.2 var(--font-manrope),sans-serif;letter-spacing:-1px}
+.ak-philo-left p{max-width:none;font:400 20px/1.4 var(--font-manrope),sans-serif;color:var(--ak-text-tertiary,#969696)}
+.ak-philo-more{margin-top:auto;height:60px;padding:16px 32px;gap:8px;font:600 20px/1.2 var(--font-manrope),sans-serif}
+.ak-philo-right{gap:32px;padding-left:0;border-left:0}
+.ak-philo-right .ak-philo-lead{padding-left:24px;border-left:2px solid var(--ak-icon-disabled,#ccc);font:600 24px/1.4 var(--font-manrope),sans-serif;color:var(--ak-text-primary,#181818)}
+.ak-philo-right p{font:400 20px/1.4 var(--font-manrope),sans-serif;color:var(--ak-text-tertiary,#969696)}
+.ak-philo-right p + p{margin-top:-16px}
+.ak-philo-tags{margin:0;gap:8px}
+.ak-philo-tags li{padding:8px 16px;border:1px solid var(--ak-border-subtle,#e5e5e5);background:var(--ak-surface-default,#fefefe);font:400 18px/1.2 var(--font-manrope),sans-serif;color:var(--ak-text-secondary,#6f6f6f)}
+@media (max-width:900px){
+  .ak-philo{padding:56px 0}
+  .ak-philo-left{min-height:0}
+  .ak-philo-left h2{font-size:34px}
+  .ak-philo-left p,.ak-philo-right p{font-size:16px}
+  .ak-philo-right{gap:20px}
+  .ak-philo-right p + p{margin-top:-8px}
+  .ak-philo-right .ak-philo-lead{font-size:18px;padding-left:16px}
+  .ak-philo-more{height:48px;padding:12px 24px;font-size:16px}
+  .ak-philo-tags li{font-size:14px;padding:6px 12px}
+}
