@@ -292,3 +292,30 @@
   .ak-marquee{height:64px}
   .ak-marquee li{font-size:18px;gap:20px;padding-left:20px}
 }
+
+/* Core philosophy (Figma tokens: surface subtle, 32px image radius, Manrope type scale) */
+.ak-philo{background:var(--ak-surface-subtle,#f9f9f9);padding:96px 0}
+.ak-philo .ak-wrap{display:flex;flex-direction:column;gap:48px}
+.ak-philo-img{display:block;width:100%;height:auto;aspect-ratio:1320/560;object-fit:cover;border-radius:32px;border:.5px solid var(--ak-border-strong,#c0c0c0)}
+.ak-philo-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+.ak-philo-left{display:flex;flex-direction:column;gap:24px;min-height:100%}
+.ak-philo-left h2{margin:0;font:600 48px/1.2 var(--font-manrope),sans-serif;letter-spacing:-.5px;color:var(--ak-text-primary,#181818)}
+.ak-philo-left p{margin:0;max-width:520px;font:400 18px/1.6 var(--font-manrope),sans-serif;color:var(--ak-text-tertiary,#969696)}
+.ak-philo-more{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;margin-top:auto;padding:10px 20px;border-radius:999px;background:var(--ak-action-akines-secondary-default,#f4a63a);color:var(--ak-action-akines-secondary-foreground,#181818);font:600 16px/1.2 var(--font-manrope),sans-serif;text-decoration:none}
+.ak-philo-more:hover{background:var(--ak-action-akines-secondary-hover,#e3890d)}
+.ak-philo-right{display:flex;flex-direction:column;gap:16px;padding-left:24px;border-left:1px solid var(--ak-border-default,#ccc)}
+.ak-philo-right p{margin:0;font:400 16px/1.6 var(--font-manrope),sans-serif;color:var(--ak-text-tertiary,#969696)}
+.ak-philo-right .ak-philo-lead{font-size:20px;line-height:1.4;color:var(--ak-text-primary,#181818)}
+.ak-philo-tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 0;padding:0;list-style:none}
+.ak-philo-tags li{padding:6px 14px;border-radius:999px;border:.5px solid var(--ak-border-default,#ccc);font:500 14px/1.2 var(--font-manrope),sans-serif;color:var(--ak-text-secondary,#6f6f6f)}
+@media (max-width:900px){
+  .ak-philo{padding:56px 0}
+  .ak-philo .ak-wrap{gap:28px}
+  .ak-philo-img{border-radius:20px;aspect-ratio:4/3}
+  .ak-philo-grid{grid-template-columns:1fr;gap:28px}
+  .ak-philo-left h2{font-size:30px}
+  .ak-philo-left p{font-size:16px}
+  .ak-philo-more{margin-top:0}
+  .ak-philo-right{padding-left:16px}
+  .ak-philo-right .ak-philo-lead{font-size:17px}
+}

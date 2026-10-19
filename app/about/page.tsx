@@ -75,6 +75,29 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Core philosophy (Figma: About / Core Philosophy Section) */}
+        <section className="ak-philo" aria-labelledby="philo-title">
+          <div className="ak-wrap">
+            {/* eslint-disable-next-line @next/next/no-img-element -- static brand photo */}
+            <img className="ak-philo-img" src="/akines/philosophy.jpg" alt="Four friends laughing together outdoors, holding sparklers" width={1320} height={560} loading="lazy" />
+            <div className="ak-philo-grid">
+              <div className="ak-philo-left">
+                <h2 id="philo-title">Our Core Philosophy</h2>
+                <p>Human connection is not the number of people we know. It is the degree to which we feel known, valued and supported.</p>
+                <a href="#how-it-works" className="ak-philo-more">Read More <span aria-hidden>→</span></a>
+              </div>
+              <div className="ak-philo-right">
+                <p className="ak-philo-lead">Technology should not merely connect people digitally; it should help people form, deepen and sustain relationships that matter in real life.</p>
+                <p>Most social platforms connect profiles, distribute content and reward visibility. Akines connects human beings around their intentions, needs, values, experiences and capacity to support one another.</p>
+                <p>Its purpose is not to make people spend more time online. It is to help them experience more belonging, companionship, collaboration and mutual care, online and offline.</p>
+                <ul className="ak-philo-tags">
+                  {["Belonging", "Companionship", "Collaboration", "Mutual care"].map((t) => <li key={t}>{t}</li>)}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="ak-rhythm" id="how-it-works">
           <div className="ak-wrap">
             <header className="ak-rhythm-head">
