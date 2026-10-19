@@ -1129,3 +1129,26 @@ html[data-theme="dark"] :is(.cc-item small, .cc-group h3) { color: var(--dk-mute
   .pf-posts { grid-template-columns: 1fr; }
   .pf-products { grid-template-columns: 1fr 1fr; gap: 10px; }
 }
+
+/* =========================================================
+   Home: topic chips and a calmer, lighter type scale
+   ========================================================= */
+.hm-topics { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: -4px 0 14px; }
+.hm-topics::-webkit-scrollbar { display: none; }
+.hm-topics button { flex: none; height: 30px; padding: 0 12px; border-radius: 99px; border: 0; background: transparent; font: 500 13px var(--ap-sans); color: var(--ap-mute); cursor: pointer; }
+.hm-topics button:hover { color: var(--ap-ink); background: var(--ap-soft); }
+.hm-topics button.on { color: var(--ap-ink); background: var(--ap-soft); font-weight: 600; }
+.hm-none { margin: 0 0 14px; font-size: 14px; color: var(--ap-mute); }
+.hm-none button { border: 0; background: none; padding: 0; font: 600 14px var(--ap-sans); color: var(--ap-ink); text-decoration: underline; cursor: pointer; }
+html[data-theme="dark"] .hm-topics button.on, html[data-theme="dark"] .hm-topics button:hover { background: var(--dk-s2); color: var(--dk-ink); }
+
+/* Lighter weights and softer edges, so Home reads calm rather than loud. */
+.app .hm :is(.hm-feedhead h2, .hs-strip-head h3, .hm-card h3) { font-weight: 600; letter-spacing: -.01em; }
+.app .hm .hm-hello h1 { font-weight: 600; }
+.app .hm .hm-hero .hero-copy h2 { font-weight: 600 !important; }
+.app .hm .hb-banner-tx b { font-weight: 600; }
+.app .hm .kn-post { box-shadow: none; border-color: color-mix(in srgb, var(--ap-line) 80%, transparent); }
+.app .hm .kn-post p, .app .hm .kn-post .body { font-weight: 400; }
+.app .hm .hb { background: transparent !important; border-color: var(--ap-line) !important; }
+.app .hm .hm-stats a { font-weight: 500; background: transparent; }
+.app .hm .hm-stats b { font-weight: 600; }

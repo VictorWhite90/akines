@@ -109,7 +109,7 @@ export default function BanterCard({ banter, highlight = false }: { banter: Bant
         </div>
       )}
 
-      <div className="mt-3.5 flex flex-wrap items-center gap-2 border-t border-line pt-3">
+      <div className="bc-acts mt-3.5 flex flex-wrap items-center gap-2 border-t border-line pt-3">
         {!banter.closed && !open && <button onClick={() => setOpen(true)} className="rounded-full bg-ai/15 px-3.5 py-2 text-[12.5px] font-semibold text-ink-900 hover:bg-ai/25">Add a thoughtful response</button>}
         <button onClick={() => toggle(banter.id)} aria-pressed={iResonate} className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12.5px] font-semibold ${iResonate ? "border-ink-950 bg-ink-950 text-white" : "border-line bg-white hover:border-ink-400"}`}>
           ✦ {iResonate ? "You want to explore this" : "I want to explore this"}

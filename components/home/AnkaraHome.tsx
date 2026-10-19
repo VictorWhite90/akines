@@ -35,6 +35,17 @@ const MOODS = [
 const GAME_PHOTO: Record<string, PhotoKey> = { remember: "photoAlbum", "two-truths": "talkLaugh", "city-eyes": "galleryViewer" };
 const GAME_TINT: Record<string, string> = { reconnection: "#e5007e", icebreakers: "#ffb000", creative: "#ff6b1a" };
 
+/** Filter the feed by what people are doing, not by popularity. */
+const TOPICS = [
+  { id: "all", label: "For you" },
+  { id: "ask", label: "Questions" },
+  { id: "help", label: "Help needed" },
+  { id: "discuss", label: "Discussions" },
+  { id: "invite", label: "Invitations" },
+  { id: "collaborate", label: "Collaborations" },
+  { id: "share", label: "Shared moments" },
+];
+
 const LIVE = [
   { kind: "Presence Room", title: "Starting over in a new city", sub: "Live now · 5 of 6 seats", href: "/rooms/photography-memory", who: ["wanjiru", "zuri", "efua"] as PersonId[], dot: "#e5007e" },
   { kind: "Banter Now", title: "Is AI going to take our jobs?", sub: "Live now · 20 min", href: "/banter/now/ai-art", who: ["tunde", "kwame", "zuri"] as PersonId[], dot: "#ffb000" },
@@ -46,6 +57,7 @@ export default function AnkaraHome() {
   const { all: banters } = useBanters();
   const { ids: joinedIds } = useJoined();
   const [tab, setTab] = useState<string>("mine");
+  const [topic, setTopic] = useState<string>("all");
   const [mood, setMood] = useLocal<number | null>("ak:home-mood", null);
   const [hello, setHello] = useLocal<string[]>("ak:home-hellos", []);
 
@@ -53,7 +65,9 @@ export default function AnkaraHome() {
   const [count, setCount] = useState(6);
   const [loading, setLoading] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
-  const feed = [...posts, ...MORE_POSTS].filter((p) => (tab === "all" ? true : tab === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === tab));
+  const feed = [...posts, ...MORE_POSTS]
+    .filter((p) => (tab === "all" ? true : tab === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === tab))
+    .filter((p) => topic === "all" || p.type === topic);
   const shown = feed.slice(0, count);
   const done = count >= feed.length;
   const loadMore = () => {
@@ -102,7 +116,7 @@ export default function AnkaraHome() {
       </div>
     </Fragment>,
     <Fragment key="room">
-      <Pic name="heroStudio" sizes="(max-width: 1060px) 100vw, 1400px" position="center 30%" />
+      <Pic name="talkMugs" sizes="(max-width: 1060px) 100vw, 1400px" position="center 30%" />
       <div className="hero-copy">
         <span className="pill"><span className="live-dot" /> Presence Room · {room.when}</span>
         <h2>{room.title}</h2>
@@ -169,6 +183,10 @@ export default function AnkaraHome() {
       <div className="hm-grid">
         <main className="hm-main">
 
+          <section className="hm-compose" aria-label="Share with your circles">
+            <Composer />
+          </section>
+
           <section className="hb" aria-label="Banter">
             <div className="hs-strip-head">
               <div><small>Banter</small><h3>Questions waiting for you</h3></div>
@@ -178,7 +196,7 @@ export default function AnkaraHome() {
               </div>
             </div>
             <Link href="/banter/unfinished" className="hb-banner">
-              <span className="hb-banner-img"><Photo name="paintingWoman" sizes="260px" className="absolute inset-0 h-full" position="center 25%" /></span>
+              <span className="hb-banner-img"><Photo name="talkLaugh" sizes="260px" className="absolute inset-0 h-full" position="center 25%" /></span>
               <span className="hb-banner-tx">
                 <small>Today&apos;s Banter</small>
                 <b>“{TODAYS_BANTER}”</b>
@@ -186,12 +204,8 @@ export default function AnkaraHome() {
               <span className="hb-banner-go">Join the Banter →</span>
             </Link>
             <div className="hb-list">
-              {banters.filter((b) => !b.closed).slice(0, 2).map((b) => <BanterCard key={b.id} banter={b} />)}
+              {banters.filter((b) => !b.closed).slice(0, 1).map((b) => <BanterCard key={b.id} banter={b} />)}
             </div>
-          </section>
-
-          <section className="hm-compose" aria-label="Share with your circles">
-            <Composer />
           </section>
 
           <section aria-label="Your circles' feed">
@@ -208,6 +222,12 @@ export default function AnkaraHome() {
               ))}
               <button role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : undefined} onClick={() => { setTab("all"); setCount(6); }}>All circles</button>
             </div>
+            <div className="hm-topics" role="group" aria-label="Topic">
+              {TOPICS.map((t) => (
+                <button key={t.id} aria-pressed={topic === t.id} className={topic === t.id ? "on" : undefined} onClick={() => { setTopic(t.id); setCount(6); }}>{t.label}</button>
+              ))}
+            </div>
+            {shown.length === 0 && <p className="hm-none">Nothing like that in these circles yet. <button onClick={() => setTopic("all")}>Show everything</button></p>}
             <div className="hm-feed">
               <div className="hw">{shown.slice(0, 4).map((p) => <PostCard key={p.id} post={p} />)}</div>
 
@@ -338,7 +358,7 @@ export default function AnkaraHome() {
           </section>
 
           <section className="hm-card">
-            <h3>How is your creative self today?</h3>
+            <h3>How are you today?</h3>
             <div className="hm-moods" role="radiogroup" aria-label="How you are today">
               {MOODS.map((m, i) => (
                 <button key={m.label} role="radio" aria-checked={mood === i} aria-label={m.label} className={mood === i ? "on" : undefined} onClick={() => setMood(i)}>{m.face}</button>

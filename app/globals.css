@@ -215,3 +215,9 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Photos shimmer gently until they arrive, so a slow image reads as loading, not broken. */
+.ph-load { background-image: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%); background-size: 200% 100%; animation: ph-shimmer 1.4s linear infinite; }
+html[data-theme="dark"] .ph-load { background-color: #1f1c28; background-image: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.06) 50%, transparent 70%); }
+@keyframes ph-shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+@media (prefers-reduced-motion: reduce) { .ph-load { animation: none; } }

@@ -8,12 +8,12 @@ import type { PersonId } from "./people";
 export type PostType = "share" | "ask" | "discuss" | "invite" | "help" | "collaborate";
 
 export const POST_TYPES: Record<PostType, { glyph: string; label: string; verb: string; placeholder: string }> = {
-  share: { glyph: "✦", label: "Share", verb: "shared", placeholder: "I visited an incredible exhibition today…" },
-  ask: { glyph: "❔", label: "Ask", verb: "asked", placeholder: "Does anyone know a good framer in Lagos?" },
-  discuss: { glyph: "💬", label: "Discuss", verb: "started a discussion", placeholder: "Why are African galleries struggling with digital distribution?" },
-  invite: { glyph: "✉", label: "Invite", verb: "invited people", placeholder: "Anyone interested in visiting the gallery this Saturday?" },
-  help: { glyph: "🤲", label: "Help", verb: "asked for help", placeholder: "I need advice preparing for my first exhibition." },
-  collaborate: { glyph: "⌘", label: "Collaborate", verb: "is looking for collaborators", placeholder: "I'm developing a documentary and looking for…" },
+  share: { glyph: "✦", label: "Share", verb: "shared", placeholder: "Share something from your week…" },
+  ask: { glyph: "❔", label: "Ask", verb: "asked", placeholder: "Does anyone know a good mechanic in Lagos?" },
+  discuss: { glyph: "💬", label: "Discuss", verb: "started a discussion", placeholder: "Is remote work better for young people starting out?" },
+  invite: { glyph: "✉", label: "Invite", verb: "invited people", placeholder: "Anyone up for a walk on Saturday morning?" },
+  help: { glyph: "🤲", label: "Help", verb: "asked for help", placeholder: "I need advice preparing for my first interview." },
+  collaborate: { glyph: "⌘", label: "Collaborate", verb: "is looking for collaborators", placeholder: "I'm starting a small project and looking for…" },
 };
 
 export type ReactionKey = "appreciate" | "interesting" | "canHelp" | "inspired" | "discuss" | "connect";

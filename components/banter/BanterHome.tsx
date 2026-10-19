@@ -64,7 +64,7 @@ export default function BanterHome() {
           </div>
         </section>
         <Link href="/banter/unfinished" className="bt-today">
-          <Photo name="paintingWoman" sizes="360px" className="absolute inset-0 h-full" />
+          <Photo name="talkLaugh" sizes="360px" className="absolute inset-0 h-full" />
           <small>Today&apos;s Banter</small>
           <b>“{TODAYS_BANTER}”</b>
           <span>Join the Banter →</span>

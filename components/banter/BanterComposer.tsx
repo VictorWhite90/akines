@@ -25,7 +25,7 @@ import { newId } from "@/lib/useLocal";
 type Attach = "photo" | "voice" | "poll" | "music" | "video" | null;
 type AudienceKey = `cliq:${string}` | `circle:${string}` | "people" | "suggested" | "community";
 
-const PHOTOS: PhotoKey[] = ["studioEasel", "paintingWoman", "clayBowl", "textileHang", "galleryHall", "talkGroup"];
+const PHOTOS: PhotoKey[] = ["talkGroup", "talkLaugh", "journalCoffee", "talkCafe", "calmBench", "studioBusy"];
 const others = allPeople.filter((p) => p.id !== ME.id).map((p) => p.id as PersonId);
 const SUGGESTED: PersonId[] = ["wanjiru", "efua", "kwame", "thandi"];
 

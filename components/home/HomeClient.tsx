@@ -73,7 +73,7 @@ export function MoodCheckin() {
   const mood = MOODS.find((m) => m.id === picked);
   return (
     <section className="panel mood">
-      <h3>How is your creative self today?</h3>
+      <h3>How are you today?</h3>
       <p>A small check-in helps Akines support—not judge—you.</p>
       <div className="moods" role="radiogroup" aria-label="Today's mood">
         {MOOD_GLYPHS.map((m) => (

@@ -25,7 +25,7 @@ export default function Photo({
 }) {
   const photo = PHOTO[name];
   return (
-    <div className={cn(!className?.includes("absolute") && "relative", "overflow-hidden bg-paper-200", className)} style={ratio ? { aspectRatio: ratio } : undefined}>
+    <div className={cn(!className?.includes("absolute") && "relative", "ph-load overflow-hidden bg-paper-200", className)} style={ratio ? { aspectRatio: ratio } : undefined}>
       <Image src={photo.src} alt={photo.alt} fill sizes={sizes} priority={priority} className="object-cover" style={{ objectPosition: position }} />
       {children}
     </div>

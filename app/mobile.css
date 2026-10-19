@@ -276,3 +276,20 @@ html[data-theme="dark"] .dr { background: #0a0a0f; border-right: 1px solid var(-
 @media (max-width: 760px) {
   .st-how { display: none !important; }
 }
+@media (max-width: 760px) {
+  /* Home post box: compact, one row of types, small footer. */
+  .app .hm .kn-composer { padding: 12px !important; border-radius: 18px !important; }
+  .app .hm .kn-composer .types { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; gap: 4px; }
+  .app .hm .kn-composer .types::-webkit-scrollbar { display: none; }
+  .app .hm .kn-composer .types button { flex: none; white-space: nowrap; font-size: 12px !important; padding: 5px 10px !important; }
+  .app .hm .kn-composer textarea { font-size: 14.5px !important; min-height: 0; }
+  .app .hm .kn-composer textarea:not(:focus):placeholder-shown { height: 44px; }
+  .app .hm .kn-composer .foot { flex-wrap: nowrap; gap: 6px; padding-top: 8px; }
+  .app .hm .kn-composer .foot select { max-width: 130px; font-size: 12.5px; }
+  .app .hm .kn-composer .foot button { font-size: 13px; }
+}
+@media (max-width: 760px) {
+  .bc-acts { flex-wrap: nowrap !important; overflow-x: auto; scrollbar-width: none; }
+  .bc-acts::-webkit-scrollbar { display: none; }
+  .bc-acts > * { flex: none; white-space: nowrap; }
+}
