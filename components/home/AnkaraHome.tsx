@@ -35,17 +35,6 @@ const MOODS = [
 const GAME_PHOTO: Record<string, PhotoKey> = { remember: "photoAlbum", "two-truths": "talkLaugh", "city-eyes": "galleryViewer" };
 const GAME_TINT: Record<string, string> = { reconnection: "#e5007e", icebreakers: "#ffb000", creative: "#ff6b1a" };
 
-/** Filter the feed by what people are doing, not by popularity. */
-const TOPICS = [
-  { id: "all", label: "For you" },
-  { id: "ask", label: "Questions" },
-  { id: "help", label: "Help needed" },
-  { id: "discuss", label: "Discussions" },
-  { id: "invite", label: "Invitations" },
-  { id: "collaborate", label: "Collaborations" },
-  { id: "share", label: "Shared moments" },
-];
-
 const LIVE = [
   { kind: "Presence Room", title: "Starting over in a new city", sub: "Live now · 5 of 6 seats", href: "/rooms/photography-memory", who: ["wanjiru", "zuri", "efua"] as PersonId[], dot: "#e5007e" },
   { kind: "Banter Now", title: "Is AI going to take our jobs?", sub: "Live now · 20 min", href: "/banter/now/ai-art", who: ["tunde", "kwame", "zuri"] as PersonId[], dot: "#ffb000" },
@@ -57,7 +46,6 @@ export default function AnkaraHome() {
   const { all: banters } = useBanters();
   const { ids: joinedIds } = useJoined();
   const [tab, setTab] = useState<string>("mine");
-  const [topic, setTopic] = useState<string>("all");
   const [mood, setMood] = useLocal<number | null>("ak:home-mood", null);
   const [hello, setHello] = useLocal<string[]>("ak:home-hellos", []);
 
@@ -66,8 +54,7 @@ export default function AnkaraHome() {
   const [loading, setLoading] = useState(false);
   const sentinel = useRef<HTMLDivElement>(null);
   const feed = [...posts, ...MORE_POSTS]
-    .filter((p) => (tab === "all" ? true : tab === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === tab))
-    .filter((p) => topic === "all" || p.type === topic);
+    .filter((p) => (tab === "all" ? true : tab === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === tab));
   const shown = feed.slice(0, count);
   const done = count >= feed.length;
   const loadMore = () => {
@@ -137,7 +124,7 @@ export default function AnkaraHome() {
       </div>
     </Fragment>,
     <Fragment key="collab">
-      <Pic name="collabArt" sizes="(max-width: 1060px) 100vw, 1400px" position="center 45%" />
+      <Pic name="studioBusy" sizes="(max-width: 1060px) 100vw, 1400px" position="center 45%" />
       <div className="hero-copy">
         <span className="pill"><span className="live-dot" /> Collaboration · {collab.route}</span>
         <h2>Make something neither of you could make alone.</h2>
@@ -165,13 +152,7 @@ export default function AnkaraHome() {
         </nav>
       </header>
 
-      <nav className="kh-chips" aria-label="Topics">
-        {TOPICS.map((t) => (
-          <button key={t.id} aria-pressed={topic === t.id} className={topic === t.id ? "on" : undefined} onClick={() => { setTopic(t.id); setCount(6); document.getElementById("feed")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{t.label}</button>
-        ))}
-      </nav>
-
-      {/* Phones: what's live right now, in one row you can swipe. Replaces the greeting. */}
+      {/* What's live right now, in one row you can swipe. Replaces the greeting. */}
       <nav className="hm-livebar" aria-label="Happening now">
         {LIVE.map((l) => (
           <Link key={l.href} href={l.href} className="hm-lb" style={{ ["--k" as string]: l.dot } as React.CSSProperties}>
@@ -229,8 +210,7 @@ export default function AnkaraHome() {
               ))}
               <button role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : undefined} onClick={() => { setTab("all"); setCount(6); }}>All circles</button>
             </div>
-            {shown.length === 0 && <p className="hm-none">Nothing like that in these circles yet. <button onClick={() => setTopic("all")}>Show everything</button></p>}
-            <div className="hm-feed">
+                        <div className="hm-feed">
               <div className="hw">{shown.slice(0, 4).map((p) => <PostCard key={p.id} post={p} />)}</div>
 
               {/* Spotlight: a collaboration in progress */}
