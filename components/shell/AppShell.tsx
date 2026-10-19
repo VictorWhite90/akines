@@ -27,7 +27,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [intent, setIntent] = useState(false);
 
   const router = useRouter();
-  const open = ["/login", "/signup", "/about", "/about/philosophy", "/welcome"].includes(pathname);
+  const open = ["/login", "/signup", "/about", "/about/philosophy", "/welcome"].includes(pathname) || pathname.startsWith("/circles/join/");
   const [gate, setGate] = useState<"checking" | "in" | "out">("checking");
 
   // Prototype gate: signed-out visitors meet the Welcome screen first.
@@ -38,6 +38,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     recordRoute(pathname);
   }, [pathname]);
+  // After signing in from an invite link, finish joining that community.
+  useEffect(() => {
+    if (gate !== "in") return;
+    try {
+      const code = localStorage.getItem("ak:pending-invite");
+      if (code) {
+        localStorage.removeItem("ak:pending-invite");
+        router.replace(`/circles/join/${code}`);
+      }
+    } catch {}
+  }, [gate, router]);
   useEffect(() => {
     if (gate === "out" && !open) router.replace("/about");
   }, [gate, open, router]);
@@ -79,7 +90,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         ))}
       </nav>
       {/* Hidden in KinMessage, where it would sit on top of the Send button. */}
-      {!isActive(pathname, "/messages") && <button className="nx-fab" onClick={() => setBegin(true)} aria-label="Create" aria-haspopup="dialog"><Add size={26} color="currentColor" /></button>}
+      {!isActive(pathname, "/messages") && !pathname.includes("/events/") && !pathname.includes("/check-in/") && <button className="nx-fab" onClick={() => setBegin(true)} aria-label="Create" aria-haspopup="dialog"><Add size={26} color="currentColor" /></button>}
 
       <Drawer open={more} onClose={() => setMore(false)} onCompanion={() => setCompanion(true)} />
       <CreateChooser open={begin} onClose={() => setBegin(false)} onIntent={() => setIntent(true)} />

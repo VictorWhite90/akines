@@ -47,7 +47,7 @@ export default function BanterCard({ banter, highlight = false }: { banter: Bant
 
   const grow = () => {
     localStorage.setItem(KINCIRCLE_PREFILL, JSON.stringify({ type: banter.type === "collab" ? "project" : "creative", name: banter.spark?.suggestion ?? banter.prompt.slice(0, 40), purpose: `Grew out of a Banter: “${banter.prompt}”`, invitees: [banter.by, ...resonance] }));
-    router.push("/circles/new");
+    router.push("/circles/new?size=small");
   };
 
   return (

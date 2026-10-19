@@ -10,6 +10,9 @@ import { useJoined } from "./useJoined";
 import { CIRCLES } from "@/lib/data/community";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
+import { useCommunities } from "./useCommunities";
+import { EventCard } from "./community/CommunityCircleView";
+import { ShieldTick } from "iconsax-reactjs";
 
 const EMERALD = "#00a86b";
 const c = { ["--c" as string]: EMERALD } as React.CSSProperties;
@@ -41,6 +44,8 @@ export default function KinCirclesPage() {
   const [saved] = useLocal<SavedKinCircle[]>("ak:kincircles", []);
   const [filter, setFilter] = useState<Filter>("all");
   const [q, setQ] = useState("");
+  const cc = useCommunities();
+  const upcoming = cc.allEvents.slice(0, 4);
 
   const joined = CIRCLES.filter((x) => has(x.id));
   const term = q.trim().toLowerCase();
@@ -51,17 +56,37 @@ export default function KinCirclesPage() {
       <div className="ap-hello">
         <div>
           <p style={{ margin: 0, fontSize: 12, fontWeight: 700, letterSpacing: ".12em", textTransform: "uppercase", color: EMERALD }}>KinCircle</p>
-          <h1 style={{ marginTop: 4 }}>Small groups. Shared purpose.</h1>
-          <p>Three to twelve people, one intention, a journey with a beginning and a choice at the end.</p>
+          <h1 style={{ marginTop: 4 }}>Circles, small or big.</h1>
+          <p>Join a community circle to meet people at real events, then start a small circle with the people you click with.</p>
         </div>
         <div className="ap-now">
           <a href="#mine"><i style={{ background: EMERALD }} />You&apos;re in {joined.length + saved.length + 1} circles</a>
           <a href="#browse"><i style={{ background: "#ffb000" }} />{CIRCLES.length} open to join</a>
-          <Link href="/circles/new" style={{ background: "#14121a", color: "#fff", borderColor: "#14121a" }}>＋ Start a KinCircle</Link>
+          <Link href="/circles/new" style={{ background: "#14121a", color: "#fff", borderColor: "#14121a" }}>＋ Start a circle</Link>
         </div>
       </div>
 
       <KinCircleHero />
+
+      {/* Community circles: organisations with leaders, members and events */}
+      <section id="communities" className="kc-section kh cm-list">
+        <div className="kh-sec"><div><h2>Community circles</h2><p>Clubs and communities in Abuja with events you can book.</p></div><Link href="/circles/new?size=community" className="kh-btn amber sm">＋ Start a community circle</Link></div>
+        <div className="cm-cards">
+          {cc.all.map((x) => (
+            <Link key={x.id} href={`/circles/community/${x.id}`} className="cm-card">
+              <Photo name={x.photo} sizes="360px" className="cm-card-img" />
+              <div className="cm-card-tx">
+                <small>{x.category} · {x.area}</small>
+                <b>{x.name}{x.verified && <ShieldTick size={16} color="#f4a63a" variant="Bold" aria-label="Verified" />}</b>
+                <p>{x.tagline}</p>
+                <span className="cm-card-foot"><span>{cc.memberCount(x).toLocaleString()} members</span>{cc.isMember(x.id) ? <span className="cm-chip ok">{cc.isLeader(x) ? "Leader" : "Member"}</span> : <span className="cm-chip">Join</span>}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className="kh-sec" style={{ marginTop: 28 }}><div><h2>Upcoming events</h2><p>From community circles across Abuja.</p></div><Link href="/circles/join/code" className="kh-link">Have an invite code?</Link></div>
+        <div className="cm-evs">{upcoming.map((e) => <EventCard key={e.id} e={e} circle={cc.find(e.circleId)} />)}</div>
+      </section>
 
       {/* Your active journey */}
       <section id="mine" className="kc-section">

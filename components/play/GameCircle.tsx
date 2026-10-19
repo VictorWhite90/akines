@@ -88,7 +88,7 @@ export default function GameCircle({ game, title, players, mode }: { game: Game;
               const act = () => {
                 if (a.id === "circle") {
                   localStorage.setItem(KINCIRCLE_PREFILL, JSON.stringify({ type: "friendship", name: title, purpose: `Grew out of playing “${game.name}” together.`, invitees: everyone }));
-                  router.push("/circles/new");
+                  router.push("/circles/new?size=small");
                   return;
                 }
                 if (a.href) {

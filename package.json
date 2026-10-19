@@ -10,8 +10,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@types/qrcode": "^1.5.5",
     "iconsax-reactjs": "^0.0.8",
     "next": "16.0.10",
+    "qrcode": "^1.5.4",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },

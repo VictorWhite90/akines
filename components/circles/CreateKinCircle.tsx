@@ -43,11 +43,12 @@ export type KinCircleDraft = {
 /** localStorage key other pages use to open the wizard with a draft already filled in. */
 export const KINCIRCLE_PREFILL = "ak:kincircle-prefill";
 
-export type SavedKinCircle = KinCircleDraft & { id: string; createdAt: string };
+/** parentId: the community circle this small circle belongs to, if any. */
+export type SavedKinCircle = KinCircleDraft & { id: string; createdAt: string; parentId?: string };
 
 const invitable = allPeople.filter((p) => p.id !== ME.id);
 
-export default function CreateKinCircle() {
+export default function CreateKinCircle({ parentId, parentName }: { parentId?: string; parentName?: string }) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [draft, setDraft] = useState<KinCircleDraft>({ type: "creative", name: "", purpose: "", invitees: [], agreements: [AGREEMENTS[0], AGREEMENTS[1]] });
@@ -78,9 +79,9 @@ export default function CreateKinCircle() {
     setDraft((d) => ({ ...d, agreements: d.agreements.includes(line) ? d.agreements.filter((x) => x !== line) : [...d.agreements, line] }));
 
   const create = () => {
-    const circle: SavedKinCircle = { ...draft, id: newId("kc"), createdAt: new Date().toISOString() };
+    const circle: SavedKinCircle = { ...draft, id: newId("kc"), createdAt: new Date().toISOString(), parentId };
     setSaved((cur) => [circle, ...cur]);
-    router.push("/circles#mine");
+    router.push(parentId ? `/circles/community/${parentId}?tab=small` : "/circles#mine");
   };
 
   return (
@@ -89,7 +90,7 @@ export default function CreateKinCircle() {
         <Link href="/" className="inline-flex items-center rounded-lg bg-ink-950 px-3 py-2">
           <Image src="/akines_logo_transparent.png" alt="Akines" width={168} height={45} className="h-5 w-auto" priority />
         </Link>
-        <Link href="/circles" className="mt-1 text-[13px] text-mute hover:text-ink-950">Exit</Link>
+        <Link href={parentId ? `/circles/community/${parentId}` : "/circles"} className="mt-1 text-[13px] text-mute hover:text-ink-950">Exit</Link>
       </div>
 
       <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center overflow-hidden px-0 py-6 sm:px-6 sm:py-10">
@@ -99,7 +100,8 @@ export default function CreateKinCircle() {
           <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[10px] font-bold tracking-[1.5px] text-ochre-300 uppercase">
             <span className="h-[6px] w-[6px] rounded-full bg-ochre-400" /> New KinCircle
           </span>
-          <h1 className="font-display mt-4 text-[26px] leading-[1.1] font-semibold text-white">Create your KinCircle</h1>
+          <h1 className="font-display mt-4 text-[26px] leading-[1.1] font-semibold text-white">Create a small circle</h1>
+          {parentName && <p className="mt-2 inline-flex rounded-full bg-white/10 px-3 py-1 text-[12px] text-white/80">Inside {parentName}</p>}
           <p className="mt-2 text-[13px] leading-relaxed text-white/60">Five thoughtful choices turn a group into a purposeful relationship journey.</p>
 
           <ol className="mt-7 flex flex-col gap-1">

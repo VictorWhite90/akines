@@ -183,7 +183,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
 
   const toKinCircle = () => {
     localStorage.setItem(KINCIRCLE_PREFILL, JSON.stringify({ name: c.kind === "direct" ? `${PEOPLE[c.members[0]].name.split(" ")[0]} & me` : c.name, purpose: `Grew out of our conversation in KinMessage.`, invitees: c.members }));
-    router.push("/circles/new");
+    router.push("/circles/new?size=small");
   };
 
   const sparkGo = (action: "collab" | "circle") => (action === "circle" ? toKinCircle() : router.push("/collaborate"));

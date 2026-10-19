@@ -103,7 +103,7 @@ export default function BanterThread({ id }: { id: string }) {
       KINCIRCLE_PREFILL,
       JSON.stringify({ type: banter.type === "collab" ? "project" : "creative", name: spark?.suggestion ?? banter.prompt.slice(0, 40), purpose: `Started from a Banter: “${banter.prompt}”`, invitees: spark?.people ?? [banter.by, ...resonance, ...replies.map((r) => r.by)] }),
     );
-    router.push("/circles/new");
+    router.push("/circles/new?size=small");
   };
 
   const saveInsight = () => {

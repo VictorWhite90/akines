@@ -93,7 +93,7 @@ export default function BanterRoom({ id }: { id: string }) {
 
   const toCircle = () => {
     localStorage.setItem(KINCIRCLE_PREFILL, JSON.stringify({ type: b.type === "collab" ? "project" : "creative", name: b.spark?.suggestion ?? b.prompt.slice(0, 40), purpose: `Grew out of a Banter: “${b.prompt}”`, invitees: [...new Set([...(b.spark?.people ?? []), ...inside])] }));
-    router.push("/circles/new");
+    router.push("/circles/new?size=small");
   };
 
   return (

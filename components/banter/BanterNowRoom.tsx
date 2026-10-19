@@ -83,7 +83,7 @@ export default function BanterNowRoom({ id }: { id: string }) {
           <button
             onClick={() => {
               localStorage.setItem(KINCIRCLE_PREFILL, JSON.stringify({ name: session.topic.slice(0, 40), purpose: `Started from Banter Now: “${session.topic}”`, invitees: people }));
-              router.push("/circles/new");
+              router.push("/circles/new?size=small");
             }}
             className="rounded-[18px] border border-line bg-paper-50 p-4 text-left hover:border-ink-400"
           >
