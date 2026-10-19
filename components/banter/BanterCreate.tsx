@@ -21,6 +21,25 @@ const IDEAS = ["What's one thing you're proud of this week?", "Be honest: should
 const MOODS: BanterMood[] = ["fun", "honest", "debate", "think", "encourage", "celebrate"];
 const STEPS = ["How", "Your question", "Who hears it"];
 
+/** Shrink an uploaded photo so it stays light enough to keep in the browser. */
+function downscale(file: File, max = 900): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * k);
+      c.height = Math.round(img.height * k);
+      c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL("image/jpeg", 0.8));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
 /** Start a Banter: three short steps in a modal, so nobody has to read a long form. */
 export default function BanterCreate({ open, onClose, initialShape = "chat" }: { open: boolean; onClose: () => void; initialShape?: "chat" | "live" }) {
   const router = useRouter();
@@ -37,6 +56,18 @@ export default function BanterCreate({ open, onClose, initialShape = "chat" }: {
   const [life, setLife] = useState<BanterLifetime>("3d");
   const [minutes, setMinutes] = useState(20);
   const [ack, setAck] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
+  const [imgErr, setImgErr] = useState("");
+  const pick = async (f?: File) => {
+    if (!f) return;
+    if (!f.type.startsWith("image/")) return setImgErr("That isn't an image.");
+    try {
+      setImage(await downscale(f));
+      setImgErr("");
+    } catch {
+      setImgErr("Couldn't read that photo. Try another.");
+    }
+  };
 
   // eslint-disable-next-line react-hooks/set-state-in-effect -- the portal needs document.body, which only exists after mount
   useEffect(() => setMounted(true), []);
@@ -69,7 +100,7 @@ export default function BanterCreate({ open, onClose, initialShape = "chat" }: {
     const b: Banter = {
       id: newId("banter"), by: ME.id as PersonId, format: "ask", type: "everyday", mood,
       audience: aud === "community" ? "community" : aud.startsWith("circle") ? "circle" : "selected",
-      audienceLabel: audience.label, lifetime: life, prompt: q.trim(), ago: "now", reactions: {}, replies: [], resonance: [], reach: audience.reach, mine: true,
+      audienceLabel: audience.label, lifetime: life, prompt: q.trim(), ago: "now", reactions: {}, replies: [], resonance: [], reach: audience.reach, mine: true, image: image ?? undefined,
     };
     add(b);
     onClose();
@@ -108,6 +139,23 @@ export default function BanterCreate({ open, onClose, initialShape = "chat" }: {
             <>
               <textarea autoFocus value={q} onChange={(e) => { setQ(e.target.value); setAck(false); }} rows={3} placeholder="Ask one honest question…" maxLength={180} />
               <p className="bc-count">{q.length}/180</p>
+              {shape === "chat" && (
+                <div className="bc-photo">
+                  {image ? (
+                    <span className="bc-thumb">
+                      {/* eslint-disable-next-line @next/next/no-img-element -- local preview of the member's upload */}
+                      <img src={image} alt="Your photo" />
+                      <button onClick={() => setImage(null)} aria-label="Remove photo">×</button>
+                    </span>
+                  ) : (
+                    <label className="bc-add">
+                      <input type="file" accept="image/*" onChange={(e) => pick(e.target.files?.[0])} />
+                      <span aria-hidden>▣</span> Add a photo <small>optional</small>
+                    </label>
+                  )}
+                  {imgErr && <small className="bc-err">{imgErr}</small>}
+                </div>
+              )}
               {issue && (
                 <div className="bc-warn">
                   <b>{issue === "harsh" ? "This could sound personal rather than playful." : "This reads as a judgement about a whole group."}</b>
@@ -141,8 +189,12 @@ export default function BanterCreate({ open, onClose, initialShape = "chat" }: {
                   : ([["24h", "Tonight"], ["3d", "3 days"], ["1w", "A week"]] as const).map(([id, l]) => <button key={id} className={life === id ? "on" : undefined} onClick={() => setLife(id)}>{l}</button>)}
               </div>
               <div className="bc-preview">
-                <small>{shape === "live" ? "Live Banter" : "Banter chat"} · {audience.label}</small>
-                <b>“{q.trim()}”</b>
+                <div>
+                  <small>{shape === "live" ? "Live Banter" : "Banter chat"} · {audience.label}</small>
+                  <b>“{q.trim()}”</b>
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element -- local preview of the member's upload */}
+                {image && <img src={image} alt="" />}
               </div>
             </>
           )}

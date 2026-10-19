@@ -551,3 +551,34 @@ html[data-theme="dark"] .bc-foot { border-color: var(--dk-line); }
 .app .hm.kh .hm-cthumb { width: 56px !important; height: 52px !important; }
 .app .hm.kh .hm-side .hm-card { padding: 14px 16px; }
 @media (max-width: 1180px) { .app .hm.kh .hm-side { position: static; max-height: none; overflow: visible; } }
+
+/* Start a Banter: optional photo */
+.bc-photo { display: flex; align-items: center; gap: 10px; margin-top: 4px; }
+.bc-add { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 999px; border: 1px dashed #c0c0c0; font-size: 13px; cursor: pointer; }
+.bc-add input { display: none; }
+.bc-add small { color: #969696; }
+.bc-thumb { position: relative; width: 72px; height: 72px; border-radius: 10px; overflow: hidden; }
+.bc-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.bc-thumb button { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; border: 0; border-radius: 999px; background: rgba(20,18,26,.7); color: #fff; cursor: pointer; }
+.bc-err { color: #d0453a; font-size: 12px; }
+.bc-preview { display: flex; gap: 12px; align-items: center; }
+.bc-preview > div { flex: 1; min-width: 0; }
+.bc-preview img { width: 64px; height: 64px; flex: none; border-radius: 8px; object-fit: cover; }
+html[data-theme="dark"] .bc-add { border-color: var(--dk-s3); }
+
+/* Banter typography matches Home: SemiBold headings, Regular body. */
+.bh-head h1 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+.bh-sub h3 { font-weight: 600; }
+.bh-host { font-size: 16px; font-weight: 500; }
+.bh-live h2 { font-size: 26px; font-weight: 600; line-height: 1.3; }
+.bh-count b { font-size: 15px; font-weight: 600; }
+.bh-start { font-size: 14px; font-weight: 600; height: 44px; }
+.bh-join, .bh-live-acts button { font-size: 15px; font-weight: 600; }
+.bh-filters button { font-size: 14px; }
+.bh-topics b { font-size: 14px; font-weight: 600; }
+.bh-topics small { font-size: 12px; }
+.bh .kh-trend li a b { font-size: 14px; font-weight: 600; }
+.bh-open { font-size: 14px; }
+.bh-eng { font-size: 14px; }
+.bc-shapes b { font-size: 15px; }
+@media (max-width: 760px) { .bh-live h2 { font-size: 20px; } .bh-head h1 { font-size: 19px !important; } }
