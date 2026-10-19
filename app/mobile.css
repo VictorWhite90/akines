@@ -246,7 +246,7 @@ html[data-theme="dark"] .dr { background: #0a0a0f; border-right: 1px solid var(-
 }
 @media (max-width: 760px) {
   /* Explainers that only make sense with room to breathe. */
-  .bd-how, .kc-rhythm { display: none !important; }
+  .bd-how, .kc-rhythm-sec { display: none !important; }
   .rm-rules { display: none !important; }
   .kc-types { display: flex !important; gap: 10px; overflow-x: auto; scrollbar-width: none; margin: 0 -14px; padding: 0 14px 4px; }
   .kc-types::-webkit-scrollbar { display: none; }

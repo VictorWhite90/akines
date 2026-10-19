@@ -260,7 +260,7 @@ function PersonPanel({ star, decided, onClose, onIntro, onToast }: { star: Star;
         )
       ) : (
         <div className="cx-actions">
-          <Link className="cx-btn brass" href="/banter#start">❝ Banter with {first}</Link>
+          <Link className="cx-btn brass" href="/banter?new=chat">❝ Banter with {first}</Link>
           <button className="cx-btn" onClick={() => onToast(`Voice note sent to ${first}.`)}>◉ Voice note</button>
           <Link className="cx-btn" href="/play">☺ Play a game</Link>
           <Link className="cx-btn" href="/rooms/new">◉ Invite to a room</Link>

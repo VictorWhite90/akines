@@ -11,8 +11,8 @@ const GROUPS: { title: string; items: Item[] }[] = [
   {
     title: "Talk",
     items: [
-      { glyph: "❝", label: "Banter", body: "One honest question, a small chat.", href: "/banter#start", color: "#ffb000" },
-      { glyph: "◉", label: "Live talk", body: "A voice Banter, now, 2–8 people.", href: "/banter#start", color: "#e5007e" },
+      { glyph: "❝", label: "Banter", body: "One honest question, a small chat.", href: "/banter?new=chat", color: "#ffb000" },
+      { glyph: "◉", label: "Live talk", body: "A voice Banter, now, 2–8 people.", href: "/banter?new=live", color: "#e5007e" },
       { glyph: "✉", label: "KinMessage", body: "A private chat with someone.", href: "/messages", color: "#7b2ff7" },
     ],
   },

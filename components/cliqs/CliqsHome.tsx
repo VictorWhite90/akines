@@ -150,7 +150,7 @@ export default function CliqsHome() {
               )}
 
               <div className="cq-actions">
-                <Link href="/banter#start" className="cq-act lead"><span>❝</span>Banter</Link>
+                <Link href="/banter?new=chat" className="cq-act lead"><span>❝</span>Banter</Link>
                 <Link href="/banter" className="cq-act"><span>◉</span>Banter Now</Link>
                 <Link href="/play" className="cq-act"><span>☺</span>Play</Link>
                 <button className="cq-act" onClick={() => setToast(`Voice note sent to ${q.name}.`)}><span>♪</span>Voice note</button>

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import BanterDeck from "@/components/banter/BanterDeck";
+import { Suspense } from "react";
+import BanterHub from "@/components/banter/BanterHub";
 
 export const metadata: Metadata = { title: "Banter · Akines" };
 
 export default function BanterPage() {
-  return <BanterDeck />;
+  return <Suspense><BanterHub /></Suspense>;
 }

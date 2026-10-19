@@ -159,7 +159,7 @@ function PaneBody({ pane, open, sel }: { pane: Pane; open: (p: Pane) => void; se
           </div>
         )}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "14px 0" }}>
-          <Link className="lx-btn brass" href="/banter#start">❝ Banter</Link>
+          <Link className="lx-btn brass" href="/banter?new=chat">❝ Banter</Link>
           <button className="lx-btn">◉ Voice note</button>
           <button className="lx-btn" onClick={() => open({ kind: "game", id: "two-truths" })}>☺ Play</button>
         </div>

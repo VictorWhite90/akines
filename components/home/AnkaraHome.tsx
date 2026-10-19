@@ -148,7 +148,7 @@ export default function AnkaraHome() {
           <Link href="/banter"><b>8</b>Banters for you</Link>
           <Link href="/rooms"><b className="live">1</b>room live now</Link>
           <Link href="/kindred"><b>2</b>introductions</Link>
-          <Link href="/banter#start" className="go">❝ Start a Banter</Link>
+          <Link href="/banter?new=chat" className="go">❝ Start a Banter</Link>
         </nav>
       </header>
 
@@ -178,10 +178,7 @@ export default function AnkaraHome() {
           <section className="hb" aria-label="Banter">
             <div className="hs-strip-head">
               <div><small>Banter</small><h3>Questions waiting for you</h3></div>
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                <Link href="/banter">See all →</Link>
-                <Link href="/banter#start" className="hb-start">＋ Start a Banter</Link>
-              </div>
+              <Link href="/banter">See all →</Link>
             </div>
             <Link href="/banter/unfinished" className="hb-banner">
               <span className="hb-banner-img"><Photo name="talkLaugh" sizes="260px" className="absolute inset-0 h-full" position="center 25%" /></span>
@@ -279,7 +276,7 @@ export default function AnkaraHome() {
 
               <div ref={sentinel} className="hm-more">
                 {feed.length > 0 && (done ? (
-                  <p>✓ You&apos;re all caught up. <Link href="/circles">Find another circle</Link> or <Link href="/banter#start">start a Banter</Link>.</p>
+                  <p>✓ You&apos;re all caught up. <Link href="/circles">Find another circle</Link> or <Link href="/banter?new=chat">start a Banter</Link>.</p>
                 ) : (
                   <button onClick={loadMore} disabled={loading}>{loading ? <><span className="hm-spin" />Loading more from your circles…</> : `Show more · ${feed.length - count} older posts`}</button>
                 ))}
@@ -329,7 +326,7 @@ export default function AnkaraHome() {
 
           <section className="hm-card">
             <div className="hm-cardhead"><h3>Your circles</h3><Link href="/circles">See all</Link></div>
-            {joined.map((c) => (
+            {joined.slice(0, 3).map((c) => (
               <Link key={c.id} href={`/circles/${c.id}`} className="hm-circle">
                 <span className="hm-cthumb"><Photo name={c.photo} sizes="44px" className="h-full" /></span>
                 <span><b>{c.name}</b><small>{c.members} members · {c.active} active</small></span>

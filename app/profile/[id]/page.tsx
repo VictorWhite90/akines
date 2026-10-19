@@ -55,7 +55,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             ) : (
               <>
                 <Link href={`/messages/${p.id}`} className="ap-cta">Message {p.name.split(" ")[0]}</Link>
-                <Link href="/banter#start" className="ap-btn">Start a Banter</Link>
+                <Link href="/banter?new=chat" className="ap-btn">Start a Banter</Link>
                 {studio && <Link href={`/studios/${p.id}`} className="ap-btn">Visit their space</Link>}
               </>
             )}

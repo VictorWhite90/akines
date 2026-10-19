@@ -45,7 +45,7 @@ const INTENTIONS: { id: string; label: string; items: Item[] }[] = [
     items: [
       { kind: "Presence Room", photo: "talkMugs", title: "What does home remember?", why: "Six seats, two left. Everyone speaks once before anyone replies.", status: "open", href: "/atelier/room", size: "big" },
       { kind: "Person", person: "kwame", title: "Kwame Mensah", why: "He shared something unfinished with you this morning. You could return the trust.", status: "cliq", href: "/banter/unfinished" },
-      { kind: "Banter", photo: "paintingWoman", title: "Show us something unfinished you're afraid to share", why: "Today's Banter, only to your Makers' Cliq.", status: "cliq", href: "/banter#start", size: "small" },
+      { kind: "Banter", photo: "paintingWoman", title: "Show us something unfinished you're afraid to share", why: "Today's Banter, only to your Makers' Cliq.", status: "cliq", href: "/banter?new=chat", size: "small" },
       { kind: "Journal", photo: "journalWindow", title: "Write a page, keep it private", why: "Not everything needs an audience. Some days the page is enough.", status: "open", href: "/journal", far: true },
     ],
   },
@@ -74,7 +74,7 @@ const INTENTIONS: { id: string; label: string; items: Item[] }[] = [
     label: "Make something small",
     items: [
       { kind: "Game", photo: "studioEasel", title: "Complete this unfinished artwork", why: "One line each. Ayo and Thandi are playing at six.", status: "cliq", href: "/play/unfinished-artwork", size: "big" },
-      { kind: "Person", person: "ayo", title: "Ayo Balogun", why: "Dyeing panel 7 right now. Ask what the vat taught them today.", status: "cliq", href: "/banter#start" },
+      { kind: "Person", person: "ayo", title: "Ayo Balogun", why: "Dyeing panel 7 right now. Ask what the vat taught them today.", status: "cliq", href: "/banter?new=chat" },
       { kind: "Studio", photo: "clayBowl", title: "Post a sketch to your studio", why: "Three people visited this week. A small update keeps them close.", status: "open", href: "/studio", size: "small" },
     ],
   },
@@ -83,7 +83,7 @@ const INTENTIONS: { id: string; label: string; items: Item[] }[] = [
     label: "Feel less alone",
     items: [
       { kind: "Banter Now", photo: "talkLaugh", title: "Is AI helping or damaging African art?", why: "Live now with Tunde, Kwame and Zuri. Join to listen first.", status: "cliq", href: "/banter/now/ai-art", size: "big" },
-      { kind: "Person", person: "thandi", title: "Thandi Dlamini", why: "Her bowls live on your table. A voice note would land well.", status: "cliq", href: "/banter#start" },
+      { kind: "Person", person: "thandi", title: "Thandi Dlamini", why: "Her bowls live on your table. A voice note would land well.", status: "cliq", href: "/banter?new=chat" },
       { kind: "Game", photo: "photoAlbum", title: "How Well Do We Remember?", why: "Kwame's university game night, 20:00. You were invited for a reason.", status: "circle", href: "/play/session/uni-night", size: "small" },
       { kind: "Wellbeing", photo: "calmBench", title: "Talk to someone trained", why: "Verified art therapists, when you'd like more than a friend.", status: "open", href: "/wellbeing", far: true },
     ],
