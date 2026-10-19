@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import KinHome from "@/components/home/KinHome";
+import AnkaraHome from "@/components/home/AnkaraHome";
 
 export const metadata: Metadata = { title: "Home · Akines" };
 
-/** Home: built to the Figma community-home frame, with Akines content. */
+/** Home: all of Akines (Banter, live rooms, games, stories) in the Figma community-home styling. */
 export default function Home() {
-  return <KinHome />;
+  return <AnkaraHome />;
 }

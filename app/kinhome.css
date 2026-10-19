@@ -216,3 +216,131 @@ html[data-theme="dark"] .app.nx .nx-top :is(.nx-icon, .nx-me) { background: var(
 @media (max-width: 900px) {
   html[data-theme="dark"] .app.nx .nx-top .nx-icon.nx-bell { background: none !important; }
 }
+
+/* =========================================================
+   Our Home (Banter, live, games, stories…) in the Figma skin.
+   .hm.kh = AnkaraHome content + Figma tokens above.
+   ========================================================= */
+.app .hm.kh { background: var(--k-surface); }
+.app .hm.kh .hm-hello { display: none; }
+.app .hm.kh .hm-grid { grid-template-columns: minmax(0, 1fr) 348px; gap: 24px; margin-top: 0; }
+.app .hm.kh .hm-main { gap: 48px; }
+.app .hm.kh .hm-side { top: 96px; gap: 24px; }
+.app .hm.kh :is(h2, h3, b, strong) { font-family: var(--font-manrope), sans-serif; }
+
+/* Cards everywhere: Figma card. */
+.app .hm.kh :is(.hm-card, .kn-composer, .hb, .hs-strip, .hs-spot) { padding: 16px; border-radius: 12px !important; border: .5px solid var(--k-border) !important; background: var(--k-subtle) !important; box-shadow: none !important; color: var(--k-ink); }
+.app .hm.kh .hs-spot { padding: 0; background: var(--k-subtle) !important; }
+.app .hm.kh .hs-strip, .app .hm.kh .hb { padding: 0; border: 0 !important; background: transparent !important; }
+
+/* Section heads = Figma Recommendation Header. */
+.app .hm.kh .hs-strip-head { align-items: center; margin-bottom: 13px; }
+.app .hm.kh .hs-strip-head small { display: block; font-size: 10px; font-weight: 500; letter-spacing: 1px; color: var(--k-amber) !important; }
+.app .hm.kh .hs-strip-head h3, .app .hm.kh .hm-feedhead h2 { margin: 0; font-size: 18px !important; font-weight: 600 !important; line-height: 1.6; letter-spacing: 0; color: var(--k-ink); }
+.app .hm.kh .hs-strip-head a, .app .hm.kh .hm-feedhead a, .app .hm.kh .hm-cardhead a { font-size: 12px; font-weight: 400; color: var(--k-info) !important; text-decoration: none; }
+.app .hm.kh .hm-feedhead { margin-bottom: 13px; }
+.app .hm.kh .hb-start { height: 34px; padding: 8px 16px !important; border-radius: 999px; background: var(--k-amber) !important; color: #181818 !important; font-size: 12px !important; font-weight: 600 !important; }
+
+/* Hero = Figma Community Introduction. */
+.app .hm.kh .hm-hero { margin: 0; }
+.app .hm.kh .hm-hero .hero { height: 282px !important; border-radius: 12px !important; border: .5px solid var(--k-border); box-shadow: none; }
+.app .hm.kh .hm-hero .hero-slide::after { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(24,24,24,.66) 0%, rgba(24,24,24,.66) 46%, rgba(255,255,255,0) 63.5%); pointer-events: none; }
+.app .hm.kh .hm-hero .hero-copy { left: 48px; bottom: auto; top: 50%; transform: translateY(-50%); width: min(420px, 60%); display: flex; flex-direction: column; gap: 12px; font-family: var(--font-manrope), sans-serif; }
+.app .hm.kh .hm-hero .hero-copy .pill { align-self: flex-start; height: 29px; padding: 8px 16px; border-radius: 999px; background: rgba(244,166,58,.08); border: .5px solid #dadada; color: #f9f9f9; font-size: 12px; font-weight: 500; letter-spacing: .5px; }
+.app .hm.kh .hm-hero .hero-copy h2 { margin: 6px 0 0 !important; max-width: 340px; font: 600 20px/1.4 var(--font-manrope), sans-serif !important; letter-spacing: 0 !important; }
+.app .hm.kh .hm-hero .hero p { margin: 0 0 6px; max-width: 410px; font-size: 14px; line-height: 1.6; color: #c0c0c0; }
+.app .hm.kh .hm-hero .hero-actions { gap: 24px; }
+.app .hm.kh .hm-hero .hero-actions :is(a, button) { padding: 10px 18px !important; border-radius: 999px; font: 400 14px/1.2 var(--font-manrope), sans-serif !important; }
+.app .hm.kh .hm-hero .hero-actions :is(.join, a:first-child, button:first-child) { background: var(--k-amber) !important; color: #181818 !important; border: 0; }
+.app .hm.kh .hm-hero .hero-actions :is(.ghost, a + a, button + a, button + button) { background: rgba(255,255,255,.21) !important; border: 1px solid #dadada !important; color: #f9f9f9 !important; }
+.app .hm.kh .hm-hero .hero-arrow { width: 24px; height: 34px; border: 0; background: none; color: #fefefe; }
+.app .hm.kh .hm-hero .hero-dots { bottom: 8px; gap: 8px; }
+.app .hm.kh .hm-hero .hero-dots button { width: 9px; height: 9px; background: #ccc; }
+.app .hm.kh .hm-hero .hero-dots button.on { width: 36px; background: #fefefe; }
+
+/* Today's Banter: light Figma card. */
+.app .hm.kh .hb-banner { padding: 8px !important; gap: 16px; border-radius: 12px !important; background: var(--k-subtle) !important; border: .5px solid var(--k-border) !important; color: var(--k-ink) !important; }
+.app .hm.kh .hb-banner-img { height: 96px; border-radius: 8px; }
+.app .hm.kh .hb-banner-tx small { font-size: 10px; font-weight: 500; letter-spacing: 1px; color: var(--k-amber) !important; }
+.app .hm.kh .hb-banner-tx b { font-size: 16px !important; font-weight: 600 !important; line-height: 1.6; }
+.app .hm.kh .hb-banner-go { padding: 8px 16px; border-radius: 999px; background: var(--k-amber); color: #181818; font-size: 12px; font-weight: 600 !important; }
+.app .hm.kh .hb-list > * { padding: 16px; border-radius: 12px; border: .5px solid var(--k-border); background: var(--k-subtle); box-shadow: none; }
+.app .hm.kh .hb-list :is(a, p, span, b) { font-family: var(--font-manrope), sans-serif; }
+.app .hm.kh .hb-list .bc-acts > * { font-weight: 400 !important; font-size: 12px; }
+
+/* Feed: single column, posts as Figma Feed Post (see .kh .kn-post). */
+.app .hm.kh .hw { display: flex !important; flex-direction: column; gap: 24px; columns: auto; margin-bottom: 24px; }
+.app .hm.kh .hw .kn-post { padding: 16px 30px !important; }
+.app .hm.kh .hw .kn-post .photo { height: 230px; border-radius: 4px; }
+.app .hm.kh .hm-tabs { gap: 8px; margin-bottom: 16px; }
+.app .hm.kh .hm-tabs button { height: 37px; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--k-border); background: var(--k-muted); color: var(--k-ink); font-size: 14px; font-weight: 400 !important; }
+.app .hm.kh .hm-tabs button.on { background: var(--k-ink); border-color: var(--k-ink); color: var(--k-surface); }
+.app .hm.kh .hm-feed > .hs-spot, .app .hm.kh .hm-feed > .hs-strip { margin-bottom: 24px; }
+.app .hm.kh .hm-more button { height: 37px; padding: 8px 20px; border-radius: 999px; border: 1px solid var(--k-border); background: var(--k-muted); color: var(--k-ink); font-size: 14px; font-weight: 400; }
+
+/* Collaboration spotlight */
+.app .hm.kh .hs-spot-tx small { font-size: 10px; font-weight: 500; letter-spacing: 1px; color: var(--k-amber) !important; }
+.app .hm.kh .hs-spot-tx b { font-size: 18px !important; font-weight: 600 !important; }
+.app .hm.kh .hs-spot-tx em { font-size: 14px; color: var(--k-ink-3); font-style: normal; }
+.app .hm.kh .hs-stages i { border-radius: 999px; font-size: 12px; font-style: normal; font-weight: 400; }
+.app .hm.kh .hs-go { padding: 8px 16px; border-radius: 999px; background: var(--k-amber) !important; color: #181818 !important; font-size: 12px; font-weight: 600; }
+
+/* Three-up tiles: games, stories, open doors = Figma Story Image cards. */
+.app .hm.kh .hs-row { gap: 25px; }
+.app .hm.kh :is(.hs-game, .hs-visit) { border-radius: 12px; border: .5px solid var(--k-border); background: var(--k-subtle); box-shadow: none; }
+.app .hm.kh :is(.hs-game-tx, .hs-visit-tx) { padding: 8px; gap: 8px; }
+.app .hm.kh :is(.hs-game-tx b, .hs-visit-tx b) { font-size: 16px; font-weight: 600; line-height: 1.6; }
+.app .hm.kh :is(.hs-game-tx small, .hs-visit-tx small) { font-size: 12px; font-weight: 500; letter-spacing: .5px; color: var(--k-ink-3); }
+.app .hm.kh .hs-story { height: 306px; border-radius: 12px; border: .5px solid var(--k-border); }
+.app .hm.kh .hs-story-tx small { font-size: 10px; font-weight: 500; letter-spacing: 1px; color: var(--k-amber); }
+.app .hm.kh .hs-story-tx b { font-size: 16px; font-weight: 600; line-height: 1.4; }
+.app .hm.kh :is(.hs-gmode, .hs-visit-img i) { padding: 5px 12px; border-radius: 999px; background: rgba(254,254,254,.94); color: #181818; font-size: 10px; font-weight: 500; font-style: normal; letter-spacing: 1px; text-transform: uppercase; }
+
+/* Side column = Figma side cards. */
+.app .hm.kh .hm-cardhead { margin-bottom: 8px; }
+.app .hm.kh .hm-cardhead h3 { font-size: 16px !important; font-weight: 600 !important; line-height: 1.6; letter-spacing: 0; }
+.app .hm.kh .hm-live { padding: 8px 0; margin: 0; border-radius: 0; border-bottom: .5px solid var(--k-border); color: var(--k-ink) !important; }
+.app .hm.kh .hm-live:last-child { border-bottom: 0; }
+.app .hm.kh .hm-live-tx small { font-size: 10px !important; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--k-amber) !important; }
+.app .hm.kh .hm-live-tx b { font-size: 14px; font-weight: 600 !important; }
+.app .hm.kh .hm-match { padding: 4px 8px; border-radius: 8px; background: var(--k-surface); }
+.app .hm.kh .hm-match b { font-size: 14px; font-weight: 400 !important; }
+.app .hm.kh .hm-match small, .app .hm.kh .hm-why { font-size: 12px; font-weight: 500; letter-spacing: .5px; color: var(--k-ink-3); font-style: normal; }
+.app .hm.kh .hm-two { gap: 16px; }
+.app .hm.kh .hm-btn { height: 34px; border-radius: 999px; border: .5px solid var(--k-outline); background: transparent; color: var(--k-ink); font: 600 12px var(--font-manrope), sans-serif !important; }
+.app .hm.kh .hm-btn.dark { border: 0; background: var(--k-amber); color: #181818; }
+.app .hm.kh .hm-circle { gap: 8px; padding: 0; margin: 0 0 8px; }
+.app .hm.kh .hm-cthumb { width: 74px !important; height: 70px !important; border-radius: 8px !important; }
+.app .hm.kh .hm-circle b { font-size: 14px; font-weight: 400 !important; }
+.app .hm.kh .hm-circle small { font-size: 12px; font-weight: 500; letter-spacing: .5px; color: var(--k-ink-3); }
+.app .hm.kh .hm-open { border: 0; padding: 0; font-size: 0; }
+.app .hm.kh .hm-open::after { content: "›"; font-size: 18px; color: var(--k-ink-3); }
+.app .hm.kh .hm-newc { border-radius: 999px; border: .5px solid var(--k-outline); font-size: 12px; font-weight: 600; }
+
+/* Composer keeps our post types, in Figma styling. */
+.app .hm.kh .kn-composer .types button { border-radius: 999px; font-size: 12px !important; font-weight: 400 !important; }
+.app .hm.kh .kn-composer .types button.on { background: var(--k-ink); color: var(--k-surface); }
+.app .hm.kh .kn-composer textarea { font: 400 14px/22.4px var(--font-manrope), sans-serif !important; letter-spacing: -.28px; background: transparent !important; }
+.app .hm.kh .kn-composer textarea::placeholder { color: var(--k-placeholder); }
+.app .hm.kh .kn-composer .foot button.go, .app .hm.kh .kn-composer .foot button:last-child { border-radius: 999px; background: var(--k-amber); color: #181818; font-size: 12px; font-weight: 400; }
+
+@media (max-width: 1180px) {
+  .app .hm.kh .hm-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 760px) {
+  .app .hm.kh .hm-main { gap: 28px; }
+  .app .hm.kh .hm-hero .hero { height: 260px !important; }
+  .app .hm.kh .hm-hero .hero-slide::after { background: linear-gradient(0deg, rgba(24,24,24,.8) 0%, rgba(24,24,24,.45) 60%, rgba(24,24,24,.1) 100%); }
+  .app .hm.kh .hm-hero .hero-copy { left: 16px; right: 16px; top: auto; bottom: 28px; transform: none; width: auto; gap: 8px; }
+  .app .hm.kh .hm-hero .hero-copy h2 { font-size: 18px !important; }
+  .app .hm.kh .hm-hero .hero-actions { gap: 10px; }
+  .app .hm.kh .hm-hero .hero-actions :is(a, button) { padding: 8px 14px !important; font-size: 13px !important; }
+  .app .hm.kh .hw .kn-post { padding: 12px 14px !important; }
+  .app .hm.kh .hw .kn-post .photo { height: 200px; }
+  .app .hm.kh .hs-strip-head h3, .app .hm.kh .hm-feedhead h2 { font-size: 16px !important; }
+  .app .hm.kh .hs-story { height: 240px; }
+}
+.app .hm.kh .hw .kn-post { display: flex !important; flex-direction: column; gap: 16px; }
+.app .hm.kh .hm-compose { margin-bottom: -24px; }
+.app .hm.kh .hm-live-tx small { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 760px) { .app .hm.kh .hm-compose { margin-bottom: -14px; } .app .hm.kh .hw .kn-post { gap: 12px; } }

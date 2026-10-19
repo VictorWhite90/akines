@@ -151,7 +151,7 @@ export default function AnkaraHome() {
   ];
 
   return (
-    <div className="ap ap-calm hm" style={{ ["--c" as string]: "#14121a" } as React.CSSProperties}>
+    <div className="ap ap-calm hm kh" style={{ ["--c" as string]: "#14121a" } as React.CSSProperties}>
       <header className="hm-hello">
         <div>
           <p>{today}</p>
@@ -164,6 +164,12 @@ export default function AnkaraHome() {
           <Link href="/banter#start" className="go">❝ Start a Banter</Link>
         </nav>
       </header>
+
+      <nav className="kh-chips" aria-label="Topics">
+        {TOPICS.map((t) => (
+          <button key={t.id} aria-pressed={topic === t.id} className={topic === t.id ? "on" : undefined} onClick={() => { setTopic(t.id); setCount(6); document.getElementById("feed")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>{t.label}</button>
+        ))}
+      </nav>
 
       {/* Phones: what's live right now, in one row you can swipe. Replaces the greeting. */}
       <nav className="hm-livebar" aria-label="Happening now">
@@ -209,7 +215,7 @@ export default function AnkaraHome() {
             </div>
           </section>
 
-          <section aria-label="Your circles' feed">
+          <section id="feed" aria-label="Your circles' feed" style={{ scrollMarginTop: 96 }}>
             <div className="hm-feedhead">
               <h2>Your circles&apos; feed</h2>
               <Link href="/circles">Manage circles →</Link>
@@ -222,11 +228,6 @@ export default function AnkaraHome() {
                 </button>
               ))}
               <button role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : undefined} onClick={() => { setTab("all"); setCount(6); }}>All circles</button>
-            </div>
-            <div className="hm-topics" role="group" aria-label="Topic">
-              {TOPICS.map((t) => (
-                <button key={t.id} aria-pressed={topic === t.id} className={topic === t.id ? "on" : undefined} onClick={() => { setTopic(t.id); setCount(6); }}>{t.label}</button>
-              ))}
             </div>
             {shown.length === 0 && <p className="hm-none">Nothing like that in these circles yet. <button onClick={() => setTopic("all")}>Show everything</button></p>}
             <div className="hm-feed">
