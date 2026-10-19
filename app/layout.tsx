@@ -21,6 +21,7 @@ import "./ankara.css";
 import "./dark.css";
 import "./dark-legacy.css";
 import "./kinhome.css";
+import "./design-system.css";
 import "./mobile.css";
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["500", "600"], style: ["normal", "italic"], display: "swap" });

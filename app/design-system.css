@@ -1,0 +1,91 @@
+/* =========================================================
+   Akines design system, applied app-wide.
+   Every older style variable (fonts, the warm Tailwind palette, the
+   per-page --ap / --nx / legacy tokens) now points at the designer's
+   tokens in tokens.css, so every page uses the same Manrope type scale,
+   greys, teal and amber, in light and dark.
+   Loaded after the page stylesheets; mobile.css still comes last.
+   ========================================================= */
+
+/* ---- Type: Manrope everywhere (next/font sets these on <html>, so they need !important) ---- */
+html {
+  --font-playfair: var(--font-manrope) !important;
+  --font-fraunces: var(--font-manrope) !important;
+  --font-instrument: var(--font-manrope) !important;
+  --font-dmsans: var(--font-manrope) !important;
+  --font-display: var(--font-manrope), system-ui, sans-serif;
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+}
+body { font-family: var(--font-manrope), system-ui, sans-serif; letter-spacing: var(--ak-tracking-loose); }
+
+/* ---- Tailwind palette -> tokens (light; dark.css remaps the same names inside the app) ---- */
+:root {
+  --color-ink-50: var(--ak-grey-50);   --color-ink-100: var(--ak-grey-100); --color-ink-200: var(--ak-grey-300);
+  --color-ink-300: var(--ak-grey-500); --color-ink-400: var(--ak-grey-600); --color-ink-500: var(--ak-grey-700);
+  --color-ink-600: var(--ak-grey-800); --color-ink-700: var(--ak-grey-800); --color-ink-800: var(--ak-grey-900);
+  --color-ink-900: var(--ak-grey-950); --color-ink-950: var(--ak-grey-950);
+  --color-night: var(--ak-grey-950);
+  --color-paper-50: var(--ak-surface-subtle); --color-paper-100: var(--ak-surface-default); --color-paper-200: var(--ak-surface-muted);
+  --color-paper-300: var(--ak-grey-200); --color-paper-400: var(--ak-grey-300);
+  --color-ochre-200: var(--ak-secondary-100); --color-ochre-300: var(--ak-secondary-400); --color-ochre-400: var(--ak-secondary-500);
+  --color-ochre-500: var(--ak-secondary-600); --color-ochre-600: var(--ak-secondary-700);
+  --color-clay-100: var(--ak-secondary-50); --color-clay-200: var(--ak-secondary-200); --color-clay-300: var(--ak-secondary-400);
+  --color-clay-400: var(--ak-secondary-500); --color-clay-500: var(--ak-secondary-600); --color-clay-600: var(--ak-secondary-700); --color-clay-700: var(--ak-secondary-800);
+  --color-moss-100: var(--ak-primary-50); --color-moss-300: var(--ak-primary-200); --color-moss-500: var(--ak-primary-400); --color-moss-700: var(--ak-primary-500);
+  --color-mute: var(--ak-text-tertiary);
+  --color-line: var(--ak-border-subtle);
+  /* Legacy page variables */
+  --ink: var(--ak-text-primary); --muted: var(--ak-text-tertiary); --paper: var(--ak-surface-muted); --cream: var(--ak-surface-subtle);
+  --forest: var(--ak-action-akines-primary-default); --lime: var(--ak-secondary-500); --orange: var(--ak-secondary-600); --line: var(--ak-border-subtle);
+  --shadow: none;
+}
+
+/* ---- Per-page token sets -> design tokens ---- */
+.app .ap, .app .ap-calm, .ap {
+  --ap-ink: var(--ak-text-primary); --ap-mute: var(--ak-text-tertiary); --ap-line: var(--ak-border-subtle);
+  --ap-bg: var(--ak-surface-default); --ap-soft: var(--ak-surface-subtle);
+  --ap-sans: var(--font-manrope), system-ui, sans-serif;
+  --ap-saffron: var(--ak-secondary-500);
+}
+.app.nx {
+  --nx-sans: var(--font-manrope), system-ui, sans-serif; --nx-serif: var(--font-manrope), system-ui, sans-serif;
+  --nx-brass: var(--ak-secondary-500); --nx-brass-2: var(--ak-secondary-400); --nx-parchment: var(--ak-surface-default);
+  background: var(--ak-surface-default);
+}
+html[data-theme="dark"] .app.nx { --nx-night: var(--ak-surface-default); --nx-dusk: var(--ak-surface-subtle); --nx-dusk-2: var(--ak-surface-muted); --nx-text: var(--ak-text-primary); --nx-mute: var(--ak-text-tertiary); }
+html:not([data-theme="dark"]) .app.nx { --nx-night: var(--ak-grey-950); --nx-dusk: var(--ak-surface-inverse); --nx-dusk-2: var(--ak-grey-900); }
+.app .content { color: var(--ak-text-primary); }
+
+/* ---- Headings and text on every page use the type scale ---- */
+.app .content :is(h1, h2, h3, h4) { font-family: var(--font-manrope), system-ui, sans-serif; letter-spacing: 0; }
+.app .content h1 { font-weight: var(--ak-weight-semibold); line-height: var(--ak-leading-tight); letter-spacing: var(--ak-tracking-slightly-tight); }
+.app .content :is(h2, h3) { font-weight: var(--ak-weight-semibold); line-height: var(--ak-leading-snug); }
+.app .content :is(.font-display, [class*="font-playfair"], [class*="font-fraunces"]) { font-family: var(--font-manrope), system-ui, sans-serif !important; font-style: normal; letter-spacing: 0; }
+.app .content :is(.font-display em, h1 em, h2 em) { font-style: normal; color: var(--ak-text-akines-secondary); }
+.app .content :is(.eyebrow, .ac-eyebrow, .ap-kicker, .bd-kicker) { font-size: var(--ak-size-1); font-weight: var(--ak-weight-medium); letter-spacing: var(--ak-tracking-tracking); text-transform: uppercase; color: var(--ak-accent-akines-secondary-text); }
+.app .content :is(p, li, small) { letter-spacing: var(--ak-tracking-loose); }
+.app .content :is(.text-mute, .ap-meta) { color: var(--ak-text-tertiary); }
+
+/* ---- Cards, fields and buttons: one look ---- */
+.app .content :is(.card, .ap-card, .sh-card, .sd-card, .rm-card, .gp-card, .cq-card, .kc-card, .pl-card, .act-card, .kc-type, .kc-rhythm li) {
+  border-radius: 12px; border: .5px solid var(--ak-border-subtle); background: var(--ak-surface-subtle); box-shadow: none;
+}
+.app .content :is(input, textarea, select):not([type="checkbox"]):not([type="radio"]):not([type="range"]) { font-family: var(--font-manrope), sans-serif; }
+.app .content :is(input, textarea)::placeholder { color: var(--ak-text-placeholder); }
+.app .content button, .app .content a { font-family: inherit; }
+.app :is(.bg-night, .bg-ink-900, .bg-ink-950) { background-color: var(--ak-action-akines-primary-default) !important; color: var(--ak-action-akines-primary-foreground) !important; }
+.app :is(.bg-ochre-400, .bg-clay-500, .bg-lime) { background-color: var(--ak-action-akines-secondary-default) !important; color: var(--ak-action-akines-secondary-foreground) !important; }
+.app :is(.text-clay-500, .text-clay-600, .text-ochre-600) { color: var(--ak-accent-akines-secondary-text) !important; }
+.app :is(.text-moss-700) { color: var(--ak-text-akines-primary) !important; }
+
+/* Rail selected item: amber, per Figma nav. */
+.app.nx .nx-rail-btn.on { background: var(--ak-action-akines-secondary-default) !important; color: var(--ak-action-akines-secondary-foreground) !important; }
+
+/* Clay keeps its own hue (token orange) so moods and tags stay distinct from amber. */
+:root { --color-clay-300: var(--ak-orange-300); --color-clay-400: var(--ak-orange-400); --color-clay-500: var(--ak-orange-500); }
+
+/* Page titles use the designer's Heading style (32px SemiBold) on desktop. */
+@media (min-width: 761px) {
+  .app .content h1 { font-size: min(var(--ak-size-8), 2rem) !important; line-height: var(--ak-leading-tight) !important; }
+  .app .content .hero h2, .app .content [class*="text-[4"]:is(h2), .app .content [class*="text-[5"]:is(h2) { font-size: var(--ak-size-7) !important; line-height: var(--ak-leading-snug) !important; }
+}
