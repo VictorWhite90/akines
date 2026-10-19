@@ -178,7 +178,6 @@ export default function AnkaraHome() {
         <Link href="/kindred" className="hm-lb plain"><b className="n">2</b><span className="hm-lb-tx"><b>Introductions</b></span></Link>
       </nav>
 
-      <div className="hm-hero"><HeroCarousel slides={slides} /></div>
 
       <div className="hm-grid">
         <main className="hm-main">
@@ -186,6 +185,8 @@ export default function AnkaraHome() {
           <section className="hm-compose" aria-label="Share with your circles">
             <Composer />
           </section>
+
+          <div className="hm-hero"><HeroCarousel slides={slides} /></div>
 
           <section className="hb" aria-label="Banter">
             <div className="hs-strip-head">
@@ -314,7 +315,7 @@ export default function AnkaraHome() {
         </main>
 
         <aside className="hm-side">
-          <section className="hm-card dark">
+          <section className="hm-card hm-now">
             <div className="hm-cardhead"><h3>Happening now</h3><span className="hm-pulse" /></div>
             {LIVE.map((l) => (
               <Link key={l.title} href={l.href} className="hm-live">

@@ -1152,3 +1152,70 @@ html[data-theme="dark"] .hm-topics button.on, html[data-theme="dark"] .hm-topics
 .app .hm .hb { background: transparent !important; border-color: var(--ap-line) !important; }
 .app .hm .hm-stats a { font-weight: 500; background: transparent; }
 .app .hm .hm-stats b { font-weight: 600; }
+
+/* =========================================================
+   Home, Figma direction: light, thin type, hairline cards.
+   (Desktop and tablet; phones keep their own compact rules.)
+   ========================================================= */
+.app .hm .hm-hello { display: none; }
+.app .hm .hm-grid { margin-top: 4px; }
+.app .hm .hm-main { display: flex; flex-direction: column; gap: 20px; }
+.app .hm .hm-main > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+.app .hm .hm-hero .hero { height: 360px !important; border-radius: 16px !important; box-shadow: none; }
+.app .hm .hm-hero .hero-copy h2 { font-size: 28px !important; font-weight: 500 !important; letter-spacing: -.01em; line-height: 1.2; }
+.app .hm .hm-hero .hero p { font-size: 13.5px; font-weight: 400; }
+.app .hm .hm-hero .hero-actions a, .app .hm .hm-hero .hero-actions button { font-weight: 500; font-size: 13px; padding: 9px 16px; }
+
+/* Cards: white, hairline border, small radius, no heavy shadows. */
+.app .hm :is(.hm-card, .kn-composer, .kn-post, .hb, .hb-banner, .bt-card, .hm-collab, .hs-strip) { border-radius: 14px !important; box-shadow: none !important; }
+.app .hm :is(.hm-card, .kn-composer, .kn-post, .hb) { border: 1px solid #ececec !important; background: #fff !important; }
+.app .hm .kn-composer { padding: 16px !important; }
+
+/* Type: medium weight, smaller sizes, softer greys. */
+.app .hm :is(h2, h3, .hm-feedhead h2, .hs-strip-head h3, .hm-card h3) { font-weight: 500 !important; }
+.app .hm .hm-feedhead h2 { font-size: 18px; }
+.app .hm .hs-strip-head h3, .app .hm .hm-card h3 { font-size: 16px; }
+.app .hm .hs-strip-head small { font-weight: 600; letter-spacing: .1em; font-size: 10.5px; }
+.app .hm :is(.kn-post .body, .kn-post p) { font-size: 14px; line-height: 1.6; color: #3f3c46; }
+.app .hm b, .app .hm strong { font-weight: 600; }
+
+/* Today's Banter: a soft panel instead of a black slab. */
+.app .hm .hb-banner { background: #faf7f0 !important; color: #14121a !important; border: 1px solid #f1e7d2 !important; }
+.app .hm .hb-banner-tx small { color: #b07a00 !important; }
+.app .hm .hb-banner-tx b { font-weight: 500 !important; font-size: 16px; }
+.app .hm .hb-banner-go { font-weight: 500 !important; }
+.app .hm .hb-start, .app .hm-side .ap-cta, .app .hm .hm-btn.dark { font-weight: 500 !important; }
+
+/* Happening now: light card with coloured dots. */
+.app .hm .hm-now { color: var(--ap-ink); }
+.app .hm .hm-now .hm-live { color: var(--ap-ink); }
+.app .hm .hm-now .hm-live-tx small { color: var(--ap-mute); }
+.app .hm .hm-now .hm-live-tx b { font-weight: 500; }
+
+/* Buttons and pills on Home: lighter. */
+.app .hm :is(.hm-tabs button, .hm-btn, .hb-start, .bd-join) { font-weight: 500 !important; }
+.app .hm .hm-tabs button.on { background: #14121a; }
+
+/* Dark mode keeps the app's dark palette. */
+html[data-theme="dark"] .app .hm :is(.hm-card, .kn-composer, .kn-post, .hb) { background: var(--dk-s1) !important; border-color: var(--dk-line) !important; }
+html[data-theme="dark"] .app .hm .hb-banner { background: var(--dk-s2) !important; color: var(--dk-ink) !important; border-color: var(--dk-line) !important; }
+html[data-theme="dark"] .app .hm .hb-banner-tx small { color: #ffb000 !important; }
+html[data-theme="dark"] .app .hm :is(.kn-post .body, .kn-post p) { color: var(--dk-ink); }
+html[data-theme="dark"] .app .hm .hm-now .hm-live { color: var(--dk-ink); }
+
+/* =========================================================
+   Rail: white in light mode, the night rail only in dark mode.
+   ========================================================= */
+html:not([data-theme="dark"]) .app.nx .nx-rail { background: #fff !important; border-right: 1px solid #ececec; }
+html:not([data-theme="dark"]) .app.nx .nx-rail-btn { color: #8a8692; }
+html:not([data-theme="dark"]) .app.nx .nx-rail-btn:hover { color: #14121a; background: #f4f3f7; }
+html:not([data-theme="dark"]) .app.nx .nx-rail-btn.on { color: #14121a; background: #ffb000; box-shadow: 0 0 0 5px rgba(255,176,0,.14); }
+html:not([data-theme="dark"]) .app.nx .nx-rail-dot { box-shadow: 0 0 0 2px #fff; }
+html:not([data-theme="dark"]) .app.nx .nx-fly { background: #fff; border-color: #ececec; box-shadow: 0 20px 50px -20px rgba(20,18,26,.25); color: #14121a; }
+html:not([data-theme="dark"]) .app.nx .nx-fly p { color: #8a8692; }
+html:not([data-theme="dark"]) .app.nx .nx-fly a { color: #3f3c46; }
+html:not([data-theme="dark"]) .app.nx .nx-fly a:hover, html:not([data-theme="dark"]) .app.nx .nx-fly a.on { background: #f4f3f7; color: #14121a; }
+.app .hm .hb-list :is(h3, h4, [class*="font-semibold"], [class*="font-bold"]) { font-weight: 500 !important; }
+.app .hm .hb-list .bc-acts > * { font-weight: 500 !important; }
+.app .hm .kn-post .who b, .app .hm .kn-post .who a { font-weight: 500; }
+html[data-theme="dark"] .app .hm .kn-composer .types button.on { background: var(--dk-btn); color: var(--dk-btn-ink); }

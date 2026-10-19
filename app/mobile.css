@@ -293,3 +293,10 @@ html[data-theme="dark"] .dr { background: #0a0a0f; border-right: 1px solid var(-
   .bc-acts::-webkit-scrollbar { display: none; }
   .bc-acts > * { flex: none; white-space: nowrap; }
 }
+@media (max-width: 640px) {
+  .app .hm .hm-hero .hero { height: 270px !important; border-radius: 18px !important; }
+  .app .hm .hm-hero .hero-copy h2 { font-size: 21px !important; line-height: 1.15; }
+  .app .hm .hm-hero .hero p { font-size: 12.5px; }
+  .app .hm .hm-main { gap: 14px; }
+  .app .hm .kn-composer .foot .tools, .app .hm .kn-composer .foot label { flex-direction: row; }
+}
