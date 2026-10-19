@@ -1,41 +1,16 @@
 import Link from "next/link";
+import { AboutFooter, AboutHeader } from "./_components/Chrome";
 import Experiences from "./_components/Experiences";
 import MoodCheckin from "./_components/MoodCheckin";
 import Rhythm from "./_components/Rhythm";
 
-const NAV = [
-  { href: "#how-it-works", label: "How it Works" },
-  { href: "#philosophy", label: "Core Philosophy" },
-  { href: "#experiences", label: "Experiences" },
-  { href: "#matching", label: "Matching" },
-  { href: "#wellbeing", label: "Wellbeing" },
-];
-
-const FOOTER = [
-  { title: "Connect", links: [{ label: "KinCircles", href: "/circles" }, { label: "Banter", href: "/banter" }, { label: "Introduction", href: "/kindred" }] },
-  { title: "Create", links: [{ label: "Collaboration Studio", href: "/collaborate" }, { label: "Play Together", href: "/play" }, { label: "My Store", href: "/store" }] },
-  { title: "Trust", links: [{ label: "Wellbeing", href: "/wellbeing" }, { label: "Safety", href: "/wellbeing" }, { label: "Privacy", href: "#wellbeing" }] },
-];
 
 const FEATURES = ["Banter", "Play Together", "Collaboration Studio", "Creative DNA", "My Store", "KinCircles"];
 
 export default function AboutPage() {
   return (
     <>
-      <header className="ak-nav">
-        <div className="ak-wrap ak-nav-in">
-          <Link href="/about" className="ak-brand" aria-label="Akines home">
-            <img src="/akines/mark.svg" alt="" width={32} height={32} />
-            <span>AKINES</span>
-          </Link>
-          <nav className="ak-links" aria-label="About Akines">
-            {NAV.map((n) => (
-              <a key={n.href} href={n.href}>{n.label}</a>
-            ))}
-          </nav>
-          <Link href="/login" className="ak-btn ak-btn-m">Find Your People</Link>
-        </div>
-      </header>
+      <AboutHeader />
 
       <section className="ak-hero">
         <video className="ak-hero-video" src="/akines/hero.mp4" poster="/akines/hero-poster.jpg" autoPlay muted loop playsInline aria-hidden />
@@ -84,7 +59,7 @@ export default function AboutPage() {
               <div className="ak-philo-left">
                 <h2 id="philo-title">Our Core Philosophy</h2>
                 <p>Human connection is not the number of people we know. It is the degree to which we feel known, valued and supported.</p>
-                <a href="#how-it-works" className="ak-philo-more">Read More <span aria-hidden>→</span></a>
+                <Link href="/about/philosophy" className="ak-philo-more">Read More <span aria-hidden>→</span></Link>
               </div>
               <div className="ak-philo-right">
                 <p className="ak-philo-lead">Technology should not merely connect people digitally; it should help people form, deepen and sustain relationships that matter in real life.</p>
@@ -193,30 +168,7 @@ export default function AboutPage() {
         </section>
       </main>
 
-      <footer className="ak-footer">
-        <div className="ak-footer-in">
-          <div className="ak-footer-brand">
-            <Link href="/about" className="ak-brand" aria-label="Akines home">
-              <img src="/akines/mark.svg" alt="" width={32} height={32} />
-              <span>AKINES</span>
-            </Link>
-            <p>Relationship intelligence for a less lonely, more creative world.</p>
-          </div>
-          <nav className="ak-footer-nav" aria-label="Footer">
-            {FOOTER.map((col) => (
-              <div key={col.title} className="ak-footer-col">
-                <h3>{col.title}</h3>
-                <ul>
-                  {col.links.map((l) => (
-                    <li key={l.label}><Link href={l.href}>{l.label}</Link></li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </nav>
-        </div>
-        <p className="ak-copyright">© 2026 Akines. Human connection, thoughtfully designed.</p>
-      </footer>
+      <AboutFooter />
     </>
   );
 }

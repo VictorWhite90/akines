@@ -27,7 +27,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [intent, setIntent] = useState(false);
 
   const router = useRouter();
-  const open = ["/login", "/signup", "/about", "/welcome"].includes(pathname);
+  const open = ["/login", "/signup", "/about", "/about/philosophy", "/welcome"].includes(pathname);
   const [gate, setGate] = useState<"checking" | "in" | "out">("checking");
 
   // Prototype gate: signed-out visitors meet the Welcome screen first.

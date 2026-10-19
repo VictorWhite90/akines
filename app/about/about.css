@@ -354,3 +354,110 @@
   .ak-philo-more{height:48px;padding:12px 24px;font-size:16px}
   .ak-philo-tags li{font-size:14px;padding:6px 12px}
 }
+
+/* =========================================================
+   /about/philosophy (Figma: 01 - akines / about / our core philosophy)
+   ========================================================= */
+.cp{background:var(--ak-surface-subtle,#f9f9f9);color:var(--ak-text-primary,#181818);font-family:var(--font-manrope),sans-serif}
+.cp em{font-style:normal;color:var(--ak-secondary-500,#f4a63a)}
+.cp-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:16px 32px;border-radius:999px;background:var(--ak-action-akines-secondary-default,#f4a63a);color:#181818;font:600 20px/1.2 var(--font-manrope),sans-serif;text-decoration:none;transition:background .15s}
+.cp-btn:hover{background:var(--ak-action-akines-secondary-hover,#e3890d)}
+.cp-btn-lg{padding:32px 64px}
+.cp-btn.dark{width:100%;padding:32px;background:var(--ak-action-neutral-default,#181818);color:var(--ak-text-inverse,#fefefe)}
+.cp-btn.dark:hover{background:var(--ak-action-neutral-hover,#494949)}
+
+/* Hero: Display 1 (96 / Bold / -1.5px) with floating keyword pills */
+.cp-hero{position:relative;display:flex;flex-direction:column;align-items:center;gap:48px;padding:48px 96px;text-align:center}
+.cp-hero h1{position:relative;z-index:1;margin:0;font:700 96px/1.2 var(--font-manrope),sans-serif;letter-spacing:-1.5px}
+.cp-keys{position:absolute;left:50%;top:35px;width:1004px;max-width:calc(100% - 32px);height:180px;transform:translateX(-50%);pointer-events:none}
+.cp-keys span{position:absolute;display:inline-flex;align-items:center;gap:8px;padding:16px 24px;border-radius:999px;background:rgba(254,254,254,.2);backdrop-filter:blur(12.5px);font:600 20px/1.4 var(--font-manrope),sans-serif;white-space:nowrap;animation:cp-float 6s ease-in-out infinite}
+.cp-keys i{width:10px;height:10px;border-radius:50%;background:#181818}
+.cp-keys .k1{left:0;top:60px}
+.cp-keys .k2{left:40.7%;top:0;animation-delay:-2s}
+.cp-keys .k3{right:0;top:120px;animation-delay:-4s}
+@keyframes cp-float{50%{transform:translateY(-10px)}}
+
+/* Full-bleed photo, 831px, sticky behind the next sections (as in the frame) */
+.cp-photo{position:relative;height:831px}
+.cp-photo img{position:sticky;top:0;width:100%;height:831px;object-fit:cover;display:block}
+.cp-marquee{position:relative;z-index:1;height:82px;background:var(--ak-surface-inverse,#181818)}
+
+/* Our Principles */
+.cp-principles{position:relative;z-index:1;display:flex;flex-direction:column;gap:48px;padding:96px;background:var(--ak-surface-subtle,#f9f9f9)}
+.cp-principles header{display:flex;align-items:flex-end;gap:48px}
+.cp-principles header > div:first-child{flex:1;display:flex;flex-direction:column;gap:24px}
+.cp-principles h2{margin:0;font:600 60px/1.2 var(--font-manrope),sans-serif;letter-spacing:-1px}
+.cp-principles header p{margin:0;max-width:648px;font:400 24px/1.4 var(--font-manrope),sans-serif;color:var(--ak-text-tertiary,#969696)}
+.cp-nav{display:flex;gap:8px}
+.cp-nav button{display:grid;place-items:center;padding:16px;border-radius:999px;border:.5px solid var(--ak-icon-secondary,#6f6f6f);background:none;color:var(--ak-text-primary,#181818);cursor:pointer}
+.cp-nav button:first-child{border-color:var(--ak-icon-disabled,#ccc)}
+.cp-row{display:flex;gap:24px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:96px;scrollbar-width:none;margin:0 -96px;padding:0 96px}
+.cp-row::-webkit-scrollbar{display:none}
+.cp-pcard{flex:none;width:424px;height:424px;display:flex;flex-direction:column;justify-content:space-between;padding:32px;border-radius:24px;border:.5px solid var(--ak-border-strong,#c0c0c0);background:var(--ak-surface-muted,#f3f3f3);scroll-snap-align:start}
+.cp-pcard div{display:flex;flex-direction:column;gap:16px}
+.cp-pcard h3{margin:0;font:600 32px/1.2 var(--font-manrope),sans-serif;letter-spacing:-.5px}
+.cp-pcard p{margin:0;font:400 24px/1.4 var(--font-manrope),sans-serif;color:var(--ak-text-tertiary,#969696)}
+
+/* Connection is feeling known: staggered two-column grid */
+.cp-overview{position:relative;z-index:1;display:flex;flex-direction:column;gap:48px;padding:96px;background:var(--ak-surface-subtle,#f9f9f9)}
+.cp-overview h2{margin:0 auto;max-width:938px;text-align:center;font:600 60px/1.2 var(--font-manrope),sans-serif;letter-spacing:-1px}
+.cp-grid{display:flex;gap:64px}
+.cp-col{flex:1;display:flex;flex-direction:column;gap:64px;padding-bottom:96px}
+.cp-col.down{padding:96px 0 0}
+.cp-card{display:flex;flex-direction:column;gap:24px}
+.cp-card img{width:100%;aspect-ratio:604/740;object-fit:cover;border-radius:24px;border:.5px solid var(--ak-border-strong,#c0c0c0)}
+.cp-card h3{margin:0 4px;font:600 24px/1.4 var(--font-manrope),sans-serif}
+.cp-card p{margin:-16px 4px 0;font:400 20px/1.4 var(--font-manrope),sans-serif;color:var(--ak-text-tertiary,#969696)}
+
+/* Community values: amber band */
+.cp-values{position:relative;z-index:1;display:flex;align-items:center;gap:24px;min-height:982px;padding:96px;background:var(--ak-surface-akines-secondary-strong,#f4a63a)}
+.cp-values-media{flex:1;display:flex;flex-direction:column;gap:24px}
+.cp-values-media img{width:100%;height:544px;object-fit:cover;border-radius:24px;border:.5px solid var(--ak-border-strong,#c0c0c0)}
+.cp-values-list{flex:1;display:flex;flex-direction:column;gap:16px;margin:0;padding:16px;list-style:none}
+.cp-values-list button{padding:0;border:0;background:none;text-align:left;cursor:pointer;font:600 60px/1.2 var(--font-manrope),sans-serif;letter-spacing:-1px;color:var(--ak-accent-akines-secondary-text,#ae690a);transition:color .2s}
+.cp-values-list button.on,.cp-values-list button:hover{color:var(--ak-text-primary,#181818)}
+
+/* Closing CTA */
+.cp-close{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:48px;padding:96px;background:var(--ak-surface-muted,#f3f3f3);text-align:center}
+.cp-close h2{margin:0;max-width:1311px;font:600 48px/1.2 var(--font-manrope),sans-serif;letter-spacing:-.5px}
+.cp ~ .ak-footer, .cp + .ak-footer{position:relative;z-index:1}
+
+@media (max-width:1100px){
+  .cp-hero h1{font-size:72px}
+  .cp-keys{display:none}
+  .cp-photo,.cp-photo img{height:560px}
+  .cp-principles,.cp-overview,.cp-values,.cp-close{padding:64px 32px}
+  .cp-row{margin:0 -32px;padding:0 32px}
+  .cp-principles h2,.cp-overview h2{font-size:44px}
+  .cp-values{min-height:0}
+  .cp-values-list button{font-size:44px}
+  .cp-close h2{font-size:36px}
+}
+@media (max-width:760px){
+  .cp-hero{padding:32px 16px;gap:24px}
+  .cp-hero h1{font-size:44px;letter-spacing:-1px}
+  .cp-btn{padding:12px 24px;font-size:16px}
+  .cp-btn-lg{padding:16px 32px}
+  .cp-btn.dark{padding:20px}
+  .cp-photo,.cp-photo img{height:360px}
+  .cp-principles,.cp-overview,.cp-values,.cp-close{padding:48px 16px;gap:28px}
+  .cp-principles header{flex-direction:column;align-items:stretch;gap:20px}
+  .cp-principles h2,.cp-overview h2{font-size:32px}
+  .cp-principles header p{font-size:18px}
+  .cp-nav{justify-content:flex-end}
+  .cp-row{margin:0 -16px;padding:0 16px;gap:12px}
+  .cp-pcard{width:280px;height:300px;padding:24px}
+  .cp-pcard h3{font-size:24px}
+  .cp-pcard p{font-size:17px}
+  .cp-grid{flex-direction:column;gap:32px}
+  .cp-col,.cp-col.down{padding:0;gap:32px}
+  .cp-card h3{font-size:20px}
+  .cp-card p{font-size:16px;margin-top:-12px}
+  .cp-values{flex-direction:column;align-items:stretch}
+  .cp-values-media img{height:300px}
+  .cp-values-list{padding:0;gap:8px}
+  .cp-values-list button{font-size:32px}
+  .cp-close h2{font-size:24px}
+}
+@media (max-width:1100px){.cp-row{scroll-padding-inline:32px}}
+@media (max-width:760px){.cp-row{scroll-padding-inline:16px}}
