@@ -16,7 +16,7 @@ export default function Rail() {
   return (
     <aside className="nx-rail" aria-label="Main">
       <Link href="/" className="nx-mark" aria-label="Akines, your sky">
-        <Image src="/akines/mark.png" alt="" width={30} height={30} priority />
+        <Image src="/akines/mark.svg" alt="" width={30} height={30} priority />
       </Link>
       <nav aria-label="Places" style={{ display: "contents" }}>
         {RAIL.map((g) => (

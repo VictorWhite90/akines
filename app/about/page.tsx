@@ -25,7 +25,7 @@ export default function AboutPage() {
       <header className="ak-nav">
         <div className="ak-wrap ak-nav-in">
           <Link href="/about" className="ak-brand" aria-label="Akines home">
-            <img src="/akines/mark.png" alt="" width={32} height={32} />
+            <img src="/akines/mark.svg" alt="" width={32} height={32} />
             <span>AKINES</span>
           </Link>
           <nav className="ak-links" aria-label="About Akines">
@@ -174,7 +174,7 @@ export default function AboutPage() {
         <div className="ak-footer-in">
           <div className="ak-footer-brand">
             <Link href="/about" className="ak-brand" aria-label="Akines home">
-              <img src="/akines/mark.png" alt="" width={32} height={32} />
+              <img src="/akines/mark.svg" alt="" width={32} height={32} />
               <span>AKINES</span>
             </Link>
             <p>Relationship intelligence for a less lonely, more creative world.</p>

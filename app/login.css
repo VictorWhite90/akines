@@ -20,8 +20,7 @@ html[data-theme="dark"] .lg::before { content: ""; position: absolute; inset: 0;
 /* Left: brand, headline, ring of people */
 .lg-hero { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .lg-brand { display: inline-flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; font-weight: 600; font-size: 17px; letter-spacing: .02em; }
-.lg-mark { fill: var(--lg-accent-2); stroke: var(--lg-accent-2); }
-.lg-mark path { fill: none; stroke-width: 11; stroke-linecap: round; }
+.lg-mark { display: block; }
 .lg-hero h1 { margin: 26px 0 0; font: 600 clamp(32px, 3.4vw, 46px)/1.12 var(--font-dmsans), sans-serif; letter-spacing: -.02em; }
 .lg-hero h1 em { display: block; font-style: normal; color: var(--lg-accent-2); }
 .lg-ring { position: relative; width: min(360px, 100%); aspect-ratio: 1; margin-top: 28px; }

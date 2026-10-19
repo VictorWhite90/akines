@@ -50,7 +50,7 @@ export default function Splash() {
         </span>
         <span className="sp-core" aria-hidden>
           {/* eslint-disable-next-line @next/next/no-img-element -- tiny brand mark, must paint instantly */}
-          <img src="/akines/mark.png" alt="" />
+          <img src="/akines/mark.svg" alt="" />
         </span>
       </div>
       <h1 className="sp-word" aria-label="Akines">

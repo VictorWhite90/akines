@@ -50,7 +50,7 @@ export default function CommandBar({ onIntent, onCompanion, onMenu }: { onIntent
       <button className="nx-m-me" onClick={onMenu} aria-label="Open menu" aria-haspopup="dialog"><Avatar person={ME} size={32} /></button>
       <Link href="/" className="nx-m-logo" aria-label="Akines home">
         {/* eslint-disable-next-line @next/next/no-img-element -- brand mark */}
-        <img src="/akines/mark.png" alt="" width={28} height={28} />
+        <img src="/akines/mark.svg" alt="" width={28} height={28} />
       </Link>
 
       {group.items.length > 1 && <nav className="nx-crumbs" aria-label={group.label}>

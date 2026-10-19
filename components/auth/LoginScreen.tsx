@@ -22,18 +22,10 @@ const RING: { face: FaceKey; bg: string }[] = [
   { face: "leilaFace", bg: "#fcd9a4" },
 ];
 
-/** The Akines mark: three people holding each other in a circle. */
+/** The Akines logo mark (vector, from the Figma file), the same one used on About and in the rail. */
 export function AkinesMark({ size = 72 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100" aria-hidden className="lg-mark">
-      {[0, 120, 240].map((r) => (
-        <g key={r} transform={`rotate(${r} 50 50)`}>
-          <circle cx="50" cy="11" r="7.5" />
-          <path d="M27 27 Q50 15 73 27" />
-        </g>
-      ))}
-    </svg>
-  );
+  // eslint-disable-next-line @next/next/no-img-element -- small brand SVG
+  return <img src="/akines/mark.svg" alt="" width={size} height={size} className="lg-mark" />;
 }
 
 function remember(data: Record<string, unknown>) {
