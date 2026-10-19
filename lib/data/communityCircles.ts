@@ -92,7 +92,7 @@ export const SEED_COMMUNITIES: CommunityCircle[] = [
   {
     id: "abuja-readers", name: "Abuja Readers' Corner", tagline: "One book a month, in good company.",
     about: "A reading community with a monthly meet-up, author nights and quiet reading mornings. Free to join; most events are free.",
-    category: "Books & writing", area: "Jabi", photo: "journalCoffee", verified: false, leaders: ["efua"], members: 512,
+    category: "Books & writing", area: "Jabi", photo: "journalCoffee", verified: false, leaders: ["efua", "amara"], members: 512,
     instagram: "abujareaders", inviteCode: "READAB", guidelines: DEFAULT_GUIDELINES, createdAt: "2026-07-20",
   },
 ];
