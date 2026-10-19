@@ -461,3 +461,16 @@
 }
 @media (max-width:1100px){.cp-row{scroll-padding-inline:32px}}
 @media (max-width:760px){.cp-row{scroll-padding-inline:16px}}
+
+/* Exact frame sizes (1512 desktop) */
+.cp-hero h1{width:min(1320px,100%)}
+.cp-btn > span[aria-hidden]{display:inline-grid;place-items:center;width:24px;height:24px;font-size:22px;line-height:1}
+.cp-card img{aspect-ratio:auto;height:656px}
+.cp-values-media,.cp-values-list{flex:0 1 648px;min-width:0}
+.cp-values{justify-content:center}
+.cp-values-list{min-height:660px;justify-content:flex-start}
+@media (max-width:1100px){.cp-card img{height:auto;aspect-ratio:628/656}.cp-values-list{min-height:0}}
+.cp-btn{padding-top:18px;padding-bottom:18px}
+.cp-btn-lg{padding:34px 66px}
+.cp-btn.dark{padding:34px}
+@media (max-width:760px){.cp-btn{padding:12px 24px}.cp-btn-lg{padding:16px 32px}.cp-btn.dark{padding:20px}}
