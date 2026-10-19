@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Add, Notification, SearchNormal1 } from "iconsax-reactjs";
+import { Add, ArrowDown2, MessageText, NotificationBing, SearchNormal1 } from "iconsax-reactjs";
 import CreateChooser from "./CreateChooser";
 import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
@@ -53,16 +53,16 @@ export default function CommandBar({ onIntent, onCompanion, onMenu }: { onIntent
         <img src="/akines/mark.png" alt="" width={28} height={28} />
       </Link>
 
-      <nav className="nx-crumbs" aria-label={group.label}>
+      {group.items.length > 1 && <nav className="nx-crumbs" aria-label={group.label}>
         {group.items.map((i) => {
           const on = i.href === "/" ? pathname === "/" : isActive(pathname, i.href);
           return <Link key={i.href} href={i.href} className={on ? "on" : undefined} aria-current={on ? "page" : undefined}>{i.label}</Link>;
         })}
-      </nav>
+      </nav>}
 
       <div className="nx-ask" ref={box}>
         <SearchNormal1 size={18} color="currentColor" aria-hidden />
-        <input autoFocus={searching} aria-label="Search Akines or ask the Companion" placeholder="Search people, Banters, games… or ask" value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setFocus(true)} />
+        <input autoFocus={searching} aria-label="Search Akines or ask the Companion" placeholder="Search people, topics, projects or communities…" value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setFocus(true)} />
         {focus && q.trim() && (
           <div className="nx-results">
             {results.map((r) => (
@@ -81,15 +81,25 @@ export default function CommandBar({ onIntent, onCompanion, onMenu }: { onIntent
       <button className="nx-m-icon nx-m-search" aria-label={searching ? "Close search" : "Search"} onClick={() => { setSearching((v) => !v); setQ(""); }}>
         {searching ? <span aria-hidden style={{ fontSize: 22, lineHeight: 1 }}>×</span> : <SearchNormal1 size={21} color="currentColor" />}
       </button>
-      <button className="nx-icon" aria-label="Ask the Akines Companion" title="Akines Companion" onClick={onCompanion}>✦</button>
-      <span className="nx-theme"><ThemeToggle /></span>
-      <button className="nx-icon nx-bell" aria-label="Notifications" title="Notifications">
-        <Notification size={20} color="currentColor" />
-        <span className="nx-rail-dot" style={{ top: 9, right: 10 }} aria-hidden />
-      </button>
-      <button className="nx-begin" onClick={() => setBegin(true)} aria-haspopup="dialog">
-        <Add size={20} color="currentColor" /><span>Create</span>
-      </button>
+      <div className="nx-right">
+        <span className="nx-theme"><ThemeToggle /></span>
+        <button className="nx-icon nx-bell" aria-label="Notifications" title="Notifications">
+          <NotificationBing size={18} color="currentColor" />
+          <span className="nx-rail-dot" aria-hidden />
+        </button>
+        <Link href="/messages" className="nx-icon nx-msg" aria-label="KinMessage, 3 unread" title="KinMessage">
+          <MessageText size={18} color="currentColor" />
+          <span className="nx-count" aria-hidden>3</span>
+        </Link>
+        <Link href={`/profile/${ME.id}`} className="nx-me" aria-label="Your profile">
+          <Avatar person={ME} size={34} />
+          <span>{ME.name.split(" ")[0]}</span>
+          <ArrowDown2 size={18} color="currentColor" />
+        </Link>
+        <button className="nx-begin" onClick={() => setBegin(true)} aria-haspopup="dialog">
+          <Add size={16} color="currentColor" /><span>Create</span><ArrowDown2 size={16} color="currentColor" className="nx-caret" />
+        </button>
+      </div>
       <CreateChooser open={begin} onClose={() => setBegin(false)} onIntent={onIntent} />
     </header>
   );
