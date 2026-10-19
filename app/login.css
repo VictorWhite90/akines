@@ -10,7 +10,7 @@
 }
 html[data-theme="dark"] .lg {
   --lg-bg: var(--dk-bg); --lg-ink: var(--dk-ink); --lg-mute: var(--dk-mute); --lg-field: var(--dk-s2); --lg-field-ink: var(--dk-ink);
-  --lg-line: var(--dk-s3); --lg-core: #1d1726; --lg-core-line: rgba(240,166,60,.35); --lg-foot: var(--dk-s1); --lg-tile-line: var(--dk-s3);
+  --lg-line: var(--dk-s3); --lg-core: var(--ak-secondary-950); --lg-core-line: rgba(240,166,60,.35); --lg-foot: var(--dk-s1); --lg-tile-line: var(--dk-s3);
 }
 html[data-theme="dark"] .lg::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 60% 50% at 28% 45%, rgba(240,166,60,.08), transparent 70%); }
 .lg-input:-webkit-autofill, .lg-pw input:-webkit-autofill { -webkit-text-fill-color: var(--lg-field-ink); -webkit-box-shadow: 0 0 0 40px var(--lg-field) inset; caret-color: var(--lg-field-ink); }

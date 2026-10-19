@@ -30,7 +30,7 @@
   .nx-dock { left: 0 !important; right: 0 !important; bottom: 0 !important; height: auto !important; padding: 0 4px env(safe-area-inset-bottom); border-radius: 0 !important; border: 0 !important; border-top: 1px solid rgba(20,18,26,.08) !important; background: rgba(255,255,255,.94) !important; justify-content: space-between !important; }
   .nx-dock a, .nx-dock button { flex: 1; height: 54px; display: grid !important; place-items: center; color: #6b6774 !important; -webkit-tap-highlight-color: transparent; cursor: pointer; }
   .nx-dock .on { color: #14121a !important; }
-  html[data-theme="dark"] .nx-dock { background: rgba(15,14,20,.94) !important; border-top-color: var(--dk-line) !important; }
+  html[data-theme="dark"] .nx-dock { background: rgba(24,24,24,.94) !important; border-top-color: var(--dk-line) !important; }
   html[data-theme="dark"] .nx-dock a, html[data-theme="dark"] .nx-dock button { color: var(--dk-mute) !important; }
   html[data-theme="dark"] .nx-dock .on { color: var(--dk-ink) !important; }
 
@@ -114,7 +114,7 @@
 .dr-scrim.open { background: rgba(10,9,14,.55); pointer-events: auto; }
 .dr { position: absolute; inset: 0 auto 0 0; width: min(320px, 84vw); display: flex; flex-direction: column; background: #14121a; color: #f2f0f7; font-family: var(--font-instrument), system-ui, sans-serif; box-shadow: 20px 0 50px -20px rgba(0,0,0,.6); transform: translateX(-102%); transition: transform .28s cubic-bezier(.2,.8,.2,1); padding-top: env(safe-area-inset-top); }
 .dr-scrim.open .dr { transform: none; }
-html[data-theme="dark"] .dr { background: #0a0a0f; border-right: 1px solid var(--dk-line); }
+html[data-theme="dark"] .dr { background: var(--dk-bg); border-right: 1px solid var(--dk-line); }
 .dr-me { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: center; padding: 20px 18px 16px; border-bottom: 1px solid rgba(255,255,255,.08); }
 .dr-ava { grid-row: span 1; display: inline-flex; padding: 3px; border-radius: 50%; background: conic-gradient(#ffb000 0 75%, rgba(255,255,255,.15) 75%); }
 .dr-name { min-width: 0; color: inherit; text-decoration: none; }

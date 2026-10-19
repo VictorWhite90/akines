@@ -3,13 +3,12 @@
    Tokens come straight from the file (Manrope, surfaces, text, radius).
    ========================================================= */
 .kh {
-  --k-surface: #fefefe; --k-subtle: #f9f9f9; --k-muted: #f3f3f3; --k-border: #e5e5e5; --k-border-strong: #c0c0c0; --k-outline: #ccc;
-  --k-ink: #181818; --k-ink-2: #6f6f6f; --k-ink-3: #969696; --k-placeholder: #c0c0c0; --k-info: #005fca; --k-amber: #f4a63a; --k-dot: #6f6f6f;
+  --k-surface: var(--ak-surface-default); --k-subtle: var(--ak-surface-subtle); --k-muted: var(--ak-surface-muted);
+  --k-border: var(--ak-border-subtle); --k-border-strong: var(--ak-border-strong); --k-outline: var(--ak-border-default);
+  --k-ink: var(--ak-text-primary); --k-ink-2: var(--ak-text-secondary); --k-ink-3: var(--ak-text-tertiary); --k-placeholder: var(--ak-text-placeholder);
+  --k-info: var(--ak-text-info); --k-amber: var(--ak-action-akines-secondary-default); --k-dot: var(--ak-icon-secondary);
+  --k-primary: var(--ak-action-akines-primary-default); --k-primary-hover: var(--ak-action-akines-primary-hover); --k-on-primary: var(--ak-action-akines-primary-foreground);
   font-family: var(--font-manrope), system-ui, sans-serif; color: var(--k-ink); letter-spacing: .25px;
-}
-html[data-theme="dark"] .kh {
-  --k-surface: var(--dk-bg); --k-subtle: var(--dk-s1); --k-muted: var(--dk-s2); --k-border: var(--dk-line); --k-border-strong: var(--dk-s3); --k-outline: var(--dk-s3);
-  --k-ink: var(--dk-ink); --k-ink-2: var(--dk-mute); --k-ink-3: var(--dk-mute); --k-placeholder: #6f6a7a; --k-info: #6aa8ff; --k-dot: var(--dk-mute);
 }
 .kh a { color: inherit; text-decoration: none; }
 .kh button { font-family: inherit; }
@@ -582,3 +581,26 @@ html[data-theme="dark"] .bc-add { border-color: var(--dk-s3); }
 .bh-eng { font-size: 14px; }
 .bc-shapes b { font-size: 15px; }
 @media (max-width: 760px) { .bh-live h2 { font-size: 20px; } .bh-head h1 { font-size: 19px !important; } }
+
+/* =========================================================
+   Primary actions use the designer's teal (Action/Akines/Primary).
+   Amber stays for the secondary call-to-action, as in Figma.
+   ========================================================= */
+:root { --k-primary: var(--ak-action-akines-primary-default); --k-primary-hover: var(--ak-action-akines-primary-hover); --k-on-primary: var(--ak-action-akines-primary-foreground); }
+.app :is(.kh-chips button.on, .hm-tabs button.on, .bh-filters button.on, .bc-chips button.on, .cs-chan button.on, .cs-tabs button.on),
+.app .hm.kh .hm-tabs button.on {
+  background: var(--k-primary) !important; border-color: var(--k-primary) !important; color: var(--k-on-primary) !important;
+}
+.app :is(.bh-join, .ap-cta, .hm-btn.ink, .kh-btn.primary, .sd-btn.dark, .sh-btn.dark, .cr-go, .bd-start),
+.app .ap-cta:not([style*="background"]) {
+  background: var(--k-primary) !important; color: var(--k-on-primary) !important; border-color: var(--k-primary) !important;
+}
+.app :is(.bh-join, .ap-cta, .sd-btn.dark, .sh-btn.dark):hover { background: var(--k-primary-hover) !important; }
+.app .hm.kh .hm-lb .n, .app .bh-faces i, .bc-steps li.done i { background: var(--k-primary) !important; color: var(--k-on-primary) !important; }
+.bc-steps li.done { border-color: var(--k-primary) !important; }
+.bc-aud button.on { border-color: var(--k-primary) !important; box-shadow: 0 0 0 1px var(--k-primary) !important; }
+.bc-chips button.on { background: var(--k-primary) !important; border-color: var(--k-primary) !important; color: var(--k-on-primary) !important; }
+.app .nx-dock .on { color: var(--k-primary) !important; }
+html[data-theme="dark"] .app .nx-dock .on { color: var(--ak-text-primary) !important; }
+html[data-theme="dark"] .app.nx .nx-rail, html[data-theme="dark"] .app.nx.is-ankara .nx-rail { background: var(--dk-bg) !important; border-right: .5px solid var(--dk-line); }
+html[data-theme="dark"] .app .hm.kh .hm-btn.dark { background: var(--k-amber) !important; color: #181818 !important; }

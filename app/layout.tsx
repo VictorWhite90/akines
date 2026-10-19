@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { DM_Mono, DM_Sans, Fraunces, Instrument_Sans, Manrope, Playfair_Display } from "next/font/google";
 import AppShell from "@/components/shell/AppShell";
 import Splash from "@/components/onboarding/Splash";
+import "./tokens.css";
 import "./welcome.css";
 import "./globals.css";
 import "./artelia.css";

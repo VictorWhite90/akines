@@ -1,0 +1,482 @@
+@import "tailwindcss";
+
+/*
+ * Colour system for Tailwind CSS v4
+ * Source: Figma Variable Export, file "Akines", 19 Oct 2026
+ *
+ * Layer 1: Colour Primitives (92 variables, 1 mode)
+ * Layer 2: Colour Semantics  (116 variables, Light + Dark modes)
+ *
+ * Dark mode is class based: add `dark` to <html> (or any ancestor).
+ * To follow the OS setting instead, replace the custom variant and the
+ * `.dark` selector below with `@media (prefers-color-scheme: dark)`.
+ *
+ * Utility naming: Figma path, lowercase, joined with hyphens.
+ *   Surface/Default      -> bg-surface-default
+ *   Text/Primary         -> text-text-primary
+ *   Border/Focus         -> border-border-focus, ring-border-focus
+ *   Action/Akines/Primary/Hover -> bg-action-akines-primary-hover
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme static {
+  /* Remove Tailwind's default palette so only this system exists. */
+  --color-*: initial;
+
+  /* ------------------------------------------------------------------
+   * LAYER 1: PRIMITIVES
+   * ------------------------------------------------------------------ */
+
+  /* Base */
+  --color-black: #1C1B17;
+  --color-white: #FEFEFE;
+
+  /* Akines / Primary */
+  --color-primary-50: #D3ECF6;
+  --color-primary-100: #A1DAEE;
+  --color-primary-200: #6FAFC2;
+  --color-primary-300: #548695;
+  --color-primary-400: #385C67;
+  --color-primary-500: #1F363D;
+  --color-primary-600: #192D33;
+  --color-primary-700: #132429;
+  --color-primary-800: #0C191E;
+  --color-primary-900: #061013;
+  --color-primary-950: #03080A;
+  --color-primary: var(--color-primary-500);
+
+  /* Akines / Secondary */
+  --color-secondary-50: #FEF6EC;
+  --color-secondary-100: #FDEED8;
+  --color-secondary-200: #FBDCB2;
+  --color-secondary-300: #F9CB8B;
+  --color-secondary-400: #F6B760;
+  --color-secondary-500: #F4A63A;
+  --color-secondary-600: #E3890D;
+  --color-secondary-700: #AE690A;
+  --color-secondary-800: #744606;
+  --color-secondary-900: #3A2303;
+  --color-secondary-950: #1D1202;
+  --color-secondary: var(--color-secondary-500);
+
+  /* Grey */
+  --color-grey-50: #F9F9F9;
+  --color-grey-100: #F3F3F3;
+  --color-grey-200: #E5E5E5;
+  --color-grey-300: #DADADA;
+  --color-grey-400: #CCCCCC;
+  --color-grey-500: #C0C0C0;
+  --color-grey-600: #969696;
+  --color-grey-700: #6F6F6F;
+  --color-grey-800: #494949;
+  --color-grey-900: #282828;
+  --color-grey-950: #181818;
+
+  /* System / Blue */
+  --color-blue-50: #EDF0FF;
+  --color-blue-100: #DEE5FF;
+  --color-blue-200: #B7C8FF;
+  --color-blue-300: #92AEFF;
+  --color-blue-400: #6092FF;
+  --color-blue-500: #007AFF;
+  --color-blue-600: #005FCA;
+  --color-blue-700: #00489D;
+  --color-blue-800: #00306D;
+  --color-blue-900: #001C45;
+  --color-blue-950: #00102D;
+
+  /* System / Green */
+  --color-green-50: #E0FEE4;
+  --color-green-100: #BCFEC5;
+  --color-green-200: #44FC73;
+  --color-green-300: #3FEC6B;
+  --color-green-400: #3AD962;
+  --color-green-500: #34C759;
+  --color-green-600: #279D45;
+  --color-green-700: #1B7531;
+  --color-green-800: #0E4D1E;
+  --color-green-900: #052A0D;
+  --color-green-950: #021A06;
+
+  /* System / Orange */
+  --color-orange-50: #FFF4F0;
+  --color-orange-100: #FFEAE0;
+  --color-orange-200: #FFD8C3;
+  --color-orange-300: #FFC29D;
+  --color-orange-400: #FFAB6D;
+  --color-orange-500: #FF9500;
+  --color-orange-600: #C97400;
+  --color-orange-700: #975600;
+  --color-orange-800: #673900;
+  --color-orange-900: #391D00;
+  --color-orange-950: #251100;
+
+  /* System / Red */
+  --color-red-50: #FFF0F0;
+  --color-red-100: #FFDEDD;
+  --color-red-200: #FFBFBE;
+  --color-red-300: #FF9A98;
+  --color-red-400: #FF706C;
+  --color-red-500: #FF3B30;
+  --color-red-600: #D31900;
+  --color-red-700: #A21000;
+  --color-red-800: #730800;
+  --color-red-900: #430300;
+  --color-red-950: #300100;
+
+  /* System / Yellow */
+  --color-yellow-50: #FFF9EE;
+  --color-yellow-100: #FFF5E5;
+  --color-yellow-200: #FFECC9;
+  --color-yellow-300: #FFE2A9;
+  --color-yellow-400: #FFD56E;
+  --color-yellow-500: #FFCC00;
+  --color-yellow-600: #C79E00;
+  --color-yellow-700: #957600;
+  --color-yellow-800: #634D00;
+  --color-yellow-900: #352800;
+  --color-yellow-950: #1F1700;
+
+  /* ------------------------------------------------------------------
+   * LAYER 2: SEMANTICS (Light mode values)
+   * Dark mode overrides are in the `.dark` block below.
+   * ------------------------------------------------------------------ */
+
+  /* Accent / Akines / Secondary */
+  --color-accent-akines-secondary-border: var(--color-secondary-500);
+  --color-accent-akines-secondary-default: var(--color-secondary-500);
+  --color-accent-akines-secondary-icon: var(--color-secondary-600);
+  --color-accent-akines-secondary-strong: var(--color-secondary-700);
+  --color-accent-akines-secondary-subtle: var(--color-secondary-100);
+  --color-accent-akines-secondary-text: var(--color-secondary-700);
+
+  /* Action / Akines / Primary */
+  --color-action-akines-primary-default: var(--color-primary-500);
+  --color-action-akines-primary-disabled: var(--color-primary-100);
+  --color-action-akines-primary-foreground: var(--color-grey-50);
+  --color-action-akines-primary-hover: var(--color-primary-600);
+  --color-action-akines-primary-pressed: var(--color-primary-700);
+
+  /* Action / Akines / Secondary */
+  --color-action-akines-secondary-default: var(--color-secondary-500);
+  --color-action-akines-secondary-disabled: var(--color-secondary-200);
+  --color-action-akines-secondary-foreground: var(--color-grey-950);
+  --color-action-akines-secondary-hover: var(--color-secondary-600);
+  --color-action-akines-secondary-pressed: var(--color-secondary-700);
+
+  /* Action / Neutral */
+  --color-action-neutral-default: var(--color-grey-950);
+  --color-action-neutral-disabled: var(--color-grey-300);
+  --color-action-neutral-foreground: var(--color-white);
+  --color-action-neutral-hover: var(--color-grey-800);
+  --color-action-neutral-pressed: var(--color-grey-700);
+
+  /* Action / Neutral / Outline */
+  --color-action-neutral-outline-border: var(--color-grey-950);
+  --color-action-neutral-outline-content: var(--color-grey-950);
+  --color-action-neutral-outline-disabled: var(--color-grey-300);
+  --color-action-neutral-outline-content-disabled: var(--color-grey-400);
+  --color-action-neutral-outline-content-hover: var(--color-grey-800);
+  --color-action-neutral-outline-content-pressed: var(--color-grey-700);
+
+  /* Action / Neutral / Subtle */
+  --color-action-neutral-subtle-disabled: var(--color-grey-50);
+  --color-action-neutral-subtle-hover: var(--color-grey-100);
+  --color-action-neutral-subtle-pressed: var(--color-grey-200);
+
+  /* Border / Akines */
+  --color-border-akines-primary: var(--color-primary-500);
+  --color-border-akines-secondary: var(--color-secondary-500);
+
+  /* Border */
+  --color-border-default: var(--color-grey-400);
+  --color-border-disabled: var(--color-grey-300);
+  --color-border-error: var(--color-red-500);
+  --color-border-focus: var(--color-primary-500);
+  --color-border-info: var(--color-blue-500);
+  --color-border-strong: var(--color-grey-500);
+  --color-border-subtle: var(--color-grey-200);
+  --color-border-success: var(--color-green-500);
+  --color-border-warning: var(--color-yellow-500);
+
+  /* Feedback / Error */
+  --color-feedback-error-border: var(--color-red-500);
+  --color-feedback-error-default: var(--color-red-500);
+  --color-feedback-error-icon: var(--color-red-600);
+  --color-feedback-error-strong: var(--color-red-700);
+  --color-feedback-error-subtle: var(--color-red-50);
+  --color-feedback-error-text: var(--color-red-800);
+
+  /* Feedback / Info */
+  --color-feedback-info-border: var(--color-blue-500);
+  --color-feedback-info-default: var(--color-blue-500);
+  --color-feedback-info-icon: var(--color-blue-600);
+  --color-feedback-info-strong: var(--color-blue-700);
+  --color-feedback-info-subtle: var(--color-blue-50);
+  --color-feedback-info-text: var(--color-blue-800);
+
+  /* Feedback / Success */
+  --color-feedback-success-border: var(--color-green-500);
+  --color-feedback-success-default: var(--color-green-500);
+  --color-feedback-success-icon: var(--color-green-600);
+  --color-feedback-success-strong: var(--color-green-700);
+  --color-feedback-success-subtle: var(--color-green-50);
+  --color-feedback-success-text: var(--color-green-800);
+
+  /* Feedback / Warning */
+  --color-feedback-warning-border: var(--color-yellow-500);
+  --color-feedback-warning-default: var(--color-yellow-500);
+  --color-feedback-warning-icon: var(--color-yellow-700);
+  --color-feedback-warning-strong: var(--color-yellow-700);
+  --color-feedback-warning-subtle: var(--color-yellow-50);
+  --color-feedback-warning-text: var(--color-yellow-800);
+
+  /* Icon / Akines */
+  --color-icon-akines-primary: var(--color-primary-500);
+  --color-icon-akines-secondary: var(--color-secondary-500);
+
+  /* Icon */
+  --color-icon-disabled: var(--color-grey-400);
+  --color-icon-error: var(--color-red-600);
+  --color-icon-info: var(--color-blue-600);
+  --color-icon-inverse: var(--color-white);
+  --color-icon-on-status: var(--color-white);
+  --color-icon-primary: var(--color-grey-950);
+  --color-icon-secondary: var(--color-grey-700);
+  --color-icon-success: var(--color-green-600);
+  --color-icon-tertiary: var(--color-grey-600);
+  --color-icon-warning: var(--color-yellow-700);
+
+  /* Icon / On-Akines */
+  --color-icon-on-akines-primary: var(--color-white);
+  --color-icon-on-akines-secondary: var(--color-grey-950);
+
+  /* Illustration / Akines */
+  --color-illustration-akines-primary: var(--color-primary-500);
+  --color-illustration-akines-secondary: var(--color-secondary-500);
+
+  /* Illustration */
+  --color-illustration-error: var(--color-red-500);
+  --color-illustration-info: var(--color-blue-500);
+  --color-illustration-neutral: var(--color-grey-700);
+  --color-illustration-success: var(--color-green-500);
+  --color-illustration-warning: var(--color-yellow-500);
+
+  /* Static (same in both modes) */
+  --color-static-black: var(--color-grey-950);
+  --color-static-white: var(--color-grey-50);
+
+  /* Surface / Akines / Primary */
+  --color-surface-akines-primary-strong: var(--color-primary-500);
+  --color-surface-akines-primary-subtle: var(--color-primary-50);
+
+  /* Surface / Akines / Secondary */
+  --color-surface-akines-secondary-strong: var(--color-secondary-500);
+  --color-surface-akines-secondary-subtle: var(--color-secondary-50);
+
+  /* Surface */
+  --color-surface-default: var(--color-white);
+  --color-surface-disabled: var(--color-grey-100);
+  --color-surface-inverse: var(--color-grey-950);
+  --color-surface-muted: var(--color-grey-100);
+  --color-surface-subtle: var(--color-grey-50);
+
+  /* Surface / Status */
+  --color-surface-error-subtle: var(--color-red-50);
+  --color-surface-info-subtle: var(--color-blue-50);
+  --color-surface-success-subtle: var(--color-green-50);
+  --color-surface-warning-subtle: var(--color-yellow-50);
+
+  /* Text / Akines */
+  --color-text-akines-primary: var(--color-primary-500);
+  --color-text-akines-secondary: var(--color-secondary-500);
+
+  /* Text */
+  --color-text-disabled: var(--color-grey-400);
+  --color-text-error: var(--color-red-600);
+  --color-text-info: var(--color-blue-600);
+  --color-text-inverse: var(--color-white);
+  --color-text-on-status: var(--color-white);
+  --color-text-placeholder: var(--color-grey-500);
+  --color-text-primary: var(--color-grey-950);
+  --color-text-secondary: var(--color-grey-700);
+  --color-text-success: var(--color-green-600);
+  --color-text-tertiary: var(--color-grey-600);
+  --color-text-warning: var(--color-yellow-600);
+
+  /* Text / On-Akines */
+  --color-text-on-akines-primary: var(--color-grey-100);
+  --color-text-on-akines-secondary: var(--color-grey-950);
+}
+
+/* ----------------------------------------------------------------------
+ * DARK MODE OVERRIDES
+ * Only tokens whose Dark value differs from Light are listed. The rest
+ * (14 tokens) are identical in both modes and inherit the values above.
+ * -------------------------------------------------------------------- */
+.dark {
+  color-scheme: dark;
+
+  /* Accent / Akines / Secondary */
+  --color-accent-akines-secondary-border: var(--color-secondary-400);
+  --color-accent-akines-secondary-icon: var(--color-secondary-400);
+  --color-accent-akines-secondary-strong: var(--color-secondary-300);
+  --color-accent-akines-secondary-subtle: var(--color-secondary-950);
+  --color-accent-akines-secondary-text: var(--color-secondary-400);
+
+  /* Action / Akines / Primary */
+  --color-action-akines-primary-default: var(--color-primary-400);
+  --color-action-akines-primary-disabled: var(--color-primary-800);
+  --color-action-akines-primary-hover: var(--color-primary-500);
+  --color-action-akines-primary-pressed: var(--color-primary-300);
+
+  /* Action / Akines / Secondary */
+  --color-action-akines-secondary-disabled: var(--color-secondary-800);
+  --color-action-akines-secondary-hover: var(--color-secondary-400);
+  --color-action-akines-secondary-pressed: var(--color-secondary-300);
+
+  /* Action / Neutral */
+  --color-action-neutral-default: var(--color-grey-50);
+  --color-action-neutral-disabled: var(--color-grey-700);
+  --color-action-neutral-foreground: var(--color-grey-950);
+  --color-action-neutral-hover: var(--color-grey-100);
+  --color-action-neutral-pressed: var(--color-grey-200);
+
+  /* Action / Neutral / Outline */
+  --color-action-neutral-outline-border: var(--color-grey-50);
+  --color-action-neutral-outline-content: var(--color-white);
+  --color-action-neutral-outline-disabled: var(--color-grey-700);
+  --color-action-neutral-outline-content-disabled: var(--color-grey-600);
+  --color-action-neutral-outline-content-hover: var(--color-grey-200);
+  --color-action-neutral-outline-content-pressed: var(--color-grey-300);
+
+  /* Action / Neutral / Subtle */
+  --color-action-neutral-subtle-disabled: var(--color-grey-900);
+  --color-action-neutral-subtle-hover: var(--color-grey-800);
+  --color-action-neutral-subtle-pressed: var(--color-grey-700);
+
+  /* Border / Akines */
+  --color-border-akines-primary: var(--color-primary-400);
+  --color-border-akines-secondary: var(--color-secondary-400);
+
+  /* Border */
+  --color-border-default: var(--color-grey-600);
+  --color-border-disabled: var(--color-grey-700);
+  --color-border-error: var(--color-red-400);
+  --color-border-focus: var(--color-primary-400);
+  --color-border-info: var(--color-blue-400);
+  --color-border-subtle: var(--color-grey-800);
+  --color-border-success: var(--color-green-400);
+  --color-border-warning: var(--color-yellow-400);
+
+  /* Feedback / Error */
+  --color-feedback-error-border: var(--color-red-400);
+  --color-feedback-error-default: var(--color-red-400);
+  --color-feedback-error-icon: var(--color-red-400);
+  --color-feedback-error-strong: var(--color-red-300);
+  --color-feedback-error-subtle: var(--color-red-950);
+  --color-feedback-error-text: var(--color-red-300);
+
+  /* Feedback / Info */
+  --color-feedback-info-border: var(--color-blue-400);
+  --color-feedback-info-default: var(--color-blue-400);
+  --color-feedback-info-icon: var(--color-blue-400);
+  --color-feedback-info-strong: var(--color-blue-300);
+  --color-feedback-info-subtle: var(--color-blue-950);
+  --color-feedback-info-text: var(--color-blue-300);
+
+  /* Feedback / Success */
+  --color-feedback-success-border: var(--color-green-400);
+  --color-feedback-success-default: var(--color-green-400);
+  --color-feedback-success-icon: var(--color-green-400);
+  --color-feedback-success-strong: var(--color-green-300);
+  --color-feedback-success-subtle: var(--color-green-950);
+  --color-feedback-success-text: var(--color-green-300);
+
+  /* Feedback / Warning */
+  --color-feedback-warning-border: var(--color-yellow-400);
+  --color-feedback-warning-default: var(--color-yellow-400);
+  --color-feedback-warning-icon: var(--color-yellow-400);
+  --color-feedback-warning-strong: var(--color-yellow-300);
+  --color-feedback-warning-subtle: var(--color-yellow-950);
+  --color-feedback-warning-text: var(--color-yellow-300);
+
+  /* Icon / Akines */
+  --color-icon-akines-primary: var(--color-primary-200);
+  --color-icon-akines-secondary: var(--color-secondary-200);
+
+  /* Icon */
+  --color-icon-disabled: var(--color-grey-600);
+  --color-icon-error: var(--color-red-400);
+  --color-icon-info: var(--color-blue-400);
+  --color-icon-inverse: var(--color-grey-950);
+  --color-icon-primary: var(--color-white);
+  --color-icon-secondary: var(--color-grey-200);
+  --color-icon-success: var(--color-green-400);
+  --color-icon-tertiary: var(--color-grey-400);
+  --color-icon-warning: var(--color-yellow-400);
+
+  /* Icon / On-Akines */
+  --color-icon-on-akines-primary: var(--color-grey-950);
+  --color-icon-on-akines-secondary: var(--color-grey-100);
+
+  /* Illustration */
+  --color-illustration-error: var(--color-red-400);
+  --color-illustration-info: var(--color-blue-400);
+  --color-illustration-neutral: var(--color-grey-300);
+  --color-illustration-success: var(--color-green-400);
+  --color-illustration-warning: var(--color-yellow-400);
+
+  /* Surface / Akines */
+  --color-surface-akines-primary-subtle: var(--color-primary-950);
+  --color-surface-akines-secondary-subtle: var(--color-secondary-950);
+
+  /* Surface */
+  --color-surface-default: var(--color-grey-950);
+  --color-surface-disabled: var(--color-grey-800);
+  --color-surface-inverse: var(--color-white);
+  --color-surface-muted: var(--color-grey-800);
+  --color-surface-subtle: var(--color-grey-900);
+
+  /* Surface / Status */
+  --color-surface-error-subtle: var(--color-red-950);
+  --color-surface-info-subtle: var(--color-blue-950);
+  --color-surface-success-subtle: var(--color-green-950);
+  --color-surface-warning-subtle: var(--color-yellow-950);
+
+  /* Text / Akines */
+  --color-text-akines-primary: var(--color-primary-200);
+  --color-text-akines-secondary: var(--color-secondary-200);
+
+  /* Text */
+  --color-text-disabled: var(--color-grey-600);
+  --color-text-error: var(--color-red-400);
+  --color-text-info: var(--color-blue-400);
+  --color-text-inverse: var(--color-grey-950);
+  --color-text-primary: var(--color-grey-100);
+  --color-text-secondary: var(--color-grey-200);
+  --color-text-success: var(--color-green-400);
+  --color-text-tertiary: var(--color-grey-400);
+  --color-text-warning: var(--color-yellow-400);
+
+  /* Text / On-Akines */
+  --color-text-on-akines-primary: var(--color-grey-950);
+  --color-text-on-akines-secondary: var(--color-grey-100);
+}
+
+/* Sensible defaults wired to the semantic tokens. */
+@layer base {
+  html {
+    background-color: var(--color-surface-default);
+    color: var(--color-text-primary);
+  }
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-border-default);
+  }
+}

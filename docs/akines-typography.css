@@ -1,0 +1,513 @@
+/*
+ * SCG Typography System for Tailwind CSS v4
+ * Source: "SCG Typography System" Figma export, 19 Oct 2026
+ * Font: Manrope | 32 primitives | 30 semantic groups | 40 text styles
+ *
+ * USAGE
+ *   In your main stylesheet:
+ *     @import "tailwindcss";
+ *     @import "./typography.css";
+ *
+ *   Load Manrope weights 400, 500, 600 and 700 yourself (Google Fonts link,
+ *   @fontsource/manrope, or self-hosted). This file only names the family.
+ *
+ * TEXT STYLE CLASSES (one class = family, size, weight, line height, letter spacing)
+ *   Titles    text-display-1  text-display-2  text-title  text-subtitle  text-subtitle-bold
+ *   Headings  text-heading  text-subheading-1  text-subheading-1-bold
+ *             text-subheading-2  text-subheading-2-bold
+ *   Body      text-body-large  text-body-large-bold  text-body-base  text-body-bold
+ *             text-body-link  text-body-link-bold  text-body-small  text-body-small-bold
+ *             text-body-caption  text-body-overline
+ *   Button    text-button-{xl|lg|md|sm|xs}
+ *             text-button-{xl|lg|md|sm|xs}-link
+ *             text-button-{xl|lg|md|sm|xs}-bold
+ *             text-button-{xl|lg|md|sm|xs}-bold-link
+ *
+ * PRIMITIVE CLASSES
+ *   Family          font-title  font-body
+ *   Size            text-1 ... text-12   (Figma step number, see table below)
+ *   Weight          font-regular  font-medium  font-semibold  font-bold
+ *   Line height     leading-tight  leading-snug  leading-base
+ *   Letter spacing  tracking-tightest  tracking-tight  tracking-slightly-tight
+ *                   tracking-normal  tracking-loose  tracking-spacious  tracking-tracking
+ *   Paragraph gap   mb-paragraph-{none|small|base|large}  (also works with mt, gap, etc.)
+ *
+ * PARAGRAPH SPACING
+ *   CSS has no direct equivalent of Figma's paragraph spacing. Every text style sets
+ *   a --paragraph-spacing variable. Add the para-spacing class to a block to apply it
+ *   as space after each paragraph (the last child gets none):
+ *     <div class="text-body-base para-spacing"><p>One</p><p>Two</p></div>
+ *   Put para-spacing on each <p>, or use mb-paragraph-base directly if you prefer.
+ *
+ * NOTE ON "BOLD" NAMES
+ *   In the Figma file every style named "Bold" uses Semi Bold (600).
+ *   Only Display 1 and Display 2 use true Bold (700). Names are kept as in Figma.
+ */
+
+@theme static {
+  /*
+   * Reset Tailwind's default size, weight, leading and tracking scales so only this
+   * system exists. Delete these four lines to keep Tailwind's defaults alongside it.
+   */
+  --text-*: initial;
+  --font-weight-*: initial;
+  --leading-*: initial;
+  --tracking-*: initial;
+
+  /* Family */
+  --font-title: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --default-font-family: var(--font-body);
+
+  /* Font size (Figma step = px). 1rem = 16px */
+  --text-1: 0.625rem; /* 10 */
+  --text-2: 0.75rem; /* 12 */
+  --text-3: 0.875rem; /* 14 */
+  --text-4: 1rem; /* 16 */
+  --text-5: 1.125rem; /* 18 */
+  --text-6: 1.25rem; /* 20 */
+  --text-7: 1.5rem; /* 24 */
+  --text-8: 2rem; /* 32 */
+  --text-9: 3rem; /* 48 */
+  --text-10: 3.75rem; /* 60 */
+  --text-11: 4.5rem; /* 72 */
+  --text-12: 6rem; /* 96 */
+
+  /* Font weight */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line height */
+  --leading-tight: 1.2; /* 120% */
+  --leading-snug: 1.4; /* 140% */
+  --leading-base: 1.6; /* 160% */
+
+  /* Letter spacing */
+  --tracking-tightest: -1.5px;
+  --tracking-tight: -1px;
+  --tracking-slightly-tight: -0.5px;
+  --tracking-normal: 0px;
+  --tracking-loose: 0.25px;
+  --tracking-spacious: 0.5px;
+  --tracking-tracking: 1px;
+
+  /* Paragraph spacing (also usable as margin, padding and gap utilities) */
+  --spacing-paragraph-none: 0px;
+  --spacing-paragraph-small: 0.5rem; /* 8 */
+  --spacing-paragraph-base: 1rem; /* 16 */
+  --spacing-paragraph-large: 1.5rem; /* 24 */
+}
+
+/* Opt-in paragraph spacing, driven by the --paragraph-spacing set in each text style */
+@utility para-spacing {
+  &:not(:last-child) {
+    margin-block-end: var(--paragraph-spacing, 0px);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Titles                                                             */
+/* ------------------------------------------------------------------ */
+
+@utility text-display-1 {
+  font-family: var(--font-title);
+  font-size: var(--text-12);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tightest);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-display-2 {
+  font-family: var(--font-title);
+  font-size: var(--text-11);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tightest);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-title {
+  font-family: var(--font-title);
+  font-size: var(--text-10);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-subtitle {
+  font-family: var(--font-title);
+  font-size: var(--text-9);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-slightly-tight);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-subtitle-bold {
+  font-family: var(--font-title);
+  font-size: var(--text-9);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-slightly-tight);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+/* ------------------------------------------------------------------ */
+/* Headings                                                           */
+/* ------------------------------------------------------------------ */
+
+@utility text-heading {
+  font-family: var(--font-title);
+  font-size: var(--text-8);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-slightly-tight);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-subheading-1 {
+  font-family: var(--font-title);
+  font-size: var(--text-7);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-subheading-1-bold {
+  font-family: var(--font-title);
+  font-size: var(--text-7);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-subheading-2 {
+  font-family: var(--font-title);
+  font-size: var(--text-6);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-subheading-2-bold {
+  font-family: var(--font-title);
+  font-size: var(--text-6);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+/* ------------------------------------------------------------------ */
+/* Body                                                               */
+/* ------------------------------------------------------------------ */
+
+@utility text-body-large {
+  font-family: var(--font-body);
+  font-size: var(--text-5);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-large);
+}
+
+@utility text-body-large-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-5);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-large);
+}
+
+@utility text-body-base {
+  font-family: var(--font-body);
+  font-size: var(--text-4);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-base);
+}
+
+@utility text-body-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-4);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-base);
+}
+
+@utility text-body-link {
+  font-family: var(--font-body);
+  font-size: var(--text-4);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-base);
+}
+
+@utility text-body-link-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-4);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-base);
+}
+
+@utility text-body-small {
+  font-family: var(--font-body);
+  font-size: var(--text-3);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-loose);
+  --paragraph-spacing: var(--spacing-paragraph-small);
+}
+
+@utility text-body-small-bold {
+  font-family: var(--font-body);
+  font-size: var(--text-3);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-loose);
+  --paragraph-spacing: var(--spacing-paragraph-small);
+}
+
+@utility text-body-caption {
+  font-family: var(--font-body);
+  font-size: var(--text-2);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-spacious);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-body-overline {
+  font-family: var(--font-body);
+  font-size: var(--text-1);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--leading-base);
+  letter-spacing: var(--tracking-tracking);
+  text-transform: uppercase;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+/* ------------------------------------------------------------------ */
+/* Button: Extra Large (20)                                           */
+/* ------------------------------------------------------------------ */
+
+@utility text-button-xl {
+  font-family: var(--font-title);
+  font-size: var(--text-6);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-xl-link {
+  font-family: var(--font-title);
+  font-size: var(--text-6);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-xl-bold {
+  font-family: var(--font-title);
+  font-size: var(--text-6);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-xl-bold-link {
+  font-family: var(--font-title);
+  font-size: var(--text-6);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+/* ------------------------------------------------------------------ */
+/* Button: Large (18)                                                 */
+/* ------------------------------------------------------------------ */
+
+@utility text-button-lg {
+  font-family: var(--font-title);
+  font-size: var(--text-5);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-lg-link {
+  font-family: var(--font-title);
+  font-size: var(--text-5);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-lg-bold {
+  font-family: var(--font-title);
+  font-size: var(--text-5);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-lg-bold-link {
+  font-family: var(--font-title);
+  font-size: var(--text-5);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+/* ------------------------------------------------------------------ */
+/* Button: Medium (16)                                                */
+/* ------------------------------------------------------------------ */
+
+@utility text-button-md {
+  font-family: var(--font-title);
+  font-size: var(--text-4);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-md-link {
+  font-family: var(--font-title);
+  font-size: var(--text-4);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-md-bold {
+  font-family: var(--font-title);
+  font-size: var(--text-4);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-md-bold-link {
+  font-family: var(--font-title);
+  font-size: var(--text-4);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+/* ------------------------------------------------------------------ */
+/* Button: Small (14)                                                 */
+/* ------------------------------------------------------------------ */
+
+@utility text-button-sm {
+  font-family: var(--font-title);
+  font-size: var(--text-3);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-sm-link {
+  font-family: var(--font-title);
+  font-size: var(--text-3);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-sm-bold {
+  font-family: var(--font-title);
+  font-size: var(--text-3);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-sm-bold-link {
+  font-family: var(--font-title);
+  font-size: var(--text-3);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+/* ------------------------------------------------------------------ */
+/* Button: Extra Small (12)                                           */
+/* ------------------------------------------------------------------ */
+
+@utility text-button-xs {
+  font-family: var(--font-title);
+  font-size: var(--text-2);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-xs-link {
+  font-family: var(--font-title);
+  font-size: var(--text-2);
+  font-weight: var(--font-weight-regular);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-xs-bold {
+  font-family: var(--font-title);
+  font-size: var(--text-2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}
+
+@utility text-button-xs-bold-link {
+  font-family: var(--font-title);
+  font-size: var(--text-2);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-normal);
+  text-decoration-line: underline;
+  --paragraph-spacing: var(--spacing-paragraph-none);
+}

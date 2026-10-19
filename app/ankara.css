@@ -838,7 +838,7 @@ html[data-theme="dark"] .gp-card { background: #fff; color: #14121a; }
 
 /* Dark mode: big "night" panels (AI Game Creator and friends) become a warm gradient, not a light slab */
 html[data-theme="dark"] .ap-calm :is(section, div, aside, article).bg-night {
-  background: radial-gradient(120% 140% at 0% 0%, #3a2312 0%, #1d1726 55%, #15121c 100%);
+  background: radial-gradient(120% 140% at 0% 0%, #3a2312 0%, #282828 55%, #181818 100%);
   border: 1px solid #3b2c22;
   color: #fff;
 }
