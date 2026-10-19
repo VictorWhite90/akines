@@ -8,6 +8,7 @@ import BackLink from "@/components/ui/BackLink";
 import { AvatarStack } from "@/components/ui/Avatar";
 import { eventDate, naira, type CircleEvent } from "@/lib/data/communityCircles";
 import { allPeople } from "@/lib/data/people";
+import { FEATURES } from "@/lib/features";
 import { useCommunities } from "../useCommunities";
 import QR from "./QR";
 import Sheet from "./Sheet";
@@ -114,7 +115,7 @@ export default function EventView({ circleId, eventId, created }: { circleId: st
               <button className="kh-btn outline sm" onClick={share}>{copied ? "Link copied" : "Share event"}</button>
             </>
           )}
-          {leader && <Link href={`/circles/community/${circle.id}/check-in/${e.id}`} className="kh-btn outline sm">Check guests in</Link>}
+          {leader && FEATURES.eventCheckIn && <Link href={`/circles/community/${circle.id}/check-in/${e.id}`} className="kh-btn outline sm">Check guests in</Link>}
         </aside>
       </div>
 

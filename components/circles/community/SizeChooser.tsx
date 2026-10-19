@@ -22,7 +22,7 @@ export default function SizeChooser() {
           <span className="cm-size-ic" aria-hidden>◉</span>
           <b>Community circle</b>
           <span className="cm-size-n">Hundreds to thousands</span>
-          <p>For clubs and organisations: leaders, members, events with tickets and check-in, an invite link and small circles inside.</p>
+          <p>For clubs and organisations: leaders, members, events with tickets, an invite link and small circles inside.</p>
           <span className="cm-size-go">Start a community circle →</span>
         </Link>
       </div>

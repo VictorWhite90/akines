@@ -42,3 +42,6 @@ See `feed-strategy.md`: Your people, Discover, Topics, Live, Highlights.
 - Backend groundwork: domain map, database design (PostgreSQL and Redis), OpenAPI contract, frontend data layer behind hooks
 - Django backend; real-time chat and voice
 - Mobile app (React Native/Expo) sharing the API types
+
+### Parked
+- [ ] Event check-in at the door: built (leader guest list, ticket-code entry, check-in counts on Manage) and switched off on 19 Oct 2026. Turn it back on with `FEATURES.eventCheckIn` in `lib/features.ts`. Add camera QR scanning when the mobile app exists.

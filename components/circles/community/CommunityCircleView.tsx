@@ -9,6 +9,7 @@ import BackLink from "@/components/ui/BackLink";
 import { eventDate, naira, type CircleEvent, type CommunityCircle } from "@/lib/data/communityCircles";
 import { PEOPLE, allPeople, type PersonId } from "@/lib/data/people";
 import { CIRCLE_TYPES } from "../CreateKinCircle";
+import { FEATURES } from "@/lib/features";
 import { useCommunities } from "../useCommunities";
 import EventForm from "./EventForm";
 import InviteSheet from "./InviteSheet";
@@ -166,13 +167,13 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
             <div className="kh-card"><small>Members</small><b>{cc.memberCount(circle).toLocaleString()}</b></div>
             <div className="kh-card"><small>Upcoming events</small><b>{events.length}</b></div>
             <div className="kh-card"><small>Spots booked</small><b>{totalRsvps}</b></div>
-            <div className="kh-card"><small>Checked in</small><b>{totalCheckins}</b></div>
+            {FEATURES.eventCheckIn && <div className="kh-card"><small>Checked in</small><b>{totalCheckins}</b></div>}
             <div className="kh-card"><small>Ticket income</small><b>{naira(income)}</b></div>
           </div>
-          <div className="kh-sec"><div><h2>Event check-in</h2><p>Open an event on the day to check guests in by name or ticket code.</p></div><button className="kh-btn amber sm" onClick={() => setNewEvent(true)}><Add size={16} color="currentColor" /> Create event</button></div>
+          <div className="kh-sec"><div><h2>{FEATURES.eventCheckIn ? "Event check-in" : "Your events"}</h2><p>{FEATURES.eventCheckIn ? "Open an event on the day to check guests in by name or ticket code." : "See bookings for each event."}</p></div><button className="kh-btn amber sm" onClick={() => setNewEvent(true)}><Add size={16} color="currentColor" /> Create event</button></div>
           <ul className="cm-manage">
             {events.map((e) => (
-              <li key={e.id}><Link href={`/circles/community/${circle.id}/check-in/${e.id}`}><TicketStar size={20} color="currentColor" /><span><b>{e.title}</b><small>{eventDate(e)} · {cc.seatsTaken(e)}/{e.capacity} booked · {cc.checkedIn(e.id).length} checked in</small></span><ArrowRight2 size={16} color="currentColor" /></Link></li>
+              <li key={e.id}><Link href={FEATURES.eventCheckIn ? `/circles/community/${circle.id}/check-in/${e.id}` : `/circles/community/${circle.id}/events/${e.id}`}><TicketStar size={20} color="currentColor" /><span><b>{e.title}</b><small>{eventDate(e)} · {cc.seatsTaken(e)}/{e.capacity} booked{FEATURES.eventCheckIn ? ` · ${cc.checkedIn(e.id).length} checked in` : ""}</small></span><ArrowRight2 size={16} color="currentColor" /></Link></li>
             ))}
           </ul>
           <button className="kh-btn outline sm" onClick={() => setInvite(true)}>Invite link and QR code</button>
