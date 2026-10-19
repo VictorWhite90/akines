@@ -474,3 +474,9 @@
 .cp-btn-lg{padding:34px 66px}
 .cp-btn.dark{padding:34px}
 @media (max-width:760px){.cp-btn{padding:12px 24px}.cp-btn-lg{padding:16px 32px}.cp-btn.dark{padding:20px}}
+
+/* Header: log in for members, sign up for visitors */
+.ak-auth{display:flex;align-items:center;gap:8px}
+.ak-login{padding:8px 16px;border-radius:999px;font:600 16px/1.4 var(--font-manrope),sans-serif;color:var(--ak-text-primary,#181818);text-decoration:none}
+.ak-login:hover{background:var(--ak-surface-muted,#f3f3f3)}
+@media (max-width:760px){.ak-login{padding:8px 10px;font-size:14px}.ak-auth .ak-btn{padding:8px 14px;font-size:14px}}

@@ -28,7 +28,10 @@ export function AboutHeader() {
               <Link key={n.href} href={n.href}>{n.label}</Link>
             ))}
           </nav>
-          <Link href="/login" className="ak-btn ak-btn-m">Find Your People</Link>
+          <div className="ak-auth">
+            <Link href="/login" className="ak-login">Log in</Link>
+            <Link href="/login" className="ak-btn ak-btn-m">Sign up</Link>
+          </div>
         </div>
       </header>
   );

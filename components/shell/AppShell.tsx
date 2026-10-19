@@ -39,7 +39,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     recordRoute(pathname);
   }, [pathname]);
   useEffect(() => {
-    if (gate === "out" && !open) router.replace("/login");
+    if (gate === "out" && !open) router.replace("/about");
   }, [gate, open, router]);
 
   // Sign-in, sign-up, welcome, the KinCircle creation wizard and the public About page are full-screen, without the shell.
