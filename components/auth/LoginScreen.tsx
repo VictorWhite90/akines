@@ -33,7 +33,7 @@ export function AkinesMark({ size = 72 }: { size?: number }) {
   return <img src="/akines/mark.svg" alt="" width={size} height={size} className="lg-mark" />;
 }
 
-type View = "login" | "2fa" | "forgot" | "reset";
+type View = "login" | "verify" | "2fa" | "forgot" | "reset";
 
 /** Sign in against the Akines API. After it, the member answers "What brings you here today?". */
 export default function LoginScreen({ signedOut = false }: { signedOut?: boolean }) {
@@ -56,7 +56,7 @@ export default function LoginScreen({ signedOut = false }: { signedOut?: boolean
   const errs = {
     email: /^\S+@\S+\.\S+$/.test(email.trim()) ? "" : "Enter the email you signed up with.",
     password: view === "login" && !password ? "Enter your password." : view === "reset" && !STRONG.test(password) ? STRONG_HINT : "",
-    code: (view === "2fa" || view === "reset") && !/^\d{6}$/.test(code.replace(/\D/g, "")) ? "Enter the 6-digit code from your email." : "",
+    code: (view === "verify" || view === "2fa" || view === "reset") && !/^\d{6}$/.test(code.replace(/\D/g, "")) ? "Enter the 6-digit code from your email." : "",
   };
 
   const switchTo = (v: View, message: string | null = null) => {
@@ -77,7 +77,7 @@ export default function LoginScreen({ signedOut = false }: { signedOut?: boolean
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTried(true);
-    const fields = view === "login" ? ["email", "password"] : view === "2fa" ? ["code"] : view === "forgot" ? ["email"] : ["code", "password"];
+    const fields = view === "login" ? ["email", "password"] : view === "verify" || view === "2fa" ? ["code"] : view === "forgot" ? ["email"] : ["code", "password"];
     if (fields.some((f) => errs[f as keyof typeof errs])) return;
     setBusy(true);
     setFailure(null);
@@ -85,13 +85,14 @@ export default function LoginScreen({ signedOut = false }: { signedOut?: boolean
     const otp = code.replace(/\D/g, "");
     try {
       if (view === "login") {
-        const r = await auth<{ redirect_to_2fa?: boolean; user?: Member }>("login", { email: mail, password });
+        const r = await auth<{ redirect_to_2fa?: boolean; redirect_to_verify_email?: boolean; user?: Member }>("login", { email: mail, password });
         if (!r.ok) return setFailure(r.message);
+        if (r.data?.redirect_to_verify_email) return switchTo("verify", `Confirm your email first: we sent a 6-digit code to ${mail}.`);
         if (r.data?.redirect_to_2fa) return switchTo("2fa", `We sent a 6-digit code to ${mail}.`);
         return signedIn(r.data ?? {});
       }
-      if (view === "2fa") {
-        const r = await auth<{ user?: Member }>("verify-2fa", { email: mail, otp });
+      if (view === "verify" || view === "2fa") {
+        const r = await auth<{ user?: Member }>(view === "verify" ? "verify-email" : "verify-2fa", { email: mail, otp });
         return r.ok ? signedIn(r.data ?? {}) : setFailure(r.message);
       }
       if (view === "forgot") {
@@ -108,7 +109,7 @@ export default function LoginScreen({ signedOut = false }: { signedOut?: boolean
   };
 
   const resend = async () => {
-    const r = await auth(view === "2fa" ? "resend-2fa" : "forgot", { email: email.trim().toLowerCase() });
+    const r = await auth(view === "2fa" ? "resend-2fa" : view === "verify" ? "resend-email" : "forgot", { email: email.trim().toLowerCase() });
     setFailure(r.ok ? null : r.message);
     setNotice(r.ok ? "A new code is on its way." : null);
   };
@@ -143,7 +144,7 @@ export default function LoginScreen({ signedOut = false }: { signedOut?: boolean
 
         <section className="lg-form-wrap">
           <form className="lg-form" onSubmit={submit} noValidate aria-busy={busy}>
-            <h2>{view === "login" ? "Log into Akines" : view === "2fa" ? "Check your email" : view === "forgot" ? "Reset your password" : "Choose a new password"}</h2>
+            <h2>{view === "login" ? "Log into Akines" : view === "2fa" || view === "verify" ? "Check your email" : view === "forgot" ? "Reset your password" : "Choose a new password"}</h2>
             {notice && <p className="lg-note" role="status">{notice}</p>}
             {failure && <p className="lg-fail" role="alert">{failure}</p>}
 
@@ -155,7 +156,7 @@ export default function LoginScreen({ signedOut = false }: { signedOut?: boolean
               </>
             )}
 
-            {(view === "2fa" || view === "reset") && (
+            {(view === "verify" || view === "2fa" || view === "reset") && (
               <>
                 <label className="sr-only" htmlFor="lg-code">6-digit code</label>
                 <input id="lg-code" className={`lg-input lg-code${tried && errs.code ? " bad" : ""}`} inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="6-digit code" value={code} onChange={(e) => setCode(e.target.value)} />
@@ -181,7 +182,7 @@ export default function LoginScreen({ signedOut = false }: { signedOut?: boolean
             )}
 
             <button type="submit" className="lg-primary" disabled={busy}>
-              {busy ? "Please wait…" : view === "login" ? "Login" : view === "2fa" ? "Verify and log in" : view === "forgot" ? "Send reset code" : "Change password"}
+              {busy ? "Please wait…" : view === "login" ? "Login" : view === "2fa" || view === "verify" ? "Verify and log in" : view === "forgot" ? "Send reset code" : "Change password"}
             </button>
 
             {view === "login" ? (

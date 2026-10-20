@@ -16,27 +16,28 @@ async function forward(req: NextRequest, { params }: { params: Promise<{ path: s
 
   let access = req.cookies.get(COOKIE.access)?.value;
   const refresh = req.cookies.get(COOKIE.refresh)?.value;
-  let refreshed: string | undefined;
+  let refreshed: { access_token?: string; refresh_token?: string } | undefined;
 
   if (!access && refresh) {
-    refreshed = await refreshAccess(refresh, req);
-    access = refreshed;
+    refreshed = await refreshTokens(refresh, req);
+    access = refreshed?.access_token;
   }
   let result = await send(access);
   if (result.status === 401 && refresh && !refreshed) {
-    refreshed = await refreshAccess(refresh, req);
-    if (refreshed) result = await send(refreshed);
+    refreshed = await refreshTokens(refresh, req);
+    if (refreshed?.access_token) result = await send(refreshed.access_token);
   }
 
   const res = NextResponse.json(result.body, { status: result.status });
-  if (refreshed) setSession(res, { access_token: refreshed });
+  if (refreshed?.access_token) setSession(res, refreshed);
   if (result.status === 401 && refresh) clearSession(res); // refresh token rejected: the session is over
   return res;
 }
 
-async function refreshAccess(refresh: string, req: NextRequest) {
-  const { status, body } = await django<{ access_token?: string }>("auth/token/refresh", { method: "POST", body: JSON.stringify({ refresh_token: refresh }), req });
-  return status < 400 ? body.data?.access_token : undefined;
+/** Refresh tokens rotate: Django returns a new pair and the old refresh token stops working. */
+async function refreshTokens(refresh: string, req: NextRequest) {
+  const { status, body } = await django<{ access_token?: string; refresh_token?: string }>("auth/token/refresh", { method: "POST", body: JSON.stringify({ refresh_token: refresh }), req });
+  return status < 400 ? body.data : undefined;
 }
 
 export { forward as GET, forward as POST, forward as PUT, forward as PATCH, forward as DELETE };

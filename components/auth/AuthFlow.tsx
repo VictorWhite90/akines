@@ -1,6 +1,6 @@
 "use client";
 
-import { auth, api, type Member } from "@/lib/api/client";
+import { auth, type Member } from "@/lib/api/client";
 import { rememberChoices, rememberMember } from "@/lib/session";
 import { STRONG, STRONG_HINT } from "./LoginScreen";
 import Image from "next/image";
@@ -70,7 +70,8 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
     if (!accountOk || busy) return;
     setBusy(true);
     setFailure(null);
-    const r = await auth("register", { email: mail, password });
+    const [firstName, ...rest] = name.trim().split(/\s+/);
+    const r = await auth("register", { email: mail, password, first_name: firstName, last_name: rest.join(" ") });
     setBusy(false);
     if (!r.ok) return setFailure(r.message);
     setTried(false);
@@ -90,9 +91,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
       setBusy(false);
       return setFailure(r.message);
     }
-    const [firstName, ...rest] = name.trim().split(/\s+/);
-    await api.put("profile/", { first_name: firstName, last_name: rest.join(" ") });
-    rememberMember({ ...(r.data?.user ?? {}), first_name: firstName, last_name: rest.join(" ") });
+    rememberMember(r.data?.user ?? {});
     setBusy(false);
     setTried(false);
     setNotice(null);
