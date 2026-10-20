@@ -1,101 +1,111 @@
-"""One-time sign-in codes: normalising phones and emails, issuing, checking and sending."""
+"""Issuing and checking one-time codes, with the limits that protect accounts and the SMS budget.
+
+Limits (all configurable in settings):
+- one code per destination per LOGIN_CODE_RESEND_SECONDS; LOGIN_CODE_MAX_PER_HOUR / _PER_DAY per destination
+- LOGIN_CODE_MAX_PER_IP_HOUR codes per IP (generous: Nigerian mobile networks share IPs)
+- LOGIN_CODE_MAX_ATTEMPTS guesses per code; LOGIN_LOCK_AFTER_FAILS wrong guesses per destination per hour locks it
+- SMS_DAILY_CAP texts per day across the whole platform (stops SMS-pumping fraud running up the bill)
+- requesting a new code cancels the previous one; a code works once
+"""
 import hashlib
 import hmac
-import json
-import logging
-import re
 import secrets
-import urllib.request
 from datetime import timedelta
 
 from django.conf import settings
-from django.core.mail import send_mail
+from django.db import transaction
+from django.db.models import Sum
 from django.utils import timezone
 
-from .models import LoginCode
+from akines_api.exceptions import ApiError
 
-log = logging.getLogger(__name__)
-
-CODE_TTL = timedelta(minutes=10)
-RESEND_AFTER = timedelta(seconds=60)
-MAX_PER_HOUR = 5
-MAX_ATTEMPTS = 5
+from . import delivery, security
+from .models import LoginCode, SecurityEvent
 
 
-class CodeError(Exception):
-    def __init__(self, message, status=400):
-        super().__init__(message)
-        self.status = status
+def _hash(purpose, destination, code):
+    key = hashlib.sha256(f"akines-otp:{settings.SECRET_KEY}".encode()).digest()
+    return hmac.new(key, f"{purpose}:{destination}:{code}".encode(), hashlib.sha256).hexdigest()
 
 
-def normalise_phone(raw):
-    """Nigerian numbers in any common form (0803…, 234803…, +234 803…) become +234803…"""
-    digits = re.sub(r"\D", "", raw or "")
-    if raw and raw.strip().startswith("+") and not digits.startswith("234"):
-        if 8 <= len(digits) <= 15:
-            return "+" + digits
-        return None
-    if digits.startswith("234"):
-        digits = digits[3:]
-    elif digits.startswith("0"):
-        digits = digits[1:]
-    return "+234" + digits if len(digits) == 10 and digits[0] in "789" else None
+def _wait(seconds):
+    return max(1, int(seconds))
 
 
-def normalise_email(raw):
-    email = (raw or "").strip().lower()
-    return email if re.fullmatch(r"[^@\s]+@[^@\s]+\.[a-z]{2,}", email) else None
+def _failed_recently(destination):
+    since = timezone.now() - timedelta(hours=1)
+    return LoginCode.objects.filter(destination=destination, created_at__gte=since).aggregate(n=Sum("attempts"))["n"] or 0
 
 
-def _hash(destination, code):
-    return hmac.new(settings.SECRET_KEY.encode(), f"{destination}:{code}".encode(), hashlib.sha256).hexdigest()
+def _locked_error():
+    return ApiError("locked", "Too many wrong codes. For your safety, try again in an hour.", 429, retry_after=3600)
 
 
-def issue(channel, destination):
+def issue(*, channel, destination, purpose, request, user=None):
     now = timezone.now()
-    recent = LoginCode.objects.filter(destination=destination, created_at__gte=now - timedelta(hours=1))
-    if recent.count() >= MAX_PER_HOUR:
-        raise CodeError("Too many codes requested. Try again in an hour.", 429)
-    last = recent.first()
-    if last and now - last.created_at < RESEND_AFTER:
-        wait = int((RESEND_AFTER - (now - last.created_at)).total_seconds()) + 1
-        raise CodeError(f"Please wait {wait} seconds before asking for another code.", 429)
+    ip = security.client_ip(request)
+    s = settings
+
+    if _failed_recently(destination) >= s.LOGIN_LOCK_AFTER_FAILS:
+        raise _locked_error()
+    per_dest = LoginCode.objects.filter(destination=destination)
+    last = per_dest.only("created_at").first()
+    if last and (now - last.created_at).total_seconds() < s.LOGIN_CODE_RESEND_SECONDS:
+        wait = s.LOGIN_CODE_RESEND_SECONDS - (now - last.created_at).total_seconds()
+        raise ApiError("resend_too_soon", f"Wait {_wait(wait)} seconds before asking for another code.", 429, retry_after=_wait(wait))
+    if per_dest.filter(created_at__gte=now - timedelta(hours=1)).count() >= s.LOGIN_CODE_MAX_PER_HOUR:
+        raise ApiError("rate_limited", "Too many codes requested for this number. Try again in an hour.", 429, retry_after=3600)
+    if per_dest.filter(created_at__gte=now - timedelta(days=1)).count() >= s.LOGIN_CODE_MAX_PER_DAY:
+        raise ApiError("rate_limited", "Too many codes requested today. Try again tomorrow.", 429, retry_after=86400)
+    if ip and LoginCode.objects.filter(ip=ip, created_at__gte=now - timedelta(hours=1)).count() >= s.LOGIN_CODE_MAX_PER_IP_HOUR:
+        raise ApiError("rate_limited", "Too many codes requested from this network. Try again later.", 429, retry_after=900)
+    if channel == LoginCode.Channel.SMS:
+        today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        if LoginCode.objects.filter(channel=LoginCode.Channel.SMS, created_at__gte=today).count() >= s.SMS_DAILY_CAP:
+            security.record(SecurityEvent.Kind.SMS_CAP_REACHED, request, cap=s.SMS_DAILY_CAP)
+            raise ApiError("sms_unavailable", "We can't send SMS codes right now. Use your email instead.", 503)
+
     code = f"{secrets.randbelow(10**6):06d}"
-    LoginCode.objects.create(channel=channel, destination=destination, code_hash=_hash(destination, code), expires_at=now + CODE_TTL)
-    deliver(channel, destination, code)
-    return code
-
-
-def check(destination, code):
-    """True once, for the latest unexpired code. Each wrong guess counts against it."""
-    lc = LoginCode.objects.filter(destination=destination, used_at__isnull=True, expires_at__gt=timezone.now()).first()
-    if not lc or lc.attempts >= MAX_ATTEMPTS:
-        raise CodeError("That code has expired. Ask for a new one.")
-    if not hmac.compare_digest(lc.code_hash, _hash(destination, (code or "").strip())):
-        lc.attempts += 1
-        lc.save(update_fields=["attempts"])
-        left = MAX_ATTEMPTS - lc.attempts
-        raise CodeError(f"That code isn't right. {left} {'try' if left == 1 else 'tries'} left." if left else "Too many wrong tries. Ask for a new code.")
-    lc.used_at = timezone.now()
-    lc.save(update_fields=["used_at"])
-    return True
-
-
-def deliver(channel, destination, code):
-    message = f"Your Akines code is {code}. It expires in 10 minutes. Don't share it with anyone."
-    if channel == LoginCode.Channel.EMAIL:
-        send_mail("Your Akines sign-in code", message, settings.DEFAULT_FROM_EMAIL, [destination])
-        return
-    if not settings.TERMII_API_KEY:
-        # No SMS provider yet (local development): show the code in the server terminal.
-        log.warning("SMS code for %s: %s", destination, code)
-        print(f"\n[akines] SMS code for {destination}: {code}\n", flush=True)
-        return
-    body = json.dumps({"api_key": settings.TERMII_API_KEY, "to": destination.lstrip("+"), "from": settings.TERMII_SENDER_ID, "sms": message, "type": "plain", "channel": settings.TERMII_CHANNEL}).encode()
-    req = urllib.request.Request(f"{settings.TERMII_BASE_URL.rstrip('/')}/api/sms/send", data=body, headers={"Content-Type": "application/json"})
+    with transaction.atomic():
+        per_dest.filter(purpose=purpose, used_at__isnull=True, expires_at__gt=now).update(expires_at=now)
+        lc = LoginCode.objects.create(
+            channel=channel, purpose=purpose, destination=destination, user=user, ip=ip,
+            code_hash=_hash(purpose, destination, code), expires_at=now + timedelta(minutes=s.LOGIN_CODE_TTL_MINUTES),
+        )
     try:
-        with urllib.request.urlopen(req, timeout=10) as r:
-            r.read()
-    except Exception:
-        log.exception("Termii send failed for %s", destination)
-        raise CodeError("We couldn't send the SMS just now. Try again, or use your email.", 502)
+        delivery.send_code(channel, destination, code, purpose)
+    except ApiError:
+        LoginCode.objects.filter(pk=lc.pk).update(expires_at=now)  # an unsent code must not count as live
+        raise
+    security.record(SecurityEvent.Kind.CODE_SENT, request, user=user, destination=destination, channel=channel, purpose=purpose)
+    return lc
+
+
+def check(*, destination, purpose, code, request, user=None):
+    """Consumes the live code if `code` matches. Raises ApiError otherwise. Safe under concurrent requests."""
+    if _failed_recently(destination) >= settings.LOGIN_LOCK_AFTER_FAILS:
+        raise _locked_error()
+    error = None
+    with transaction.atomic():
+        lc = (
+            LoginCode.objects.select_for_update()
+            .filter(destination=destination, purpose=purpose, used_at__isnull=True, expires_at__gt=timezone.now())
+            .first()
+        )
+        if lc is None or lc.attempts >= settings.LOGIN_CODE_MAX_ATTEMPTS or (user is not None and lc.user_id != user.pk):
+            error = ApiError("invalid_code", "That code is wrong or has expired. Ask for a new one.")
+        elif not hmac.compare_digest(lc.code_hash, _hash(purpose, destination, code)):
+            lc.attempts += 1
+            lc.save(update_fields=["attempts"])
+            left = settings.LOGIN_CODE_MAX_ATTEMPTS - lc.attempts
+            error = ApiError("invalid_code", f"That code isn't right. {left} {'try' if left == 1 else 'tries'} left." if left else "That code isn't right. Ask for a new one.", extra={"attemptsLeft": left})
+        else:
+            lc.used_at = timezone.now()
+            lc.save(update_fields=["used_at"])
+    if error is None:
+        return lc
+    if error.get_codes() == "invalid_code" and getattr(error, "extra", {}).get("attemptsLeft") is not None:
+        security.record(SecurityEvent.Kind.CODE_FAILED, request, user=user, destination=destination, purpose=purpose)
+        if _failed_recently(destination) >= settings.LOGIN_LOCK_AFTER_FAILS:
+            security.record(SecurityEvent.Kind.LOCKED, request, user=user, destination=destination)
+    raise error

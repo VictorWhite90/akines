@@ -1,3 +1,5 @@
+import secrets
+
 from django.db import transaction
 from django.db.models import Count, Prefetch, Q
 from django.shortcuts import get_object_or_404
@@ -5,6 +7,8 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+
+from accounts.throttles import IpScopedThrottle
 
 from .models import CommunityCircle, Membership
 from .permissions import IsLeaderOrReadOnly
@@ -19,20 +23,29 @@ def with_counts(qs):
 
 class CommunityViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     """
-    GET    /api/communities/?q=&category=&area=&page=   browse, 20 per page
-    POST   /api/communities/                      register a community (you become its leader)
-    GET    /api/communities/<id>/                 one community
-    PATCH  /api/communities/<id>/                 leaders edit
-    POST   /api/communities/<id>/join/            join (needs the invite code unless verified)
-    POST   /api/communities/<id>/leave/
-    GET    /api/communities/mine/                 communities you belong to
-    GET    /api/communities/by-code/<code>/       open an invite link
+    GET    /api/v1/communities/?q=&category=&area=&page=   browse, 20 per page
+    POST   /api/v1/communities/                      register a community (you become its leader)
+    GET    /api/v1/communities/<id>/                 one community
+    PATCH  /api/v1/communities/<id>/                 leaders edit
+    POST   /api/v1/communities/<id>/join/            join (needs the invite code unless verified)
+    POST   /api/v1/communities/<id>/leave/
+    GET    /api/v1/communities/mine/                 communities you belong to
+    GET    /api/v1/communities/by-code/<code>/       open an invite link
     """
 
     serializer_class = CommunitySerializer
     lookup_field = "slug"
     lookup_url_kwarg = "pk"
     permission_classes = [IsLeaderOrReadOnly]
+
+    def get_throttles(self):
+        if self.action == "by_code":  # invite codes must not be guessable by brute force
+            self.throttle_scope = "invite_lookup"
+            return [*super().get_throttles(), IpScopedThrottle()]
+        if self.request.method not in ("GET", "HEAD", "OPTIONS"):
+            self.throttle_scope = "community_write"
+            return [*super().get_throttles(), IpScopedThrottle()]
+        return super().get_throttles()
 
     def get_permissions(self):
         if self.action in ("create", "join", "leave", "mine"):
@@ -71,7 +84,7 @@ class CommunityViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.
     def join(self, request, pk=None):
         circle = self.get_object()
         code = (request.data.get("code") or "").strip().upper()
-        if not circle.verified and code != circle.invite_code:
+        if not circle.verified and not secrets.compare_digest(code, circle.invite_code):
             return Response({"detail": "This community is invite-only. Ask a leader for the link."}, status=status.HTTP_403_FORBIDDEN)
         Membership.objects.get_or_create(community=circle, user=request.user)
         return self._fresh(circle)
