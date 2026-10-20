@@ -40,3 +40,4 @@ Admin: http://localhost:8000/admin/ · Health: http://localhost:8000/health/
 | App | Holds |
 |---|---|
 | `accounts` | `User` (phone sign-in, display name, city, role) |
+| `communities` | `CommunityCircle`, `Membership` (leader/member), invite codes. API under `/api/communities/` |
