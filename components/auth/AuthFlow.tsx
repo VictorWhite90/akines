@@ -30,6 +30,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   const [step, setStep] = useState<Step>(STEPS[mode].includes(startAt as Step) && startAt !== "verify" ? (startAt as Step) : steps[0]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [agree, setAgree] = useState(false);
@@ -50,10 +51,12 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   const errs = {
     name: mode === "signup" && name.trim().length < 2 ? "Tell us what to call you." : "",
     email: /^\S+@\S+\.\S+$/.test(email) ? "" : "Enter a valid email address.",
+    // Loose check here; the server validates it properly (Nigerian mobile numbers).
+    phone: /^\+?[\d\s()-]{10,18}$/.test(phone.trim()) && phone.replace(/\D/g, "").length >= 10 ? "" : "Enter your mobile number, e.g. 0803 123 4567.",
     password: STRONG.test(password) ? "" : STRONG_HINT,
     agree: mode === "signup" && !agree ? "Please accept the community promises to continue." : "",
   };
-  const accountOk = !errs.name && !errs.email && !errs.password && !errs.agree;
+  const accountOk = !errs.name && !errs.email && !errs.phone && !errs.password && !errs.agree;
 
   const go = (s: Step) => {
     setStep(s);
@@ -71,7 +74,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
     setBusy(true);
     setFailure(null);
     const [firstName, ...rest] = name.trim().split(/\s+/);
-    const r = await auth("register", { email: mail, password, first_name: firstName, last_name: rest.join(" ") });
+    const r = await auth("register", { email: mail, phone_number: phone.trim(), password, first_name: firstName, last_name: rest.join(" ") });
     setBusy(false);
     if (!r.ok) return setFailure(r.message);
     setTried(false);
@@ -179,6 +182,13 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                   <input id="email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                 </div>
                 {tried && errs.email && <span className="auth-err">{errs.email}</span>}
+              </div>
+              <div className="auth-field">
+                <label htmlFor="phone">Mobile number <small>One account per number</small></label>
+                <div className={`auth-input${tried && errs.phone ? " bad" : ""}`}>
+                  <input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="0803 123 4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </div>
+                {tried && errs.phone && <span className="auth-err">{errs.phone}</span>}
               </div>
               <div className="auth-field">
                 <label htmlFor="password">Password <small>12+ characters, upper and lower case, a number and a symbol</small></label>
