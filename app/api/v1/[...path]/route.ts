@@ -10,7 +10,9 @@ async function forward(req: NextRequest, { params }: { params: Promise<{ path: s
   const { path } = await params;
   if (path[0] === "auth") return NextResponse.json({ success: false, message: "Use /api/auth/*." }, { status: 404 });
 
-  const target = path.map(encodeURIComponent).join("/") + req.nextUrl.search;
+  // Keep a trailing slash exactly as the caller wrote it: Django routes depend on it.
+  const slash = req.nextUrl.pathname.endsWith("/") ? "/" : "";
+  const target = path.map(encodeURIComponent).join("/") + slash + req.nextUrl.search;
   const body = ["GET", "HEAD"].includes(req.method) ? undefined : await req.text();
   const send = (token?: string) => django(target, { method: req.method, body, token, req });
 

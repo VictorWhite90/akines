@@ -12,6 +12,12 @@ const MEMBERS_SKIP = ["/about", "/signup"];
 
 export function proxy(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
+  if (pathname.length > 1 && pathname.endsWith("/")) {
+    // A plain URL: NextURL would put the trailing slash back and loop.
+    const url = new URL(req.url);
+    url.pathname = pathname.replace(/\/+$/, "");
+    return NextResponse.redirect(url, 308);
+  }
   const signedIn = Boolean(req.cookies.get("ak_refresh")?.value);
   const isPublic = PUBLIC.includes(pathname) || PUBLIC_PREFIX.some((p) => pathname.startsWith(p));
 

@@ -157,7 +157,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
 
           {step === "account" && (
             <form onSubmit={submitAccount} noValidate>
-              <div className="ac-eyebrow">{mode === "signup" ? "Join the Village" : "Welcome back"}</div>
+              <div className="ac-eyebrow">{mode === "signup" ? "Join Akines" : "Welcome back"}</div>
               <h1>{mode === "signup" ? <>Take a seat. <em>Stay awhile.</em></> : <>Good to see <em>you again.</em></>}</h1>
               <p className="auth-lead">
                 {mode === "signup"
@@ -191,12 +191,12 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                 {tried && errs.phone && <span className="auth-err">{errs.phone}</span>}
               </div>
               <div className="auth-field">
-                <label htmlFor="password">Password <small>12+ characters, upper and lower case, a number and a symbol</small></label>
+                <label htmlFor="password">Password</label>
                 <div className={`auth-input${tried && errs.password ? " bad" : ""}`}>
                   <input id="password" type={show ? "text" : "password"} autoComplete={mode === "signup" ? "new-password" : "current-password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
                   <button type="button" onClick={() => setShow((s) => !s)}>{show ? "Hide" : "Show"}</button>
                 </div>
-                {tried && errs.password && <span className="auth-err">{errs.password}</span>}
+                {tried && errs.password ? <span className="auth-err">{errs.password}</span> : <span className="auth-hint">12+ characters with upper and lower case letters, a number and a symbol.</span>}
               </div>
 
               {(
