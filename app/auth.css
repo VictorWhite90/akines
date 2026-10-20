@@ -109,3 +109,27 @@
   .intent-tile{height:104px}
   .auth-social{grid-template-columns:1fr}
 }
+
+/* Figma design system: real mark, Manrope, no italic serif accents */
+.auth-brand{display:inline-flex;align-items:center;gap:10px;color:#fff}
+.auth-brand img{height:32px;width:32px}
+.auth-brand span,.auth-top .mbrand span{font-weight:800;letter-spacing:.14em;font-size:15px}
+.auth-quote h2{font-family:var(--font-manrope),sans-serif;font-weight:700;font-size:44px;letter-spacing:-.02em}
+.auth-quote h2 em,.auth-card h1 em{font-style:normal;color:#F4A63A}
+.auth-card h1{font-family:var(--font-manrope),sans-serif;font-weight:700;font-size:30px;letter-spacing:-.02em}
+.auth-cta{background:#1F363D}
+.auth-ghost{font-size:14px;color:#1F363D;text-decoration:underline;text-underline-offset:3px}
+.intent-tile.on{box-shadow:0 0 0 3px #fff,0 0 0 5px #F4A63A}
+.intent-tile .tick{background:#F4A63A;color:#1F363D}
+.arrive h3{font-family:var(--font-manrope),sans-serif;font-weight:700;font-size:24px;letter-spacing:-.01em}
+@media(max-width:900px){
+  .auth-top .mbrand{gap:8px;background:none;padding:0;color:#1F363D}
+  .auth-top .mbrand img{height:24px;width:24px}
+  .auth-card h1{font-size:24px;line-height:1.2}
+  .auth-card p,.auth-card .lead{font-size:14px}
+  .intent-tile{height:92px}
+  .intent-tile b,.intent-tile span{font-size:13px}
+  .arrive h2,.arrive h3{font-size:20px}
+  .arrive-links{grid-template-columns:1fr}
+}
+.arrive-links .a{background:#1F363D;color:#fff}

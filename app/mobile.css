@@ -300,3 +300,11 @@ html[data-theme="dark"] .dr { background: var(--dk-bg); border-right: 1px solid 
   .app .hm .hm-main { gap: 14px; }
   .app .hm .kn-composer .foot .tools, .app .hm .kn-composer .foot label { flex-direction: row; }
 }
+
+/* Phones: no text above ~22px outside page titles */
+@media (max-width: 640px) {
+  .cm-big-price { font-size: 24px; }
+  .cm-sizes b { font-size: 18px; }
+  .app p.font-display { font-size: 18px !important; line-height: 1.35; }
+  .app h1 em, .app h2 em { font-size: inherit; }
+}

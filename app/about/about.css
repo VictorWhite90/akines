@@ -480,3 +480,17 @@
 .ak-login{padding:8px 16px;border-radius:999px;font:600 16px/1.4 var(--font-manrope),sans-serif;color:var(--ak-text-primary,#181818);text-decoration:none}
 .ak-login:hover{background:var(--ak-surface-muted,#f3f3f3)}
 @media (max-width:760px){.ak-login{padding:8px 10px;font-size:14px}.ak-auth .ak-btn{padding:8px 14px;font-size:14px}}
+
+/* Phones: calmer type scale (H1 30, H2 26, statements 22) */
+@media (max-width:640px){
+  .ak-hero h1{font-size:30px;line-height:1.2}
+  .ak-quote blockquote{font-size:22px;line-height:1.4}
+  .ak-rhythm-intro h2,.ak-features-head h2,.ak-matching-intro h2,.ak-wellness-head h2,.ak-wcard h3,.ak-philo-left h2{font-size:26px;line-height:1.25}
+  .ak-final h2{font-size:30px}
+  .ak-step-title{font-size:20px}
+  .ak-exp-visual-copy h3,.ak-exp-intro h3{font-size:22px}
+  .cp-hero h1{font-size:32px;letter-spacing:-.02em}
+  .cp-principles h2,.cp-overview h2,.cp-close h2{font-size:24px;line-height:1.25}
+  .cp-values-list button{font-size:22px}
+  .cp-overview em,.cp-close em{font-size:inherit}
+}

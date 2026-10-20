@@ -3,6 +3,7 @@
 import { SESSION_KEY } from "@/lib/session";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Pic from "@/components/home/Pic";
 import { INTENTS } from "@/lib/data/community";
@@ -31,6 +32,7 @@ function remember(data: Record<string, unknown>) {
 /** Sign in / sign up. Both routes end in "What would feel meaningful today?", the Connection Intent Engine. */
 export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: string }) {
   const steps = STEPS[mode];
+  const router = useRouter();
   const [step, setStep] = useState<Step>(STEPS[mode].includes(startAt as Step) ? (startAt as Step) : "account");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -72,7 +74,9 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
 
   const finish = (skip = false) => {
     remember({ intent: skip ? null : intentId, role, city, media });
-    next();
+    // Skipping goes straight in; choosing a reason shows one suggested first step.
+    if (skip) router.push("/");
+    else next();
   };
 
   const toggle = (m: string) => setMedia((cur) => (cur.includes(m) ? cur.filter((x) => x !== m) : [...cur, m]));
@@ -81,7 +85,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
     <div className="auth">
       <aside className="auth-side">
         <div className="bg pattern-adire" aria-hidden />
-        <Link href="/" className="auth-brand"><Image src="/akines_logo_transparent.png" alt="Akines" width={168} height={45} priority /></Link>
+        <Link href="/about" className="auth-brand" aria-label="Akines"><Image src="/akines/mark.svg" alt="" width={32} height={32} priority /><span>AKINES</span></Link>
         <div className="auth-collage" aria-hidden>
           <div className="t a"><Pic name="kincircleHero" sizes="30vw" position="50% 30%" priority /></div>
           <div className="t b"><Pic name="talkLaugh" sizes="20vw" position="50% 40%" priority /></div>
@@ -103,7 +107,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
 
       <section className="auth-main">
         <div className="auth-top">
-          <Link href="/" className="mbrand"><Image src="/akines_logo_transparent.png" alt="Akines" width={168} height={45} /></Link>
+          <Link href="/about" className="mbrand" aria-label="Akines"><Image src="/akines/mark.svg" alt="" width={24} height={24} /><span>AKINES</span></Link>
           {mode === "signup" ? (
             <span>Already a member? <Link href="/login">Sign in</Link></span>
           ) : (
@@ -216,10 +220,10 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
 
           {step === "intent" && (
             <div>
-              <div className="ac-eyebrow">One last question</div>
-              <h1>What would feel <em>meaningful today?</em></h1>
+              <div className="ac-eyebrow">One quick question</div>
+              <h1>What brings you here <em>today?</em></h1>
               <p className="auth-lead">
-                {mode === "login" ? `Welcome back${first ? `, ${first}` : ""}. ` : ""}Tell us your reason for being here and the courtyard rearranges itself. It shapes suggestions only, is never shown on your profile, and you can change it anytime.
+                {mode === "login" ? `Welcome back${first ? `, ${first}` : ""}. ` : ""}Pick one and we'll suggest a good place to start. It only shapes suggestions, is never shown on your profile, and you can change it anytime.
               </p>
 
               <div className="intent-tiles" role="radiogroup" aria-label="What would feel meaningful today?">
@@ -244,7 +248,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                 <button className="auth-cta" disabled={!intent} onClick={() => finish()}>{intent ? "Continue with this reason →" : "Choose a reason to continue"}</button>
               </div>
               <div className="auth-actions" style={{ marginTop: 0, justifyContent: "center" }}>
-                <button className="auth-ghost" onClick={() => finish(true)}>{mode === "login" ? "Just take me in" : "I'll decide later"}</button>
+                <button className="auth-ghost" onClick={() => finish(true)}>Skip and go to Home →</button>
               </div>
             </div>
           )}
@@ -252,7 +256,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
           {step === "arrive" && (
             <div>
               <div className="ac-eyebrow">{mode === "signup" ? "You're in" : "Signed in"}</div>
-              <h1>{mode === "signup" ? "Welcome to the Village" : "Welcome back"}{first ? <>, <em>{first}.</em></> : "."}</h1>
+              <h1>{mode === "signup" ? "Welcome to Akines" : "Welcome back"}{first ? <>, <em>{first}.</em></> : "."}</h1>
               <p className="auth-lead">
                 {mode === "signup" ? "Your account is ready. Here is where we'd start, based on what you told us." : "Here is where we'd pick things up, based on what you told us."}
               </p>
@@ -267,8 +271,8 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
               </div>
 
               <div className="arrive-links">
-                <Link className="a" href={intent?.cta.href ?? "/"}>{intent ? `${intent.cta.label} →` : "Enter the Village →"}</Link>
-                <Link className="b" href="/">{intent ? "Go to community home" : "See what's live"}</Link>
+                <Link className="a" href={intent?.cta.href ?? "/"}>{intent ? `${intent.cta.label} →` : "Go to Home →"}</Link>
+                <Link className="b" href="/">{intent ? "Go to Home" : "See what's live"}</Link>
               </div>
             </div>
           )}
