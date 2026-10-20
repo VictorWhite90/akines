@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Avatar from "@/components/ui/Avatar";
 import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
 import { BANTER_NOW, type BanterNow } from "@/lib/data/banter";
-import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
+import { ME, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
-import BackLink from "@/components/ui/BackLink";
+import LiveStage from "./LiveStage";
 
 export default function BanterNowRoom({ id }: { id: string }) {
   const router = useRouter();
@@ -16,8 +15,6 @@ export default function BanterNowRoom({ id }: { id: string }) {
   const [insights, setInsights] = useLocal<string[]>("ak:banter-insights", []);
   const session = [...mine, ...BANTER_NOW].find((s) => s.id === id);
   const [elapsed, setElapsed] = useState(0);
-  const [muted, setMuted] = useState(false);
-  const [speaker, setSpeaker] = useState(0);
   const [endedEarly, setEnded] = useState(false);
   const [insight, setInsight] = useState("");
   const [saved, setSaved] = useState(false);
@@ -34,12 +31,6 @@ export default function BanterNowRoom({ id }: { id: string }) {
     return () => clearTimeout(t);
   }, [elapsed, ended]);
 
-  // Gently rotate who's speaking so the room feels alive and shared.
-  useEffect(() => {
-    if (ended) return;
-    const t = setInterval(() => setSpeaker((s) => (s + 1) % Math.max(people.length, 1)), 3500);
-    return () => clearInterval(t);
-  }, [ended, people.length]);
 
   if (!session) {
     return (
@@ -101,49 +92,5 @@ export default function BanterNowRoom({ id }: { id: string }) {
     );
   }
 
-  return (
-    <div className="ap-calm flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <BackLink fallback="/banter" className="text-[13px] text-mute hover:text-ink-900">← Back</BackLink>
-        <div className="flex flex-wrap gap-2 text-[11.5px]">
-          <span className="rounded-full bg-paper-200 px-3 py-1">Not recorded</span>
-          <span className="rounded-full bg-paper-200 px-3 py-1">No audience</span>
-          <span className="rounded-full bg-paper-200 px-3 py-1">{people.length} of 8 people</span>
-        </div>
-      </div>
-
-      <section className="rounded-[26px] bg-night p-5 text-white sm:p-8">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.14em] text-ochre-300 uppercase"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-clay-400" /> Banter Now · {session.context}</p>
-            <h1 className="font-display mt-2 max-w-2xl text-[30px] leading-tight sm:text-[36px]">{session.topic}</h1>
-          </div>
-          <p className="font-display text-[40px] tabular-nums" aria-label="Time left">{mm}:{String(ss).padStart(2, "0")}</p>
-        </div>
-
-        {/* Equal tiles: no stage, no hosts above guests */}
-        <ul className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {people.map((pid, i) => {
-            const p = PEOPLE[pid];
-            const me = pid === ME.id;
-            const talking = i === speaker && !(me && muted);
-            return (
-              <li key={pid} className={`flex flex-col items-center gap-2 rounded-2xl p-5 transition-colors ${talking ? "bg-white/15 ring-2 ring-ochre-300" : "bg-white/5"}`}>
-                <Avatar person={p} size={64} />
-                <p className="text-[13.5px] font-semibold">{me ? "You" : p.name.split(" ")[0]}</p>
-                <p className="text-[11px] text-white/60">{me && muted ? "Muted" : talking ? "Speaking" : "Listening"}</p>
-              </li>
-            );
-          })}
-        </ul>
-
-        <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <button onClick={() => setMuted((m) => !m)} className={`rounded-full px-5 py-3 text-[13.5px] font-semibold ${muted ? "bg-white text-ink-950" : "bg-white/10 hover:bg-white/20"}`}>{muted ? "Unmute" : "Mute"}</button>
-          <button onClick={() => setEnded(true)} className="rounded-full bg-ochre-400 px-5 py-3 text-[13.5px] font-semibold text-ink-950 hover:bg-ochre-300">End and reflect</button>
-          <Link href="/banter" className="rounded-full bg-white/10 px-5 py-3 text-[13.5px] font-semibold hover:bg-white/20">Leave quietly</Link>
-        </div>
-      </section>
-      <p className="text-center text-[12px] text-mute">Everyone joins as an equal participant. When time is up, the group decides whether anything is worth continuing.</p>
-    </div>
-  );
+  return <LiveStage session={session} mm={mm} ss={ss} onEnd={() => setEnded(true)} />;
 }
