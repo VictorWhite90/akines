@@ -30,7 +30,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const open = ["/login", "/signup", "/about", "/about/philosophy", "/welcome"].includes(pathname) || pathname.startsWith("/circles/join/");
   const [gate, setGate] = useState<"checking" | "in" | "out">("checking");
 
-  // Prototype gate: signed-out visitors meet the Welcome screen first.
+  // proxy.ts already sends signed-out visitors to About on the server; this is the client-side backstop.
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the browser session once per route
     setGate(isSignedIn() ? "in" : "out");

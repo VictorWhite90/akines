@@ -6,7 +6,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ThemeToggle from "@/components/shell/ThemeToggle";
 import { FACE, type FaceKey } from "@/lib/data/images";
-import { SESSION_KEY, signOut, startGuest } from "@/lib/session";
+import { auth, type Member } from "@/lib/api/client";
+import { rememberMember, signOut } from "@/lib/session";
+
+/** Matches the backend rule: 12+ characters with upper and lower case, a number and a symbol. */
+export const STRONG = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/;
+export const STRONG_HINT = "Use at least 12 characters, with upper and lower case letters, a number and a symbol.";
 
 /** The ring of people around the mark, each on a soft colour like the design. */
 const RING: { face: FaceKey; bg: string }[] = [
@@ -28,40 +33,84 @@ export function AkinesMark({ size = 72 }: { size?: number }) {
   return <img src="/akines/mark.svg" alt="" width={size} height={size} className="lg-mark" />;
 }
 
-function remember(data: Record<string, unknown>) {
-  try {
-    const prev = JSON.parse(localStorage.getItem(SESSION_KEY) ?? "{}");
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ ...prev, ...data }));
-  } catch {
-    /* prototype only: the flow works without storage */
-  }
-}
+type View = "login" | "2fa" | "forgot" | "reset";
 
-/** Sign in. After it, the member answers "What would feel meaningful today?" in the existing flow. */
+/** Sign in against the Akines API. After it, the member answers "What brings you here today?". */
 export default function LoginScreen({ signedOut = false }: { signedOut?: boolean }) {
   const router = useRouter();
-  // ?signout=1 (from Sign out) clears the prototype session.
+  // ?signout=1 (from Sign out) ends the session on the server too.
   useEffect(() => {
-    if (signedOut) signOut();
-  }, [signedOut]);
-  const [who, setWho] = useState("");
+    if (!signedOut) return;
+    void signOut().then(() => router.replace("/login"));
+  }, [signedOut, router]);
+  const [view, setView] = useState<View>("login");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [show, setShow] = useState(false);
   const [tried, setTried] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [failure, setFailure] = useState<string | null>(null);
 
-  const errs = { who: who.trim() ? "" : "Enter your mobile number, username or email.", password: password ? "" : "Enter your password." };
-
-  const enter = (id: string) => {
-    const name = id.includes("@") ? id.split("@")[0] : id;
-    remember({ name, email: id.includes("@") ? id : `${id.replace(/\s+/g, "")}@akines.local` });
-    router.push("/login?step=intent");
+  const errs = {
+    email: /^\S+@\S+\.\S+$/.test(email.trim()) ? "" : "Enter the email you signed up with.",
+    password: view === "login" && !password ? "Enter your password." : view === "reset" && !STRONG.test(password) ? STRONG_HINT : "",
+    code: (view === "2fa" || view === "reset") && !/^\d{6}$/.test(code.replace(/\D/g, "")) ? "Enter the 6-digit code from your email." : "",
   };
 
-  const submit = (e: React.FormEvent) => {
+  const switchTo = (v: View, message: string | null = null) => {
+    setView(v);
+    setTried(false);
+    setFailure(null);
+    setNotice(message);
+    setCode("");
+    if (v !== "login") setPassword("");
+  };
+
+  const signedIn = (data: { user?: Member }) => {
+    if (data.user) rememberMember(data.user);
+    router.replace("/login?step=intent");
+    router.refresh();
+  };
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setTried(true);
-    if (errs.who || errs.password) return;
-    enter(who.trim());
+    const fields = view === "login" ? ["email", "password"] : view === "2fa" ? ["code"] : view === "forgot" ? ["email"] : ["code", "password"];
+    if (fields.some((f) => errs[f as keyof typeof errs])) return;
+    setBusy(true);
+    setFailure(null);
+    const mail = email.trim().toLowerCase();
+    const otp = code.replace(/\D/g, "");
+    try {
+      if (view === "login") {
+        const r = await auth<{ redirect_to_2fa?: boolean; user?: Member }>("login", { email: mail, password });
+        if (!r.ok) return setFailure(r.message);
+        if (r.data?.redirect_to_2fa) return switchTo("2fa", `We sent a 6-digit code to ${mail}.`);
+        return signedIn(r.data ?? {});
+      }
+      if (view === "2fa") {
+        const r = await auth<{ user?: Member }>("verify-2fa", { email: mail, otp });
+        return r.ok ? signedIn(r.data ?? {}) : setFailure(r.message);
+      }
+      if (view === "forgot") {
+        const r = await auth("forgot", { email: mail });
+        return r.ok ? switchTo("reset", `If ${mail} has an account, we've sent it a 6-digit code.`) : setFailure(r.message);
+      }
+      const v = await auth("verify-reset", { email: mail, otp });
+      if (!v.ok) return setFailure(v.message);
+      const r = await auth("reset", { email: mail, password });
+      return r.ok ? switchTo("login", "Password changed. Log in with your new password.") : setFailure(r.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const resend = async () => {
+    const r = await auth(view === "2fa" ? "resend-2fa" : "forgot", { email: email.trim().toLowerCase() });
+    setFailure(r.ok ? null : r.message);
+    setNotice(r.ok ? "A new code is on its way." : null);
   };
 
   return (
@@ -93,43 +142,62 @@ export default function LoginScreen({ signedOut = false }: { signedOut?: boolean
         </section>
 
         <section className="lg-form-wrap">
-          <form className="lg-form" onSubmit={submit} noValidate>
-            <h2>Log into Akines</h2>
+          <form className="lg-form" onSubmit={submit} noValidate aria-busy={busy}>
+            <h2>{view === "login" ? "Log into Akines" : view === "2fa" ? "Check your email" : view === "forgot" ? "Reset your password" : "Choose a new password"}</h2>
+            {notice && <p className="lg-note" role="status">{notice}</p>}
+            {failure && <p className="lg-fail" role="alert">{failure}</p>}
 
-            <label className="sr-only" htmlFor="lg-who">Mobile number, username or email</label>
-            <input id="lg-who" className={`lg-input${tried && errs.who ? " bad" : ""}`} autoComplete="username" placeholder="Mobile number, username or email" value={who} onChange={(e) => setWho(e.target.value)} />
-            {tried && errs.who && <span className="lg-err">{errs.who}</span>}
+            {(view === "login" || view === "forgot") && (
+              <>
+                <label className="sr-only" htmlFor="lg-email">Email</label>
+                <input id="lg-email" type="email" inputMode="email" className={`lg-input${tried && errs.email ? " bad" : ""}`} autoComplete="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                {tried && errs.email && <span className="lg-err">{errs.email}</span>}
+              </>
+            )}
 
-            <label className="sr-only" htmlFor="lg-pw">Password</label>
-            <div className={`lg-input lg-pw${tried && errs.password ? " bad" : ""}`}>
-              <input id="lg-pw" type={show ? "text" : "password"} autoComplete="current-password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-              <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} aria-pressed={show}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden>
-                  <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
-                  <circle cx="12" cy="12" r="3" />
-                  {show && <path d="M4 4l16 16" />}
-                </svg>
-              </button>
-            </div>
-            {tried && errs.password && <span className="lg-err">{errs.password}</span>}
+            {(view === "2fa" || view === "reset") && (
+              <>
+                <label className="sr-only" htmlFor="lg-code">6-digit code</label>
+                <input id="lg-code" className={`lg-input lg-code${tried && errs.code ? " bad" : ""}`} inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="6-digit code" value={code} onChange={(e) => setCode(e.target.value)} />
+                {tried && errs.code && <span className="lg-err">{errs.code}</span>}
+              </>
+            )}
 
-            <button type="submit" className="lg-primary">Login</button>
-            <a href="#" className="lg-forgot" onClick={(e) => e.preventDefault()}>Forgot Password?</a>
+            {(view === "login" || view === "reset") && (
+              <>
+                <label className="sr-only" htmlFor="lg-pw">{view === "reset" ? "New password" : "Password"}</label>
+                <div className={`lg-input lg-pw${tried && errs.password ? " bad" : ""}`}>
+                  <input id="lg-pw" type={show ? "text" : "password"} autoComplete={view === "reset" ? "new-password" : "current-password"} placeholder={view === "reset" ? "New password" : "Password"} value={password} onChange={(e) => setPassword(e.target.value)} />
+                  <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} aria-pressed={show}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden>
+                      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
+                      <circle cx="12" cy="12" r="3" />
+                      {show && <path d="M4 4l16 16" />}
+                    </svg>
+                  </button>
+                </div>
+                {tried && errs.password && <span className="lg-err">{errs.password}</span>}
+              </>
+            )}
 
-            <div className="lg-alt">
-              <button type="button" className="lg-google" onClick={() => enter("amara@example.com")}>
-                <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden>
-                  <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z" />
-                  <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
-                  <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z" />
-                  <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z" />
-                </svg>
-                Login with Google
-              </button>
-              <Link href="/signup" className="lg-outline">Create New Account</Link>
-            </div>
-            <button type="button" className="lg-guest" onClick={() => { startGuest(); router.push("/"); }}>Just looking? Peek inside as a guest →</button>
-            <p className="lg-fine">Prototype: nothing is sent anywhere. Any details will do.</p>
+            <button type="submit" className="lg-primary" disabled={busy}>
+              {busy ? "Please wait…" : view === "login" ? "Login" : view === "2fa" ? "Verify and log in" : view === "forgot" ? "Send reset code" : "Change password"}
+            </button>
+
+            {view === "login" ? (
+              <button type="button" className="lg-forgot" onClick={() => switchTo("forgot")}>Forgot Password?</button>
+            ) : (
+              <span className="lg-links">
+                {view !== "forgot" && <button type="button" className="lg-forgot" onClick={resend}>Send a new code</button>}
+                <button type="button" className="lg-forgot" onClick={() => switchTo("login")}>Back to log in</button>
+              </span>
+            )}
+
+            {view === "login" && (
+              <div className="lg-alt">
+                <Link href="/signup" className="lg-outline">Create New Account</Link>
+              </div>
+            )}
           </form>
         </section>
       </main>

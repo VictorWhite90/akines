@@ -48,7 +48,13 @@ html[data-theme="dark"] .lg::before { content: ""; position: absolute; inset: 0;
 .lg-primary { height: 52px; margin-top: 22px; border: 0; border-radius: 99px; background: var(--lg-accent); color: #16140f; font: 600 16px var(--font-dmsans), sans-serif; cursor: pointer; transition: filter .15s, transform .15s; }
 .lg-primary:hover { filter: brightness(1.05); }
 .lg-primary:active { transform: scale(.99); }
-.lg-forgot { align-self: center; margin-top: 16px; font-size: 14px; color: var(--lg-ink); text-decoration: none; }
+.lg-forgot { align-self: center; margin-top: 16px; padding: 0; border: 0; background: none; font: 14px var(--font-dmsans), sans-serif; color: var(--lg-ink); text-decoration: none; cursor: pointer; }
+.lg-links { display: flex; justify-content: center; gap: 22px; }
+.lg-note, .lg-fail { margin: 0 0 14px; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.45; }
+.lg-note { background: color-mix(in srgb, #1F363D 8%, transparent); color: var(--lg-ink); }
+.lg-fail { background: #fdecea; color: #a1302a; }
+.lg-code { letter-spacing: .3em; font-variant-numeric: tabular-nums; }
+.lg-primary:disabled { opacity: .6; cursor: progress; }
 .lg-forgot:hover { text-decoration: underline; }
 .lg-alt { display: flex; flex-direction: column; gap: 12px; margin-top: 44px; }
 .lg-google, .lg-outline { height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 99px; font: 500 15px var(--font-dmsans), sans-serif; color: var(--lg-ink); text-decoration: none; cursor: pointer; transition: background .15s; }
