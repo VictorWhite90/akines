@@ -13,3 +13,25 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.display_name or self.phone or self.username
+
+
+class LoginCode(models.Model):
+    """A one-time sign-in code sent by SMS or email. Only a hash of the code is stored."""
+
+    class Channel(models.TextChoices):
+        SMS = "sms", "SMS"
+        EMAIL = "email", "Email"
+
+    channel = models.CharField(max_length=5, choices=Channel.choices)
+    destination = models.CharField(max_length=254, db_index=True, help_text="Phone in E.164 or a lower-case email")
+    code_hash = models.CharField(max_length=64)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.channel} code for {self.destination}"

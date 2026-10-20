@@ -93,6 +93,27 @@ STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Sign-in codes. SMS goes through Termii when TERMII_API_KEY is set; otherwise the code
+# is printed in the server terminal (local development only).
+TERMII_API_KEY = os.environ.get("TERMII_API_KEY", "")
+TERMII_BASE_URL = os.environ.get("TERMII_BASE_URL", "https://api.ng.termii.com")
+TERMII_SENDER_ID = os.environ.get("TERMII_SENDER_ID", "Akines")
+TERMII_CHANNEL = os.environ.get("TERMII_CHANNEL", "dnd")
+
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "Akines <no-reply@akines.com>")
+if os.environ.get("EMAIL_HOST"):
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = os.environ["EMAIL_HOST"]
+    EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+    EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+    EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+    EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "true").lower() == "true"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 60  # stay signed in for 60 days
+CSRF_COOKIE_SAMESITE = SESSION_COOKIE_SAMESITE = "Lax"
+
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SESSION_COOKIE_SECURE = True

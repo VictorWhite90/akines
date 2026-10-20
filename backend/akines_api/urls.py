@@ -17,5 +17,6 @@ admin.site.site_title = "Akines admin"
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health),
+    path("api/", include("accounts.urls")),
     path("api/", include("communities.urls")),
 ]

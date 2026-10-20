@@ -35,9 +35,13 @@ Admin: http://localhost:8000/admin/ · Health: http://localhost:8000/health/
    ```
 5. Health check path: `/health/` (returns 200 when the database is reachable).
 
+## Sign-in codes
+
+SMS codes go through Termii when `TERMII_API_KEY` is set, email codes through SMTP when `EMAIL_HOST` is set. Without them (local development) the code is printed in the server terminal.
+
 ## Apps
 
 | App | Holds |
 |---|---|
-| `accounts` | `User` (phone sign-in, display name, city, role) |
+| `accounts` | `User`, `LoginCode`. Sign-in by one-time code: `/api/auth/request-code/`, `/api/auth/verify-code/`, `/api/auth/me/`, `/api/auth/sign-out/`, `/api/auth/csrf/` |
 | `communities` | `CommunityCircle`, `Membership` (leader/member), invite codes. API under `/api/communities/` |
