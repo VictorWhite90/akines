@@ -13,6 +13,16 @@ import { INTENTS } from "@/lib/data/community";
 type Mode = "login" | "signup";
 type Step = "account" | "verify" | "about" | "intent" | "arrive";
 
+/** Mirrors MIN_SIGNUP_AGE on the backend, which is the real check. */
+const MIN_AGE = 18;
+
+function ageOn(iso: string): number | null {
+  const d = new Date(`${iso}T00:00:00`);
+  if (!iso || Number.isNaN(d.getTime())) return null;
+  const t = new Date();
+  return t.getFullYear() - d.getFullYear() - (t.getMonth() < d.getMonth() || (t.getMonth() === d.getMonth() && t.getDate() < d.getDate()) ? 1 : 0);
+}
+
 const STEPS: Record<Mode, Step[]> = {
   signup: ["account", "verify", "about", "intent", "arrive"],
   // The log-in form itself is LoginScreen; after it, members continue here.
@@ -31,6 +41,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [dob, setDob] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [agree, setAgree] = useState(false);
@@ -54,9 +65,10 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
     // Loose check here; the server validates it properly (Nigerian mobile numbers).
     phone: /^\+?[\d\s()-]{10,18}$/.test(phone.trim()) && phone.replace(/\D/g, "").length >= 10 ? "" : "Enter your mobile number, e.g. 0803 123 4567.",
     password: STRONG.test(password) ? "" : STRONG_HINT,
+    dob: ageOn(dob) === null ? "Enter your date of birth." : (ageOn(dob) as number) < MIN_AGE ? `You need to be ${MIN_AGE} or older to join Akines.` : "",
     agree: mode === "signup" && !agree ? "Please accept the community promises to continue." : "",
   };
-  const accountOk = !errs.name && !errs.email && !errs.phone && !errs.password && !errs.agree;
+  const accountOk = !errs.name && !errs.email && !errs.phone && !errs.dob && !errs.password && !errs.agree;
 
   const go = (s: Step) => {
     setStep(s);
@@ -74,7 +86,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
     setBusy(true);
     setFailure(null);
     const [firstName, ...rest] = name.trim().split(/\s+/);
-    const r = await auth("register", { email: mail, phone_number: phone.trim(), password, first_name: firstName, last_name: rest.join(" ") });
+    const r = await auth("register", { email: mail, phone_number: phone.trim(), date_of_birth: dob, password, first_name: firstName, last_name: rest.join(" ") });
     setBusy(false);
     if (!r.ok) return setFailure(r.message);
     setTried(false);
@@ -189,6 +201,13 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                   <input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="0803 123 4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
                 </div>
                 {tried && errs.phone && <span className="auth-err">{errs.phone}</span>}
+              </div>
+              <div className="auth-field">
+                <label htmlFor="dob">Date of birth <small>Never shown on your profile</small></label>
+                <div className={`auth-input${tried && errs.dob ? " bad" : ""}`}>
+                  <input id="dob" type="date" autoComplete="bday" max={new Date().toISOString().slice(0, 10)} value={dob} onChange={(e) => setDob(e.target.value)} />
+                </div>
+                {tried && errs.dob && <span className="auth-err">{errs.dob}</span>}
               </div>
               <div className="auth-field">
                 <label htmlFor="password">Password</label>
