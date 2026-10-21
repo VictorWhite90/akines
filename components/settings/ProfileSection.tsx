@@ -5,7 +5,7 @@ import { account, type MyProfile } from "@/lib/api/account";
 import { rememberMember } from "@/lib/session";
 import { Notice, Status, useLoad } from "./useLoad";
 
-type Form = Pick<MyProfile, "first_name" | "last_name" | "username" | "bio" | "interests">;
+type Form = Pick<MyProfile, "first_name" | "last_name" | "username" | "bio" | "interests" | "phone_number"> & { date_of_birth: string };
 
 export default function ProfileSection() {
   const profile = useLoad(account.profile);
@@ -17,9 +17,9 @@ export default function ProfileSection() {
 
   useEffect(() => {
     if (!profile.data || form) return;
-    const { first_name, last_name, username, bio, interests: chosen } = profile.data;
+    const { first_name, last_name, username, bio, interests: chosen, phone_number, date_of_birth } = profile.data;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- seed the form once the profile arrives
-    setForm({ first_name, last_name, username: username ?? "", bio, interests: chosen });
+    setForm({ first_name, last_name, username: username ?? "", bio, interests: chosen, phone_number, date_of_birth: date_of_birth ?? "" });
   }, [profile.data, form]);
 
   // Live @username check, a moment after typing stops.
@@ -46,10 +46,16 @@ export default function ProfileSection() {
     e.preventDefault();
     setSaving(true);
     setNotice(null);
-    const r = await account.updateProfile({ ...form, username: form.username?.trim() || null });
+    const { date_of_birth, phone_number, ...rest } = form;
+    const changes: Partial<MyProfile> = { ...rest, username: form.username?.trim() || null };
+    if (phone_number.trim() !== profile.data?.phone_number) changes.phone_number = phone_number.trim();
+    // Date of birth can only be set once; after that the server refuses changes.
+    if (!profile.data?.date_of_birth && date_of_birth) changes.date_of_birth = date_of_birth;
+    const r = await account.updateProfile(changes);
     setSaving(false);
     if (!r.ok) return setNotice({ text: r.message, tone: "bad", field: r.field });
     profile.setData(r.data);
+    setForm((f) => (f ? { ...f, phone_number: r.data.phone_number, date_of_birth: r.data.date_of_birth ?? "" } : f));
     rememberMember(r.data);
     setHandle(null);
     setNotice({ text: "Profile saved.", tone: "ok" });
@@ -93,10 +99,20 @@ export default function ProfileSection() {
         </div>
       </div>
 
+      <div className="cm-two">
+        <div className="cm-field">
+          <label htmlFor="st-phone">Mobile number <small>One account per number</small></label>
+          <input id="st-phone" type="tel" inputMode="tel" autoComplete="tel" value={form.phone_number} onChange={(e) => set("phone_number", e.target.value)} aria-invalid={bad("phone_number")} placeholder="0803 123 4567" />
+        </div>
+        <div className="cm-field">
+          <label htmlFor="st-dob">Date of birth <small>{profile.data?.date_of_birth ? "Can't be changed" : "Can only be set once"}</small></label>
+          <input id="st-dob" type="date" value={form.date_of_birth} onChange={(e) => set("date_of_birth", e.target.value)} disabled={!!profile.data?.date_of_birth} aria-invalid={bad("date_of_birth")} max={new Date().toISOString().slice(0, 10)} />
+        </div>
+      </div>
+      <p className="st-lead">Only you can see your email, mobile number and date of birth.</p>
+
       <dl className="st-facts">
         <div><dt>Email</dt><dd>{profile.data?.email}</dd></div>
-        <div><dt>Mobile number</dt><dd>{profile.data?.phone_number}</dd></div>
-        <div><dt>Date of birth</dt><dd>{profile.data?.date_of_birth ? new Date(`${profile.data.date_of_birth}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "Not set"} <small>Only you can see this</small></dd></div>
       </dl>
 
       <Notice text={notice?.text ?? null} tone={notice?.tone} />
