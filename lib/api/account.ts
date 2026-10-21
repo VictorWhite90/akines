@@ -1,4 +1,4 @@
-import { api } from "./client";
+import { api, upload } from "./client";
 
 /** The signed-in member's own profile (backend: GET/PUT /api/v1/profile/). */
 export type MyProfile = {
@@ -41,6 +41,13 @@ export const account = {
   changePassword: (old_password: string, new_password: string) => api.post("profile/settings/password", { old_password, new_password }),
   sendTwoStepCode: () => api.post("profile/settings/2fa", { status: true }),
   toggleTwoStep: (otp: string) => api.put<{ is_2fa_set: boolean }>("profile/settings/2fa", { otp }),
+
+  uploadPhoto: (photo: Blob) => {
+    const form = new FormData();
+    form.append("photo", photo, "photo.jpg");
+    return upload<{ profile_photo: string }>("profile/photo", form);
+  },
+  removePhoto: () => api.del("profile/photo"),
 
   exportData: () => api.get<Record<string, unknown>>("profile/export"),
   deleteAccount: (password: string) => api.post("profile/delete-account", { password }),

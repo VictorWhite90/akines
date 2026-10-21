@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { clearSession, COOKIE, django, sameOrigin, setSession } from "@/lib/api/server";
 
+const MAX_UPLOAD_BYTES = 12 * 1024 * 1024;
+
 /**
  * Same-origin gateway to the Django API: /api/v1/<path> → <AKINES_API_URL>/<path>, with the member's token attached.
  * When the access token has expired it refreshes once with the refresh token and retries.
@@ -13,8 +15,15 @@ async function forward(req: NextRequest, { params }: { params: Promise<{ path: s
   // Keep a trailing slash exactly as the caller wrote it: Django routes depend on it.
   const slash = req.nextUrl.pathname.endsWith("/") ? "/" : "";
   const target = path.map(encodeURIComponent).join("/") + slash + req.nextUrl.search;
-  const body = ["GET", "HEAD"].includes(req.method) ? undefined : await req.text();
-  const send = (token?: string) => django(target, { method: req.method, body, token, req });
+  // File uploads (multipart) are forwarded byte for byte with their boundary; everything else is JSON text.
+  const contentType = req.headers.get("content-type") ?? "";
+  const multipart = contentType.startsWith("multipart/form-data");
+  if (multipart && Number(req.headers.get("content-length") ?? 0) > MAX_UPLOAD_BYTES) {
+    return NextResponse.json({ success: false, message: "That file is too large." }, { status: 413 });
+  }
+  const body = ["GET", "HEAD"].includes(req.method) ? undefined : multipart ? await req.arrayBuffer() : await req.text();
+  const headers = multipart ? { "Content-Type": contentType } : undefined;
+  const send = (token?: string) => django(target, { method: req.method, body, headers, token, req });
 
   let access = req.cookies.get(COOKIE.access)?.value;
   const refresh = req.cookies.get(COOKIE.refresh)?.value;

@@ -62,7 +62,7 @@ export async function django<T = unknown>(path: string, init: RequestInit & { to
   const { token, req, ...rest } = init;
   const headers = new Headers(rest.headers);
   headers.set("Accept", "application/json");
-  if (rest.body && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+  if (rest.body && typeof rest.body === "string" && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
   // Pass the visitor's IP on so Django's rate limits and audit log see the real client.
   const ip = req?.headers.get("x-forwarded-for") ?? req?.headers.get("x-real-ip");

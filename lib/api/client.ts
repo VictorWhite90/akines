@@ -28,6 +28,18 @@ async function call<T>(url: string, method: string, body?: unknown): Promise<Api
   }
 }
 
+/** Multipart upload (the browser sets the boundary). */
+export async function upload<T>(path: string, form: FormData): Promise<ApiResult<T>> {
+  try {
+    const r = await fetch(`/api/v1/${path.replace(/^\//, "")}`, { method: "POST", body: form, credentials: "same-origin" });
+    const env = await r.json().catch(() => null);
+    if (r.ok && env?.success !== false) return { ok: true, data: env?.data as T, message: env?.message ?? null };
+    return { ok: false, status: r.status, message: env?.message || "The upload didn't go through. Please try again." };
+  } catch {
+    return { ok: false, status: 0, message: "You seem to be offline. Check your connection and try again." };
+  }
+}
+
 export const auth = <T = unknown>(action: string, body?: unknown) => call<T>(`/api/auth/${action}`, "POST", body ?? {});
 
 export const api = {

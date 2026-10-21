@@ -5,6 +5,7 @@ import { account, type MyProfile } from "@/lib/api/account";
 import { rememberMember } from "@/lib/session";
 import DateOfBirth from "@/components/ui/DateOfBirth";
 import { useMe } from "@/components/shell/MemberContext";
+import ProfilePhoto from "./ProfilePhoto";
 import { Notice, Status, useLoad } from "./useLoad";
 
 type Form = Pick<MyProfile, "first_name" | "last_name" | "username" | "bio" | "interests" | "phone_number"> & { date_of_birth: string };
@@ -66,10 +67,20 @@ export default function ProfileSection() {
     setNotice({ text: "Profile saved.", tone: "ok" });
   };
 
+  // After a photo change: reload the profile so the form and the app frame show the new photo.
+  const photoChanged = async () => {
+    const r = await account.profile();
+    if (r.ok) {
+      profile.setData(r.data);
+      setFromProfile(r.data);
+    }
+  };
+
   const bad = (field: string) => (notice?.tone === "bad" && notice.field === field ? true : undefined);
 
   return (
     <form className="cm-form" onSubmit={save} noValidate>
+      <ProfilePhoto name={[form.first_name, form.last_name].join(" ").trim()} photo={profile.data?.profile_photo ?? null} onChange={photoChanged} />
       <div className="cm-two">
         <div className="cm-field">
           <label htmlFor="st-first">First name</label>

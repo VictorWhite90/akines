@@ -16,7 +16,8 @@ function toMe(p: MyProfile): Me {
     id: p.user_id,
     username: p.username,
     name: fullName(p),
-    firstName: p.first_name || (p.username ? `@${p.username}` : "You"),
+    // First word only: "Victor Chinedu" in the first-name field shows as "Victor" in tight spots.
+    firstName: p.first_name?.trim().split(/\s+/)[0] || (p.username ? `@${p.username}` : "You"),
     email: p.email,
     photo: p.profile_photo,
   };
