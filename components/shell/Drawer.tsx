@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { InfoCircle, LogoutCurve, Magicpen, Setting2 } from "iconsax-reactjs";
 import Avatar from "@/components/ui/Avatar";
-import { ME } from "@/lib/data/people";
+import { useMe } from "./MemberContext";
 import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
 import { RAIL, activeGroup } from "./railGroups";
@@ -15,6 +15,7 @@ import { RAIL, activeGroup } from "./railGroups";
 export default function Drawer({ open, onClose, onCompanion }: { open: boolean; onClose: () => void; onCompanion: () => void }) {
   const pathname = usePathname();
   const current = activeGroup(pathname);
+  const { me } = useMe();
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect -- the portal needs document.body, which only exists after mount
   useEffect(() => setMounted(true), []);
@@ -36,12 +37,11 @@ export default function Drawer({ open, onClose, onCompanion }: { open: boolean; 
     <div className={`dr-scrim${open ? " open" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()} aria-hidden={!open}>
       <aside className="dr" role="dialog" aria-modal="true" aria-label="Menu" inert={!open}>
         <header className="dr-me">
-          <Link href="/dna" onClick={onClose} className="dr-ava" aria-label="Your profile"><Avatar person={ME} size={48} /></Link>
-          <Link href="/dna" onClick={onClose} className="dr-name">
-            <b>{ME.name}</b>
-            <small>{ME.role} · {ME.city}</small>
+          <Link href="/settings/profile" onClick={onClose} className="dr-ava" aria-label="Your profile"><Avatar person={{ name: me?.name ?? "", photo: me?.photo }} size={48} /></Link>
+          <Link href="/settings/profile" onClick={onClose} className="dr-name">
+            <b>{me?.name ?? ""}</b>
+            <small>{me?.username ? `@${me.username}` : "Add a username in Settings"}</small>
           </Link>
-          <p className="dr-stats"><span><b>3</b> circles</span><span><b>2</b> introductions</span><span><b>8</b> Banters</span></p>
         </header>
 
         <nav className="dr-nav" aria-label="Places">

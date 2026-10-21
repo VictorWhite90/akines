@@ -38,6 +38,7 @@ export default function DataSection() {
     await auth("logout");
     try {
       localStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem("ak:me");
     } catch {}
     window.location.replace("/about");
   };

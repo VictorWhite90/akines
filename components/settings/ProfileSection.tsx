@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { account, type MyProfile } from "@/lib/api/account";
 import { rememberMember } from "@/lib/session";
 import DateOfBirth from "@/components/ui/DateOfBirth";
+import { useMe } from "@/components/shell/MemberContext";
 import { Notice, Status, useLoad } from "./useLoad";
 
 type Form = Pick<MyProfile, "first_name" | "last_name" | "username" | "bio" | "interests" | "phone_number"> & { date_of_birth: string };
@@ -11,6 +12,7 @@ type Form = Pick<MyProfile, "first_name" | "last_name" | "username" | "bio" | "i
 export default function ProfileSection() {
   const profile = useLoad(account.profile);
   const interests = useLoad(account.interests);
+  const { setFromProfile } = useMe();
   const [form, setForm] = useState<Form | null>(null);
   const [handle, setHandle] = useState<{ ok: boolean; reason: string | null } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -59,6 +61,7 @@ export default function ProfileSection() {
     profile.setData(r.data);
     setForm((f) => (f ? { ...f, phone_number: r.data.phone_number, date_of_birth: r.data.date_of_birth ?? "" } : f));
     rememberMember(r.data);
+    setFromProfile(r.data);
     setHandle(null);
     setNotice({ text: "Profile saved.", tone: "ok" });
   };

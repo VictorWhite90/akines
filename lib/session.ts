@@ -14,6 +14,7 @@ export function isSignedIn(): boolean {
 /** Keeps the member's name and email for screens that greet them. Never holds tokens. */
 export function rememberMember(user: Partial<Member> & Record<string, unknown>, extra: Record<string, unknown> = {}) {
   try {
+    sessionStorage.removeItem("ak:me"); // the app frame reloads the member (a different account may have signed in)
     const prev = JSON.parse(localStorage.getItem(SESSION_KEY) ?? "{}");
     const name = [user.first_name, user.last_name].filter(Boolean).join(" ") || prev.name || String(user.email ?? "").split("@")[0];
     localStorage.setItem(SESSION_KEY, JSON.stringify({ ...prev, id: user.id, email: user.email, name, ...extra }));
@@ -33,5 +34,6 @@ export async function signOut() {
   await auth("logout");
   try {
     localStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem("ak:me");
   } catch {}
 }

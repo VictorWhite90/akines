@@ -12,8 +12,8 @@ function tone(name: string) {
 }
 
 /** Round portrait, or initials on a cloth tone when a member has no photo. */
-export default function Avatar({ person, size = 40, ring = false, className }: { person: Pick<Person, "name" | "face">; size?: number; ring?: boolean; className?: string }) {
-  const face = person.face ? FACE[person.face] : null;
+export default function Avatar({ person, size = 40, ring = false, className }: { person: Pick<Person, "name" | "face"> & { photo?: string | null }; size?: number; ring?: boolean; className?: string }) {
+  const face = person.photo ? { src: person.photo, alt: person.name } : person.face ? FACE[person.face] : null;
   const box = { width: size, height: size };
   const initials = person.name
     .split(/\s+/)

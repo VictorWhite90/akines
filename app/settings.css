@@ -96,3 +96,4 @@
   .dob { grid-template-columns: .9fr 1.5fr 1.15fr; gap: 6px; }
   .dob select { padding: 12px 24px 12px 10px; background-position: right 8px center; font-size: 14px; }
 }
+.nx-fly-handle { display: block; font-weight: 400; font-size: 12px; opacity: .7; }

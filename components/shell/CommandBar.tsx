@@ -9,7 +9,8 @@ import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
 import { RAIL, activeGroup } from "./railGroups";
 import Avatar from "@/components/ui/Avatar";
-import { ME, allPeople } from "@/lib/data/people";
+import { allPeople } from "@/lib/data/people";
+import { useMe } from "./MemberContext";
 import { CIRCLES, ROOMS } from "@/lib/data/community";
 import { BANTERS } from "@/lib/data/banter";
 import { GAMES } from "@/lib/data/games";
@@ -44,10 +45,13 @@ export default function CommandBar({ onIntent, onCompanion, onMenu }: { onIntent
     return t ? INDEX.filter((r) => r.label.toLowerCase().includes(t) || r.kind.toLowerCase().includes(t)).slice(0, 7) : [];
   }, [q]);
 
+  const { me } = useMe();
+  const meAvatar = { name: me?.name ?? "", photo: me?.photo };
+
   return (
     <header className={`nx-top${searching ? " is-searching" : ""}`}>
       {/* Phones only: avatar (opens the menu drawer), the mark in the middle, search and notifications. */}
-      <button className="nx-m-me" onClick={onMenu} aria-label="Open menu" aria-haspopup="dialog"><Avatar person={ME} size={32} /></button>
+      <button className="nx-m-me" onClick={onMenu} aria-label="Open menu" aria-haspopup="dialog"><Avatar person={meAvatar} size={32} /></button>
       <Link href="/" className="nx-m-logo" aria-label="Akines home">
         {/* eslint-disable-next-line @next/next/no-img-element -- brand mark */}
         <img src="/akines/mark.svg" alt="" width={28} height={28} />
@@ -91,9 +95,9 @@ export default function CommandBar({ onIntent, onCompanion, onMenu }: { onIntent
           <MessageText size={18} color="currentColor" />
           <span className="nx-count" aria-hidden>3</span>
         </Link>
-        <Link href={`/profile/${ME.id}`} className="nx-me" aria-label="Your profile">
-          <Avatar person={ME} size={34} />
-          <span>{ME.name.split(" ")[0]}</span>
+        <Link href="/settings/profile" className="nx-me" aria-label="Your profile and settings">
+          <Avatar person={meAvatar} size={34} />
+          <span>{me?.firstName ?? ""}</span>
           <ArrowDown2 size={18} color="currentColor" />
         </Link>
         <button className="nx-begin" onClick={() => setBegin(true)} aria-haspopup="dialog">
