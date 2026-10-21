@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { account, type MyProfile } from "@/lib/api/account";
 import { rememberMember } from "@/lib/session";
+import DateOfBirth from "@/components/ui/DateOfBirth";
 import { Notice, Status, useLoad } from "./useLoad";
 
 type Form = Pick<MyProfile, "first_name" | "last_name" | "username" | "bio" | "interests" | "phone_number"> & { date_of_birth: string };
@@ -18,8 +19,9 @@ export default function ProfileSection() {
   useEffect(() => {
     if (!profile.data || form) return;
     const { first_name, last_name, username, bio, interests: chosen, phone_number, date_of_birth } = profile.data;
+    // Every field starts as a string or array so inputs stay controlled from the first render.
     // eslint-disable-next-line react-hooks/set-state-in-effect -- seed the form once the profile arrives
-    setForm({ first_name, last_name, username: username ?? "", bio, interests: chosen, phone_number, date_of_birth: date_of_birth ?? "" });
+    setForm({ first_name: first_name ?? "", last_name: last_name ?? "", username: username ?? "", bio: bio ?? "", interests: chosen ?? [], phone_number: phone_number ?? "", date_of_birth: date_of_birth ?? "" });
   }, [profile.data, form]);
 
   // Live @username check, a moment after typing stops.
@@ -102,11 +104,11 @@ export default function ProfileSection() {
       <div className="cm-two">
         <div className="cm-field">
           <label htmlFor="st-phone">Mobile number <small>One account per number</small></label>
-          <input id="st-phone" type="tel" inputMode="tel" autoComplete="tel" value={form.phone_number} onChange={(e) => set("phone_number", e.target.value)} aria-invalid={bad("phone_number")} placeholder="0803 123 4567" />
+          <input id="st-phone" type="tel" inputMode="tel" autoComplete="tel" value={form.phone_number ?? ""} onChange={(e) => set("phone_number", e.target.value)} aria-invalid={bad("phone_number")} placeholder="0803 123 4567" />
         </div>
         <div className="cm-field">
-          <label htmlFor="st-dob">Date of birth <small>{profile.data?.date_of_birth ? "Can't be changed" : "Can only be set once"}</small></label>
-          <input id="st-dob" type="date" value={form.date_of_birth} onChange={(e) => set("date_of_birth", e.target.value)} disabled={!!profile.data?.date_of_birth} aria-invalid={bad("date_of_birth")} max={new Date().toISOString().slice(0, 10)} />
+          <label htmlFor="st-dob" id="st-dob-label">Date of birth <small>{profile.data?.date_of_birth ? "Can't be changed" : "Can only be set once"}</small></label>
+          <DateOfBirth id="st-dob" value={form.date_of_birth} onChange={(iso) => set("date_of_birth", iso)} minAge={18} disabled={!!profile.data?.date_of_birth} invalid={!!bad("date_of_birth")} />
         </div>
       </div>
       <p className="st-lead">Only you can see your email, mobile number and date of birth.</p>

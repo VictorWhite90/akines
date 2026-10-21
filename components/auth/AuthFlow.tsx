@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Pic from "@/components/home/Pic";
+import DateOfBirth from "@/components/ui/DateOfBirth";
 import { INTENTS } from "@/lib/data/community";
 
 type Mode = "login" | "signup";
@@ -203,10 +204,8 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                 {tried && errs.phone && <span className="auth-err">{errs.phone}</span>}
               </div>
               <div className="auth-field">
-                <label htmlFor="dob">Date of birth <small>Never shown on your profile</small></label>
-                <div className={`auth-input${tried && errs.dob ? " bad" : ""}`}>
-                  <input id="dob" type="date" autoComplete="bday" max={new Date().toISOString().slice(0, 10)} value={dob} onChange={(e) => setDob(e.target.value)} />
-                </div>
+                <label htmlFor="dob" id="dob-label">Date of birth <small>Never shown on your profile</small></label>
+                <DateOfBirth id="dob" value={dob} onChange={setDob} minAge={MIN_AGE} invalid={tried && !!errs.dob} className="dob-auth" />
                 {tried && errs.dob && <span className="auth-err">{errs.dob}</span>}
               </div>
               <div className="auth-field">
