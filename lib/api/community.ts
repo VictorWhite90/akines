@@ -23,11 +23,14 @@ export type Community = {
   my_role: "leader" | "member" | null;
   /** "pending" while your request to join this private community waits for a leader. */
   my_request: "pending" | null;
+  /** Id of a pending in-app invite to this community for you. */
+  my_invitation: number | null;
   invite_code: string | null;
   created_at: string;
 };
 
 export type InvitePreview = Pick<Community, "id" | "slug" | "name" | "tagline" | "category_label" | "area" | "city" | "cover_photo" | "is_verified" | "member_count" | "visibility">;
+export type InviteCandidate = PublicMember & { invited: boolean };
 export type JoinRequest = { id: number; user: PublicMember; message: string; requested_at: string };
 export type CommunityMember = { user: PublicMember; role: "leader" | "member"; joined_at: string };
 export type Page<T> = T[];
@@ -86,6 +89,10 @@ export const communities = {
   members: (communityId: string, page = 1) => api.get<CommunityMember[]>(`communities/${id(communityId)}/members?page=${page}&page_size=50`),
   setRole: (communityId: string, userId: string, role: "leader" | "member") => api.put(`communities/${id(communityId)}/members/${id(userId)}`, { role }),
   removeMember: (communityId: string, userId: string) => api.del(`communities/${id(communityId)}/members/${id(userId)}`),
+  inviteSuggestions: (communityId: string, search = "") => api.get<InviteCandidate[]>(`communities/${id(communityId)}/invite-suggestions${search ? `?search=${encodeURIComponent(search)}` : ""}`),
+  sendInvites: (communityId: string, userIds: string[]) =>
+    api.post<{ invited: number; results: { user_id: string; status: "invited" | "already_member" | "already_invited" | "not_allowed" }[] }>(`communities/${id(communityId)}/invitations`, { user_ids: userIds }),
+  respondInvite: (inviteId: number, decision: "accept" | "decline") => api.post<Community | string>(`communities/invitations/${inviteId}`, { decision }),
   uploadCover: (communityId: string, photo: Blob) => {
     const form = new FormData();
     form.append("photo", photo, "cover.jpg");

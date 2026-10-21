@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Add, ArrowDown2, MessageText, NotificationBing, SearchNormal1 } from "iconsax-reactjs";
+import { Add, ArrowDown2, MessageText, SearchNormal1 } from "iconsax-reactjs";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import CreateChooser from "./CreateChooser";
 import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
@@ -87,10 +88,7 @@ export default function CommandBar({ onIntent, onCompanion, onMenu }: { onIntent
       </button>
       <div className="nx-right">
         <span className="nx-theme"><ThemeToggle /></span>
-        <button className="nx-icon nx-bell" aria-label="Notifications" title="Notifications">
-          <NotificationBing size={18} color="currentColor" />
-          <span className="nx-rail-dot" aria-hidden />
-        </button>
+        <NotificationBell />
         <Link href="/messages" className="nx-icon nx-msg" aria-label="KinMessage, 3 unread" title="KinMessage">
           <MessageText size={18} color="currentColor" />
           <span className="nx-count" aria-hidden>3</span>

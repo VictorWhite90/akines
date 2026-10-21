@@ -25,6 +25,7 @@ import "./design-system.css";
 import "./cm.css";
 import "./settings.css";
 import "./profile.css";
+import "./notifications.css";
 import "./mobile.css";
 
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["500", "600"], style: ["normal", "italic"], display: "swap" });

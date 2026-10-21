@@ -84,6 +84,21 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
       : { text: "Request sent. A leader will review it, and we'll email you when you're in.", tone: "ok" });
   };
 
+  const answerInvite = async (decision: "accept" | "decline") => {
+    if (!c.my_invitation) return;
+    setBusy(true);
+    const r = await communities.respondInvite(c.my_invitation, decision);
+    setBusy(false);
+    if (!r.ok) return setNotice({ text: r.message, tone: "bad" });
+    if (decision === "accept" && typeof r.data === "object" && r.data) {
+      setC(r.data as Community);
+      setNotice({ text: `Welcome to ${c.name}!`, tone: "ok" });
+    } else {
+      setC({ ...c, my_invitation: null });
+      setNotice({ text: "Invite declined.", tone: "ok" });
+    }
+  };
+
   const cancel = async () => {
     const r = await communities.cancelRequest(c.id);
     if (!r.ok) return setNotice({ text: r.message, tone: "bad" });
@@ -158,8 +173,17 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
           {!c.is_verified && <span> Verification by the Akines team is pending.</span>}
         </div>
       )}
+      {!member && c.my_invitation && (
+        <div className="cm-welcome cm-invited" role="status">
+          <span><b>You&apos;re invited to join {c.name}.</b> Accept to join straight away.</span>
+          <span className="st-row">
+            <button className="kh-btn amber sm" onClick={() => answerInvite("accept")} disabled={busy}>Accept</button>
+            <button className="kh-btn outline sm" onClick={() => answerInvite("decline")} disabled={busy}>Decline</button>
+          </span>
+        </div>
+      )}
       {notice && <p className={`st-notice ${notice.tone}`} role={notice.tone === "bad" ? "alert" : "status"}>{notice.text}</p>}
-      {!member && isPrivate && !pending && <p className="cm-small cm-gate">Private community. Ask to join and a leader will review your request, or use an invite link to join straight away.</p>}
+      {!member && isPrivate && !pending && !c.my_invitation && <p className="cm-small cm-gate">Private community. Ask to join and a leader will review your request, or use an invite link to join straight away.</p>}
 
       <nav className="cm-tabs" role="tablist" aria-label="Community sections">
         {tabs.map((t) => <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? "on" : undefined} onClick={() => setTab(t.id)}>{t.label}</button>)}
@@ -182,7 +206,7 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
         </Sheet>
       )}
 
-      {invite && c.invite_code && <InviteSheet name={c.name} inviteCode={c.invite_code} leader={leader} onRotate={async () => {
+      {invite && c.invite_code && <InviteSheet communityId={c.id} name={c.name} inviteCode={c.invite_code} leader={leader} onRotate={async () => {
         const r = await communities.rotateInvite(c.id);
         if (r.ok) setC({ ...c, invite_code: r.data.invite_code });
         return r.ok;
