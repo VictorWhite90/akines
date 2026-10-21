@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
-import { communities } from "@/lib/api/community";
+import { circles, communities } from "@/lib/api/community";
 import { notifications, type Notice } from "@/lib/api/notifications";
 
 export function timeAgo(iso: string) {
@@ -49,14 +49,15 @@ export default function NotificationList({ compact = false, onNavigate, onChange
 
   const answer = async (n: Notice, decision: "accept" | "decline") => {
     setBusy(n.id);
-    const r = await communities.respondInvite(Number(n.target_id), decision);
+    const circle = n.kind === "circle_invite";
+    const r = circle ? await circles.respondInvite(Number(n.target_id), decision) : await communities.respondInvite(Number(n.target_id), decision);
     setBusy(null);
     if (!r.ok) return setError(r.message);
     setItems((list) => list?.map((x) => (x.id === n.id ? { ...x, is_read: true, text: decision === "accept" ? `${x.text} You joined.` : `${x.text} You declined.`, kind: "invite_accepted" } : x)) ?? null);
     onChange?.();
     if (decision === "accept" && typeof r.data === "object" && r.data) {
       onNavigate?.();
-      router.push(`/circles/community/${(r.data as { id: string }).id}`);
+      router.push(circle ? n.link : `/circles/community/${(r.data as { id: string }).id}`);
     }
   };
 
@@ -83,7 +84,7 @@ export default function NotificationList({ compact = false, onNavigate, onChange
         <ul>
           {items.map((n) => {
             const name = n.actor ? [n.actor.first_name, n.actor.last_name].filter(Boolean).join(" ") || n.actor.username || "Someone" : "Akines";
-            const pendingInvite = n.kind === "community_invite" && !n.is_read;
+            const pendingInvite = (n.kind === "community_invite" || n.kind === "circle_invite") && !n.is_read;
             return (
               <li key={n.id} className={n.is_read ? undefined : "unread"}>
                 <button className="nt-row" onClick={() => open(n)}>

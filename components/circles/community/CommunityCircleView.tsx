@@ -13,15 +13,16 @@ import { VisibilityChoice } from "./CreateCommunity";
 import CommunityPosts from "./CommunityPosts";
 import InviteSheet from "./InviteSheet";
 import Sheet from "./Sheet";
+import SmallCircles from "./SmallCircles";
 
-type Tab = "posts" | "about" | "members" | "requests" | "manage";
+type Tab = "posts" | "circles" | "about" | "members" | "requests" | "manage";
 
-export default function CommunityCircleView({ id, startTab, welcome, focusPost }: { id: string; startTab?: string; welcome?: boolean; focusPost?: number }) {
+export default function CommunityCircleView({ id, startTab, welcome, focusPost, startCircle }: { id: string; startTab?: string; welcome?: boolean; focusPost?: number; startCircle?: boolean }) {
   const router = useRouter();
   const [c, setC] = useState<Community | null>(null);
   const [missing, setMissing] = useState<string | null>(null);
   // No tab asked for: Posts once we know the viewer can read them, otherwise About.
-  const [tab, setTab] = useState<Tab | null>(focusPost ? "posts" : (["posts", "about", "members", "requests", "manage"] as Tab[]).includes(startTab as Tab) ? (startTab as Tab) : null);
+  const [tab, setTab] = useState<Tab | null>(focusPost ? "posts" : (["posts", "circles", "about", "members", "requests", "manage"] as Tab[]).includes(startTab as Tab) ? (startTab as Tab) : null);
   const [invite, setInvite] = useState(false);
   const [code, setCode] = useState("");
   const [asking, setAsking] = useState(false);
@@ -119,7 +120,7 @@ export default function CommunityCircleView({ id, startTab, welcome, focusPost }
   const canRead = member || !isPrivate;
   const shownTab: Tab = tab ?? (canRead ? "posts" : "about");
   const tabs: { id: Tab; label: string }[] = [
-    ...(canRead ? [{ id: "posts" as Tab, label: "Posts" }] : []),
+    ...(canRead ? [{ id: "posts" as Tab, label: "Posts" }, { id: "circles" as Tab, label: "Circles" }] : []),
     { id: "about", label: "About" },
     ...(member || !isPrivate ? [{ id: "members" as Tab, label: `Members (${c.member_count.toLocaleString()})` }] : []),
     ...(leader && isPrivate ? [{ id: "requests" as Tab, label: `Requests${pendingCount ? ` (${pendingCount})` : ""}` }] : []),
@@ -195,6 +196,7 @@ export default function CommunityCircleView({ id, startTab, welcome, focusPost }
       </nav>
 
       {shownTab === "posts" && canRead && <CommunityPosts c={c} focusPost={focusPost} />}
+      {shownTab === "circles" && canRead && <SmallCircles c={c} startOpen={startCircle} />}
       {shownTab === "about" && <About c={c} />}
       {shownTab === "members" && (member || !isPrivate) && <Members c={c} onChange={load} />}
       {shownTab === "requests" && leader && isPrivate && <Requests c={c} onChange={(n) => { setPendingCount(n); void load(); }} />}

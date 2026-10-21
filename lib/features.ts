@@ -7,6 +7,4 @@ export const FEATURES = {
   eventCheckIn: false,
   /** Events and tickets inside community circles. Off until the events backend exists (sample data only). */
   communityEvents: false,
-  /** Small KinCircles started inside a community. Off until small circles are on the backend. */
-  smallCirclesInCommunity: false,
 } as const;

@@ -2,7 +2,7 @@ import { api } from "./client";
 
 export type Notice = {
   id: number;
-  kind: "community_invite" | "invite_accepted" | "join_request" | "request_approved" | "made_leader";
+  kind: "community_invite" | "invite_accepted" | "join_request" | "request_approved" | "made_leader" | "announcement" | "post_comment" | "circle_invite" | "circle_joined";
   text: string;
   link: string;
   target_type: string;

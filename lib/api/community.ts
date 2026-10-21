@@ -53,6 +53,47 @@ export type JoinRequest = { id: number; user: PublicMember; message: string; req
 export type CommunityMember = { user: PublicMember; role: "leader" | "member"; joined_at: string };
 export type Page<T> = T[];
 
+/** A small circle inside a community (community.v1.serializers.CircleSerializer). */
+export type CircleKind = "creative" | "friendship" | "project" | "mentorship" | "support" | "study";
+export type SmallCircle = {
+  id: string;
+  community_id: string;
+  community_name: string;
+  name: string;
+  purpose: string;
+  kind: CircleKind;
+  kind_label: string;
+  join_mode: "open" | "invite";
+  capacity: number;
+  member_count: number;
+  is_full: boolean;
+  agreements: string[];
+  members: { user: PostAuthor; role: "host" | "member"; joined_at: string }[];
+  my_role: "host" | "member" | null;
+  /** Id of a pending invite to this circle for you. */
+  my_invitation: number | null;
+  /** The circle's chat; only given to people in the circle. */
+  conversation_id: string | null;
+  can_close: boolean;
+  created_at: string;
+};
+export type CircleInput = { name: string; purpose?: string; kind?: CircleKind; join_mode?: "open" | "invite"; capacity?: number; agreements?: string[] };
+
+// Same list as the backend (community/models.py CircleKind).
+export const CIRCLE_KINDS: { value: CircleKind; label: string; glyph: string; body: string }[] = [
+  { value: "friendship", label: "Friendship circle", glyph: "♡", body: "Shared time that can grow into friendship." },
+  { value: "creative", label: "Creative circle", glyph: "✦", body: "Make things together: art, music, stories, ideas." },
+  { value: "project", label: "Project circle", glyph: "◇", body: "A few people and one outcome to reach." },
+  { value: "study", label: "Study circle", glyph: "▤", body: "Learn a subject or prepare for an exam together." },
+  { value: "mentorship", label: "Mentorship circle", glyph: "◎", body: "Learn from someone further along, with clear goals." },
+  { value: "support", label: "Support circle", glyph: "◌", body: "Share experience and encouragement safely." },
+];
+export const CIRCLE_AGREEMENTS = [
+  "We show up as ourselves, not a performance.",
+  "What's shared here stays in this circle.",
+  "We let the circle know if we can't make it.",
+];
+
 export type CommunityInput = {
   name: string;
   tagline?: string;
@@ -133,4 +174,22 @@ export const communities = {
     return upload<Community>(`communities/${id(communityId)}/cover`, form);
   },
   removeCover: (communityId: string) => api.del<Community>(`communities/${id(communityId)}/cover`),
+};
+
+const circlePath = (communityId: string, circleId?: string) => `communities/${id(communityId)}/circles${circleId ? `/${id(circleId)}` : ""}`;
+
+export const circles = {
+  list: (communityId: string, page = 1) => api.get<SmallCircle[]>(`${circlePath(communityId)}?page=${page}&page_size=20`),
+  get: (communityId: string, circleId: string) => api.get<SmallCircle>(circlePath(communityId, circleId)),
+  create: (communityId: string, input: CircleInput) => api.post<SmallCircle>(circlePath(communityId), input),
+  update: (communityId: string, circleId: string, input: Partial<CircleInput>) => api.put<SmallCircle>(circlePath(communityId, circleId), input),
+  close: (communityId: string, circleId: string) => api.del(circlePath(communityId, circleId)),
+  join: (communityId: string, circleId: string) => api.post<SmallCircle>(`${circlePath(communityId, circleId)}/join`),
+  leave: (communityId: string, circleId: string) => api.post<SmallCircle | string>(`${circlePath(communityId, circleId)}/leave`),
+  removeMember: (communityId: string, circleId: string, userId: string) => api.del(`${circlePath(communityId, circleId)}/members/${id(userId)}`),
+  inviteSuggestions: (communityId: string, circleId: string, search = "") =>
+    api.get<InviteCandidate[]>(`${circlePath(communityId, circleId)}/invite-suggestions${search ? `?search=${encodeURIComponent(search)}` : ""}`),
+  sendInvites: (communityId: string, circleId: string, userIds: string[]) =>
+    api.post<{ invited: number; results: { user_id: string; status: "invited" | "already_member" | "already_invited" | "not_allowed" }[] }>(`${circlePath(communityId, circleId)}/invitations`, { user_ids: userIds }),
+  respondInvite: (inviteId: number, decision: "accept" | "decline") => api.post<SmallCircle | string>(`communities/circle-invitations/${inviteId}`, { decision }),
 };

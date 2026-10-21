@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { SearchNormal1, TickCircle } from "iconsax-reactjs";
 import Avatar from "@/components/ui/Avatar";
 import { fullName } from "@/lib/api/account";
+import type { ApiResult } from "@/lib/api/client";
 import { communities, type InviteCandidate } from "@/lib/api/community";
 import QR from "./QR";
 import Sheet from "./Sheet";
@@ -19,12 +20,21 @@ export default function InviteSheet({ communityId, name, inviteCode, leader, onR
         <button role="tab" aria-selected={tab === "people"} className={tab === "people" ? "on" : undefined} onClick={() => setTab("people")}>People on Akines</button>
         <button role="tab" aria-selected={tab === "link"} className={tab === "link" ? "on" : undefined} onClick={() => setTab("link")}>Share a link</button>
       </div>
-      {tab === "people" ? <People communityId={communityId} /> : <ShareLink name={name} inviteCode={inviteCode} leader={leader} onRotate={onRotate} />}
+      {tab === "people" ? <PeoplePicker suggest={(q) => communities.inviteSuggestions(communityId, q)} send={(ids) => communities.sendInvites(communityId, ids)} /> : <ShareLink name={name} inviteCode={inviteCode} leader={leader} onRotate={onRotate} />}
     </Sheet>
   );
 }
 
-function People({ communityId }: { communityId: string }) {
+type SendResult = { invited: number; results: { user_id: string; status: string }[] };
+
+/** Pick people already on Akines and send them invites (to a community, or a small circle). */
+export function PeoplePicker({ suggest, send: sendTo, empty = "People you share a community with will show here. You can also search by @username.", limit }: {
+  suggest: (search: string) => Promise<ApiResult<InviteCandidate[]>>;
+  send: (userIds: string[]) => Promise<ApiResult<SendResult>>;
+  empty?: string;
+  /** Most people that can be picked at once (e.g. the seats left in a circle). */
+  limit?: number;
+}) {
   const [search, setSearch] = useState("");
   const [people, setPeople] = useState<InviteCandidate[] | null>(null);
   const [picked, setPicked] = useState<string[]>([]);
@@ -33,18 +43,19 @@ function People({ communityId }: { communityId: string }) {
 
   useEffect(() => {
     const t = setTimeout(async () => {
-      const r = await communities.inviteSuggestions(communityId, search.trim());
+      const r = await suggest(search.trim());
       if (r.ok) setPeople(r.data);
       else setNotice({ text: r.message, tone: "bad" });
     }, search ? 300 : 0);
     return () => clearTimeout(t);
-  }, [communityId, search]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `suggest` is a fresh arrow each render; search drives it
+  }, [search]);
 
-  const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : [...p, id]));
+  const toggle = (id: string) => setPicked((p) => (p.includes(id) ? p.filter((x) => x !== id) : limit !== undefined && p.length >= limit ? p : [...p, id]));
 
   const send = async () => {
     setBusy(true);
-    const r = await communities.sendInvites(communityId, picked);
+    const r = await sendTo(picked);
     setBusy(false);
     if (!r.ok) return setNotice({ text: r.message, tone: "bad" });
     const invited = new Set(r.data.results.filter((x) => x.status === "invited" || x.status === "already_invited").map((x) => x.user_id));
@@ -60,7 +71,7 @@ function People({ communityId }: { communityId: string }) {
       {people === null ? (
         <p className="kh-none" aria-busy="true">Loading…</p>
       ) : people.length === 0 ? (
-        <p className="kh-none">{search ? "No one found. Try their exact @username." : "People you share a community with will show here. You can also search by @username."}</p>
+        <p className="kh-none">{search ? "No one found. Try their exact @username." : empty}</p>
       ) : (
         <ul className="cm-pick-list">
           {people.map((p) => {
