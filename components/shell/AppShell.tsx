@@ -92,7 +92,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         {/* Hidden in KinMessage, where it would sit on top of the Send button. */}
-        {!isActive(pathname, "/messages") && !pathname.includes("/events/") && !pathname.includes("/check-in/") && <button className="nx-fab" onClick={() => setBegin(true)} aria-label="Create" aria-haspopup="dialog"><Add size={26} color="currentColor" /></button>}
+        {/* Hidden where the page has its own composer, so it never covers a Send button. */}
+        {!isActive(pathname, "/messages") && !pathname.includes("/events/") && !pathname.includes("/check-in/") && !pathname.startsWith("/circles/community/") && <button className="nx-fab" onClick={() => setBegin(true)} aria-label="Create" aria-haspopup="dialog"><Add size={26} color="currentColor" /></button>}
 
         <Drawer open={more} onClose={() => setMore(false)} onCompanion={() => setCompanion(true)} />
         <CreateChooser open={begin} onClose={() => setBegin(false)} onIntent={() => setIntent(true)} />

@@ -30,6 +30,24 @@ export type Community = {
 };
 
 export type InvitePreview = Pick<Community, "id" | "slug" | "name" | "tagline" | "category_label" | "area" | "city" | "cover_photo" | "is_verified" | "member_count" | "visibility">;
+export type PostAuthor = { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null };
+export type CommunityPost = {
+  id: number;
+  kind: "announcement" | "discussion";
+  body: string;
+  images: { id: number; url: string }[];
+  author: PostAuthor;
+  author_is_leader: boolean;
+  is_pinned: boolean;
+  edited_at: string | null;
+  created_at: string;
+  comment_count: number;
+  reaction_count: number;
+  my_reaction: boolean;
+  can_edit: boolean;
+  can_remove: boolean;
+};
+export type PostComment = { id: number; body: string; author: PostAuthor; author_is_leader: boolean; created_at: string; can_remove: boolean };
 export type InviteCandidate = PublicMember & { invited: boolean };
 export type JoinRequest = { id: number; user: PublicMember; message: string; requested_at: string };
 export type CommunityMember = { user: PublicMember; role: "leader" | "member"; joined_at: string };
@@ -93,6 +111,22 @@ export const communities = {
   sendInvites: (communityId: string, userIds: string[]) =>
     api.post<{ invited: number; results: { user_id: string; status: "invited" | "already_member" | "already_invited" | "not_allowed" }[] }>(`communities/${id(communityId)}/invitations`, { user_ids: userIds }),
   respondInvite: (inviteId: number, decision: "accept" | "decline") => api.post<Community | string>(`communities/invitations/${inviteId}`, { decision }),
+  posts: (communityId: string, page = 1, kind?: "announcement" | "discussion") =>
+    api.get<CommunityPost[]>(`communities/${id(communityId)}/posts?page=${page}&page_size=15${kind ? `&kind=${kind}` : ""}`),
+  createPost: (communityId: string, input: { body: string; kind: "announcement" | "discussion"; image_ids: number[] }) => api.post<CommunityPost>(`communities/${id(communityId)}/posts`, input),
+  editPost: (communityId: string, postId: number, body: string) => api.put<CommunityPost>(`communities/${id(communityId)}/posts/${postId}`, { body }),
+  removePost: (communityId: string, postId: number) => api.del(`communities/${id(communityId)}/posts/${postId}`),
+  pinPost: (communityId: string, postId: number) => api.post<CommunityPost>(`communities/${id(communityId)}/posts/${postId}/pin`),
+  heart: (communityId: string, postId: number, on: boolean) =>
+    on ? api.post<{ reaction_count: number; my_reaction: boolean }>(`communities/${id(communityId)}/posts/${postId}/reaction`) : api.del<{ reaction_count: number; my_reaction: boolean }>(`communities/${id(communityId)}/posts/${postId}/reaction`),
+  comments: (communityId: string, postId: number, page = 1) => api.get<PostComment[]>(`communities/${id(communityId)}/posts/${postId}/comments?page=${page}&page_size=50`),
+  comment: (communityId: string, postId: number, body: string) => api.post<PostComment>(`communities/${id(communityId)}/posts/${postId}/comments`, { body }),
+  removeComment: (communityId: string, postId: number, commentId: number) => api.del(`communities/${id(communityId)}/posts/${postId}/comments/${commentId}`),
+  uploadPostImage: (communityId: string, photo: Blob) => {
+    const form = new FormData();
+    form.append("photo", photo, "photo.jpg");
+    return upload<{ id: number; url: string }>(`communities/${id(communityId)}/post-images`, form);
+  },
   uploadCover: (communityId: string, photo: Blob) => {
     const form = new FormData();
     form.append("photo", photo, "cover.jpg");

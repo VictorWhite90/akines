@@ -10,16 +10,18 @@ import { fullName } from "@/lib/api/account";
 import { AREAS, CATEGORIES, communities, type Community, type CommunityMember, type JoinRequest } from "@/lib/api/community";
 import { shrinkImage } from "@/lib/imageShrink";
 import { VisibilityChoice } from "./CreateCommunity";
+import CommunityPosts from "./CommunityPosts";
 import InviteSheet from "./InviteSheet";
 import Sheet from "./Sheet";
 
-type Tab = "about" | "members" | "requests" | "manage";
+type Tab = "posts" | "about" | "members" | "requests" | "manage";
 
-export default function CommunityCircleView({ id, startTab, welcome }: { id: string; startTab?: string; welcome?: boolean }) {
+export default function CommunityCircleView({ id, startTab, welcome, focusPost }: { id: string; startTab?: string; welcome?: boolean; focusPost?: number }) {
   const router = useRouter();
   const [c, setC] = useState<Community | null>(null);
   const [missing, setMissing] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>((["about", "members", "requests", "manage"] as Tab[]).includes(startTab as Tab) ? (startTab as Tab) : "about");
+  // No tab asked for: Posts once we know the viewer can read them, otherwise About.
+  const [tab, setTab] = useState<Tab | null>(focusPost ? "posts" : (["posts", "about", "members", "requests", "manage"] as Tab[]).includes(startTab as Tab) ? (startTab as Tab) : null);
   const [invite, setInvite] = useState(false);
   const [code, setCode] = useState("");
   const [asking, setAsking] = useState(false);
@@ -114,7 +116,10 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
     else router.push("/circles");
   };
 
+  const canRead = member || !isPrivate;
+  const shownTab: Tab = tab ?? (canRead ? "posts" : "about");
   const tabs: { id: Tab; label: string }[] = [
+    ...(canRead ? [{ id: "posts" as Tab, label: "Posts" }] : []),
     { id: "about", label: "About" },
     ...(member || !isPrivate ? [{ id: "members" as Tab, label: `Members (${c.member_count.toLocaleString()})` }] : []),
     ...(leader && isPrivate ? [{ id: "requests" as Tab, label: `Requests${pendingCount ? ` (${pendingCount})` : ""}` }] : []),
@@ -186,13 +191,14 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
       {!member && isPrivate && !pending && !c.my_invitation && <p className="cm-small cm-gate">Private community. Ask to join and a leader will review your request, or use an invite link to join straight away.</p>}
 
       <nav className="cm-tabs" role="tablist" aria-label="Community sections">
-        {tabs.map((t) => <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? "on" : undefined} onClick={() => setTab(t.id)}>{t.label}</button>)}
+        {tabs.map((t) => <button key={t.id} role="tab" aria-selected={shownTab === t.id} className={shownTab === t.id ? "on" : undefined} onClick={() => setTab(t.id)}>{t.label}</button>)}
       </nav>
 
-      {tab === "about" && <About c={c} />}
-      {tab === "members" && (member || !isPrivate) && <Members c={c} onChange={load} />}
-      {tab === "requests" && leader && isPrivate && <Requests c={c} onChange={(n) => { setPendingCount(n); void load(); }} />}
-      {tab === "manage" && leader && <Manage c={c} onSaved={setC} onInvite={() => setInvite(true)} />}
+      {shownTab === "posts" && canRead && <CommunityPosts c={c} focusPost={focusPost} />}
+      {shownTab === "about" && <About c={c} />}
+      {shownTab === "members" && (member || !isPrivate) && <Members c={c} onChange={load} />}
+      {shownTab === "requests" && leader && isPrivate && <Requests c={c} onChange={(n) => { setPendingCount(n); void load(); }} />}
+      {shownTab === "manage" && leader && <Manage c={c} onSaved={setC} onInvite={() => setInvite(true)} />}
 
       {asking && (
         <Sheet title={`Ask to join ${c.name}`} sub="The leaders will see your name, @username and this note." onClose={() => setAsking(false)}>
