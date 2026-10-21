@@ -44,13 +44,14 @@ export default function Rail() {
       </nav>
       <span className="nx-rail-spacer" />
       <div className="nx-rail-item">
-        <Link href="/settings/profile" className="nx-rail-me" aria-label="Your profile and settings">
+        <Link href="/profile" className="nx-rail-me" aria-label="Your profile">
           <Avatar person={{ name: me?.name ?? "", photo: me?.photo }} size={42} />
         </Link>
         <div className="nx-fly" style={{ top: "auto", bottom: 0 }}>
           <p>{me?.name ?? ""}{me?.username && <small className="nx-fly-handle">@{me.username}</small>}</p>
           <Link href="/dna"><span className="g">◐</span>Creative DNA</Link>
           <Link href="/studio"><span className="g">✦</span>My studio</Link>
+          <Link href="/profile"><span className="g">☺</span>Your profile</Link>
           <Link href="/settings"><span className="g">⚙</span>Settings</Link>
           <Link href="/about"><span className="g">ⓘ</span>About Akines</Link>
           <Link href="/login?signout=1"><span className="g">↩</span>Sign out</Link>

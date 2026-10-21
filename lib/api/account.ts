@@ -15,6 +15,9 @@ export type MyProfile = {
   show_in_search: boolean;
   is_2fa_set: boolean;
   profile_photo: string | null;
+  cover_photo: string | null;
+  location: string;
+  website: string;
   created_at: string;
 };
 
@@ -23,6 +26,17 @@ export type Interest = { slug: string; name: string };
 export type Device = { device_id: string; device: string; ip_address: string | null; created_at: string; last_seen_at: string; is_current: boolean };
 
 export type PublicMember = { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null };
+
+/** Another member's public profile (backend: GET /api/v1/profile/members/<username>). */
+export type MemberProfile = PublicMember & {
+  bio: string;
+  cover_photo: string | null;
+  location: string;
+  website: string;
+  interests: Interest[];
+  joined_at: string;
+  community_count: number | null;
+};
 
 export const account = {
   profile: () => api.get<MyProfile>("profile/"),
@@ -48,6 +62,14 @@ export const account = {
     return upload<{ profile_photo: string }>("profile/photo", form);
   },
   removePhoto: () => api.del("profile/photo"),
+  uploadCover: (photo: Blob) => {
+    const form = new FormData();
+    form.append("photo", photo, "cover.jpg");
+    return upload<{ cover_photo: string }>("profile/cover", form);
+  },
+  removeCover: () => api.del("profile/cover"),
+  member: (username: string) => api.get<MemberProfile>(`profile/members/${encodeURIComponent(username)}`),
+  block: (username: string) => api.post("profile/blocks", { username }),
 
   exportData: () => api.get<Record<string, unknown>>("profile/export"),
   deleteAccount: (password: string) => api.post("profile/delete-account", { password }),

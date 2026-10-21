@@ -6,12 +6,12 @@ import BlockedSection from "./BlockedSection";
 import DataSection from "./DataSection";
 import DevicesSection from "./DevicesSection";
 import PrivacySection from "./PrivacySection";
-import ProfileSection from "./ProfileSection";
+import PersonalSection from "./PersonalSection";
 import SecuritySection from "./SecuritySection";
 import type { SectionId } from "./sections";
 
 const SECTIONS: { id: SectionId; label: string; hint: string; Icon: typeof Profile; View: () => React.JSX.Element }[] = [
-  { id: "profile", label: "Profile", hint: "Name, @username, bio and interests", Icon: Profile, View: ProfileSection },
+  { id: "personal", label: "Personal details", hint: "Mobile number, date of birth, email", Icon: Profile, View: PersonalSection },
   { id: "privacy", label: "Privacy", hint: "Who can message you, search", Icon: Lock1, View: PrivacySection },
   { id: "security", label: "Password and security", hint: "Password, two-step verification", Icon: ShieldSecurity, View: SecuritySection },
   { id: "devices", label: "Devices", hint: "Where you're signed in", Icon: Devices, View: DevicesSection },

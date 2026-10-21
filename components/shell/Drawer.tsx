@@ -37,10 +37,10 @@ export default function Drawer({ open, onClose, onCompanion }: { open: boolean; 
     <div className={`dr-scrim${open ? " open" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()} aria-hidden={!open}>
       <aside className="dr" role="dialog" aria-modal="true" aria-label="Menu" inert={!open}>
         <header className="dr-me">
-          <Link href="/settings/profile" onClick={onClose} className="dr-ava" aria-label="Your profile"><Avatar person={{ name: me?.name ?? "", photo: me?.photo }} size={48} /></Link>
-          <Link href="/settings/profile" onClick={onClose} className="dr-name">
+          <Link href="/profile" onClick={onClose} className="dr-ava" aria-label="Your profile"><Avatar person={{ name: me?.name ?? "", photo: me?.photo }} size={48} /></Link>
+          <Link href="/profile" onClick={onClose} className="dr-name">
             <b>{me?.name ?? ""}</b>
-            <small>{me?.username ? `@${me.username}` : "Add a username in Settings"}</small>
+            <small>{me?.username ? `@${me.username}` : "View your profile"}</small>
           </Link>
         </header>
 

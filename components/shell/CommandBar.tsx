@@ -95,7 +95,7 @@ export default function CommandBar({ onIntent, onCompanion, onMenu }: { onIntent
           <MessageText size={18} color="currentColor" />
           <span className="nx-count" aria-hidden>3</span>
         </Link>
-        <Link href="/settings/profile" className="nx-me" aria-label="Your profile and settings">
+        <Link href="/profile" className="nx-me" aria-label="Your profile">
           <Avatar person={meAvatar} size={34} />
           <span>{me?.firstName ?? ""}</span>
           <ArrowDown2 size={18} color="currentColor" />
