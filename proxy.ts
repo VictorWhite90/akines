@@ -33,7 +33,7 @@ export function proxy(req: NextRequest) {
     url.search = "";
     return NextResponse.redirect(url);
   }
-  if (signedIn && (MEMBERS_SKIP.includes(pathname) || (pathname === "/login" && !searchParams.get("step") && !searchParams.get("signout")))) {
+  if (signedIn && (MEMBERS_SKIP.includes(pathname) || (pathname === "/login" && !searchParams.get("step") && !searchParams.get("signout") && !searchParams.get("ended")))) {
     const url = req.nextUrl.clone();
     url.pathname = "/";
     url.search = "";

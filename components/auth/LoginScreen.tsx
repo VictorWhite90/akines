@@ -36,7 +36,7 @@ export function AkinesMark({ size = 72 }: { size?: number }) {
 type View = "login" | "verify" | "2fa" | "forgot" | "reset";
 
 /** Sign in against the Akines API. After it, the member answers "What brings you here today?". */
-export default function LoginScreen({ signedOut = false }: { signedOut?: boolean }) {
+export default function LoginScreen({ signedOut = false, sessionEnded = false }: { signedOut?: boolean; sessionEnded?: boolean }) {
   const router = useRouter();
   // ?signout=1 (from Sign out) ends the session on the server too.
   useEffect(() => {
@@ -50,7 +50,7 @@ export default function LoginScreen({ signedOut = false }: { signedOut?: boolean
   const [show, setShow] = useState(false);
   const [tried, setTried] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(sessionEnded ? "You were signed out of this device. Log in again to continue." : null);
   const [failure, setFailure] = useState<string | null>(null);
 
   const errs = {

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { InfoCircle, LogoutCurve, Magicpen } from "iconsax-reactjs";
+import { InfoCircle, LogoutCurve, Magicpen, Setting2 } from "iconsax-reactjs";
 import Avatar from "@/components/ui/Avatar";
 import { ME } from "@/lib/data/people";
 import ThemeToggle from "./ThemeToggle";
@@ -65,6 +65,7 @@ export default function Drawer({ open, onClose, onCompanion }: { open: boolean; 
         <footer className="dr-foot">
           <button className="dr-companion" onClick={() => { onClose(); onCompanion(); }}><Magicpen size={18} color="currentColor" />Ask the Akines Companion</button>
           <div className="dr-row">
+            <Link href="/settings" onClick={onClose}><Setting2 size={18} color="currentColor" />Settings</Link>
             <Link href="/about" onClick={onClose}><InfoCircle size={18} color="currentColor" />About</Link>
             <Link href="/login?signout=1" onClick={onClose}><LogoutCurve size={18} color="currentColor" />Sign out</Link>
             <span className="dr-theme"><ThemeToggle /></span>

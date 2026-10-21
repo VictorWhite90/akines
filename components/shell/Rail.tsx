@@ -50,6 +50,7 @@ export default function Rail() {
           <p>{ME.name}</p>
           <Link href="/dna"><span className="g">◐</span>Creative DNA</Link>
           <Link href="/studio"><span className="g">✦</span>My studio</Link>
+          <Link href="/settings"><span className="g">⚙</span>Settings</Link>
           <Link href="/about"><span className="g">ⓘ</span>About Akines</Link>
           <Link href="/login?signout=1"><span className="g">↩</span>Sign out</Link>
         </div>

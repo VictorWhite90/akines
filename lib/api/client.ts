@@ -17,6 +17,11 @@ async function call<T>(url: string, method: string, body?: unknown): Promise<Api
     });
     const env = await r.json().catch(() => null);
     if (r.ok && env?.success !== false) return { ok: true, data: env?.data as T, message: env?.message ?? null };
+    // The session is over (signed out from another device, password changed, or expired): back to log in.
+    if (r.status === 401 && url.startsWith("/api/v1/") && typeof window !== "undefined") {
+      window.location.assign("/login?ended=1");
+      return { ok: false, status: 401, message: "Your session has ended. Please log in again." };
+    }
     return { ok: false, status: r.status, message: env?.message || "Something went wrong. Please try again.", field: env?.error?.field };
   } catch {
     return { ok: false, status: 0, message: "You seem to be offline. Check your connection and try again." };
