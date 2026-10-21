@@ -7,27 +7,37 @@ import { Camera, Location, People, ShieldTick } from "iconsax-reactjs";
 import Avatar from "@/components/ui/Avatar";
 import BackLink from "@/components/ui/BackLink";
 import { fullName } from "@/lib/api/account";
-import { AREAS, CATEGORIES, communities, type Community, type CommunityMember } from "@/lib/api/community";
+import { AREAS, CATEGORIES, communities, type Community, type CommunityMember, type JoinRequest } from "@/lib/api/community";
 import { shrinkImage } from "@/lib/imageShrink";
+import { VisibilityChoice } from "./CreateCommunity";
 import InviteSheet from "./InviteSheet";
+import Sheet from "./Sheet";
 
-type Tab = "about" | "members" | "manage";
+type Tab = "about" | "members" | "requests" | "manage";
 
 export default function CommunityCircleView({ id, startTab, welcome }: { id: string; startTab?: string; welcome?: boolean }) {
   const router = useRouter();
   const [c, setC] = useState<Community | null>(null);
   const [missing, setMissing] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>((["about", "members", "manage"] as Tab[]).includes(startTab as Tab) ? (startTab as Tab) : "about");
+  const [tab, setTab] = useState<Tab>((["about", "members", "requests", "manage"] as Tab[]).includes(startTab as Tab) ? (startTab as Tab) : "about");
   const [invite, setInvite] = useState(false);
   const [code, setCode] = useState("");
+  const [asking, setAsking] = useState(false);
+  const [note, setNote] = useState("");
+  const [haveCode, setHaveCode] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ text: string; tone: "ok" | "bad" } | null>(null);
   const [welcomed] = useState(!!welcome); // keeps the banner for this visit after the address is tidied
 
   const load = useCallback(async () => {
     const r = await communities.get(id);
-    if (r.ok) setC(r.data);
-    else setMissing(r.status === 404 ? "It may have been closed, or the link is incomplete." : r.message);
+    if (!r.ok) return setMissing(r.status === 404 ? "It may have been closed, or the link is incomplete." : r.message);
+    setC(r.data);
+    if (r.data.my_role === "leader" && r.data.visibility === "private") {
+      const q = await communities.requests(r.data.id);
+      if (q.ok) setPendingCount(q.data.length);
+    }
   }, [id]);
 
   useEffect(() => {
@@ -56,16 +66,29 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
 
   const leader = c.my_role === "leader";
   const member = !!c.my_role;
-  const openJoin = c.is_verified && c.join_policy === "open";
+  const isPrivate = c.visibility === "private";
+  const pending = c.my_request === "pending";
 
+  // Public: joins. Private: with a code joins straight away, otherwise sends a request (with the optional note).
   const join = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setBusy(true);
-    const r = await communities.join(c.id, code.trim());
+    const r = await communities.join(c.id, code.trim(), note.trim());
     setBusy(false);
     if (!r.ok) return setNotice({ text: r.message, tone: "bad" });
     setC(r.data);
-    setNotice({ text: `Welcome to ${r.data.name}!`, tone: "ok" });
+    setAsking(false);
+    setNote("");
+    setNotice(r.data.my_role
+      ? { text: `Welcome to ${r.data.name}!`, tone: "ok" }
+      : { text: "Request sent. A leader will review it, and we'll email you when you're in.", tone: "ok" });
+  };
+
+  const cancel = async () => {
+    const r = await communities.cancelRequest(c.id);
+    if (!r.ok) return setNotice({ text: r.message, tone: "bad" });
+    setC(r.data);
+    setNotice({ text: "Request withdrawn.", tone: "ok" });
   };
 
   const leave = async () => {
@@ -78,7 +101,8 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
 
   const tabs: { id: Tab; label: string }[] = [
     { id: "about", label: "About" },
-    ...(member ? [{ id: "members" as Tab, label: `Members (${c.member_count.toLocaleString()})` }] : []),
+    ...(member || !isPrivate ? [{ id: "members" as Tab, label: `Members (${c.member_count.toLocaleString()})` }] : []),
+    ...(leader && isPrivate ? [{ id: "requests" as Tab, label: `Requests${pendingCount ? ` (${pendingCount})` : ""}` }] : []),
     ...(leader ? [{ id: "manage" as Tab, label: "Manage" }] : []),
   ];
 
@@ -91,7 +115,7 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
         {c.cover_photo && <img src={c.cover_photo} alt="" className="cm-hero-img" />}
         <div className="cm-hero-shade" />
         <div className="cm-hero-tx">
-          <span className="kh-badge"><i aria-hidden><b /></i>Community circle · {c.category_label}</span>
+          <span className="kh-badge"><i aria-hidden><b /></i>{c.visibility === "private" ? "Private" : "Public"} community · {c.category_label}</span>
           <h1>{c.name}{c.is_verified && <ShieldTick size={26} color="#f4a63a" variant="Bold" aria-label="Verified by Akines" />}</h1>
           {c.tagline && <p>{c.tagline}</p>}
           <div className="cm-hero-meta">
@@ -105,13 +129,24 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
                 <button className="kh-btn amber" onClick={() => setInvite(true)}>Invite people</button>
                 <button className="cm-leave" onClick={leave}>Leave</button>
               </>
-            ) : openJoin ? (
+            ) : !isPrivate ? (
               <button className="kh-btn amber" onClick={() => join()} disabled={busy}>{busy ? "Joining…" : "Join community"}</button>
-            ) : (
+            ) : pending ? (
+              <>
+                <span className="kh-btn glass">Request sent</span>
+                <button className="cm-leave" onClick={cancel}>Withdraw request</button>
+              </>
+            ) : haveCode ? (
               <form className="cm-code-form" onSubmit={join}>
-                <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Invite code" aria-label="Invite code" maxLength={12} autoCapitalize="characters" />
+                <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Invite code" aria-label="Invite code" maxLength={12} autoCapitalize="characters" autoFocus />
                 <button className="kh-btn amber" type="submit" disabled={busy || code.trim().length < 4}>{busy ? "Joining…" : "Join"}</button>
+                <button type="button" className="cm-leave" onClick={() => { setHaveCode(false); setCode(""); }}>Cancel</button>
               </form>
+            ) : (
+              <>
+                <button className="kh-btn amber" onClick={() => setAsking(true)}>Request to join</button>
+                <button className="cm-leave" onClick={() => setHaveCode(true)}>I have an invite code</button>
+              </>
             )}
           </div>
         </div>
@@ -124,15 +159,28 @@ export default function CommunityCircleView({ id, startTab, welcome }: { id: str
         </div>
       )}
       {notice && <p className={`st-notice ${notice.tone}`} role={notice.tone === "bad" ? "alert" : "status"}>{notice.text}</p>}
-      {!member && !openJoin && <p className="cm-small cm-gate">This community is invite-only. Ask a leader for the invite link or code.</p>}
+      {!member && isPrivate && !pending && <p className="cm-small cm-gate">Private community. Ask to join and a leader will review your request, or use an invite link to join straight away.</p>}
 
       <nav className="cm-tabs" role="tablist" aria-label="Community sections">
         {tabs.map((t) => <button key={t.id} role="tab" aria-selected={tab === t.id} className={tab === t.id ? "on" : undefined} onClick={() => setTab(t.id)}>{t.label}</button>)}
       </nav>
 
       {tab === "about" && <About c={c} />}
-      {tab === "members" && member && <Members c={c} onChange={load} />}
+      {tab === "members" && (member || !isPrivate) && <Members c={c} onChange={load} />}
+      {tab === "requests" && leader && isPrivate && <Requests c={c} onChange={(n) => { setPendingCount(n); void load(); }} />}
       {tab === "manage" && leader && <Manage c={c} onSaved={setC} onInvite={() => setInvite(true)} />}
+
+      {asking && (
+        <Sheet title={`Ask to join ${c.name}`} sub="The leaders will see your name, @username and this note." onClose={() => setAsking(false)}>
+          <form className="cm-form" onSubmit={join}>
+            <div className="cm-field">
+              <label htmlFor="cm-note">A note to the leaders <small>optional</small></label>
+              <textarea id="cm-note" rows={3} maxLength={280} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. A friend invited me, I came to your last meet-up." />
+            </div>
+            <button className="kh-btn amber cm-submit" type="submit" disabled={busy}>{busy ? "Sending…" : "Send request"}</button>
+          </form>
+        </Sheet>
+      )}
 
       {invite && c.invite_code && <InviteSheet name={c.name} inviteCode={c.invite_code} leader={leader} onRotate={async () => {
         const r = await communities.rotateInvite(c.id);
@@ -219,8 +267,59 @@ function Members({ c, onChange }: { c: Community; onChange: () => void }) {
   );
 }
 
+function Requests({ c, onChange }: { c: Community; onChange: (pending: number) => void }) {
+  const [list, setList] = useState<JoinRequest[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    const r = await communities.requests(c.id);
+    if (r.ok) setList(r.data);
+    else setError(r.message);
+  }, [c.id]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- fetch requests when the tab opens
+    void load();
+  }, [load]);
+
+  const decide = async (req: JoinRequest, decision: "approve" | "decline") => {
+    const r = await communities.decide(c.id, req.id, decision);
+    if (!r.ok) return setError(r.message);
+    const next = (list ?? []).filter((x) => x.id !== req.id);
+    setList(next);
+    onChange(next.length);
+  };
+
+  if (!list) return <section className="cm-sec">{error ? <p className="kh-none" role="alert">{error}</p> : <p className="kh-none" aria-busy="true">Loading requests…</p>}</section>;
+
+  return (
+    <section className="cm-sec">
+      {error && <p className="st-notice bad" role="alert">{error}</p>}
+      {list.length === 0 ? (
+        <div className="cm-blank"><h3>No requests waiting</h3><p>When someone asks to join {c.name}, they&apos;ll appear here for you to approve. People with your invite link join straight away.</p></div>
+      ) : (
+        <ul className="st-list cm-members">
+          {list.map((req) => (
+            <li key={req.id}>
+              <Avatar person={{ name: fullName(req.user), photo: req.user.profile_photo }} size={40} />
+              <span>
+                <b>{req.user.username ? <Link href={`/u/${req.user.username}`}>{fullName(req.user)}</Link> : fullName(req.user)}</b>
+                <small>{req.user.username ? `@${req.user.username} · ` : ""}asked {new Date(req.requested_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</small>
+                {req.message && <q className="cm-req-note">{req.message}</q>}
+              </span>
+              <span className="st-row">
+                <button className="kh-btn amber sm" onClick={() => decide(req, "approve")}>Approve</button>
+                <button className="kh-btn outline sm" onClick={() => decide(req, "decline")}>Decline</button>
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 function Manage({ c, onSaved, onInvite }: { c: Community; onSaved: (c: Community) => void; onInvite: () => void }) {
-  const [f, setF] = useState({ name: c.name, tagline: c.tagline, about: c.about, category: c.category, area: c.area, instagram: c.instagram, whatsapp: c.whatsapp, join_policy: c.join_policy });
+  const [f, setF] = useState({ name: c.name, tagline: c.tagline, about: c.about, category: c.category, area: c.area, instagram: c.instagram, whatsapp: c.whatsapp, visibility: c.visibility });
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ text: string; tone: "ok" | "bad"; field?: string } | null>(null);
   const coverInput = useRef<HTMLInputElement>(null);
@@ -260,7 +359,7 @@ function Manage({ c, onSaved, onInvite }: { c: Community; onSaved: (c: Community
       <div className="cm-stats">
         <div className="kh-card"><small>Members</small><b>{c.member_count.toLocaleString()}</b></div>
         <div className="kh-card"><small>Status</small><b>{c.is_verified ? "Verified" : "Awaiting verification"}</b></div>
-        <div className="kh-card"><small>Joining</small><b>{c.join_policy === "open" ? "Open to all" : "Invite only"}</b></div>
+        <div className="kh-card"><small>Type</small><b>{c.visibility === "public" ? "Public" : "Private"}</b></div>
       </div>
 
       <div className="st-row cm-manage-acts">
@@ -283,14 +382,10 @@ function Manage({ c, onSaved, onInvite }: { c: Community; onSaved: (c: Community
           <div className="cm-field"><label htmlFor="mg-ig">Instagram</label><input id="mg-ig" value={f.instagram} onChange={set("instagram")} aria-invalid={bad("instagram")} /></div>
           <div className="cm-field"><label htmlFor="mg-wa">WhatsApp <small>shown to members</small></label><input id="mg-wa" value={f.whatsapp} onChange={set("whatsapp")} inputMode="tel" aria-invalid={bad("whatsapp")} /></div>
         </div>
-        <div className="cm-field">
-          <span className="cm-l">Who can join</span>
-          <div className="cm-seg" role="radiogroup" aria-label="Who can join">
-            <button type="button" role="radio" aria-checked={f.join_policy === "invite_only"} className={f.join_policy === "invite_only" ? "on" : undefined} onClick={() => setF((x) => ({ ...x, join_policy: "invite_only" }))}>Invite link only</button>
-            <button type="button" role="radio" aria-checked={f.join_policy === "open"} className={f.join_policy === "open" ? "on" : undefined} onClick={() => setF((x) => ({ ...x, join_policy: "open" }))} disabled={!c.is_verified}>Anyone on Akines</button>
-          </div>
-          {!c.is_verified && <span className="cm-small">Open joining unlocks once Akines has verified your community.</span>}
-        </div>
+        <fieldset className="cm-vis">
+          <legend className="cm-l">Who can join</legend>
+          <VisibilityChoice value={f.visibility} onChange={(v) => setF((x) => ({ ...x, visibility: v }))} />
+        </fieldset>
         {notice && <p className={`st-notice ${notice.tone}`} role={notice.tone === "bad" ? "alert" : "status"}>{notice.text}</p>}
         <button className="kh-btn amber cm-submit" type="submit" disabled={busy}>{busy ? "Saving…" : "Save changes"}</button>
       </form>

@@ -16,16 +16,19 @@ export type Community = {
   instagram: string;
   whatsapp: string;
   guidelines: string[];
-  join_policy: "open" | "invite_only";
+  visibility: "public" | "private";
   is_verified: boolean;
   member_count: number;
   leaders: PublicMember[];
   my_role: "leader" | "member" | null;
+  /** "pending" while your request to join this private community waits for a leader. */
+  my_request: "pending" | null;
   invite_code: string | null;
   created_at: string;
 };
 
-export type InvitePreview = Pick<Community, "id" | "slug" | "name" | "tagline" | "category_label" | "area" | "city" | "cover_photo" | "is_verified" | "member_count">;
+export type InvitePreview = Pick<Community, "id" | "slug" | "name" | "tagline" | "category_label" | "area" | "city" | "cover_photo" | "is_verified" | "member_count" | "visibility">;
+export type JoinRequest = { id: number; user: PublicMember; message: string; requested_at: string };
 export type CommunityMember = { user: PublicMember; role: "leader" | "member"; joined_at: string };
 export type Page<T> = T[];
 
@@ -38,7 +41,7 @@ export type CommunityInput = {
   instagram?: string;
   whatsapp?: string;
   guidelines?: string[];
-  join_policy?: "open" | "invite_only";
+  visibility?: "public" | "private";
 };
 
 // Same lists as the backend (community/models.py).
@@ -72,7 +75,10 @@ export const communities = {
   get: (communityId: string) => api.get<Community>(`communities/${id(communityId)}`),
   create: (input: CommunityInput) => api.post<Community>("communities/", input),
   update: (communityId: string, input: Partial<CommunityInput>) => api.put<Community>(`communities/${id(communityId)}`, input),
-  join: (communityId: string, code?: string) => api.post<Community>(`communities/${id(communityId)}/join`, { code: code ?? "" }),
+  join: (communityId: string, code?: string, message?: string) => api.post<Community>(`communities/${id(communityId)}/join`, { code: code ?? "", message: message ?? "" }),
+  cancelRequest: (communityId: string) => api.del<Community>(`communities/${id(communityId)}/join`),
+  requests: (communityId: string) => api.get<JoinRequest[]>(`communities/${id(communityId)}/requests?page_size=50`),
+  decide: (communityId: string, requestId: number, decision: "approve" | "decline") => api.post(`communities/${id(communityId)}/requests/${requestId}`, { decision }),
   leave: (communityId: string) => api.post<Community | string>(`communities/${id(communityId)}/leave`),
   invite: (code: string) => api.get<InvitePreview>(`communities/invites/${id(code)}`),
   joinByCode: (code: string) => api.post<Community>(`communities/invites/${id(code)}`),

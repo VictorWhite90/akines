@@ -316,3 +316,11 @@ span.cm-card-img b { font: 800 44px var(--font-manrope), sans-serif; color: rgba
 }
 .cm-members li > span:first-child { flex: none !important; }
 .cm-members li > span:nth-child(2) b { flex-wrap: wrap; }
+.cm-vis { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px; }
+.cm-vis-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cm-vis-opts .st-radio.on { border-color: var(--k-amber); box-shadow: 0 0 0 1px var(--k-amber); }
+.cm-req-note { display: block; margin-top: 4px; font-size: 13.5px; color: var(--k-ink-2); font-style: italic; }
+.cm-hero .cm-leave { padding: 0; border: 0; background: none; color: #e0e0e0; font: 500 14px var(--font-manrope), sans-serif; text-decoration: underline; cursor: pointer; }
+@media (max-width: 640px) { .cm-vis-opts { grid-template-columns: 1fr; } }
+.cm-members li > span.st-row { flex: none !important; flex-direction: row !important; align-items: center; }
+@media (max-width: 640px) { .cm-members li { flex-wrap: wrap; } .cm-members li > span.st-row { width: 100%; justify-content: flex-end; } }

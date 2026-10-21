@@ -20,7 +20,7 @@ function Card({ c }: { c: Community }) {
         {c.tagline && <p>{c.tagline}</p>}
         <span className="cm-card-foot">
           <span>{c.member_count.toLocaleString()} {c.member_count === 1 ? "member" : "members"}</span>
-          {c.my_role ? <span className="cm-chip ok">{c.my_role === "leader" ? "Leader" : "Member"}</span> : <span className="cm-chip">{c.is_verified && c.join_policy === "open" ? "Join" : "Invite only"}</span>}
+          {c.my_role ? <span className="cm-chip ok">{c.my_role === "leader" ? "Leader" : "Member"}</span> : <span className="cm-chip">{c.my_request === "pending" ? "Requested" : c.visibility === "public" ? "Public" : "Private"}</span>}
         </span>
       </div>
     </Link>

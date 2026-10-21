@@ -64,7 +64,7 @@ export default function JoinByCode({ code }: { code: string }) {
       <p className="cm-over">You&apos;re invited to</p>
       <h1>{preview.name}{preview.is_verified && <ShieldTick size={24} color="#f4a63a" variant="Bold" aria-label="Verified by Akines" />}</h1>
       {preview.tagline && <p>{preview.tagline}</p>}
-      <p className="cm-small"><People size={14} color="currentColor" /> {preview.member_count.toLocaleString()} {preview.member_count === 1 ? "member" : "members"} · {preview.category_label} · {preview.area}, {preview.city}</p>
+      <p className="cm-small"><People size={14} color="currentColor" /> {preview.member_count.toLocaleString()} {preview.member_count === 1 ? "member" : "members"} · {preview.visibility === "private" ? "Private" : "Public"} · {preview.category_label} · {preview.area}, {preview.city}</p>
       {failure && <p className="st-notice bad" role="alert">{failure}</p>}
       <button className="kh-btn amber cm-submit" onClick={join} disabled={busy}>{busy ? "Joining…" : isSignedIn() ? `Join ${preview.name}` : "Sign up to join"}</button>
       {!isSignedIn() && <p className="cm-small">Already on Akines? <Link href="/login" onClick={() => { try { localStorage.setItem("ak:pending-invite", code); } catch {} }}>Log in</Link></p>}

@@ -10,7 +10,7 @@ import { shrinkImage } from "@/lib/imageShrink";
 /** One-page form for a community circle. The creator leads it; the Akines team verifies it. */
 export default function CreateCommunity() {
   const router = useRouter();
-  const [f, setF] = useState({ name: "", tagline: "", about: "", category: "social_hangouts", area: "Wuse 2", instagram: "", whatsapp: "" });
+  const [f, setF] = useState({ name: "", tagline: "", about: "", category: "social_hangouts", area: "Wuse 2", instagram: "", whatsapp: "", visibility: "public" as "public" | "private" });
   const [cover, setCover] = useState<{ blob: Blob; url: string } | null>(null);
   const [tried, setTried] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -101,10 +101,32 @@ export default function CreateCommunity() {
             {fieldError("whatsapp") && <span className="cm-err">{fieldError("whatsapp")}</span>}
           </div>
         </div>
+        <fieldset className="cm-vis">
+          <legend className="cm-l">Who can join</legend>
+          <VisibilityChoice value={f.visibility} onChange={(v) => setF((x) => ({ ...x, visibility: v }))} />
+        </fieldset>
         {failure && !failure.field && <p className="st-notice bad" role="alert">{failure.text}</p>}
-        <p className="cm-small">Your community starts invite-only: members join with your invite link. The Akines team verifies communities, usually within two days; verified communities can open joining to everyone.</p>
+        <p className="cm-small">Your invite link always lets people straight in. The Akines team verifies communities, usually within two days, and adds a verified badge.</p>
         <button className="kh-btn amber cm-submit" type="submit" disabled={busy}>{busy ? "Creating…" : "Create community circle"}</button>
       </form>
+    </div>
+  );
+}
+
+
+export function VisibilityChoice({ value, onChange }: { value: "public" | "private"; onChange: (v: "public" | "private") => void }) {
+  const options = [
+    { v: "public" as const, title: "Public", body: "Anyone on Akines can find it and join with one tap. Members can see who else is in it." },
+    { v: "private" as const, title: "Private", body: "Anyone can find it and ask to join; a leader approves. Only members see who's in it." },
+  ];
+  return (
+    <div className="cm-vis-opts" role="radiogroup">
+      {options.map((o) => (
+        <label key={o.v} className={`cm-check st-radio${value === o.v ? " on" : ""}`}>
+          <input type="radio" name="visibility" checked={value === o.v} onChange={() => onChange(o.v)} />
+          <span><b>{o.title}</b><small>{o.body}</small></span>
+        </label>
+      ))}
     </div>
   );
 }
