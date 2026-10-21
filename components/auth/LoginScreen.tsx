@@ -35,7 +35,7 @@ export function AkinesMark({ size = 72 }: { size?: number }) {
 
 type View = "login" | "verify" | "2fa" | "forgot" | "reset";
 
-/** Sign in against the Akines API. After it, the member answers "What brings you here today?". */
+/** Sign in against the Akines API, then Home. */
 export default function LoginScreen({ signedOut = false, sessionEnded = false }: { signedOut?: boolean; sessionEnded?: boolean }) {
   const router = useRouter();
   // ?signout=1 (from Sign out) ends the session on the server too.
@@ -68,9 +68,10 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
     if (v !== "login") setPassword("");
   };
 
+  // Returning members go straight to Home; "What brings you here?" is asked once, during sign-up.
   const signedIn = (data: { user?: Member }) => {
     if (data.user) rememberMember(data.user);
-    router.replace("/login?step=intent");
+    router.replace("/");
     router.refresh();
   };
 
