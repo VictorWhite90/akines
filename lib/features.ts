@@ -5,4 +5,6 @@
 export const FEATURES = {
   /** Event check-in at the door (leader guest list, ticket codes). Parked 19 Oct 2026. */
   eventCheckIn: false,
+  /** Events and tickets inside community circles. Off until the events backend exists (sample data only). */
+  communityEvents: false,
 } as const;

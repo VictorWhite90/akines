@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import AnkaraHome from "@/components/home/AnkaraHome";
 

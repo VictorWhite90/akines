@@ -16,6 +16,8 @@ export default function PostCard({ post, showContext = true }: { post: Post; sho
   const author = PEOPLE[post.by];
   const t = POST_TYPES[post.type];
   const circle = post.circle ? CIRCLES.find((c) => c.id === post.circle) : undefined;
+  const imageCount = Number(!!post.photo) + (post.photos?.length ?? 0);
+  const multiImage = imageCount > 1;
   const { count } = useComments(post.id);
   const [open, setOpen] = useState(false);
 
@@ -32,8 +34,18 @@ export default function PostCard({ post, showContext = true }: { post: Post; sho
           </p>
         </div>
       </header>
-      <p className="body">{post.text}</p>
-      {post.photo && <div className="photo"><Pic name={post.photo} sizes="(max-width: 700px) 100vw, 600px" /></div>}
+      {post.text && <p className="body">{post.text}</p>}
+      {(post.photo || post.photos?.length) && (
+        <div className={`photo${multiImage ? ` multi count-${imageCount}` : ""}`}>
+          {post.photo && (multiImage ? <span><Pic name={post.photo} sizes="(max-width: 700px) 100vw, 600px" /></span> : <Pic name={post.photo} sizes="(max-width: 700px) 100vw, 600px" />)}
+          {post.photos?.map((src, index) => (
+            <span key={`${index}-${src.slice(0, 32)}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- compressed local post image */}
+              <img src={src} alt={`Post image ${index + 1}`} />
+            </span>
+          ))}
+        </div>
+      )}
       {post.type === "collaborate" && (
         <Link href={post.collab ? `/collaborate/${post.collab}` : "/collaborate"} className="im-in">I&apos;m interested →</Link>
       )}

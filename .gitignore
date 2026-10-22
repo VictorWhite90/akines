@@ -9,3 +9,9 @@ next-env.d.ts
 
 # Raw design exports (the hero video original is ~100 MB); optimized copies live in public/akines/
 /public/01 - akine/
+
+# Backend secrets
+backend/.env
+backend/.venv/
+backend/staticfiles/
+__pycache__/

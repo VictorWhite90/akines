@@ -1,0 +1,109 @@
+/* =========================================================
+   Settings: list of sections on phones, side menu + section on wider screens.
+   Uses the community-home tokens (.kh) and the shared form styles from cm.css.
+   ========================================================= */
+.st { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 32px; align-items: start; max-width: 1080px; padding: 8px 0 64px; }
+.st-nav { position: sticky; top: 96px; }
+.st-nav h1 { margin: 0 0 16px; font: 700 24px/1.3 var(--font-manrope), sans-serif; letter-spacing: -.01em; }
+.st-nav ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.st-nav a { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; color: var(--k-ink-2); }
+.st-nav a:hover { background: var(--k-subtle); }
+.st-nav a.on { background: var(--k-muted); color: var(--k-ink); }
+.st-nav a > span { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.st-nav b { font-size: 14px; font-weight: 600; color: var(--k-ink); }
+.st-nav small { font-size: 12.5px; color: var(--k-ink-3); }
+.st-chev { display: none; color: var(--k-ink-3); }
+
+.st-body { min-width: 0; }
+.st-back { display: none; }
+.st-head { margin-bottom: 20px; }
+.st-head h2 { margin: 0; font: 700 20px/1.3 var(--font-manrope), sans-serif; }
+.st-head p, .st-lead { margin: 4px 0 0; font-size: 14px; line-height: 1.55; color: var(--k-ink-3); }
+.st-pick { padding-top: 56px; }
+.st-stack { display: flex; flex-direction: column; gap: 16px; max-width: 680px; }
+.st-card { gap: 14px; }
+.st-card h3 { display: flex; align-items: center; gap: 8px; margin: 0; font: 600 16px/1.4 var(--font-manrope), sans-serif; }
+.st-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.st-save { align-self: flex-start; }
+
+.kh .kh-btn.primary { background: var(--k-primary); color: var(--k-on-primary); }
+.kh .kh-btn.primary:hover { background: var(--k-primary-hover); }
+.kh .kh-btn:disabled { opacity: .55; cursor: not-allowed; }
+.kh .kh-btn.st-delete { background: #c62828; color: #fff; }
+.st-danger { border-color: color-mix(in srgb, #c62828 35%, var(--k-border)); }
+.st-danger-btn { color: #c62828; border-color: color-mix(in srgb, #c62828 45%, transparent); }
+
+.st-handle { display: flex; align-items: center; border-radius: 12px; border: .5px solid var(--k-border-strong); background: var(--k-surface); padding-left: 14px; }
+.st-handle span { color: var(--k-ink-3); font-size: 15px; }
+.cm-field .st-handle input { border: 0; box-shadow: none; padding-left: 2px; background: transparent; }
+.st-handle:focus-within { border-color: var(--k-amber); box-shadow: 0 0 0 3px rgba(244,166,58,.15); }
+.st-ok { font-size: 12.5px; color: var(--ak-text-success, #1a7f37); }
+.st-code { letter-spacing: .3em; font-variant-numeric: tabular-nums; }
+
+.st-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+.st-pills button { padding: 8px 14px; border-radius: 999px; border: .5px solid var(--k-border-strong); background: var(--k-surface); color: var(--k-ink-2); font: 500 13px var(--font-manrope), sans-serif; cursor: pointer; }
+.st-pills button.on { background: var(--k-primary); border-color: var(--k-primary); color: var(--k-on-primary); }
+
+.st-facts { margin: 4px 0 0; display: grid; gap: 10px; padding: 14px 16px; border-radius: 12px; background: var(--k-subtle); border: .5px solid var(--k-border); }
+.st-facts div { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.st-facts dt { color: var(--k-ink-3); }
+.st-facts dd { margin: 0; text-align: right; color: var(--k-ink); overflow-wrap: anywhere; }
+.st-facts small { display: block; font-size: 12px; color: var(--k-ink-3); }
+
+.st-group { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 12px; }
+.st-group legend { margin-bottom: 4px; font-size: 13px; font-weight: 600; color: var(--k-ink); }
+.st-radio { padding: 12px 14px; border-radius: 12px; border: .5px solid var(--k-border); background: var(--k-surface); }
+.st-radio span { display: flex; flex-direction: column; gap: 2px; }
+.st-radio small { font-size: 13px; color: var(--k-ink-3); }
+
+.st-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.st-list li { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; border: .5px solid var(--k-border); background: var(--k-surface); }
+.st-list li > span:not(.st-initial) { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.st-list b { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+.st-list small { font-size: 12.5px; color: var(--k-ink-3); }
+.st-initial { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 999px; background: var(--k-muted); font-weight: 700; }
+.st-tag { padding: 2px 8px; border-radius: 999px; background: var(--k-muted); font: 600 11px var(--font-manrope), sans-serif; font-style: normal; color: var(--k-ink-2); }
+.st-tag.on { background: color-mix(in srgb, #1a7f37 14%, transparent); color: #1a7f37; }
+
+.st-notice { margin: 0; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.45; }
+.st-notice.ok { background: color-mix(in srgb, #1a7f37 10%, transparent); color: var(--k-ink); }
+.st-notice.bad { background: #fdecea; color: #a1302a; }
+
+/* Phones and narrow windows: one column. The list is the index; a section replaces it with a back link. */
+@media (max-width: 900px) {
+  .st { grid-template-columns: 1fr; gap: 0; padding-top: 0; }
+  .st-nav { position: static; }
+  .st-nav a.on { background: none; color: var(--k-ink-2); }
+  .st-chev { display: block; }
+  .st-nav li + li a { border-top: .5px solid var(--k-border); border-radius: 0; }
+  .st-open .st-nav, .st:not(.st-open) .st-body { display: none; }
+  .st-back { display: inline-flex; align-items: center; gap: 4px; margin-bottom: 12px; font-size: 14px; font-weight: 600; color: var(--k-ink-2); }
+  .st-head h2 { font-size: 20px; }
+  .st-facts div { flex-direction: column; gap: 2px; }
+  .st-facts dd { text-align: left; }
+}
+.cm-field input:disabled { opacity: .7; cursor: not-allowed; }
+
+/* Date of birth: Day / Month / Year dropdowns (components/ui/DateOfBirth.tsx), used in settings and sign-up. */
+.dob { display: grid; grid-template-columns: 1fr 1.6fr 1.1fr; gap: 8px; }
+.dob select { appearance: none; -webkit-appearance: none; width: 100%; min-width: 0; padding: 12px 34px 12px 14px; border-radius: 12px; border: .5px solid var(--ak-border-strong, #c9c9c9); background: var(--ak-surface-default, #fff) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center; color: var(--ak-text-primary, #181818); font: 400 15px/1.4 var(--font-manrope), sans-serif; cursor: pointer; }
+.dob select:focus { outline: none; border-color: var(--k-amber, #f4a63a); box-shadow: 0 0 0 3px rgba(244,166,58,.15); }
+.dob select:disabled { opacity: .7; cursor: not-allowed; }
+.dob.bad select { border-color: var(--ak-border-error, #ff3b30); }
+/* On the sign-up card, match its filled inputs. */
+.dob-auth select { background-color: var(--paper, #f7f4ee); border-color: var(--line, #e7e1d6); }
+@media (max-width: 480px) {
+  .dob { grid-template-columns: .9fr 1.5fr 1.15fr; gap: 6px; }
+  .dob select { padding: 12px 24px 12px 10px; background-position: right 8px center; font-size: 14px; }
+}
+.nx-fly-handle { display: block; font-weight: 400; font-size: 12px; opacity: .7; }
+
+.st-photo { display: flex; align-items: center; gap: 18px; padding-bottom: 4px; }
+.st-photo > div { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.st-photo-img { position: relative; display: inline-flex; border-radius: 999px; }
+.st-photo-img.busy::after { content: ""; position: absolute; inset: 0; border-radius: 999px; background: rgba(0,0,0,.35); }
+.st-profile-link { flex-direction: row; align-items: center; gap: 14px; color: var(--k-ink); }
+.st-profile-link > span { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.st-profile-link b { font-size: 15px; }
+.st-profile-link small { font-size: 13px; color: var(--k-ink-3); }
+.st-profile-link:hover { border-color: var(--k-border-strong); }

@@ -4,17 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { InfoCircle, LogoutCurve, Magicpen } from "iconsax-reactjs";
+import { InfoCircle, LogoutCurve, Magicpen, Setting2 } from "iconsax-reactjs";
 import Avatar from "@/components/ui/Avatar";
-import { ME } from "@/lib/data/people";
+import { useMe } from "./MemberContext";
 import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
 import { RAIL, activeGroup } from "./railGroups";
+import { Glyph } from "@/components/ui/Icon";
 
 /** Phones: tapping your photo slides this in from the left, like X. Same places as the web rail. */
 export default function Drawer({ open, onClose, onCompanion }: { open: boolean; onClose: () => void; onCompanion: () => void }) {
   const pathname = usePathname();
   const current = activeGroup(pathname);
+  const { me } = useMe();
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect -- the portal needs document.body, which only exists after mount
   useEffect(() => setMounted(true), []);
@@ -36,12 +38,11 @@ export default function Drawer({ open, onClose, onCompanion }: { open: boolean; 
     <div className={`dr-scrim${open ? " open" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()} aria-hidden={!open}>
       <aside className="dr" role="dialog" aria-modal="true" aria-label="Menu" inert={!open}>
         <header className="dr-me">
-          <Link href="/dna" onClick={onClose} className="dr-ava" aria-label="Your profile"><Avatar person={ME} size={48} /></Link>
-          <Link href="/dna" onClick={onClose} className="dr-name">
-            <b>{ME.name}</b>
-            <small>{ME.role} · {ME.city}</small>
+          <Link href="/profile" onClick={onClose} className="dr-ava" aria-label="Your profile"><Avatar person={{ name: me?.name ?? "", photo: me?.photo }} size={48} /></Link>
+          <Link href="/profile" onClick={onClose} className="dr-name">
+            <b>{me?.name ?? ""}</b>
+            <small>{me?.username ? `@${me.username}` : "View your profile"}</small>
           </Link>
-          <p className="dr-stats"><span><b>3</b> circles</span><span><b>2</b> introductions</span><span><b>8</b> Banters</span></p>
         </header>
 
         <nav className="dr-nav" aria-label="Places">
@@ -52,7 +53,7 @@ export default function Drawer({ open, onClose, onCompanion }: { open: boolean; 
                 const on = i.href === "/" ? pathname === "/" : isActive(pathname, i.href);
                 return (
                   <Link key={i.href} href={i.href} onClick={onClose} className={`dr-link${on ? " on" : ""}`} aria-current={on ? "page" : undefined}>
-                    <span className="g" aria-hidden>{i.glyph}</span>
+                    <Glyph g={i.glyph} size={18} className="g" />
                     <span className="t">{i.label}</span>
                     {i.badge && <span className="b">{i.badge}</span>}
                   </Link>
@@ -65,6 +66,7 @@ export default function Drawer({ open, onClose, onCompanion }: { open: boolean; 
         <footer className="dr-foot">
           <button className="dr-companion" onClick={() => { onClose(); onCompanion(); }}><Magicpen size={18} color="currentColor" />Ask the Akines Companion</button>
           <div className="dr-row">
+            <Link href="/settings" onClick={onClose}><Setting2 size={18} color="currentColor" />Settings</Link>
             <Link href="/about" onClick={onClose}><InfoCircle size={18} color="currentColor" />About</Link>
             <Link href="/login?signout=1" onClick={onClose}><LogoutCurve size={18} color="currentColor" />Sign out</Link>
             <span className="dr-theme"><ThemeToggle /></span>

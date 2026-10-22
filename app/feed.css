@@ -8,8 +8,10 @@
 .app .kn-composer .row{display:flex;gap:10px;align-items:flex-start}
 .app .kn-composer textarea{flex:1;border:0;background:transparent;padding:6px 0;font:inherit;font-size:14px;resize:vertical;min-height:40px;outline:0;color:var(--ink)}
 .app .kn-composer textarea::placeholder{color:#9aa19b}
-.app .kn-composer .photo-preview{position:relative;width:96px;height:96px;border-radius:12px;overflow:hidden}
-.app .kn-composer .photo-preview button{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(21,16,11,.7);color:#fff;font-size:13px;line-height:1}
+.app .kn-composer .photo-preview{display:flex;gap:8px;flex-wrap:wrap}
+.app .kn-composer .photo-thumb{position:relative;width:96px;height:96px;border-radius:12px;overflow:hidden;background:#e9e4d6}
+.app .kn-composer .photo-thumb img{width:100%;height:100%;object-fit:cover}
+.app .kn-composer .photo-thumb button{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(21,16,11,.7);color:#fff;font-size:13px;line-height:1}
 .app .kn-composer .photo-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .app .kn-composer .photo-grid button{position:relative;aspect-ratio:1;border:0;padding:0;border-radius:10px;overflow:hidden}
 .app .kn-composer .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}
@@ -44,7 +46,11 @@
 .app .kn-post .meta a{color:var(--muted);text-decoration:underline}
 .app .kn-post .body{margin:7px 0 0;font-size:13.5px;line-height:1.45;color:var(--ink)}
 .app .kn-post .photo{position:relative;margin-top:8px;border-radius:10px;overflow:hidden;height:220px;background:#e9e4d6}
-.app .kn-post .photo img{transition:transform .5s ease}
+.app .kn-post .photo img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}
+.app .kn-post .photo.multi{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:3px}
+.app .kn-post .photo.multi.count-3{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:minmax(0,1fr)}
+.app .kn-post .photo.multi>span{position:relative;min-width:0;min-height:0;overflow:hidden}
+.app .kn-post .photo.multi img{min-width:0;min-height:0}
 .app .kn-post:hover .photo img{transform:scale(1.035)}
 .app .kn-post .im-in{display:inline-block;margin-top:8px;font-size:11.5px;font-weight:700;color:var(--forest);text-decoration:underline;text-underline-offset:3px}
 .app .kn-post footer{margin-top:8px;padding-top:6px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}

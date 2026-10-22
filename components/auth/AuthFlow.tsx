@@ -1,41 +1,48 @@
 "use client";
 
-import { SESSION_KEY } from "@/lib/session";
+import { auth, type Member } from "@/lib/api/client";
+import { rememberChoices, rememberMember } from "@/lib/session";
+import { STRONG, STRONG_HINT } from "./LoginScreen";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Pic from "@/components/home/Pic";
+import DateOfBirth from "@/components/ui/DateOfBirth";
 import { INTENTS } from "@/lib/data/community";
 
 type Mode = "login" | "signup";
-type Step = "account" | "about" | "intent" | "arrive";
+type Step = "account" | "verify" | "about" | "intent" | "arrive";
+
+/** Mirrors MIN_SIGNUP_AGE on the backend, which is the real check. */
+const MIN_AGE = 18;
+
+function ageOn(iso: string): number | null {
+  const d = new Date(`${iso}T00:00:00`);
+  if (!iso || Number.isNaN(d.getTime())) return null;
+  const t = new Date();
+  return t.getFullYear() - d.getFullYear() - (t.getMonth() < d.getMonth() || (t.getMonth() === d.getMonth() && t.getDate() < d.getDate()) ? 1 : 0);
+}
 
 const STEPS: Record<Mode, Step[]> = {
-  signup: ["account", "about", "intent", "arrive"],
-  login: ["account", "intent", "arrive"],
+  signup: ["account", "verify", "about", "intent", "arrive"],
+  // The log-in form itself is LoginScreen; after it, members continue here.
+  login: ["intent", "arrive"],
 };
 
 const ROLES = ["Student", "Professional", "Founder", "Creative", "Educator", "Parent", "Community organiser", "Just here to connect"];
 const MEDIA = ["Tech", "Business", "Health", "Education", "Arts & design", "Music", "Sports", "Faith & community", "Food", "Travel", "Parenting", "Volunteering"];
 
 
-function remember(data: Record<string, unknown>) {
-  try {
-    const prev = JSON.parse(localStorage.getItem(SESSION_KEY) ?? "{}");
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ ...prev, ...data }));
-  } catch {
-    /* prototype only: the flow works without storage */
-  }
-}
-
 /** Sign in / sign up. Both routes end in "What would feel meaningful today?", the Connection Intent Engine. */
 export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: string }) {
   const steps = STEPS[mode];
   const router = useRouter();
-  const [step, setStep] = useState<Step>(STEPS[mode].includes(startAt as Step) ? (startAt as Step) : "account");
+  const [step, setStep] = useState<Step>(STEPS[mode].includes(startAt as Step) && startAt !== "verify" ? (startAt as Step) : steps[0]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [dob, setDob] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
   const [agree, setAgree] = useState(false);
@@ -44,6 +51,10 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   const [city, setCity] = useState("");
   const [media, setMedia] = useState<string[]>([]);
   const [intentId, setIntentId] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const intent = INTENTS.find((i) => i.id === intentId);
   const first = name.trim().split(" ")[0] || (email.split("@")[0] ?? "");
@@ -52,10 +63,13 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   const errs = {
     name: mode === "signup" && name.trim().length < 2 ? "Tell us what to call you." : "",
     email: /^\S+@\S+\.\S+$/.test(email) ? "" : "Enter a valid email address.",
-    password: password.length >= 8 ? "" : mode === "signup" ? "Use at least 8 characters." : "Enter your password.",
+    // Loose check here; the server validates it properly (Nigerian mobile numbers).
+    phone: /^\+?[\d\s()-]{10,18}$/.test(phone.trim()) && phone.replace(/\D/g, "").length >= 10 ? "" : "Enter your mobile number, e.g. 0803 123 4567.",
+    password: STRONG.test(password) ? "" : STRONG_HINT,
+    dob: ageOn(dob) === null ? "Enter your date of birth." : (ageOn(dob) as number) < MIN_AGE ? `You need to be ${MIN_AGE} or older to join Akines.` : "",
     agree: mode === "signup" && !agree ? "Please accept the community promises to continue." : "",
   };
-  const accountOk = !errs.name && !errs.email && !errs.password && !errs.agree;
+  const accountOk = !errs.name && !errs.email && !errs.phone && !errs.dob && !errs.password && !errs.agree;
 
   const go = (s: Step) => {
     setStep(s);
@@ -64,16 +78,50 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   const next = () => go(steps[Math.min(idx + 1, steps.length - 1)]);
   const back = () => go(steps[Math.max(idx - 1, 0)]);
 
-  const submitAccount = (e: React.FormEvent) => {
+  const mail = email.trim().toLowerCase();
+
+  const submitAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setTried(true);
-    if (!accountOk) return;
-    remember({ name: first, email });
+    if (!accountOk || busy) return;
+    setBusy(true);
+    setFailure(null);
+    const [firstName, ...rest] = name.trim().split(/\s+/);
+    const r = await auth("register", { email: mail, phone_number: phone.trim(), date_of_birth: dob, password, first_name: firstName, last_name: rest.join(" ") });
+    setBusy(false);
+    if (!r.ok) return setFailure(r.message);
+    setTried(false);
+    setNotice(`We sent a 6-digit code to ${mail}. It expires in 10 minutes.`);
     next();
   };
 
+  const submitCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setTried(true);
+    const otp = code.replace(/\D/g, "");
+    if (!/^\d{6}$/.test(otp) || busy) return;
+    setBusy(true);
+    setFailure(null);
+    const r = await auth<{ user?: Member }>("verify-email", { email: mail, otp });
+    if (!r.ok) {
+      setBusy(false);
+      return setFailure(r.message);
+    }
+    rememberMember(r.data?.user ?? {});
+    setBusy(false);
+    setTried(false);
+    setNotice(null);
+    next();
+  };
+
+  const resendCode = async () => {
+    const r = await auth("resend-email", { email: mail });
+    setFailure(r.ok ? null : r.message);
+    setNotice(r.ok ? "A new code is on its way." : null);
+  };
+
   const finish = (skip = false) => {
-    remember({ intent: skip ? null : intentId, role, city, media });
+    rememberChoices({ intent: skip ? null : intentId, role, city, media });
     // Skipping goes straight in; choosing a reason shows one suggested first step.
     if (skip) router.push("/");
     else next();
@@ -122,7 +170,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
 
           {step === "account" && (
             <form onSubmit={submitAccount} noValidate>
-              <div className="ac-eyebrow">{mode === "signup" ? "Join the Village" : "Welcome back"}</div>
+              <div className="ac-eyebrow">{mode === "signup" ? "Join Akines" : "Welcome back"}</div>
               <h1>{mode === "signup" ? <>Take a seat. <em>Stay awhile.</em></> : <>Good to see <em>you again.</em></>}</h1>
               <p className="auth-lead">
                 {mode === "signup"
@@ -130,15 +178,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                   : "Sign in to pick up where you left off."}
               </p>
 
-              <div className="auth-social">
-                <button type="button" onClick={() => { setName((n) => n || "Amara Okafor"); setEmail((m) => m || "amara@example.com"); setPassword((p) => p || "demo-password"); }}>
-                  <b style={{ color: "#ea4335" }}>G</b> Continue with Google
-                </button>
-                <button type="button" onClick={() => { setEmail((m) => m || "amara@example.com"); setPassword((p) => p || "demo-password"); }}>
-                  <b>◆</b> Continue with Apple
-                </button>
-              </div>
-              <div className="auth-or">or with your email</div>
+              {failure && <p className="auth-fail" role="alert">{failure}</p>}
 
               {mode === "signup" && (
                 <div className="auth-field">
@@ -157,31 +197,58 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                 {tried && errs.email && <span className="auth-err">{errs.email}</span>}
               </div>
               <div className="auth-field">
-                <label htmlFor="password">Password {mode === "signup" && <small>At least 8 characters</small>}</label>
+                <label htmlFor="phone">Mobile number <small>One account per number</small></label>
+                <div className={`auth-input${tried && errs.phone ? " bad" : ""}`}>
+                  <input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="0803 123 4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                </div>
+                {tried && errs.phone && <span className="auth-err">{errs.phone}</span>}
+              </div>
+              <div className="auth-field">
+                <label htmlFor="dob" id="dob-label">Date of birth <small>Never shown on your profile</small></label>
+                <DateOfBirth id="dob" value={dob} onChange={setDob} minAge={MIN_AGE} invalid={tried && !!errs.dob} className="dob-auth" />
+                {tried && errs.dob && <span className="auth-err">{errs.dob}</span>}
+              </div>
+              <div className="auth-field">
+                <label htmlFor="password">Password</label>
                 <div className={`auth-input${tried && errs.password ? " bad" : ""}`}>
                   <input id="password" type={show ? "text" : "password"} autoComplete={mode === "signup" ? "new-password" : "current-password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
                   <button type="button" onClick={() => setShow((s) => !s)}>{show ? "Hide" : "Show"}</button>
                 </div>
-                {tried && errs.password && <span className="auth-err">{errs.password}</span>}
+                {tried && errs.password ? <span className="auth-err">{errs.password}</span> : <span className="auth-hint">12+ characters with upper and lower case letters, a number and a symbol.</span>}
               </div>
 
-              {mode === "login" ? (
-                <div className="auth-row">
-                  <span />
-                  <a href="#" onClick={(e) => e.preventDefault()}>Forgot password?</a>
-                </div>
-              ) : (
+              {(
                 <>
                   <label className="auth-check">
                     <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-                    <span>I'll come as myself, keep what's said in rooms in the room, and treat every artist's work with care. I accept the <a href="#" onClick={(e) => e.preventDefault()}>community promises</a>.</span>
+                    <span>I'll come as myself, keep what's said in rooms in the room, and treat what people share and make with care. I accept the <a href="#" onClick={(e) => e.preventDefault()}>community promises</a>.</span>
                   </label>
                   {tried && errs.agree && <span className="auth-err" style={{ display: "block", margin: "-10px 0 14px" }}>{errs.agree}</span>}
                 </>
               )}
 
-              <button className="auth-cta" type="submit">{mode === "signup" ? "Create my account →" : "Sign in →"}</button>
-              <p className="auth-fine">Prototype: nothing is sent anywhere. Any details will do.</p>
+              <button className="auth-cta" type="submit" disabled={busy}>{busy ? "Creating your account…" : "Create my account →"}</button>
+            </form>
+          )}
+
+          {step === "verify" && (
+            <form onSubmit={submitCode} noValidate>
+              <div className="ac-eyebrow">Confirm your email</div>
+              <h1>Check your <em>inbox.</em></h1>
+              {notice && <p className="auth-lead" role="status">{notice}</p>}
+              {failure && <p className="auth-fail" role="alert">{failure}</p>}
+              <div className="auth-field">
+                <label htmlFor="code">6-digit code</label>
+                <div className={`auth-input${tried && !/^\d{6}$/.test(code.replace(/\D/g, "")) ? " bad" : ""}`}>
+                  <input id="code" inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="123 456" value={code} onChange={(e) => setCode(e.target.value)} className="auth-code" />
+                </div>
+                {tried && !/^\d{6}$/.test(code.replace(/\D/g, "")) && <span className="auth-err">Enter the 6-digit code from the email.</span>}
+              </div>
+              <button className="auth-cta" type="submit" disabled={busy}>{busy ? "Checking…" : "Confirm and continue →"}</button>
+              <div className="auth-actions" style={{ justifyContent: "center" }}>
+                <button type="button" className="auth-ghost" onClick={resendCode}>Send a new code</button>
+                <button type="button" className="auth-ghost" onClick={() => { setFailure(null); setCode(""); go("account"); }}>Use a different email</button>
+              </div>
             </form>
           )}
 
@@ -248,7 +315,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                 <button className="auth-cta" disabled={!intent} onClick={() => finish()}>{intent ? "Continue with this reason →" : "Choose a reason to continue"}</button>
               </div>
               <div className="auth-actions" style={{ marginTop: 0, justifyContent: "center" }}>
-                <button className="auth-ghost" onClick={() => finish(true)}>Skip and go to Home →</button>
+                <button className="auth-ghost" onClick={() => finish(true)}>Skip and go to community →</button>
               </div>
             </div>
           )}

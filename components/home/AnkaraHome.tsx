@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useState } from "react";
 import Avatar, { AvatarStack } from "@/components/ui/Avatar";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import Pic from "@/components/home/Pic";
@@ -17,6 +17,7 @@ import { CIRCLES, COLLABS, ROOMS, STAGES, STUDIOS } from "@/lib/data/community";
 import { GAME_SESSIONS, GAMES } from "@/lib/data/games";
 import { STORIES } from "@/lib/data/stories";
 import BanterCard from "@/components/banter/BanterCard";
+import ShopStrip from "@/components/home/ShopStrip";
 import { useBanters } from "@/components/banter/useBanters";
 import { TODAYS_BANTER } from "@/lib/data/banter";
 import { MATCHES } from "@/lib/data/matches";
@@ -50,9 +51,8 @@ export default function AnkaraHome() {
   const [hello, setHello] = useLocal<string[]>("ak:home-hellos", []);
 
   const joined = CIRCLES.filter((c) => joinedIds.includes(c.id));
-  const [count, setCount] = useState(6);
+  const [count, setCount] = useState(4);
   const [loading, setLoading] = useState(false);
-  const sentinel = useRef<HTMLDivElement>(null);
   const feed = [...posts, ...MORE_POSTS]
     .filter((p) => (tab === "all" ? true : tab === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === tab));
   const shown = feed.slice(0, count);
@@ -65,15 +65,6 @@ export default function AnkaraHome() {
       setLoading(false);
     }, 600);
   };
-
-  // Keep loading as the member scrolls near the end of the feed.
-  useEffect(() => {
-    const el = sentinel.current;
-    if (!el) return;
-    const io = new IntersectionObserver((entries) => entries[0].isIntersecting && loadMore(), { rootMargin: "400px" });
-    io.observe(el);
-    return () => io.disconnect();
-  });
 
   const collab = COLLABS[0];
   const spot = COLLABS[1];
@@ -175,21 +166,28 @@ export default function AnkaraHome() {
 
           <div className="hm-hero"><HeroCarousel slides={slides} /></div>
 
-          <section className="hb" aria-label="Banter">
+          <section className="hs-strip hm-resonate" aria-label="Stories you might like">
             <div className="hs-strip-head">
-              <div><small>Banter</small><h3>Questions waiting for you</h3></div>
-              <Link href="/banter">See all →</Link>
+              <div><h3>These might resonate with you.</h3><p>Discover stories, ideas, and conversations worth your time.</p></div>
+              <Link href="/stories">Explore all →</Link>
             </div>
-            <Link href="/banter/unfinished" className="hb-banner">
-              <span className="hb-banner-img"><Photo name="talkLaugh" sizes="260px" className="absolute inset-0 h-full" position="center 25%" /></span>
-              <span className="hb-banner-tx">
-                <small>Today&apos;s Banter</small>
-                <b>“{TODAYS_BANTER}”</b>
-              </span>
-              <span className="hb-banner-go">Join the Banter →</span>
-            </Link>
-            <div className="hb-list">
-              {banters.filter((b) => !b.closed).slice(0, 1).map((b) => <BanterCard key={b.id} banter={b} />)}
+            <div className="hm-resonate-grid">
+              {STORIES.filter((st) => st.id !== "five-voices").slice(0, 3).map((st) => (
+                <Link key={st.id} href={`/stories/${st.id}`} className="hm-resonate-card">
+                  <span className="hm-resonate-image">
+                    <Photo name={st.photo} sizes="(max-width: 900px) 80vw, 280px" className="absolute inset-0 h-full" />
+                    <span>{st.kind}</span>
+                  </span>
+                  <span className="hm-resonate-copy">
+                    <b>{st.title}</b>
+                    <span>{st.excerpt}</span>
+                    <small className="hm-resonate-stats">
+                      <span><i aria-hidden>♡</i>128 felt this</span>
+                      <span>{st.reflections} Reflections</span>
+                    </small>
+                  </span>
+                </Link>
+              ))}
             </div>
           </section>
 
@@ -199,16 +197,41 @@ export default function AnkaraHome() {
               <Link href="/circles">Manage circles →</Link>
             </div>
             <div className="hm-tabs" role="tablist" aria-label="Filter the feed">
-              <button role="tab" aria-selected={tab === "mine"} className={tab === "mine" ? "on" : undefined} onClick={() => { setTab("mine"); setCount(6); }}>Your circles</button>
+              <button role="tab" aria-selected={tab === "mine"} className={tab === "mine" ? "on" : undefined} onClick={() => { setTab("mine"); setCount(4); }}>Your circles</button>
               {joined.map((c) => (
-                <button key={c.id} role="tab" aria-selected={tab === c.id} className={tab === c.id ? "on" : undefined} onClick={() => { setTab(c.id); setCount(6); }}>
+                <button key={c.id} role="tab" aria-selected={tab === c.id} className={tab === c.id ? "on" : undefined} onClick={() => { setTab(c.id); setCount(4); }}>
                   <span className="hm-thumb"><Photo name={c.photo} sizes="24px" className="h-full" /></span>{c.name}
                 </button>
               ))}
-              <button role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : undefined} onClick={() => { setTab("all"); setCount(6); }}>All circles</button>
+              <button role="tab" aria-selected={tab === "all"} className={tab === "all" ? "on" : undefined} onClick={() => { setTab("all"); setCount(4); }}>All circles</button>
             </div>
-                        <div className="hm-feed">
-              <div className="hw">{shown.slice(0, 4).map((p) => <PostCard key={p.id} post={p} />)}</div>
+            <div className="hm-feed">
+              <div className="hw">{shown.map((p) => <PostCard key={p.id} post={p} />)}</div>
+              <div className="hm-more">
+                {feed.length > 0 && (done ? (
+                  <p>✓ You&apos;re all caught up. <Link href="/circles">Find another circle</Link> or <Link href="/banter?new=chat">start a Banter</Link>.</p>
+                ) : (
+                  <button onClick={loadMore} disabled={loading}>{loading ? <><span className="hm-spin" />Loading more from your circles…</> : `Show more · ${feed.length - count} older posts`}</button>
+                ))}
+              </div>
+
+              <section className="hb" aria-label="Banter">
+                <div className="hs-strip-head">
+                  <div><small>Banter</small><h3>Questions waiting for you</h3></div>
+                  <Link href="/banter">See all →</Link>
+                </div>
+                <Link href="/banter/unfinished" className="hb-banner">
+                  <span className="hb-banner-img"><Photo name="talkLaugh" sizes="260px" className="absolute inset-0 h-full" position="center 25%" /></span>
+                  <span className="hb-banner-tx">
+                    <small>Today&apos;s Banter</small>
+                    <b>“{TODAYS_BANTER}”</b>
+                  </span>
+                  <span className="hb-banner-go">Join the Banter →</span>
+                </Link>
+                <div className="hb-list">
+                  {banters.filter((b) => !b.closed).slice(0, 1).map((b) => <BanterCard key={b.id} banter={b} />)}
+                </div>
+              </section>
 
               {/* Spotlight: a collaboration in progress */}
               <Link href={`/collaborate/${spot.id}`} className="hs-spot">
@@ -243,23 +266,6 @@ export default function AnkaraHome() {
                 </div>
               </section>
 
-              <div className="hw">{shown.slice(4, 8).map((p) => <PostCard key={p.id} post={p} />)}</div>
-
-              {/* Stories */}
-              <section className="hs-strip">
-                <div className="hs-strip-head"><div><small>Stories with a pulse</small><h3>A few moments, chosen for what they say</h3></div><Link href="/stories">Explore all →</Link></div>
-                <div className="hs-row">
-                  {STORIES.filter((st) => st.id !== "five-voices").slice(0, 3).map((st) => (
-                    <Link key={st.id} href={`/stories/${st.id}`} className="hs-story">
-                      <Photo name={st.photo} sizes="300px" className="absolute inset-0 h-full" />
-                      <span className="hs-story-tx"><small>{st.kind}{st.voice ? ` · ▶ ${st.voice}` : ""}</small><b>{st.title}</b><em>{PEOPLE[st.by].name}</em></span>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-
-              <div className="hw">{shown.slice(8, 12).map((p) => <PostCard key={p.id} post={p} />)}</div>
-
               {/* Studio visits */}
               <section className="hs-strip">
                 <div className="hs-strip-head"><div><small>Studio visits</small><h3>Step inside a studio this week</h3></div><Link href="/studios">All studios →</Link></div>
@@ -272,16 +278,10 @@ export default function AnkaraHome() {
                   ))}
                 </div>
               </section>
-              <div className="hw">{shown.slice(12).map((p) => <PostCard key={p.id} post={p} />)}</div>
 
-              <div ref={sentinel} className="hm-more">
-                {feed.length > 0 && (done ? (
-                  <p>✓ You&apos;re all caught up. <Link href="/circles">Find another circle</Link> or <Link href="/banter?new=chat">start a Banter</Link>.</p>
-                ) : (
-                  <button onClick={loadMore} disabled={loading}>{loading ? <><span className="hm-spin" />Loading more from your circles…</> : `Show more · ${feed.length - count} older posts`}</button>
-                ))}
-              </div>
-
+              <section className="hs-strip">
+                <ShopStrip />
+              </section>
               {feed.length === 0 && (
                 <div className="hm-empty">
                   <p>Nothing here yet.</p>

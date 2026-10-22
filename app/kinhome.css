@@ -191,7 +191,8 @@
 .app.nx .nx-top .nx-theme .nx-icon { width: 42px; height: 42px; }
 .app.nx .nx-top .nx-bell .nx-rail-dot { position: absolute; top: 0; right: 0; width: 12px; height: 12px; background: #00b86b; box-shadow: none; }
 .app.nx .nx-top .nx-count { position: absolute; top: -3.5px; right: -3px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 999px; background: #007aff; color: #fefefe; font-size: 12px; font-weight: 500; letter-spacing: .5px; }
-.app.nx .nx-top .nx-me { display: inline-flex; align-items: center; gap: 12px; margin-left: 8px; padding: 4px 16px 4px 4px; border-radius: 999px; background: #f3f3f3; color: #181818; text-decoration: none; font-size: 16px; font-weight: 600; line-height: 1.6; }
+.app.nx .nx-top .nx-me { display: inline-flex; align-items: center; gap: 10px; margin-left: 8px; padding: 4px 14px 4px 4px; border-radius: 999px; background: #f3f3f3; color: #181818; text-decoration: none; font-size: 14px; font-weight: 600; line-height: 1.6; }
+.app.nx .nx-top .nx-me > span { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .app.nx .nx-top .nx-begin { height: 42px; gap: 8px; padding: 8px 16px; border-radius: 999px; background: #f4a63a !important; color: #181818 !important; box-shadow: none !important; font: 600 16px/1.2 var(--font-manrope), sans-serif; }
 .app.nx .nx-top .nx-begin:hover { background: #f0992a !important; }
 html[data-theme="dark"] .app.nx .nx-top { background: var(--dk-bg) !important; border-bottom-color: var(--dk-line) !important; }

@@ -33,6 +33,7 @@ export type Post = {
   type: PostType;
   text: string;
   photo?: PhotoKey;
+  photos?: string[];
   circle?: string;
   collab?: string;
   at: string;
@@ -159,16 +160,6 @@ export const POSTS: Post[] = [
     at: "3 days ago",
     reactions: { canHelp: ["leila", "amara"], appreciate: ["thandi"] },
     replies: 12,
-  },
-  {
-    id: "p12",
-    by: "amara",
-    type: "share",
-    text: "Wrote down my goals for the year for the first time. It changed how I look at my calendar every morning.",
-    photo: "notebookWhite",
-    at: "4 days ago",
-    reactions: { appreciate: ["ayo", "leila", "zuri"], inspired: ["chidi"] },
-    replies: 5,
   },
   {
     id: "p13",

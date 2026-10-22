@@ -1,0 +1,38 @@
+/* Notification bell, panel and page */
+.nt-bell-wrap { position: relative; display: inline-flex; }
+.nt-badge { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; padding: 0 5px; display: grid; place-items: center; border-radius: 999px; background: #e0245e; color: #fff; font: 700 11px/1 var(--font-manrope), sans-serif; box-shadow: 0 0 0 2px var(--ak-surface-default, #fff); }
+.nt-panel { position: absolute; right: -60px; top: calc(100% + 10px); z-index: 60; width: 400px; max-height: min(72vh, 640px); overflow-y: auto; border-radius: 16px; border: .5px solid var(--k-border); background: var(--k-surface); box-shadow: 0 16px 48px rgba(0,0,0,.18); }
+.nt-panel header { position: sticky; top: 0; z-index: 1; padding: 14px 16px; background: var(--k-surface); border-bottom: .5px solid var(--k-border); font-size: 17px; }
+.nt-list ul { list-style: none; margin: 0; padding: 0; }
+.nt-list li { border-bottom: .5px solid var(--k-border); }
+.nt-list li.unread { background: color-mix(in srgb, var(--k-amber) 7%, transparent); }
+.nt-row { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 14px 16px; border: 0; background: none; color: var(--k-ink); text-align: left; cursor: pointer; font: inherit; }
+.nt-row:hover { background: var(--k-subtle); }
+.nt-tx { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; font-size: 14.5px; line-height: 1.45; }
+.nt-tx small { font-size: 12.5px; color: var(--k-ink-3); }
+.nt-dot { flex: none; width: 9px; height: 9px; margin-top: 6px; border-radius: 999px; background: var(--k-amber); }
+.nt-acts { display: flex; gap: 8px; padding: 0 16px 14px 68px; }
+.nt-mark { display: block; margin: 8px 16px 4px auto; padding: 0; border: 0; background: none; font: 600 13px var(--font-manrope), sans-serif; color: var(--k-info, #2547d0); cursor: pointer; }
+.nt-more, .nt-all { display: block; width: 100%; padding: 14px; border: 0; background: none; text-align: center; font: 600 14px var(--font-manrope), sans-serif; color: var(--k-info, #2547d0); cursor: pointer; }
+.nt-empty { padding: 40px 24px; text-align: center; color: var(--k-ink-3); }
+.nt-empty b { display: block; margin-bottom: 6px; font-size: 17px; color: var(--k-ink); }
+.nt-empty p { margin: 0; font-size: 14px; line-height: 1.5; }
+.nt-page { max-width: 640px; margin: 0 auto 80px; }
+.nt-page h1 { margin: 0 0 12px; font: 800 24px var(--font-manrope), sans-serif; }
+.nt-page .nt-list { border-radius: 16px; border: .5px solid var(--k-border); overflow: hidden; background: var(--k-surface); }
+
+/* Invite people sheet */
+.cm-invite-tabs { margin-bottom: 14px; }
+.cm-people-pick { display: flex; flex-direction: column; gap: 12px; }
+.cm-people-pick .cm-searchbox { max-width: none; }
+.cm-pick-list { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+.cm-pick-list button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 8px 10px; border-radius: 12px; border: .5px solid transparent; background: none; color: var(--k-ink); text-align: left; cursor: pointer; font: inherit; }
+.cm-pick-list button:hover:not(:disabled) { background: var(--k-subtle); }
+.cm-pick-list button.on { border-color: var(--k-amber); background: color-mix(in srgb, var(--k-amber) 8%, transparent); }
+.cm-pick-list button:disabled { cursor: default; opacity: .75; }
+.cm-pick-list button > span:nth-child(2) { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.cm-pick-list b { font-size: 14.5px; }
+.cm-pick-list small { font-size: 12.5px; color: var(--k-ink-3); }
+.cm-pick-tick { color: var(--k-amber); flex: none; }
+.cm-invited { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+@media (max-width: 700px) { .nt-panel { display: none; } }
