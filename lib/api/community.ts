@@ -80,13 +80,13 @@ export type SmallCircle = {
 export type CircleInput = { name: string; purpose?: string; kind?: CircleKind; join_mode?: "open" | "invite"; capacity?: number; agreements?: string[] };
 
 // Same list as the backend (community/models.py CircleKind).
-export const CIRCLE_KINDS: { value: CircleKind; label: string; glyph: string; body: string }[] = [
-  { value: "friendship", label: "Friendship circle", glyph: "♡", body: "Shared time that can grow into friendship." },
-  { value: "creative", label: "Creative circle", glyph: "✦", body: "Make things together: art, music, stories, ideas." },
-  { value: "project", label: "Project circle", glyph: "◇", body: "A few people and one outcome to reach." },
-  { value: "study", label: "Study circle", glyph: "▤", body: "Learn a subject or prepare for an exam together." },
-  { value: "mentorship", label: "Mentorship circle", glyph: "◎", body: "Learn from someone further along, with clear goals." },
-  { value: "support", label: "Support circle", glyph: "◌", body: "Share experience and encouragement safely." },
+export const CIRCLE_KINDS: { value: CircleKind; label: string; body: string }[] = [
+  { value: "friendship", label: "Friendship circle", body: "Shared time that can grow into friendship." },
+  { value: "creative", label: "Creative circle", body: "Make things together: art, music, stories, ideas." },
+  { value: "project", label: "Project circle", body: "A few people and one outcome to reach." },
+  { value: "study", label: "Study circle", body: "Learn a subject or prepare for an exam together." },
+  { value: "mentorship", label: "Mentorship circle", body: "Learn from someone further along, with clear goals." },
+  { value: "support", label: "Support circle", body: "Share experience and encouragement safely." },
 ];
 export const CIRCLE_AGREEMENTS = [
   "We show up as ourselves, not a performance.",

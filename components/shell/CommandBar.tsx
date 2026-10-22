@@ -10,6 +10,7 @@ import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
 import { RAIL, activeGroup } from "./railGroups";
 import Avatar from "@/components/ui/Avatar";
+import Icon from "@/components/ui/Icon";
 import { allPeople } from "@/lib/data/people";
 import { useMe } from "./MemberContext";
 import { CIRCLES, ROOMS } from "@/lib/data/community";
@@ -77,7 +78,7 @@ export default function CommandBar({ onIntent, onCompanion, onMenu }: { onIntent
               </Link>
             ))}
             <button onClick={() => { setFocus(false); onCompanion(); }} style={{ width: "100%", textAlign: "left", border: 0, background: "none", cursor: "pointer", padding: "9px 12px", borderRadius: 12, color: "var(--nx-brass)", font: "600 13.5px var(--nx-sans)" }}>
-              ✦ Ask the Companion about “{q.trim()}”
+              <Icon name="spark" size={15} className="nx-ask-ic" /> Ask the Companion about “{q.trim()}”
             </button>
           </div>
         )}

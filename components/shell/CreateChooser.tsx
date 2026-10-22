@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { Glyph } from "@/components/ui/Icon";
 
 type Item = { glyph: string; label: string; body: string; href: string; color: string };
 
@@ -74,7 +75,7 @@ export default function CreateChooser({ open, onClose, onIntent }: { open: boole
             <div className="cc-grid">
               {g.items.map((i) => (
                 <Link key={i.label} href={i.href} onClick={onClose} className="cc-item" style={{ ["--k" as string]: i.color } as React.CSSProperties}>
-                  <span className="cc-ic" aria-hidden>{i.glyph}</span>
+                  <span className="cc-ic" aria-hidden><Glyph g={i.glyph} size={20} /></span>
                   <span><b>{i.label}</b><small>{i.body}</small></span>
                 </Link>
               ))}

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AiTag } from "@/components/ui/Chip";
 import { cn } from "@/lib/cn";
+import Icon from "@/components/ui/Icon";
 
 type Msg = { from: "me" | "ai"; text: string; link?: { href: string; label: string } };
 
@@ -68,7 +69,7 @@ export default function Companion({ open, onClose }: { open: boolean; onClose: (
       >
         <header className="pattern-adire flex items-start gap-3 bg-ink-900 px-5 py-4 text-paper-50">
           <span className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full bg-ochre-400 text-ink-950">
-            <span aria-hidden className="text-xl">✦</span>
+            <Icon name="spark" size={20} />
           </span>
           <div className="flex-1">
             <h2 className="font-display text-xl leading-tight">Akines Companion</h2>

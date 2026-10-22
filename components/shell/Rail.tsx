@@ -7,6 +7,8 @@ import Avatar from "@/components/ui/Avatar";
 import { useMe } from "./MemberContext";
 import { isActive } from "./nav";
 import { RAIL, activeGroup } from "./railGroups";
+import { ColorSwatch, InfoCircle, LogoutCurve, ProfileCircle, Setting2 } from "iconsax-reactjs";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 /** Slim night rail. Hovering (or focusing) a place reveals its pages. */
 export default function Rail() {
@@ -32,7 +34,7 @@ export default function Rail() {
                 const on = i.href === "/" ? pathname === "/" : isActive(pathname, i.href);
                 return (
                   <Link key={i.href} href={i.href} className={on ? "on" : undefined}>
-                    <span className="g" aria-hidden>{i.glyph}</span>
+                    <Glyph g={i.glyph} size={18} className="g" />
                     {i.label}
                     {i.badge && <span className="b">{i.badge}</span>}
                   </Link>
@@ -49,12 +51,12 @@ export default function Rail() {
         </Link>
         <div className="nx-fly" style={{ top: "auto", bottom: 0 }}>
           <p>{me?.name ?? ""}{me?.username && <small className="nx-fly-handle">@{me.username}</small>}</p>
-          <Link href="/dna"><span className="g">◐</span>Creative DNA</Link>
-          <Link href="/studio"><span className="g">✦</span>My studio</Link>
-          <Link href="/profile"><span className="g">☺</span>Your profile</Link>
-          <Link href="/settings"><span className="g">⚙</span>Settings</Link>
-          <Link href="/about"><span className="g">ⓘ</span>About Akines</Link>
-          <Link href="/login?signout=1"><span className="g">↩</span>Sign out</Link>
+          <Link href="/dna"><ColorSwatch size={18} color="currentColor" className="g" />Creative DNA</Link>
+          <Link href="/studio"><Icon name="studio" className="g" />My studio</Link>
+          <Link href="/profile"><ProfileCircle size={18} color="currentColor" className="g" />Your profile</Link>
+          <Link href="/settings"><Setting2 size={18} color="currentColor" className="g" />Settings</Link>
+          <Link href="/about"><InfoCircle size={18} color="currentColor" className="g" />About Akines</Link>
+          <Link href="/login?signout=1"><LogoutCurve size={18} color="currentColor" className="g" />Sign out</Link>
         </div>
       </div>
     </aside>

@@ -14,7 +14,7 @@ import { circles, type SmallCircle } from "@/lib/api/community";
 import CircleForm from "./CircleForm";
 import { PeoplePicker } from "./InviteSheet";
 import Sheet from "./Sheet";
-import { kindGlyph } from "./SmallCircles";
+import KindIcon from "./KindIcon";
 
 /** A small circle: its live group chat, and (beside it, or behind "i" on phones) who's in it and what it's for. */
 export default function CircleRoom({ communityId, circleId, openInvite }: { communityId: string; circleId: string; openInvite?: boolean }) {
@@ -118,7 +118,7 @@ export default function CircleRoom({ communityId, circleId, openInvite }: { comm
       <section className="rs-main">
         <header className="rs-head">
           <BackLink fallback={back} className="back" aria-label="Back to the community">←</BackLink>
-          <div className="thumb sc-thumb" aria-hidden>{kindGlyph(s.kind)}</div>
+          <div className="thumb sc-thumb" aria-hidden><KindIcon kind={s.kind} size={22} /></div>
           <div className="who">
             <h1>{s.name}</h1>
             <p>{s.member_count} of {s.capacity} · <Link href={`/circles/community/${communityId}`}>{s.community_name}</Link></p>
@@ -135,7 +135,7 @@ export default function CircleRoom({ communityId, circleId, openInvite }: { comm
         ) : (
           <div className="rs-msgs sc-gate">
             <div className="kh-card">
-              <span className="sc-kind"><i aria-hidden>{kindGlyph(s.kind)}</i>{s.kind_label}</span>
+              <span className="sc-kind"><KindIcon kind={s.kind} size={14} />{s.kind_label}</span>
               <h2>{s.name}</h2>
               {s.purpose && <p className="cm-pre">{s.purpose}</p>}
               {s.my_invitation ? (
@@ -164,7 +164,7 @@ export default function CircleRoom({ communityId, circleId, openInvite }: { comm
       <aside className={`rs-side${info ? " open" : ""}`}>
         <button className="close show-sm" onClick={() => setInfo(false)} aria-label="Close">×</button>
         <div className="about">
-          <span className="sc-kind"><i aria-hidden>{kindGlyph(s.kind)}</i>{s.kind_label}{s.join_mode === "invite" ? " · Invite only" : " · Open to members"}</span>
+          <span className="sc-kind"><KindIcon kind={s.kind} size={14} />{s.kind_label}{s.join_mode === "invite" ? " · Invite only" : " · Open to members"}</span>
           <h2>{s.name}</h2>
           {s.purpose ? <p className="blurb cm-pre">{s.purpose}</p> : host && <p className="blurb">Add a line about what this circle is for, so people know if it&apos;s for them.</p>}
         </div>

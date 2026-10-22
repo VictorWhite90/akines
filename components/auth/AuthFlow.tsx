@@ -315,7 +315,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                 <button className="auth-cta" disabled={!intent} onClick={() => finish()}>{intent ? "Continue with this reason →" : "Choose a reason to continue"}</button>
               </div>
               <div className="auth-actions" style={{ marginTop: 0, justifyContent: "center" }}>
-                <button className="auth-ghost" onClick={() => finish(true)}>Skip and go to Home →</button>
+                <button className="auth-ghost" onClick={() => finish(true)}>Skip and go to community →</button>
               </div>
             </div>
           )}

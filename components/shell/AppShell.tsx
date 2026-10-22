@@ -31,11 +31,13 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const open = ["/login", "/signup", "/about", "/about/philosophy", "/welcome"].includes(pathname) || pathname.startsWith("/circles/join/");
   const [gate, setGate] = useState<"checking" | "in" | "out">("checking");
 
-  // proxy.ts already sends signed-out visitors to About on the server; this is the client-side backstop.
+  // Check the live cookie on every route change; signup can authenticate without changing its pathname.
   useEffect(() => {
+    const signedIn = isSignedIn();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the browser session once per route
-    setGate(isSignedIn() ? "in" : "out");
-  }, [pathname]);
+    setGate(signedIn ? "in" : "out");
+    if (!signedIn && !open) router.replace("/about");
+  }, [pathname, open, router]);
   useEffect(() => {
     recordRoute(pathname);
   }, [pathname]);
@@ -50,10 +52,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       }
     } catch {}
   }, [gate, router]);
-  useEffect(() => {
-    if (gate === "out" && !open) router.replace("/about");
-  }, [gate, open, router]);
-
   // Sign-in, sign-up, welcome, the KinCircle creation wizard and the public About page are full-screen, without the shell.
   if (open || pathname === "/circles/new") return <>{children}</>;
   if (gate !== "in") return <div className="gate-wait" aria-busy="true" />;

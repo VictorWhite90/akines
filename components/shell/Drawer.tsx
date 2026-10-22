@@ -10,6 +10,7 @@ import { useMe } from "./MemberContext";
 import ThemeToggle from "./ThemeToggle";
 import { isActive } from "./nav";
 import { RAIL, activeGroup } from "./railGroups";
+import { Glyph } from "@/components/ui/Icon";
 
 /** Phones: tapping your photo slides this in from the left, like X. Same places as the web rail. */
 export default function Drawer({ open, onClose, onCompanion }: { open: boolean; onClose: () => void; onCompanion: () => void }) {
@@ -52,7 +53,7 @@ export default function Drawer({ open, onClose, onCompanion }: { open: boolean; 
                 const on = i.href === "/" ? pathname === "/" : isActive(pathname, i.href);
                 return (
                   <Link key={i.href} href={i.href} onClick={onClose} className={`dr-link${on ? " on" : ""}`} aria-current={on ? "page" : undefined}>
-                    <span className="g" aria-hidden>{i.glyph}</span>
+                    <Glyph g={i.glyph} size={18} className="g" />
                     <span className="t">{i.label}</span>
                     {i.badge && <span className="b">{i.badge}</span>}
                   </Link>

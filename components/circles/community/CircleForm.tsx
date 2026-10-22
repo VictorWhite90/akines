@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CIRCLE_AGREEMENTS, CIRCLE_KINDS, type CircleInput, type SmallCircle } from "@/lib/api/community";
 import Sheet from "./Sheet";
+import KindIcon from "./KindIcon";
 
 const STEPS = ["Kind", "Name", "People", "Agree"] as const;
 
@@ -82,7 +83,7 @@ export default function CircleForm({ communityName, circle, onSave, onClose }: {
               <div className="sc-kinds" role="radiogroup" aria-label="Kind of circle">
                 {CIRCLE_KINDS.map((k) => (
                   <button type="button" role="radio" aria-checked={f.kind === k.value} key={k.value} className={f.kind === k.value ? "on" : undefined} onClick={() => setF((d) => ({ ...d, kind: k.value }))}>
-                    <span aria-hidden>{k.glyph}</span>
+                    <span aria-hidden><KindIcon kind={k.value} size={16} /></span>
                     <b>{k.label.replace(" circle", "")}</b>
                     <small>{k.body}</small>
                   </button>
@@ -148,7 +149,7 @@ export default function CircleForm({ communityName, circle, onSave, onClose }: {
               )}
               {!editing && (
                 <div className="sc-review">
-                  <span className="sc-kind"><i aria-hidden>{kind.glyph}</i>{kind.label}</span>
+                  <span className="sc-kind"><KindIcon kind={kind.value} size={14} />{kind.label}</span>
                   <b>{f.name.trim() || "Untitled circle"}</b>
                   <small>{f.capacity} people · {f.join_mode === "open" ? "any member can join" : "invite only"}</small>
                 </div>

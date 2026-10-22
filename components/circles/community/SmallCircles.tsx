@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import { fullName } from "@/lib/api/account";
-import { CIRCLE_KINDS, circles, type Community, type SmallCircle } from "@/lib/api/community";
+import { circles, type Community, type SmallCircle } from "@/lib/api/community";
 import CircleForm from "./CircleForm";
+import KindIcon from "./KindIcon";
 
 export const circleHref = (c: { community_id: string; id: string }) => `/circles/community/${c.community_id}/circles/${c.id}`;
-export const kindGlyph = (kind: string) => CIRCLE_KINDS.find((k) => k.value === kind)?.glyph ?? "◎";
 
 /** The community's small circles: yours first, then open ones with a seat. Members can start one. */
 export default function SmallCircles({ c, startOpen }: { c: Community; startOpen?: boolean }) {
@@ -69,7 +69,7 @@ export default function SmallCircles({ c, startOpen }: { c: Community; startOpen
             return (
               <li key={s.id} className="sc-card">
                 <Link href={circleHref(s)} className="sc-card-main">
-                  <span className="sc-kind"><i aria-hidden>{kindGlyph(s.kind)}</i>{s.kind_label}{s.join_mode === "invite" && " · Invite only"}</span>
+                  <span className="sc-kind"><KindIcon kind={s.kind} size={14} />{s.kind_label}{s.join_mode === "invite" && " · Invite only"}</span>
                   <b>{s.name}</b>
                   {s.purpose && <p>{s.purpose}</p>}
                   <span className="sc-people">

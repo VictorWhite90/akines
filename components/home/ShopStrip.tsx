@@ -5,13 +5,13 @@ import ProductCard from "@/components/shop/ProductCard";
 import { useAllProducts } from "@/components/shop/useShop";
 import { sortProducts } from "@/lib/data/shop";
 
-/** "Fresh from the makers": the newest published products, so the shop is reachable from home. */
+/** The newest published products, giving the marketplace a place on the home feed. */
 export default function ShopStrip() {
   const items = sortProducts(useAllProducts(), "new").slice(0, 3);
   return (
     <>
-      <div className="section-title">
-        <div><h2>Fresh from the makers</h2><p>Original work and made-to-order pieces, sold by the people who made them.</p></div>
+      <div className="hs-strip-head market-head">
+        <div><h3>Fresh from the market</h3><p>New work and useful finds from people in your community.</p></div>
         <Link href="/shop">Shop all →</Link>
       </div>
       <ul className="sh-grid home-shop">

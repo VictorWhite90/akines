@@ -452,6 +452,8 @@ a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: trans
 .hs-strip-head small { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ap-mute); }
 .hs-strip-head h3 { margin: 2px 0 0; font: 700 18px/1.2 var(--ap-sans); letter-spacing: -.01em; }
 .hs-strip-head a { font-size: 13px; font-weight: 700; color: var(--ap-ink); text-decoration: none; white-space: nowrap; }
+.hs-strip-head.market-head { align-items: flex-end; }
+.hs-strip-head.market-head p { margin: 4px 0 0; color: var(--ap-mute); font: 400 12px/1.45 var(--ap-sans); }
 .hs-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .hs-game, .hs-visit { display: flex; flex-direction: column; overflow: hidden; border-radius: 18px; background: #fff; border: 1px solid var(--ap-line); text-decoration: none; color: var(--ap-ink); transition: transform .2s; }
 .hs-game:hover, .hs-visit:hover, .hs-story:hover { transform: translateY(-3px); }
@@ -465,6 +467,21 @@ a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: trans
 .hs-story-tx small { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #ffd27a; }
 .hs-story-tx b { font-size: 15.5px; line-height: 1.25; }
 .hs-story-tx em { font-style: normal; font-size: 12px; color: rgba(255,255,255,.75); }
+.hm-resonate { padding: 0; border: 0; background: transparent; }
+.hm-resonate .hs-strip-head { margin-bottom: 12px; }
+.hm-resonate .hs-strip-head h3 { margin: 0; font: 600 16px/1.4 var(--ap-sans); letter-spacing: 0; }
+.hm-resonate .hs-strip-head p { margin: 2px 0 0; color: var(--ap-mute); font: 400 11px/1.5 var(--ap-sans); }
+.hm-resonate .hs-strip-head a { font: 400 10px/1.5 var(--ap-sans); color: #007aff; }
+.hm-resonate-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.hm-resonate-card { min-width: 0; height: 306px; overflow: hidden; display: flex; flex-direction: column; border: 0.5px solid #e5e5e5; border-radius: 12px; background: #f9f9f9; color: #181818; text-decoration: none; }
+.hm-resonate-image { position: relative; display: block; flex: 0 0 48.5%; height: 48.5%; min-height: 0; overflow: hidden; background: #e5e5e5; }
+.hm-resonate-image>span { position: absolute; top: 8px; left: 8px; z-index: 1; max-width: calc(100% - 16px); overflow: hidden; padding: 4px 9px; border-radius: 99px; background: rgba(255,255,255,.94); color: #494949; font: 500 8px/1.2 var(--ap-sans); text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.hm-resonate-copy { display: flex; flex: 1 1 auto; min-width: 0; min-height: 0; flex-direction: column; gap: 8px; padding: 8px; }
+.hm-resonate-copy b { overflow: hidden; color: #181818; font: 600 16px/1.6 var(--ap-sans); text-overflow: ellipsis; white-space: nowrap; }
+.hm-resonate-copy>span { display: -webkit-box; min-height: 66px; overflow: hidden; color: #969696; font: 400 12px/1.6 var(--ap-sans); -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.hm-resonate-copy .hm-resonate-stats { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 0; padding-top: 8px; border-top: 0.5px solid #e5e5e5; color: #6f6f6f; font: 400 9px/1.4 var(--ap-sans); }
+.hm-resonate-stats span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.hm-resonate-stats i { font-size: 13px; font-style: normal; }
 .hs-visit-img { position: relative; height: 130px; }
 .hs-visit-img i { position: absolute; left: 10px; top: 10px; padding: 3px 10px; border-radius: 99px; background: #7b2ff7; color: #fff; font-style: normal; font-size: 11px; font-weight: 700; }
 .hs-visit-tx { flex-direction: row; align-items: center; gap: 10px; }
@@ -473,6 +490,7 @@ a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: trans
 @media (max-width: 760px) {
   .hs-spot { grid-template-columns: 1fr; }
   .hs-row { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 75%; overflow-x: auto; }
+  .hm-resonate-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(72%, 264px); overflow-x: auto; padding-bottom: 3px; }
 }
 
 /* ---------- Home: Banter section ---------- */
@@ -1147,7 +1165,7 @@ html[data-theme="dark"] .hm-topics button.on, html[data-theme="dark"] .hm-topics
 .app .hm .hm-hello h1 { font-weight: 600; }
 .app .hm .hm-hero .hero-copy h2 { font-weight: 600 !important; }
 .app .hm .hb-banner-tx b { font-weight: 600; }
-.app .hm .kn-post { box-shadow: none; border-color: color-mix(in srgb, var(--ap-line) 80%, transparent); }
+.app .hm .kn-post { padding: 16px; background: #f9f9f9 !important; border: 0.5px solid #e5e5e5 !important; border-radius: 12px !important; box-shadow: none; gap: 16px; }
 .app .hm .kn-post p, .app .hm .kn-post .body { font-weight: 400; }
 .app .hm .hb { background: transparent !important; border-color: var(--ap-line) !important; }
 .app .hm .hm-stats a { font-weight: 500; background: transparent; }
@@ -1176,7 +1194,13 @@ html[data-theme="dark"] .hm-topics button.on, html[data-theme="dark"] .hm-topics
 .app .hm .hm-feedhead h2 { font-size: 18px; }
 .app .hm .hs-strip-head h3, .app .hm .hm-card h3 { font-size: 16px; }
 .app .hm .hs-strip-head small { font-weight: 600; letter-spacing: .1em; font-size: 10.5px; }
-.app .hm :is(.kn-post .body, .kn-post p) { font-size: 14px; line-height: 1.6; color: #3f3c46; }
+.app .hm .kn-post .who>p:first-child { font-size: 12px; line-height: 1.6; color: #181818; }
+.app .hm .kn-post .meta { font-size: 10px; line-height: 1.6; color: #969696; }
+.app .hm .kn-post .meta a { color: #ff9500; text-decoration: none; }
+.app .hm .kn-post .body { margin-top: 16px; font-size: 12px; line-height: 1.6; color: #969696; }
+.app .hm .kn-post .photo { height: auto; aspect-ratio: 784 / 230; margin-top: 16px; border-radius: 0; background: transparent; }
+.app .hm .kn-post .photo.multi { aspect-ratio: 784 / 230; }
+.app .hm .kn-post footer { margin-top: 16px; padding-top: 0; border-top: 0; }
 .app .hm b, .app .hm strong { font-weight: 600; }
 
 /* Today's Banter: a soft panel instead of a black slab. */
