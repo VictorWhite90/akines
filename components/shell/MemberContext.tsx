@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { account, fullName, type MyProfile } from "@/lib/api/account";
+import { isGuest } from "@/lib/session";
 
 /** The signed-in member as the app frame shows them. */
 export type Me = { id: string; username: string | null; name: string; firstName: string; email: string; photo: string | null };
@@ -44,6 +45,11 @@ export function MemberProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const refresh = useCallback(async () => {
+    if (isGuest()) {
+      store({ id: "guest", username: null, name: "Guest", firstName: "Guest", email: "", photo: null });
+      setLoading(false);
+      return;
+    }
     const r = await account.profile();
     if (r.ok) store(toMe(r.data));
     setLoading(false);

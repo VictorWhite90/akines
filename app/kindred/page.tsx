@@ -17,7 +17,7 @@ export default function Kindred() {
     <div className="space-y-12">
       <PageHeader eyebrow="Meaningful matching" title={<>People whose journeys <em>complement yours.</em></>} sub="Not “people you may know”. Every introduction arrives with the reason for it, so a first hello has something real in it." />
 
-      <section className="grid gap-6 md:grid-cols-2 xl:grid-cols-3" aria-label="Introductions for you">
+      <section className="grid items-start gap-6 md:grid-cols-2 xl:grid-cols-3" aria-label="Introductions for you">
         {MATCHES.map((m) => <IntroCard key={m.id} match={m} compact />)}
       </section>
 
