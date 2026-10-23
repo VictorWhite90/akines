@@ -57,6 +57,7 @@ html[data-theme="dark"] .lg::before { content: ""; position: absolute; inset: 0;
 .lg-primary:disabled { opacity: .6; cursor: progress; }
 .lg-forgot:hover { text-decoration: underline; }
 .lg-alt { display: flex; flex-direction: column; gap: 12px; margin-top: 44px; }
+.lg-guest-note { color: var(--lg-mute); font-size: 13px; line-height: 1.5; text-align: center; }
 .lg-google, .lg-outline { height: 52px; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 99px; font: 500 15px var(--font-dmsans), sans-serif; color: var(--lg-ink); text-decoration: none; cursor: pointer; transition: background .15s; }
 .lg-google { border: 0; background: var(--lg-field); }
 .lg-google:hover { background: color-mix(in srgb, var(--lg-field) 85%, var(--lg-ink)); }
