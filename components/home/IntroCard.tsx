@@ -15,7 +15,7 @@ export default function IntroCard({ match, compact = false }: { match: Match; co
   const [text, setText] = useState(match.opener);
 
   return (
-    <div className="card flex h-full flex-col p-6">
+    <div className="card flex flex-col p-6">
       <div className="ic-head flex items-center justify-between gap-3">
         <h3 className="font-display text-xl leading-tight font-medium">{compact ? "Someone to meet" : "A meaningful introduction"}</h3>
         <AiTag />
