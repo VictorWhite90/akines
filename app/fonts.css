@@ -1,0 +1,13 @@
+/*
+ * Fonts are self-hosted (Fontsource packages, imported in layout.tsx), so builds never depend on Google Fonts
+ * and every character set ships, including the extended Latin used in Yoruba and Igbo names (ẹ ọ ṣ ń).
+ * The variables below are the ones the stylesheets already use.
+ */
+:root {
+  --font-playfair: "Playfair Display Variable", Georgia, "Times New Roman", serif;
+  --font-fraunces: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --font-instrument: "Instrument Sans Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-dmmono: "DM Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-manrope: "Manrope Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-dmsans: "DM Sans Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+}

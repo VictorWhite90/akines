@@ -7,7 +7,7 @@
    Loaded after the page stylesheets; mobile.css still comes last.
    ========================================================= */
 
-/* ---- Type: Manrope everywhere (next/font sets these on <html>, so they need !important) ---- */
+/* ---- Type: Manrope everywhere (app/fonts.css sets these on :root, so they need !important) ---- */
 html {
   --font-playfair: var(--font-manrope) !important;
   --font-fraunces: var(--font-manrope) !important;

@@ -1,7 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Mono, DM_Sans, Fraunces, Instrument_Sans, Manrope, Playfair_Display } from "next/font/google";
+import "@fontsource-variable/playfair-display/wght.css";
+import "@fontsource-variable/playfair-display/wght-italic.css";
+import "@fontsource-variable/fraunces/wght.css";
+import "@fontsource-variable/fraunces/wght-italic.css";
+import "@fontsource-variable/instrument-sans/wght.css";
+import "@fontsource-variable/manrope/wght.css";
+import "@fontsource-variable/dm-sans/wght.css";
+import "@fontsource/dm-mono/400.css";
+import "@fontsource/dm-mono/500.css";
 import AppShell from "@/components/shell/AppShell";
 import Splash from "@/components/onboarding/Splash";
+import "./fonts.css";
 import "./tokens.css";
 import "./welcome.css";
 import "./globals.css";
@@ -28,13 +37,6 @@ import "./profile.css";
 import "./notifications.css";
 import "./mobile.css";
 
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", weight: ["500", "600"], style: ["normal", "italic"], display: "swap" });
-const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", weight: ["400", "500", "600"], style: ["normal", "italic"], display: "swap" });
-const instrument = Instrument_Sans({ subsets: ["latin"], variable: "--font-instrument", weight: ["400", "500", "600", "700"], display: "swap" });
-const dmMono = DM_Mono({ subsets: ["latin"], variable: "--font-dmmono", weight: ["400", "500"], display: "swap" });
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", weight: ["400", "500", "600", "700"], display: "swap" });
-const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dmsans", weight: ["400", "500", "600", "700"], display: "swap" });
-
 /** The keyboard shrinks the page (Android), and the app can use the full screen around the notch (iOS). */
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", interactiveWidget: "resizes-content" };
 
@@ -45,7 +47,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${playfair.variable} ${dmSans.variable} ${fraunces.variable} ${instrument.variable} ${dmMono.variable} ${manrope.variable}`}>
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Open the image connections before the first photo is requested. */}
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="" />

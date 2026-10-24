@@ -10,6 +10,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fontsource-variable/dm-sans": "5.3.0",
+    "@fontsource-variable/fraunces": "5.3.0",
+    "@fontsource-variable/instrument-sans": "5.3.0",
+    "@fontsource-variable/manrope": "5.3.0",
+    "@fontsource-variable/playfair-display": "5.3.0",
+    "@fontsource/dm-mono": "5.3.0",
     "@types/qrcode": "^1.5.5",
     "iconsax-reactjs": "^0.0.8",
     "next": "16.0.10",
