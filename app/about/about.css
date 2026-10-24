@@ -494,3 +494,10 @@
   .cp-values-list button{font-size:22px}
   .cp-overview em,.cp-close em{font-size:inherit}
 }
+
+/* iOS shows a big play button on a background video it won't autoplay yet (Low Power Mode, still buffering):
+   hide it so the poster shows cleanly instead. */
+.ak-hero-video::-webkit-media-controls,
+.ak-hero-video::-webkit-media-controls-start-playback-button,
+.ak-hero-video::-webkit-media-controls-overlay-play-button { display: none !important; -webkit-appearance: none; }
+.ak-hero-video { pointer-events: none; }

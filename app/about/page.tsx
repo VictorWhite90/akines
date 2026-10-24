@@ -4,7 +4,6 @@ import Experiences from "./_components/Experiences";
 import MoodCheckin from "./_components/MoodCheckin";
 import Rhythm from "./_components/Rhythm";
 
-
 const FEATURES = ["Banter", "Play Together", "Collaboration Studio", "Creative DNA", "My Store", "KinCircles"];
 
 export default function AboutPage() {
@@ -13,7 +12,11 @@ export default function AboutPage() {
       <AboutHeader />
 
       <section className="ak-hero">
-        <video className="ak-hero-video" src="/akines/hero.mp4" poster="/akines/hero-poster.jpg" autoPlay muted loop playsInline aria-hidden />
+        {/* Web-sized and fast-start (plays while it downloads): 5.6 MB portrait for phones, 9.5 MB for larger screens. */}
+        <video className="ak-hero-video" poster="/akines/hero-poster.jpg" autoPlay muted loop playsInline preload="auto" disablePictureInPicture aria-hidden>
+          <source src="/akines/hero-mobile.mp4" type="video/mp4" media="(max-width: 760px)" />
+          <source src="/akines/hero.mp4" type="video/mp4" />
+        </video>
         <div className="ak-hero-shade" aria-hidden />
         <div className="ak-hero-content">
           <p className="ak-eyebrow">Building better human connections</p>

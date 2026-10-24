@@ -7,25 +7,33 @@ const KEY = "ak:splashed";
 const LENGTH = 3200;
 
 /**
- * The Akines launch moment, once per browser session: five kin dots fly in from the edges,
- * orbit, gather into a circle, collapse into the mark, and the name rises. Tap to skip.
+ * The Akines launch moment, once per device: five kin dots fly in from the edges, orbit, gather into a circle,
+ * collapse into the mark, and the name rises. Tap to skip.
+ *
+ * The <head> script in app/layout.tsx sets html[data-splash] before the first paint on a device that hasn't
+ * seen it, so the splash is part of the first frame (never popping up over a page someone is already tapping),
+ * and CSS fades it out on its own even if the app's code is still loading.
  */
 export default function Splash() {
-  const [show, setShow] = useState(false);
+  const [show, setShow] = useState(true);
   const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
-    let seen = false;
+    const html = document.documentElement;
+    if (html.dataset.splash !== "1") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- already seen on this device
+      setShow(false);
+      return;
+    }
     try {
-      seen = sessionStorage.getItem(KEY) === "1";
-      sessionStorage.setItem(KEY, "1");
+      localStorage.setItem(KEY, "1");
     } catch {}
-    if (seen) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- decided once, on first paint of the session
-    setShow(true);
     const quick = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const t1 = setTimeout(() => setLeaving(true), quick ? 600 : LENGTH);
-    const t2 = setTimeout(() => setShow(false), (quick ? 600 : LENGTH) + 600);
+    const t2 = setTimeout(() => {
+      setShow(false);
+      delete html.dataset.splash;
+    }, (quick ? 600 : LENGTH) + 600);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -35,7 +43,10 @@ export default function Splash() {
   if (!show) return null;
   const skip = () => {
     setLeaving(true);
-    setTimeout(() => setShow(false), 500);
+    setTimeout(() => {
+      setShow(false);
+      delete document.documentElement.dataset.splash;
+    }, 500);
   };
 
   return (

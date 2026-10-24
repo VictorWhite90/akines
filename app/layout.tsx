@@ -53,8 +53,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://a.storyblok.com" crossOrigin="" />
-        {/* Apply the saved theme before first paint, so dark mode never flashes light. */}
-        <script dangerouslySetInnerHTML={{ __html: `try{var q=new URLSearchParams(location.search).get("theme");if(q==="dark"||q==="light"||q==="system")localStorage.setItem("ak:theme",q);var m=localStorage.getItem("ak:theme")||"light";var d=m==="dark"||(m==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light"}catch(e){}` }} />
+        {/* Before first paint: the saved theme (so dark mode never flashes light), and the splash on a device that hasn't seen it. */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var q=new URLSearchParams(location.search).get("theme");if(q==="dark"||q==="light"||q==="system")localStorage.setItem("ak:theme",q);var m=localStorage.getItem("ak:theme")||"light";var d=m==="dark"||(m==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";if(!localStorage.getItem("ak:splashed"))document.documentElement.dataset.splash="1"}catch(e){}` }} />
       </head>
       <body>
         <Splash />
