@@ -7,6 +7,7 @@ import Photo from "@/components/ui/Photo";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { STORIES, type StoryKind } from "@/lib/data/stories";
 import { cn } from "@/lib/cn";
+import Icon from "@/components/ui/Icon";
 
 const FILTERS: ("All" | StoryKind)[] = ["All", "Life story", "Work story", "How I did it", "Community note"];
 const TAPE: Record<StoryKind, string> = {
@@ -42,7 +43,7 @@ export default function StoriesBoard() {
                 <div className="relative h-[136px] overflow-hidden bg-paper-200">
                   <Photo name={s.photo} sizes="(max-width: 768px) 100vw, 320px" className="absolute inset-0 h-full [&_img]:transition-transform [&_img]:duration-700 [&_img]:group-hover:scale-105" />
                   <span className={cn("absolute top-3 left-0 z-10 rounded-r-full py-1 pr-3 pl-2.5 text-[9px] font-bold tracking-[0.1em] uppercase", TAPE[s.kind])}>{s.kind}</span>
-                  {s.voice && <span className="absolute right-2.5 bottom-2.5 z-10 flex items-center gap-1 rounded-full bg-clay-500 py-1 pr-2.5 pl-2 text-[10px] font-bold text-white"><span aria-hidden>▶︎</span>{s.voice}</span>}
+                  {s.voice && <span className="absolute right-2.5 bottom-2.5 z-10 flex items-center gap-1 rounded-full bg-clay-500 py-1 pr-2.5 pl-2 text-[10px] font-bold text-white"><span aria-hidden><Icon name="play-media" size={18} /></span>{s.voice}</span>}
                 </div>
                 <div className="flex flex-1 flex-col p-3.5">
                   <h3 className="font-display text-[16px] leading-[1.22]">{s.title}</h3>

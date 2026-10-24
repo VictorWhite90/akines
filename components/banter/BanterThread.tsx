@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Photo from "@/components/ui/Photo";
-import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
+import { KINCIRCLE_PREFILL } from "@/components/circles/kincircleDraft";
 import { useBanterReplies, useBanters, usePollVotes, useResonance } from "./useBanters";
 import { BANTER_LIFETIMES, BANTER_MOODS, REACTIONS, toneCheck, type BanterReply } from "@/lib/data/banter";
 import type { PhotoKey } from "@/lib/data/images";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
 import BackLink from "@/components/ui/BackLink";
+import Icon from "@/components/ui/Icon";
 
 const BOUNDARIES = ["Don't include me in this kind of Banter", "Mute this subject", "Leave quietly", "Report privately", "Ask the creator to clarify", "Limit mentions"];
 const REPLY_PHOTOS: PhotoKey[] = ["studioEasel", "clayBowl", "textileRolls", "beadsHung"];
@@ -20,7 +21,7 @@ function VoiceNote({ length }: { length: string }) {
   const [playing, setPlaying] = useState(false);
   return (
     <button onClick={() => setPlaying((p) => !p)} className="mt-2 flex w-full max-w-[280px] items-center gap-3 rounded-full bg-paper-200 py-2 pr-4 pl-2 text-left" aria-label={playing ? "Pause voice note" : "Play voice note"}>
-      <span className="grid h-8 w-8 flex-none place-items-center rounded-full bg-night text-[11px] text-white">{playing ? "❚❚" : "▶"}</span>
+      <span className="grid h-8 w-8 flex-none place-items-center rounded-full bg-night text-[11px] text-white"><Icon name={playing ? "pause" : "play-media"} size={14} /></span>
       <span className="flex h-6 flex-1 items-center gap-[3px]" aria-hidden>
         {Array.from({ length: 24 }, (_, i) => (
           <span key={i} className={`w-[3px] rounded-full ${playing ? "animate-pulse bg-ink-900" : "bg-ink-400"}`} style={{ height: `${30 + ((i * 37) % 70)}%`, animationDelay: `${i * 40}ms` }} />
@@ -126,7 +127,7 @@ export default function BanterThread({ id }: { id: string }) {
         <div className="flex items-center justify-between">
           <BackLink fallback="/banter" className="text-[13px] text-mute hover:text-ink-900">← Back</BackLink>
           <div className="relative">
-            <button onClick={() => setMenu((m) => !m)} className="rounded-full border border-line px-3.5 py-1.5 text-[12.5px] hover:border-ink-400" aria-expanded={menu}>Your boundaries ▾</button>
+            <button onClick={() => setMenu((m) => !m)} className="rounded-full border border-line px-3.5 py-1.5 text-[12.5px] hover:border-ink-400" aria-expanded={menu}>Your boundaries <Icon name="expand" size={12} className="ic-inline" /></button>
             {menu && (
               <ul className="absolute right-0 z-20 mt-2 w-64 overflow-hidden rounded-2xl border border-line bg-white py-1 shadow-lift">
                 {BOUNDARIES.map((b) => (
@@ -161,7 +162,7 @@ export default function BanterThread({ id }: { id: string }) {
           </div>
           <h1 className="font-display mt-3 text-[28px] leading-tight">{banter.prompt}</h1>
           {banter.photo && <Photo name={banter.photo} sizes="(max-width: 1024px) 100vw, 720px" className="mt-4 h-[260px] rounded-2xl" position="center 30%" />}
-          {banter.media && <p className="mt-3 inline-flex rounded-full bg-paper-200 px-3 py-1 text-[12.5px]">{banter.media.kind === "music" ? "♪" : "▶"} {banter.media.label}</p>}
+          {banter.media && <p className="mt-3 inline-flex rounded-full bg-paper-200 px-3 py-1 text-[12.5px]"><Icon name={banter.media.kind === "music" ? "music" : "video-play"} size={13} className="ic-inline" /> {banter.media.label}</p>}
           {banter.poll && (
             <ul className="mt-4 flex flex-col gap-1.5">
               {banter.poll.options.map((o, i) => {
@@ -184,7 +185,7 @@ export default function BanterThread({ id }: { id: string }) {
             <span className="ml-auto rounded-full border border-line px-2.5 py-1 text-mute">{banter.closed ? "Closed" : life.id === "24h" ? "This Banter ends tonight" : life.short}</span>
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4">
-            <button onClick={() => toggleResonance(banter.id)} aria-pressed={iResonate} className={`rounded-full border px-4 py-2 text-[13px] font-semibold ${iResonate ? "border-ink-950 bg-ink-950 text-white" : "border-line bg-white hover:border-ink-400"}`}>✦ {iResonate ? "You want to explore this" : "I want to explore this"}</button>
+            <button onClick={() => toggleResonance(banter.id)} aria-pressed={iResonate} className={`rounded-full border px-4 py-2 text-[13px] font-semibold ${iResonate ? "border-ink-950 bg-ink-950 text-white" : "border-line bg-white hover:border-ink-400"}`}><Icon name="spark" size={15} className="ic-inline" /> {iResonate ? "You want to explore this" : "I want to explore this"}</button>
             {resonance.length > 0 && (
               <span className="flex items-center gap-2 text-[12px] text-mute">
                 <span className="flex -space-x-1.5">{resonance.map((pid) => <Avatar key={pid} person={PEOPLE[pid]} size={22} ring />)}</span>
@@ -207,7 +208,7 @@ export default function BanterThread({ id }: { id: string }) {
         {/* Akines noticed a shared intention */}
         {banter.spark && !banter.closed && (
           <section className="rounded-[22px] border border-ai/30 bg-ai/10 p-5">
-            <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] text-ink-800 uppercase"><span aria-hidden>✦</span> Akines Companion · suggestion</p>
+            <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] text-ink-800 uppercase"><span aria-hidden><Icon name="spark" size={18} /></span> Akines Companion · suggestion</p>
             <p className="mt-2 text-[14.5px] leading-relaxed">{banter.spark.text}</p>
             <p className="mt-1 text-[14.5px] font-semibold">Would you like to create a KinCircle called <em>{banter.spark.suggestion}</em>?</p>
             <div className="mt-3 flex -space-x-2">{banter.spark.people.map((pid) => <Avatar key={pid} person={PEOPLE[pid]} size={28} ring />)}</div>
@@ -267,8 +268,8 @@ export default function BanterThread({ id }: { id: string }) {
               </div>
             ) : (
               <div className="flex items-end gap-2">
-                <button onClick={() => setAttach((a) => !a)} className={`grid h-10 w-10 flex-none place-items-center rounded-full border ${attach ? "border-ink-900" : "border-line"}`} aria-label="Add a photograph">▣</button>
-                <button onClick={() => setRecording(1)} className="grid h-10 w-10 flex-none place-items-center rounded-full border border-line" aria-label="Record a voice note">◉</button>
+                <button onClick={() => setAttach((a) => !a)} className={`grid h-10 w-10 flex-none place-items-center rounded-full border ${attach ? "border-ink-900" : "border-line"}`} aria-label="Add a photograph"><Icon name="photo" size={18} /></button>
+                <button onClick={() => setRecording(1)} className="grid h-10 w-10 flex-none place-items-center rounded-full border border-line" aria-label="Record a voice note"><Icon name="live" size={18} /></button>
                 <textarea value={text} onChange={(e) => setText(e.target.value)} rows={1} placeholder={mood.id === "encourage" ? "Something kind and useful…" : "Add to the Banter…"} className="max-h-32 min-h-10 flex-1 resize-none rounded-2xl bg-paper-100 px-4 py-2.5 text-[14.5px] outline-none" />
                 <button onClick={() => send(photo ? { kind: "photo", photo, text } : { kind: "text", text })} disabled={!text.trim() && !photo} className="rounded-full bg-night px-5 py-2.5 text-[13.5px] font-semibold text-white disabled:opacity-40">Send</button>
               </div>
@@ -281,12 +282,12 @@ export default function BanterThread({ id }: { id: string }) {
         <section className="rounded-[20px] border border-line bg-paper-50 p-4">
           <h2 className="font-display text-[18px]">Turn good Banter into action</h2>
           <div className="mt-3 flex flex-col gap-2 text-[13px]">
-            <button onClick={saveInsight} className="rounded-xl border border-line bg-white px-3.5 py-2.5 text-left hover:border-ink-400">❖ Save this insight</button>
-            <Link href={`/messages`} className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400">✉ Continue privately</Link>
-            <button onClick={turnIntoCircle} className="rounded-xl border border-line bg-white px-3.5 py-2.5 text-left hover:border-ink-400">◎ Turn into a KinCircle</button>
-            <Link href="/rooms/new" className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400">◉ Reserve a Presence Room</Link>
-            <Link href="/collaborate" className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400">⌘ Create something from this</Link>
-            <Link href="/play" className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400">☺ Play a game together</Link>
+            <button onClick={saveInsight} className="rounded-xl border border-line bg-white px-3.5 py-2.5 text-left hover:border-ink-400"><Icon name="save" size={15} className="ic-inline" /> Save this insight</button>
+            <Link href={`/messages`} className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400"><Icon name="message" size={15} className="ic-inline" /> Continue privately</Link>
+            <button onClick={turnIntoCircle} className="rounded-xl border border-line bg-white px-3.5 py-2.5 text-left hover:border-ink-400"><Icon name="circle" size={15} className="ic-inline" /> Turn into a KinCircle</button>
+            <Link href="/rooms/new" className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400"><Icon name="live" size={15} className="ic-inline" /> Reserve a Presence Room</Link>
+            <Link href="/collaborate" className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400"><Icon name="collaborate" size={15} className="ic-inline" /> Create something from this</Link>
+            <Link href="/play" className="rounded-xl border border-line bg-white px-3.5 py-2.5 hover:border-ink-400"><Icon name="play" size={15} className="ic-inline" /> Play a game together</Link>
             {mine && !banter.closed && (
               <button onClick={() => { close(banter.id); setToast("Banter closed. Saved insights stay."); }} className="rounded-xl px-3.5 py-2.5 text-left text-ruby-600 hover:bg-ruby-50">Close the Banter</button>
             )}
@@ -313,7 +314,7 @@ export default function BanterThread({ id }: { id: string }) {
         {insights.length > 0 && (
           <section className="rounded-[20px] bg-paper-200 p-4">
             <h2 className="font-display text-[18px]">Saved insights</h2>
-            <ul className="mt-2 flex flex-col gap-2 text-[12.5px]">{insights.slice(0, 4).map((i) => <li key={i}>❖ {i}</li>)}</ul>
+            <ul className="mt-2 flex flex-col gap-2 text-[12.5px]">{insights.slice(0, 4).map((i) => <li key={i}><Icon name="save" size={15} className="ic-inline" /> {i}</li>)}</ul>
           </section>
         )}
       </aside>

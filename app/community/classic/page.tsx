@@ -14,6 +14,7 @@ import { PEOPLE } from "@/lib/data/people";
 import { ARTWORK, STORIES } from "@/lib/data/stories";
 import { DNA_SUMMARY, DNA_TITLE } from "@/lib/data/dna";
 import type { PhotoKey } from "@/lib/data/images";
+import Icon from "@/components/ui/Icon";
 
 const room = ROOMS[0];
 const host = PEOPLE[room.host];
@@ -30,7 +31,7 @@ function StoryTile({ href, photo, type, voice, by, title, text, left, right }: {
       <div className="story-img">
         <Pic name={photo} sizes="(max-width: 760px) 80vw, 340px" />
         <span className="type">{type}</span>
-        {voice && <span className="voice">▶︎ {voice} in their voice</span>}
+        {voice && <span className="voice"><Icon name="play-media" size={15} className="ic-inline" /> {voice} in their voice</span>}
       </div>
       <div className="story-body">
         <div className="byline"><Avatar person={p} size={26} />{p.name} · {p.city}</div>
@@ -154,7 +155,7 @@ export default function Courtyard() {
             </div>
             <div className="cards">
               {STORIES.slice(0, 3).map((s, i) => (
-                <StoryTile key={s.id} href={`/stories/${s.id}`} photo={s.photo} type={s.kind} voice={s.voice} by={s.by} title={s.title} text={s.excerpt} left={["♡ 128 felt this", "♡ 96 felt this", "♡ 211 felt this"][i]} right={`${s.reflections} reflections`} />
+                <StoryTile key={s.id} href={`/stories/${s.id}`} photo={s.photo} type={s.kind} voice={s.voice} by={s.by} title={s.title} text={s.excerpt} left={["128 felt this", "96 felt this", "211 felt this"][i]} right={`${s.reflections} reflections`} />
               ))}
             </div>
           </section>

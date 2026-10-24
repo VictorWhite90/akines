@@ -52,7 +52,7 @@ export default function PostCard({ post, showContext = true }: { post: Post; sho
       <footer>
         <ReactionBar post={post} />
         <button type="button" className="replies" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
-          {count > 0 ? `💬 ${count} ${count === 1 ? "reply" : "replies"}` : "💬 Reply"}
+          {count > 0 ? `${count} ${count === 1 ? "reply" : "replies"}` : "Reply"}
         </button>
       </footer>
       {open && <CommentThread postId={post.id} />}

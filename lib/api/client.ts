@@ -1,13 +1,21 @@
 /**
  * Browser half of the API layer. Calls our own Next routes (/api/auth/*, /api/v1/*), never Django directly,
  * and unwraps the backend's {success, message, data, error} envelope.
+ * In demo mode (lib/demo/mode.ts) the same calls are answered by a pretend backend in the browser instead.
  */
+import { DEMO } from "@/lib/demo/mode";
 
 export type ApiResult<T> =
   | { ok: true; data: T; message: string | null }
   | { ok: false; status: number; message: string; field?: string };
 
 async function call<T>(url: string, method: string, body?: unknown): Promise<ApiResult<T>> {
+  if (DEMO) {
+    const demo = await import("@/lib/demo/backend");
+    const r = url.startsWith("/api/auth/") ? await demo.demoAuth<T>(url.slice("/api/auth/".length), (body ?? {}) as Record<string, unknown>) : await demo.demoCall<T>(method, url, body);
+    if (!r.ok && r.status === 401 && typeof window !== "undefined") window.location.assign("/login?ended=1");
+    return r;
+  }
   try {
     const r = await fetch(url, {
       method,
@@ -18,8 +26,7 @@ async function call<T>(url: string, method: string, body?: unknown): Promise<Api
     const env = await r.json().catch(() => null);
     if (r.ok && env?.success !== false) return { ok: true, data: env?.data as T, message: env?.message ?? null };
     // The session is over (signed out from another device, password changed, or expired): back to log in.
-    const guest = typeof document !== "undefined" && document.cookie.split("; ").some((c) => c === "ak_guest=1");
-    if (r.status === 401 && url.startsWith("/api/v1/") && typeof window !== "undefined" && !guest) {
+    if (r.status === 401 && url.startsWith("/api/v1/") && typeof window !== "undefined") {
       window.location.assign("/login?ended=1");
       return { ok: false, status: 401, message: "Your session has ended. Please log in again." };
     }
@@ -31,6 +38,7 @@ async function call<T>(url: string, method: string, body?: unknown): Promise<Api
 
 /** Multipart upload (the browser sets the boundary). */
 export async function upload<T>(path: string, form: FormData): Promise<ApiResult<T>> {
+  if (DEMO) return (await import("@/lib/demo/backend")).demoUpload<T>(path, form);
   try {
     const r = await fetch(`/api/v1/${path.replace(/^\//, "")}`, { method: "POST", body: form, credentials: "same-origin" });
     const env = await r.json().catch(() => null);

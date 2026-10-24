@@ -10,6 +10,7 @@ import { MATCHES } from "@/lib/data/matches";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { STORIES } from "@/lib/data/stories";
 import { useLocal } from "@/lib/useLocal";
+import Icon from "@/components/ui/Icon";
 
 const QUESTION = BANTERS[0];
 const NOTICES = ROOMS.slice(0, 4);
@@ -102,7 +103,7 @@ export default function Weekly() {
               ))}
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <Link href={`/banter/${QUESTION.id}`} className="ed-q-btn">Add a response</Link>
-                <button className={`ed-q-btn${explore ? " on" : ""}`} onClick={() => setExplore(!explore)}>✦ {explore ? "You want to explore this" : "I want to explore this"}</button>
+                <button className={`ed-q-btn${explore ? " on" : ""}`} onClick={() => setExplore(!explore)}><Icon name="spark" size={15} className="ic-inline" /> {explore ? "You want to explore this" : "I want to explore this"}</button>
               </div>
             </div>
 
@@ -248,7 +249,7 @@ export default function Weekly() {
                 <p>{c.blurb}</p>
                 <p className="at-mono" style={{ margin: "8px 0 0" }}>{c.tags.join(" · ")}</p>
                 <button className={`ed-clip${clipped.includes(c.id) ? " on" : ""}`} onClick={() => setClipped(clipped.includes(c.id) ? clipped.filter((x) => x !== c.id) : [...clipped, c.id])}>
-                  ✂ {clipped.includes(c.id) ? "Clipped to your studio" : "Clip it"}
+                  <Icon name="clip" size={15} className="ic-inline" /> {clipped.includes(c.id) ? "Clipped to your studio" : "Clip it"}
                 </button>
               </div>
             ))}
@@ -278,7 +279,7 @@ export default function Weekly() {
             {STORIES.filter((s) => s.id !== "five-voices").slice(0, 3).map((s) => (
               <Link key={s.id} href={`/stories/${s.id}`} className="ed-reading">
                 <div className="ed-duo"><Photo name={s.photo} sizes="400px" className="h-[200px]" /></div>
-                <p className="ed-kicker" style={{ marginTop: 12 }}>{s.kind}{s.voice ? ` · ▶ ${s.voice} in their voice` : ""}</p>
+                <p className="ed-kicker" style={{ marginTop: 12 }}>{s.kind}{s.voice ? ` · Voice note · ${s.voice}` : ""}</p>
                 <h3 className="ed-h3" style={{ fontSize: 24 }}>{s.title}</h3>
                 <p style={{ margin: "6px 0 0", font: "italic 16px/1.5 var(--at-serif)", color: "var(--at-ink-2)" }}>{s.excerpt}</p>
                 <p className="at-mono" style={{ margin: "10px 0 0" }}>By {PEOPLE[s.by].name} · {s.read} · {s.reflections} reflections</p>

@@ -6,6 +6,7 @@ import Photo from "@/components/ui/Photo";
 import VoiceNote from "@/components/ui/VoiceNote";
 import { PEOPLE } from "@/lib/data/people";
 import { ARTWORK, STORIES } from "@/lib/data/stories";
+import Icon from "@/components/ui/Icon";
 
 export const metadata: Metadata = { title: "Stories · Akines" };
 
@@ -26,14 +27,14 @@ export default function Stories() {
       {/* The wall: one artwork, framed, with its museum label */}
       <section aria-label="Featured story" className="relative overflow-hidden rounded-[30px] border border-[#d8d0c0] bg-[#e7dfcf] px-6 py-10 md:px-12 md:py-14">
         <span aria-hidden className="pointer-events-none absolute -top-10 -right-6 font-display text-[280px] leading-none text-night/[0.04] select-none">“</span>
-        <div className="relative grid items-center gap-12 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-16">
+        <div className="relative grid grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-16">
           <Link href={`/stories/${ARTWORK.id}`} className="group relative mx-auto block w-full max-w-[420px] pb-8 lg:mx-0">
             <div className="rounded-[6px] bg-night p-3 shadow-lift">
               <div className="bg-paper-50 p-4">
                 <Photo name={ARTWORK.photo} ratio="4/5" sizes="420px" position="center 20%" className="[&_img]:transition-transform [&_img]:duration-700 [&_img]:group-hover:scale-[1.03]" />
               </div>
             </div>
-            <div className="absolute right-[-10px] bottom-0 w-[210px] rotate-[1.5deg] rounded-[4px] border border-line bg-white p-3.5 shadow-lift md:right-[-28px]">
+            <div className="absolute right-0 bottom-0 w-[210px] sm:right-[-10px] rotate-[1.5deg] rounded-[4px] border border-line bg-white p-3.5 shadow-lift md:right-[-28px]">
               <p className="font-display text-[15px] leading-tight">{ARTWORK.title}</p>
               <p className="mt-1 text-[10px] tracking-wide text-mute uppercase">{a.name}, {a.city} · {ARTWORK.year}</p>
               <p className="mt-2 border-t border-line pt-2 text-[10px] leading-snug text-mute">{ARTWORK.medium}<br />{ARTWORK.size}</p>
@@ -81,9 +82,9 @@ export default function Stories() {
             return (
               <li key={s.id}>
                 <Link href={`/stories/${s.id}`} className="group relative flex h-full flex-col overflow-hidden rounded-[22px] bg-ink-900 p-5 text-paper-50 transition-transform duration-300 hover:-translate-y-1">
-                  <span aria-hidden className="pointer-events-none absolute -right-2 -bottom-8 text-[120px] text-lime/10">✦</span>
+                  <span aria-hidden className="pointer-events-none absolute -right-2 -bottom-8 text-[120px] text-lime/10"><Icon name="spark" size={18} /></span>
                   <div className="flex items-center gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-lime text-night transition-transform group-hover:scale-110"><span aria-hidden>▶︎</span></span>
+                    <span className="flex h-11 w-11 items-center justify-center rounded-full bg-lime text-night transition-transform group-hover:scale-110"><span aria-hidden><Icon name="play-media" size={18} /></span></span>
                     <span className="text-[12px] tracking-wide text-ink-200">{s.voice} · {by.name.split(" ")[0]}'s voice</span>
                   </div>
                   <div aria-hidden className="mt-5 flex h-11 items-center justify-between">

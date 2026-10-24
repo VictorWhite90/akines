@@ -221,3 +221,17 @@ body {
 html[data-theme="dark"] .ph-load { background-color: #1f1c28; background-image: linear-gradient(100deg, transparent 30%, rgba(255,255,255,.06) 50%, transparent 70%); }
 @keyframes ph-shimmer { from { background-position: 150% 0; } to { background-position: -50% 0; } }
 @media (prefers-reduced-motion: reduce) { .ph-load { animation: none; } }
+
+/*
+ * Phones: iOS Safari zooms the whole page into any text field under 16px when it's tapped, and doesn't zoom back,
+ * so the app looks bigger and spills sideways once the keyboard is up. 16px fields never trigger it.
+ */
+@media (hover: none) and (pointer: coarse) {
+  /* :is(…, #ak-field) borrows an id's weight, so this wins over any page's own field styles. */
+  :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), textarea, select, #ak-field) { font-size: max(16px, 1em) !important; }
+}
+/* Nothing should ever widen the page sideways on a phone. */
+html, body { overflow-x: clip; }
+
+/* An icon sitting in a line of text (components/ui/Icon.tsx): centred on the text, a little gap after. */
+.ic-inline { display: inline-block; vertical-align: -0.18em; flex: none; }

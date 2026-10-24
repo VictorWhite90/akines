@@ -177,3 +177,9 @@ html[data-theme="dark"] .app .rs .sys button { background: var(--dk-btn); color:
 html[data-theme="dark"] .app .rs .row.mine .bubble { background: #3b3352; color: #fff; }
 html[data-theme="dark"] .km-intent-menu button[aria-checked="true"],
 html[data-theme="dark"] .km-intent-menu button:hover { background: var(--dk-s2); color: var(--dk-ink); }
+
+/* Search boxes: the wrapper is the field, so the input inside it stays see-through (no box inside a box). */
+html[data-theme="dark"] .app :is([class*="search"]:not(input), [class*="Search"]:not(input), .cm-searchbox) > input {
+  background-color: transparent !important; border: 0 !important; box-shadow: none !important;
+}
+html[data-theme="dark"] .app :is(.cm-searchbox, .km-search) { background: var(--dk-s2); border-color: var(--dk-line); }

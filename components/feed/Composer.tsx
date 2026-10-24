@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
+import Icon from "@/components/ui/Icon";
 import Pic from "@/components/home/Pic";
 import { SHARE_PICKER } from "@/lib/data/roomChat";
 import { CIRCLES } from "@/lib/data/community";
@@ -68,7 +69,7 @@ export default function Composer({ circle, onPosted }: { circle?: string; onPost
       <div className="types" role="tablist" aria-label="Post type">
         {TYPES.map((k) => (
           <button key={k} role="tab" aria-selected={type === k} className={type === k ? "on" : undefined} onClick={() => setType(k)}>
-            <span aria-hidden>{POST_TYPES[k].glyph}</span>{POST_TYPES[k].label}
+            <Icon name={POST_TYPES[k].icon} size={15} />{POST_TYPES[k].label}
           </button>
         ))}
       </div>
@@ -97,9 +98,9 @@ export default function Composer({ circle, onPosted }: { circle?: string; onPost
       )}
       <div className="foot">
         <div className="tools">
-          <button type="button" onClick={() => fileInput.current?.click()} disabled={images.length >= MAX_IMAGES} aria-label={`Upload photos, up to ${MAX_IMAGES}`}>🖼 Upload photos{images.length > 0 ? ` ${images.length}/${MAX_IMAGES}` : ""}</button>
+          <button type="button" onClick={() => fileInput.current?.click()} disabled={images.length >= MAX_IMAGES} aria-label={`Add photos, up to ${MAX_IMAGES}`}><Icon name="photo" size={17} />Photos{images.length > 0 ? ` ${images.length}/${MAX_IMAGES}` : ""}</button>
           <input ref={fileInput} type="file" accept="image/*" multiple hidden onChange={pickFiles} />
-          <button type="button" onClick={() => setPickPhoto((v) => !v)} aria-pressed={pickPhoto}>Choose sample</button>
+          <button type="button" onClick={() => setPickPhoto((v) => !v)} aria-pressed={pickPhoto} aria-label="Pick a sample photo"><Icon name="spark" size={17} />Samples</button>
           {!circle && (
             <select value={circleId} onChange={(e) => setCircleId(e.target.value)} aria-label="Post to a circle (optional)">
               <option value="">Not in a circle</option>

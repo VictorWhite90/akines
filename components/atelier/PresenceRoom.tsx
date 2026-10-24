@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
+import Icon from "@/components/ui/Icon";
 
 const PHASES = ["Arrive", "Opening turns", "Conversation", "Close"] as const;
 type Phase = (typeof PHASES)[number];
@@ -162,7 +163,7 @@ export default function PresenceRoom() {
               ))}
               <div className="at-card" style={{ padding: 14 }}>
                 <p className="at-mono" style={{ margin: 0 }}>Your boundaries tonight</p>
-                <div className="at-boundary" style={{ marginTop: 8 }}><i>◐</i>Listening first is welcome. You can pass your opening turn.</div>
+                <div className="at-boundary" style={{ marginTop: 8 }}><i><Icon name="calm" size={18} /></i>Listening first is welcome. You can pass your opening turn.</div>
               </div>
               <button className="at-btn ink" disabled={agreed.length < AGREEMENTS.length} style={{ opacity: agreed.length < AGREEMENTS.length ? 0.4 : 1 }} onClick={() => setPhase("Opening turns")}>
                 I agree, take my seat

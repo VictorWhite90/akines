@@ -6,6 +6,7 @@ import { PEOPLE } from "@/lib/data/people";
 import { STAGES, type Collab, type OpenCall, type StudioVisit } from "@/lib/data/community";
 import type { Story } from "@/lib/data/stories";
 import { cn } from "@/lib/cn";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 export function StageTracker({ stage, progress, dark = false }: { stage: number; progress: number; dark?: boolean }) {
   return (
@@ -49,7 +50,7 @@ export function CallCard({ c, className }: { c: OpenCall; className?: string }) 
     <Link href={`/collaborate/calls/${c.id}`} className={cn("card card-lift group flex flex-col overflow-hidden", className)}>
       <Photo name={c.photo} ratio="16/9" sizes="(max-width: 768px) 100vw, 420px" position="center 25%" className="[&_img]:transition-transform [&_img]:duration-500 [&_img]:group-hover:scale-105">
         <span className="absolute top-3 left-3 rounded-full bg-ochre-400 px-3 py-1 text-[11px] font-bold tracking-wide text-ink-950 uppercase">Curator open call</span>
-        <span className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-ink-950/70 px-3 py-1 text-xs font-semibold text-paper-50 backdrop-blur"><span aria-hidden>◷</span>{c.days} days left</span>
+        <span className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-ink-950/70 px-3 py-1 text-xs font-semibold text-paper-50 backdrop-blur"><span aria-hidden><Icon name="time" size={18} /></span>{c.days} days left</span>
       </Photo>
       <div className="flex flex-1 flex-col p-5">
         <h3 className="font-display text-2xl leading-tight font-medium">{c.title}</h3>
@@ -76,7 +77,7 @@ export function StoryCard({ s, className }: { s: Story; className?: string }) {
         <span className="absolute top-3 left-3 rounded-full bg-paper-50 px-3 py-1 text-[11px] font-bold tracking-wide text-ink-900 uppercase">{s.kind}</span>
         {s.voice && (
           <span className="absolute right-3 bottom-3 flex items-center gap-1.5 rounded-full bg-clay-500 py-1 pr-3 pl-2 text-xs font-semibold text-paper-50 shadow-lift">
-            <span aria-hidden>▶︎</span> {s.voice} in their voice
+            <span aria-hidden><Icon name="play-media" size={18} /></span> {s.voice} in their voice
           </span>
         )}
       </Photo>
@@ -96,7 +97,7 @@ export function StoryCard({ s, className }: { s: Story; className?: string }) {
   );
 }
 
-const MODE_GLYPH = { Live: "◉", Virtual: "◉", "360°": "◎", VR: "◈" } as const;
+const MODE_GLYPH = { Live: "live", Virtual: "screen", "360°": "world", VR: "video-play" } as const;
 
 export function StudioTile({ v, className }: { v: StudioVisit; className?: string }) {
   const a = PEOPLE[v.artist];
@@ -105,7 +106,7 @@ export function StudioTile({ v, className }: { v: StudioVisit; className?: strin
       <Photo name={v.photo} ratio="4/5" sizes="(max-width: 768px) 60vw, 300px" className="[&_img]:transition-transform [&_img]:duration-700 [&_img]:group-hover:scale-105" />
       <div className="absolute inset-0 bg-linear-to-t from-ink-950/90 via-ink-950/25 to-transparent" />
       <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-paper-50 px-3 py-1 text-[11px] font-bold tracking-wide text-ink-900 uppercase">
-        <span aria-hidden>{MODE_GLYPH[v.mode]}</span> {v.mode}
+        <Glyph g={MODE_GLYPH[v.mode]} size={13} /> {v.mode}
       </span>
       <div className="absolute inset-x-0 bottom-0 p-4 text-paper-50">
         <p className="text-xs text-ochre-200">{v.when}</p>

@@ -14,6 +14,7 @@ import {
   type Note, type Studio, type Visit, type VisitMode, type VisitingStyle, type Work,
 } from "@/lib/data/studio";
 import { cn } from "@/lib/cn";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 type Tab = "wall" | "progress" | "visits" | "about";
 const TABS: { id: Tab; label: string }[] = [
@@ -22,7 +23,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "visits", label: "Open doors" },
   { id: "about", label: "About" },
 ];
-const MODE_GLYPH: Record<VisitMode, string> = { Live: "◉", Virtual: "◎", "360°": "◐" };
+const MODE_GLYPH: Record<VisitMode, string> = { Live: "live", Virtual: "screen", "360°": "world" };
 const toggle = (list: string[], v: string) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
 
 export default function StudioHome({ state, demo }: { state: StudioState; demo?: string }) {
@@ -46,7 +47,7 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
         <div className="cover">
           <Pic name={studio.cover} sizes="(max-width: 760px) 100vw, 1100px" priority position="center 40%" />
           <div className="fade" />
-          <span className="sd-tag"><span aria-hidden>✦</span> My studio</span>
+          <span className="sd-tag"><span aria-hidden><Icon name="spark" size={18} /></span> My studio</span>
           <VisitingChip style={studio.visiting} className="on-cover" />
         </div>
         <div className="band">
@@ -139,7 +140,7 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
                           <div className="date"><b>{d.toLocaleDateString("en-GB", { day: "numeric", timeZone: "UTC" })}</b><small>{d.toLocaleDateString("en-GB", { month: "short", timeZone: "UTC" })}</small></div>
                           <div className="info">
                             <h3>{v.title}</h3>
-                            <p>{fmtDate(v.date)} · {v.time} <span className={`mode ${v.mode === "360°" ? "m360" : v.mode.toLowerCase()}`}><i aria-hidden>{MODE_GLYPH[v.mode]}</i>{v.mode}</span>{past && <span className="mode past">Past</span>}</p>
+                            <p>{fmtDate(v.date)} · {v.time} <span className={`mode ${v.mode === "360°" ? "m360" : v.mode.toLowerCase()}`}><i aria-hidden><Glyph g={MODE_GLYPH[v.mode]} size={12} /></i>{v.mode}</span>{past && <span className="mode past">Past</span>}</p>
                           </div>
                           <div className="rsvp">
                             {v.rsvps.length > 0 ? <AvatarStack people={v.rsvps.map((id) => PEOPLE[id])} size={26} max={4} /> : null}

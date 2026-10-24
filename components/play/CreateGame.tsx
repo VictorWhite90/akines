@@ -7,6 +7,7 @@ import { draftGameFromPrompt, GAME_CATEGORIES, PLAY_MODES, PLAY_PURPOSES, type G
 import { ME, type PersonId } from "@/lib/data/people";
 import { newId } from "@/lib/useLocal";
 import BackLink from "@/components/ui/BackLink";
+import Icon from "@/components/ui/Icon";
 
 const BLANK: GameDraft = {
   name: "",
@@ -103,7 +104,7 @@ export default function CreateGame() {
 
       {/* AI Game Creator */}
       <section id="ai" className="scroll-mt-24 rounded-[22px] bg-night p-5 text-white sm:p-6">
-        <p className="text-[11px] font-bold tracking-[0.14em] text-ochre-300 uppercase">✦ AI Game Creator</p>
+        <p className="text-[11px] font-bold tracking-[0.14em] text-ochre-300 uppercase"><Icon name="spark" size={15} className="ic-inline" /> AI Game Creator</p>
         <p className="font-display mt-2 text-[22px]">Describe what you need.</p>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           <input value={ask} onChange={(e) => setAsk(e.target.value)} onKeyDown={(e) => e.key === "Enter" && ask.trim() && generate()} placeholder="A gentle game for five artists who have just met and may collaborate on an exhibition." className="flex-1 rounded-full bg-white/10 px-5 py-3 text-[14.5px] outline-none placeholder:text-white/45 focus:bg-white/15" />

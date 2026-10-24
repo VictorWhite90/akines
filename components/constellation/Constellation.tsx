@@ -6,12 +6,13 @@ import Avatar from "@/components/ui/Avatar";
 import { BRIGHTNESS, ORBITS, STARS, TONIGHT, type Orbit, type Star } from "@/lib/data/constellation";
 import { ME, PEOPLE, PRESENCE, type Person } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 type Filter = "all" | Orbit | "quiet";
 
 const PRESENCE_COLOR: Record<string, string> = { studio: "var(--nx-brass)", room: "var(--nx-ember)", quiet: "rgba(243,239,230,.35)", open: "var(--nx-sage)" };
 const SIZE: Record<Orbit, number> = { cliq: 54, kin: 44, new: 40 };
-const KIND_GLYPH = { room: "◉", banter: "❝", game: "☺", now: "◎", circle: "✦" } as const;
+const KIND_GLYPH = { room: "live", banter: "banter", game: "play", now: "live", circle: "circle" } as const;
 
 const pos = (s: Star) => {
   const r = ORBITS.find((o) => o.id === s.orbit)!.radius;
@@ -145,7 +146,7 @@ export default function Constellation() {
               <div style={{ display: "grid", gap: 4, marginTop: 10 }}>
                 {TONIGHT.map((e) => (
                   <Link key={e.id} href={e.href} className="cx-event">
-                    <span className="cx-kind" aria-hidden>{KIND_GLYPH[e.kind]}</span>
+                    <span className="cx-kind" aria-hidden><Glyph g={KIND_GLYPH[e.kind]} size={14} /></span>
                     <span style={{ minWidth: 0, flex: 1 }}>
                       <span className={`cx-when${e.live ? " live" : ""}`}>{e.live ? "● " : ""}{e.when}</span>
                       <span style={{ display: "block", fontSize: 14, fontWeight: 600, lineHeight: 1.3, marginTop: 2 }}>{e.title}</span>
@@ -177,8 +178,8 @@ export default function Constellation() {
             )}
             {quiet.length > 0 && (
               <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
-                <button className="cx-btn brass" onClick={() => setToast(`Voice note sent to ${PEOPLE[quiet[0].id].name.split(" ")[0]}.`)}>◉ Send a voice note</button>
-                <Link className="cx-btn" href="/play">☺ Invite to a game</Link>
+                <button className="cx-btn brass" onClick={() => setToast(`Voice note sent to ${PEOPLE[quiet[0].id].name.split(" ")[0]}.`)}><Icon name="live" size={15} className="ic-inline" /> Send a voice note</button>
+                <Link className="cx-btn" href="/play"><Icon name="play" size={15} className="ic-inline" /> Invite to a game</Link>
               </div>
             )}
           </section>
@@ -260,10 +261,10 @@ function PersonPanel({ star, decided, onClose, onIntro, onToast }: { star: Star;
         )
       ) : (
         <div className="cx-actions">
-          <Link className="cx-btn brass" href="/banter?new=chat">❝ Banter with {first}</Link>
-          <button className="cx-btn" onClick={() => onToast(`Voice note sent to ${first}.`)}>◉ Voice note</button>
-          <Link className="cx-btn" href="/play">☺ Play a game</Link>
-          <Link className="cx-btn" href="/rooms/new">◉ Invite to a room</Link>
+          <Link className="cx-btn brass" href="/banter?new=chat"><Icon name="banter" size={15} className="ic-inline" /> Banter with {first}</Link>
+          <button className="cx-btn" onClick={() => onToast(`Voice note sent to ${first}.`)}><Icon name="live" size={15} className="ic-inline" /> Voice note</button>
+          <Link className="cx-btn" href="/play"><Icon name="play" size={15} className="ic-inline" /> Play a game</Link>
+          <Link className="cx-btn" href="/rooms/new"><Icon name="live" size={15} className="ic-inline" /> Invite to a room</Link>
         </div>
       )}
     </section>

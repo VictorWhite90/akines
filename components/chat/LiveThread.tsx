@@ -8,6 +8,7 @@ import type { PostAuthor } from "@/lib/api/community";
 import { shrinkImage } from "@/lib/imageShrink";
 import { live } from "@/lib/live";
 import { Ico } from "./bits";
+import Icon from "@/components/ui/Icon";
 
 /** A message on screen: saved ones, plus ones still sending (or that failed) from this device. */
 type Shown = ChatMessage & { state?: "sending" | "failed"; localImage?: string; retry?: () => void };
@@ -336,7 +337,7 @@ export default function LiveThread({
                 <span className="meta">
                   {m.state === "sending" ? "Sending…" : m.state === "failed" ? <button className="lt-retry" onClick={m.retry}>Not sent · Retry</button> : clock(m.created_at)}
                 </span>
-                {canReply && <button className="reply" onClick={startReply} aria-label="Reply">↩</button>}
+                {canReply && <button className="reply" onClick={startReply} aria-label="Reply"><Icon name="reply" size={14} /></button>}
                 {(canRemove || m.state === "failed") && <button className="lt-del" onClick={() => remove(m)} aria-label={m.state ? "Discard" : "Remove message"}><Ico n="trash" size={13} /></button>}
                 {picked === key && (canReply || canRemove) && (
                   <span className="lt-acts">

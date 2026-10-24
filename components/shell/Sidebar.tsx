@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Avatar from "@/components/ui/Avatar";
 import { ME } from "@/lib/data/people";
 import { NAV_GROUPS, isActive } from "./nav";
+import { Glyph } from "@/components/ui/Icon";
 
 export function Wordmark() {
   return (
@@ -29,7 +30,7 @@ export default function Sidebar({ open = false, onNavigate }: { open?: boolean; 
               const active = isActive(pathname, item.href);
               return (
                 <Link key={item.href} href={item.href} onClick={onNavigate} className={active ? "active" : undefined} aria-current={active ? "page" : undefined}>
-                  <span className="glyph" aria-hidden>{item.glyph}</span>
+                  <Glyph g={item.glyph} size={17} className="glyph" />
                   <span>{item.label}</span>
                   {item.badge && <span className="badge">{item.badge}</span>}
                 </Link>

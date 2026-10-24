@@ -9,8 +9,9 @@ import { useStudioState } from "./useMyStudio";
 import { MAX_SEATS, VISITING, studioToPublic, themeVars, type PublicStudio, type Work } from "@/lib/data/studio";
 import { PEOPLE } from "@/lib/data/people";
 import BackLink from "@/components/ui/BackLink";
+import { Glyph } from "@/components/ui/Icon";
 
-const MODE_GLYPH: Record<string, string> = { Live: "◉", Virtual: "◎", "360°": "◐", VR: "◈" };
+const MODE_GLYPH: Record<string, string> = { Live: "live", Virtual: "screen", "360°": "world", VR: "video-play" };
 
 /** A studio the way a visitor sees it: cover, the maker, a visit to reserve, the wall and studio notes. */
 export default function PublicStudioView({ studio }: { studio: PublicStudio }) {
@@ -66,7 +67,7 @@ export default function PublicStudioView({ studio }: { studio: PublicStudio }) {
                   <div>
                     <p className="ac-eyebrow">Next visit</p>
                     <h2>{v.title}</h2>
-                    <p className="when"><span className={`mode ${v.mode === "360°" ? "m360" : v.mode.toLowerCase()}`}><i aria-hidden>{MODE_GLYPH[v.mode] ?? "◉"}</i>{v.mode}</span> {v.when}</p>
+                    <p className="when"><span className={`mode ${v.mode === "360°" ? "m360" : v.mode.toLowerCase()}`}><i aria-hidden><Glyph g={MODE_GLYPH[v.mode] ?? "live"} size={12} /></i>{v.mode}</span> {v.when}</p>
                   </div>
                   {studio.visiting === "private" ? (
                     <button className={`sd-btn ${asked ? "done" : "dark"}`} aria-pressed={asked} onClick={() => setAsked((a) => !a)}>{asked ? "✓ Invitation requested" : "Ask for an invitation"}</button>

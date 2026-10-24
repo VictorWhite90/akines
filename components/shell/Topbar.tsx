@@ -7,6 +7,7 @@ import { allPeople } from "@/lib/data/people";
 import { CIRCLES, ROOMS } from "@/lib/data/community";
 import { STORIES } from "@/lib/data/stories";
 import CreateChooser from "./CreateChooser";
+import Icon from "@/components/ui/Icon";
 
 const INDEX = [
   ...allPeople.map((p) => ({ label: p.name, kind: p.role, href: "/kindred" })),
@@ -55,7 +56,7 @@ export default function Topbar({ onIntent, onCompanion }: { onIntent: () => void
       </Link>
       <div className="search" ref={box}>
         <input aria-label="Search Akines" placeholder="Search artists, stories, circles…" value={q} onChange={(e) => setQ(e.target.value)} onFocus={() => setFocus(true)} />
-        <button aria-label="Search">⌕</button>
+        <button aria-label="Search"><Icon name="search" size={18} /></button>
         {focus && q.trim() && (
           <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: "var(--cream)", border: "1px solid var(--line)", borderRadius: 18, padding: 6, boxShadow: "var(--shadow)" }}>
             {results.length === 0 ? (
@@ -72,8 +73,8 @@ export default function Topbar({ onIntent, onCompanion }: { onIntent: () => void
         )}
       </div>
       <div className="top-actions">
-        <button className="icon-btn" aria-label="Ask the Companion" title="Akines Companion" onClick={onCompanion}>✦</button>
-        <button className="icon-btn" aria-label="Notifications" title="Notifications">♢</button>
+        <button className="icon-btn" aria-label="Ask the Companion" title="Akines Companion" onClick={onCompanion}><Icon name="spark" size={18} /></button>
+        <button className="icon-btn" aria-label="Notifications" title="Notifications"><Icon name="notify" size={18} /></button>
         <div className="create-wrap" ref={menuBox}>
           <button className="primary" onClick={() => setMenu((v) => !v)} aria-haspopup="dialog" aria-expanded={menu}>＋ Create</button>
           <CreateChooser open={menu} onClose={() => setMenu(false)} onIntent={onIntent} />

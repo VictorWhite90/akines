@@ -9,9 +9,10 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { STUDIO_KEY, type Studio } from "@/lib/data/studio";
 import { useLocal } from "@/lib/useLocal";
 import { cn } from "@/lib/cn";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 const MODES = ["All", "Live", "Virtual", "360°", "VR"] as const;
-const GLYPH: Record<StudioVisit["mode"], string> = { Live: "◉", Virtual: "◎", "360°": "◐", VR: "◈" };
+const GLYPH: Record<StudioVisit["mode"], string> = { Live: "live", Virtual: "screen", "360°": "world", VR: "video-play" };
 const HOW: Record<StudioVisit["mode"], string> = { Live: "Real-time with the maker", Virtual: "A guided hour, six at a time", "360°": "Walk it at your own pace", VR: "Step inside with a headset" };
 const VISITORS: Record<string, PersonId[]> = { tunde: ["amara", "leila", "zuri"], thandi: ["efua", "chidi"], kwame: ["nandi", "wanjiru", "ayo", "leila"], ayo: ["fatou"], fatou: ["thandi", "amara"], wanjiru: ["kwame", "zuri", "chidi"], efua: ["chidi"], nandi: ["zuri", "leila"], leila: ["amara", "efua"] };
 
@@ -29,7 +30,7 @@ function OpenYourStudio() {
   const [mine] = useLocal<Studio | null>(STUDIO_KEY, null);
   return (
     <Link href="/studio" className="sd-invite">
-      <span className="glyph" aria-hidden>✦</span>
+      <span className="glyph" aria-hidden><Icon name="spark" size={18} /></span>
       <span className="tx">
         <b>{mine ? mine.name : "Have a space of your own?"}</b>
         <small>{mine ? (mine.doorOpen ? "Your door is open. Step back into your space." : "Your door is closed. Step back into your space.") : "Open your space: show what you do, share the journey, and host open doors."}</small>
@@ -80,7 +81,7 @@ export default function StudiosBoard() {
           <div role="tablist" aria-label="Visit type" className="flex flex-wrap gap-2">
             {MODES.map((m) => (
               <button key={m} role="tab" aria-selected={mode === m} onClick={() => setMode(m)} className={cn("rounded-full border px-3.5 py-1.5 text-[12px] font-semibold transition-colors", mode === m ? "border-night bg-night text-paper-50" : "border-line bg-paper-50 hover:bg-paper-200")}>
-                {m !== "All" && <span aria-hidden className="mr-1.5">{GLYPH[m]}</span>}{m}
+                {m !== "All" && <Glyph g={GLYPH[m]} size={13} className="mr-1.5 ic-inline" />}{m}
               </button>
             ))}
           </div>
@@ -98,7 +99,7 @@ export default function StudiosBoard() {
                     <div className="relative h-[150px] overflow-hidden bg-paper-200">
                       <Photo name={s.photo} sizes="(max-width: 768px) 100vw, 320px" className="absolute inset-0 h-full [&_img]:transition-transform [&_img]:duration-700 [&_img]:group-hover:scale-105" position="center 40%" />
                       <Link href={`/studios/${s.id}`} aria-label={`Visit ${a.name}'s studio`} className="absolute inset-0 z-[1]" />
-                      <span className="pointer-events-none absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-paper-50/95 px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase"><span aria-hidden>{GLYPH[s.mode]}</span>{s.mode}</span>
+                      <span className="pointer-events-none absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-paper-50/95 px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase"><Glyph g={GLYPH[s.mode]} size={12} />{s.mode}</span>
                     </div>
                     <div className="flex flex-1 flex-col p-4">
                       <p className="text-[10px] font-bold tracking-[0.12em] text-clay-500 uppercase">{s.when}</p>

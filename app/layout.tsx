@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Mono, DM_Sans, Fraunces, Instrument_Sans, Manrope, Playfair_Display } from "next/font/google";
 import AppShell from "@/components/shell/AppShell";
 import Splash from "@/components/onboarding/Splash";
@@ -34,6 +34,9 @@ const instrument = Instrument_Sans({ subsets: ["latin"], variable: "--font-instr
 const dmMono = DM_Mono({ subsets: ["latin"], variable: "--font-dmmono", weight: ["400", "500"], display: "swap" });
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", weight: ["400", "500", "600", "700"], display: "swap" });
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dmsans", weight: ["400", "500", "600", "700"], display: "swap" });
+
+/** The keyboard shrinks the page (Android), and the app can use the full screen around the notch (iOS). */
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", interactiveWidget: "resizes-content" };
 
 export const metadata: Metadata = {
   title: "Akines: less scrolling, more belonging",

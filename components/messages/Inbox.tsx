@@ -9,11 +9,12 @@ import { useKinnections } from "@/components/relationships/useKinnections";
 import { DM_THREADS } from "@/lib/data/dms";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import type { Msg } from "@/lib/data/roomChat";
+import Icon from "@/components/ui/Icon";
 
 function preview(msg?: Msg) {
   if (!msg) return "Say hello →";
-  if (msg.kind === "image") return msg.text ? `📷 ${msg.text}` : "📷 Photo";
-  if (msg.kind === "voice") return "🎙 Voice note";
+  if (msg.kind === "image") return msg.text ? `${msg.text}` : "Photo";
+  if (msg.kind === "voice") return "Voice note";
   return msg.text ?? "";
 }
 
@@ -42,7 +43,7 @@ export default function Inbox() {
 
       <button className="msg-kn-toggle" onClick={() => setShowKn((v) => !v)} aria-expanded={showKn}>
         <span>Your Kinnections <small>{ids.length}</small></span>
-        <i aria-hidden>{showKn ? "▾" : "▸"}</i>
+        <i aria-hidden><Icon name={showKn ? "expand" : "more"} size={12} /></i>
       </button>
       {showKn && (
         <div className="msg-kn-panel">
@@ -59,7 +60,7 @@ export default function Inbox() {
             <Link key={t.id} href={`/messages/${pid}`} className={`msg-row${activeId === pid ? " active" : ""}`}>
               <Avatar person={p} size={44} />
               <span className="tx">
-                <b>{p.name}{t.pinned && <i aria-hidden>📌</i>}</b>
+                <b>{p.name}{t.pinned && <i aria-hidden><Icon name="pin" size={18} /></i>}</b>
                 <small>{preview(last)}</small>
               </span>
               {last && <em className="when">{last.at}</em>}

@@ -1,7 +1,7 @@
 /* =========================================================
    Splash (once per session) and the Welcome screen
    ========================================================= */
-.gate-wait { min-height: 100vh; background: #0f0e14; }
+.gate-wait { min-height: 100vh; min-height: 100dvh; background: #0f0e14; }
 
 .sp { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; align-content: center; gap: 22px; background: radial-gradient(ellipse at 50% 45%, #1d1830 0%, #0f0e14 65%); color: #fff; font-family: var(--font-instrument), system-ui, sans-serif; cursor: pointer; transition: opacity .55s ease, transform .55s ease; }
 .sp.out { opacity: 0; transform: scale(1.04); pointer-events: none; }
@@ -26,14 +26,14 @@
 }
 
 /* Welcome */
-.wl { position: relative; min-height: 100vh; overflow: hidden; background: #0f0e14; color: #fff; font-family: var(--font-instrument), system-ui, sans-serif; }
+.wl { position: relative; min-height: 100vh; min-height: 100dvh; overflow: hidden; background: #0f0e14; color: #fff; font-family: var(--font-instrument), system-ui, sans-serif; }
 .wl-glow { position: absolute; width: 900px; height: 900px; left: -200px; top: -200px; border-radius: 50%; background: conic-gradient(from 90deg, #ffb000, #e5007e, #7b2ff7, #2547d0, #00a86b, #ffb000); filter: blur(140px); opacity: .22; animation: wl-turn 30s linear infinite; }
 @keyframes wl-turn { to { transform: rotate(360deg); } }
 .wl-top { position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; padding: 22px 36px; }
 .wl-logo { height: 34px; width: auto; }
 .wl-about { color: rgba(255,255,255,.75); font-size: 14px; text-decoration: none; }
 .wl-about:hover { color: #fff; }
-.wl-main { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 40px; align-items: center; max-width: 1280px; margin: 0 auto; padding: 10px 36px 60px; min-height: calc(100vh - 80px); }
+.wl-main { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 40px; align-items: center; max-width: 1280px; margin: 0 auto; padding: 10px 36px 60px; min-height: calc(100vh - 80px); min-height: calc(100dvh - 80px); }
 .wl-scene { position: relative; width: min(560px, 100%); aspect-ratio: 1; margin: 0 auto; }
 .wl-threads { position: absolute; inset: 0; width: 100%; height: 100%; }
 .wl-threads line { stroke-width: 1.5; stroke-dasharray: 150; stroke-dashoffset: 150; opacity: .7; animation: wl-draw 1s ease forwards; }

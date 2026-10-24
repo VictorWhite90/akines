@@ -9,6 +9,7 @@ import { CIRCLES, ROOMS } from "@/lib/data/community";
 import { STARS } from "@/lib/data/constellation";
 import { GAMES } from "@/lib/data/games";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 type Act = { id: string; kind: "now" | "banter" | "game" | "room" | "circle"; when: string; title: string; who: PersonId[]; live?: boolean };
 
@@ -19,7 +20,7 @@ const ACTS: Act[] = [
   { id: "room", kind: "room", when: "21:00", title: ROOMS[0].title, who: ROOMS[0].seated },
   { id: "circle", kind: "circle", when: "Week 4 of 8", title: "West African Markets · Make", who: ["wanjiru", "efua", "fatou"] },
 ];
-const GLYPH = { now: "◎", banter: "❝", game: "☺", room: "◉", circle: "✦" } as const;
+const GLYPH = { now: "live", banter: "banter", game: "play", room: "live", circle: "circle" } as const;
 const DOT: Record<string, string> = { studio: "var(--nx-brass)", room: "var(--nx-ember)", quiet: "rgba(243,239,230,.35)", open: "var(--nx-sage)" };
 
 /** Layout B: one thing on stage at a time; your people are always in the dock below. */
@@ -41,7 +42,7 @@ export default function Stage() {
       <nav className="lx-now" aria-label="Now">
         {ACTS.map((a) => (
           <button key={a.id} className={a.id === actId ? "on" : undefined} onClick={() => setActId(a.id)}>
-            <span className="lx-ico" style={{ width: 30, height: 30 }}>{GLYPH[a.kind]}</span>
+            <span className="lx-ico" style={{ width: 30, height: 30 }}><Glyph g={GLYPH[a.kind]} size={15} /></span>
             <span style={{ textAlign: "left" }}>
               <span className={`lx-when${a.live ? " live" : ""}`} style={{ display: "block" }}>{a.live ? "● " : ""}{a.when}</span>
               <span style={{ display: "block", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.title}</span>
@@ -108,11 +109,11 @@ function StageBody({ act }: { act: Act }) {
           <p className="lx-eye">Banter · {b.audienceLabel}</p>
           <h2 className="lx-h" style={{ fontSize: 32, marginTop: 8 }}>{b.prompt}</h2>
           {b.replies.slice(0, 2).map((r) => (
-            <p key={r.id} style={{ fontSize: 14, margin: "12px 0 0" }}><b>{PEOPLE[r.by].name.split(" ")[0]}:</b> <span className="lx-mute">{r.kind === "voice" ? `◉ voice note ${r.length}` : r.text}</span></p>
+            <p key={r.id} style={{ fontSize: 14, margin: "12px 0 0" }}><b>{PEOPLE[r.by].name.split(" ")[0]}:</b> <span className="lx-mute">{r.kind === "voice" ? `voice note ${r.length}` : r.text}</span></p>
           ))}
           <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
             <Link className="lx-btn brass" href={`/banter/${b.id}`}>Add a thoughtful response</Link>
-            <button className="lx-btn">✦ I want to explore this</button>
+            <button className="lx-btn"><Icon name="spark" size={15} className="ic-inline" /> I want to explore this</button>
           </div>
         </div>
         {b.photo && <Photo name={b.photo} sizes="220px" className="h-full min-h-48 rounded-2xl" />}

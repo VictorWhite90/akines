@@ -8,6 +8,7 @@ import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { SHARE_PICKER } from "@/lib/data/roomChat";
 import { BARS, Ico, Voice, first, mmss } from "./bits";
 import type { Chat } from "./useChat";
+import Icon from "@/components/ui/Icon";
 
 /**
  * The WhatsApp-style thread shared by Presence Rooms, Circle channels and private rooms:
@@ -115,7 +116,7 @@ export default function ChatThread({
                 {m.kind === "voice" && m.length && <Voice length={m.length} mine={mine} />}
                 {m.text && <p>{m.text}</p>}
                 <span className="meta">{m.at}{mine && <i> ✓✓</i>}</span>
-                <button className="reply" onClick={() => { setReplyTo(m); inputRef.current?.focus(); }} aria-label="Reply">↩</button>
+                <button className="reply" onClick={() => { setReplyTo(m); inputRef.current?.focus(); }} aria-label="Reply"><Icon name="reply" size={14} /></button>
               </div>
             </div>
           );

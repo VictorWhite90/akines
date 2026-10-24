@@ -9,6 +9,7 @@ import { ROOMS } from "@/lib/data/community";
 import { BRIGHTNESS, STARS } from "@/lib/data/constellation";
 import { GAMES } from "@/lib/data/games";
 import { PEOPLE } from "@/lib/data/people";
+import Icon from "@/components/ui/Icon";
 
 const DAY = [
   { t: "08:00", kind: "done", title: "Morning check-in", body: "You said: steady." },
@@ -89,7 +90,7 @@ export default function TodayBento() {
           <p className="lx-eye">Banter · resonating</p>
           <h3 className="lx-h" style={{ fontSize: 26, marginTop: 8 }}>{banter.prompt}</h3>
           <p className="lx-mute" style={{ fontSize: 13.5 }}>{banter.replies[0].text}</p>
-          <div style={{ marginTop: "auto", padding: 12, borderRadius: 14, background: "rgba(233,184,92,.10)", border: "1px solid var(--nx-line)", fontSize: 13 }}>✦ 4 people want to explore this. <b style={{ color: "var(--nx-brass)" }}>Invite them into a KinCircle →</b></div>
+          <div style={{ marginTop: "auto", padding: 12, borderRadius: 14, background: "rgba(233,184,92,.10)", border: "1px solid var(--nx-line)", fontSize: 13 }}><Icon name="spark" size={14} className="ic-inline" /> 4 people want to explore this. <b style={{ color: "var(--nx-brass)" }}>Invite them into a KinCircle →</b></div>
         </Link>
 
         <Link href="/play/session/uni-night" className="lx-tile photo">
@@ -118,7 +119,7 @@ export default function TodayBento() {
           <p className="lx-eye" style={{ color: "var(--nx-sage)" }}>Care</p>
           <h3 className="lx-h" style={{ fontSize: 18, marginTop: 6 }}>Efua has gone quiet</h3>
           <p className="lx-faint" style={{ fontSize: 12.5 }}>3 weeks. Send a voice note?</p>
-          <span className="lx-btn" style={{ marginTop: "auto", alignSelf: "flex-start" }}>◉ Voice note</span>
+          <span className="lx-btn" style={{ marginTop: "auto", alignSelf: "flex-start" }}><Icon name="live" size={15} className="ic-inline" /> Voice note</span>
         </Link>
       </section>
     </div>

@@ -546,7 +546,7 @@ html[data-theme="dark"] .bc-foot { border-color: var(--dk-line); }
 /* =========================================================
    Home fixes: side column fits the screen and stays put.
    ========================================================= */
-.app .hm.kh .hm-side { position: sticky; top: 96px; max-height: calc(100vh - 112px); overflow-y: auto; scrollbar-width: none; }
+.app .hm.kh .hm-side { position: sticky; top: 96px; max-height: calc(100vh - 112px); max-height: calc(100dvh - 112px); overflow-y: auto; scrollbar-width: none; }
 .app .hm.kh .hm-side::-webkit-scrollbar { display: none; }
 .app .hm.kh .hm-cthumb { width: 56px !important; height: 52px !important; }
 .app .hm.kh .hm-side .hm-card { padding: 14px 16px; }

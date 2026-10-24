@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Photo from "@/components/ui/Photo";
-import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
+import { KINCIRCLE_PREFILL } from "@/components/circles/kincircleDraft";
 import { softenWording, toneCheck } from "@/lib/data/banter";
 import type { PhotoKey } from "@/lib/data/images";
 import { CONVOS, INTENTS, KIND_COLOR, KIND_LABEL, QUICK_REPLIES, type Convo, type ConvoKind, type IntentId, type KMsg } from "@/lib/data/kinmessage";
 import { allPeople, ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { canGoBack } from "@/lib/navHistory";
 import { newId, useLocal } from "@/lib/useLocal";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 type Filter = "all" | ConvoKind;
 const ME_ID = ME.id as PersonId;
@@ -45,7 +46,7 @@ function Voice({ length, text, mine }: { length: string; text?: string; mine: bo
   const pct = t / total;
   return (
     <div className={`km-voice${mine ? " mine" : ""}`}>
-      <button onClick={() => setOn(!on)} aria-label={on ? "Pause voice note" : "Play voice note"}>{on ? "❚❚" : "▶"}</button>
+      <button onClick={() => setOn(!on)} aria-label={on ? "Pause voice note" : "Play voice note"}><Icon name={on ? "pause" : "play-media"} size={14} /></button>
       <span className="km-wave" aria-hidden>
         {Array.from({ length: 28 }, (_, i) => <i key={i} className={i / 28 < pct ? "on" : undefined} style={{ height: `${25 + ((i * 41) % 75)}%` }} />)}
       </span>
@@ -202,7 +203,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
           <button className="km-new" onClick={() => setComposeNew(true)} aria-label="New message">＋</button>
         </div>
         <label className="km-search">
-          <span aria-hidden>⌕</span>
+          <span aria-hidden><Icon name="search" size={18} /></span>
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search people and conversations" />
         </label>
         <div className="km-filters" role="tablist" aria-label="Filter conversations">
@@ -237,7 +238,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
           </div>
           <div className="km-intent">
             <button onClick={() => setIntentOpen((v) => !v)} aria-expanded={intentOpen}>
-              <span>{intent.glyph}</span>{intent.label}<em>▾</em>
+              <span><Glyph g={intent.glyph} size={14} /></span>{intent.label}<em><Icon name="expand" size={12} /></em>
             </button>
             {intentOpen && (
               <div className="km-intent-menu" role="menu">
@@ -251,7 +252,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
               </div>
             )}
           </div>
-          <Link href="/rooms/new" className="km-icon" aria-label="Start a voice room" title="Voice room">◉</Link>
+          <Link href="/rooms/new" className="km-icon" aria-label="Start a voice room" title="Voice room"><Icon name="live" size={18} /></Link>
         </header>
 
         <div className="km-msgs" ref={scroller}>
@@ -260,7 +261,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
             if (m.kind === "spark") {
               return (
                 <div key={m.id} className="km-spark">
-                  <span className="km-spark-ic">✦</span>
+                  <span className="km-spark-ic"><Icon name="spark" size={18} /></span>
                   <div>
                     <b>{m.title}</b>
                     <p>{m.body}</p>
@@ -292,7 +293,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
                   )}
                   {m.kind === "poll" && (
                     <div className="km-poll">
-                      <b>≡ {m.question}</b>
+                      <b><Icon name="poll" size={15} className="ic-inline" /> {m.question}</b>
                       {m.options.map((o, oi) => {
                         const my = votes[m.id];
                         const total = m.votes.reduce((a, v) => a + v, 0) + (my !== undefined ? 1 : 0);
@@ -311,7 +312,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
                   )}
                   {m.kind === "invite" && (
                     <div className={`km-invite i-${m.invite}`}>
-                      <span className="km-invite-ic">{m.invite === "meetup" ? "◷" : m.invite === "banter" ? "❝" : "☺"}</span>
+                      <span className="km-invite-ic"><Icon name={m.invite === "meetup" ? "event" : m.invite === "banter" ? "banter" : "play"} size={16} /></span>
                       <div>
                         <small>{m.invite === "meetup" ? "Meetup" : m.invite === "banter" ? "Banter" : "Play Together"} invitation</small>
                         <b>{m.title}</b>
@@ -331,7 +332,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
                   )}
                   <span className="km-meta">
                     {m.at}{mine && " · Read"}
-                    <button className="km-pin" onClick={() => pin(m)} title="Save to shared memory" aria-label="Save to shared memory">❖</button>
+                    <button className="km-pin" onClick={() => pin(m)} title="Save to shared memory" aria-label="Save to shared memory"><Icon name="save" size={18} /></button>
                   </span>
                   {m.kind === "text" && m.react && <span className="km-react">{m.react.join(" ")} {m.react.length}</span>}
                 </div>
@@ -343,7 +344,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
         {/* Composer */}
         <div className="km-compose">
           <div className="km-quick">
-            <span>{intent.glyph} {intent.label}:</span>
+            <span><Glyph g={intent.glyph} size={13} /> {intent.label}:</span>
             {QUICK_REPLIES[intentId].map((r) => <button key={r} onClick={() => setText(r)}>{r}</button>)}
           </div>
           {warn && (
@@ -375,12 +376,12 @@ export default function KinMessage({ initial }: { initial?: string }) {
             <div className="km-bar">
               <button className="km-more" onClick={() => setTools((v) => !v)} aria-expanded={tools} aria-label="More: photo, voice, poll, meetup, Banter, game">{tools ? "×" : "＋"}</button>
               <div className={`km-tools${tools ? " open" : ""}`} onClick={() => setTools(false)}>
-                <button onClick={() => setAttach(attach === "photo" ? null : "photo")} className={attach === "photo" ? "on" : undefined} title="Photo">▣</button>
-                <button onClick={() => setRecording(1)} title="Voice note">◉</button>
-                <button onClick={() => setAttach(attach === "poll" ? null : "poll")} className={attach === "poll" ? "on" : undefined} title="Poll">≡</button>
-                <button onClick={() => invite("meetup")} title="Propose a meetup">◷</button>
-                <button onClick={() => invite("banter")} title="Invite to a Banter">❝</button>
-                <button onClick={() => invite("game")} title="Invite to play">☺</button>
+                <button onClick={() => setAttach(attach === "photo" ? null : "photo")} className={attach === "photo" ? "on" : undefined} title="Photo"><Icon name="photo" size={18} /></button>
+                <button onClick={() => setRecording(1)} title="Voice note"><Icon name="live" size={18} /></button>
+                <button onClick={() => setAttach(attach === "poll" ? null : "poll")} className={attach === "poll" ? "on" : undefined} title="Poll"><Icon name="poll" size={18} /></button>
+                <button onClick={() => invite("meetup")} title="Propose a meetup"><Icon name="time" size={18} /></button>
+                <button onClick={() => invite("banter")} title="Invite to a Banter"><Icon name="banter" size={18} /></button>
+                <button onClick={() => invite("game")} title="Invite to play"><Icon name="play" size={18} /></button>
               </div>
               <textarea rows={1} value={text} onChange={(e) => { setText(e.target.value); setWarn(false); }} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }} placeholder={attach === "poll" ? "Polls send with the button →" : `Write to ${c.kind === "direct" ? people!.name.split(" ")[0] : c.name}…`} />
               <button className="km-send" onClick={() => send()} disabled={attach === "poll" ? !pollQ.trim() : !text.trim()}>Send</button>
@@ -414,16 +415,16 @@ export default function KinMessage({ initial }: { initial?: string }) {
 
         <section className="km-card">
           <b className="km-h">Continue together</b>
-          <Link href="/collaborate" className="km-go"><span style={{ background: "#2547d0" }}>⌘</span>Open Collaboration Studio<em>›</em></Link>
-          <button onClick={toKinCircle} className="km-go"><span style={{ background: "#00a86b" }}>◎</span>Invite to a KinCircle<em>›</em></button>
-          <button onClick={() => invite("game")} className="km-go"><span style={{ background: "#ff6b1a" }}>☺</span>Play Together<em>›</em></button>
-          <button onClick={() => invite("meetup")} className="km-go"><span style={{ background: "#e5007e" }}>◷</span>Plan a meetup<em>›</em></button>
+          <Link href="/collaborate" className="km-go"><span style={{ background: "#2547d0" }}><Icon name="collaborate" size={18} /></span>Open Collaboration Studio<em>›</em></Link>
+          <button onClick={toKinCircle} className="km-go"><span style={{ background: "#00a86b" }}><Icon name="circle" size={18} /></span>Invite to a KinCircle<em>›</em></button>
+          <button onClick={() => invite("game")} className="km-go"><span style={{ background: "#ff6b1a" }}><Icon name="play" size={18} /></span>Play Together<em>›</em></button>
+          <button onClick={() => invite("meetup")} className="km-go"><span style={{ background: "#e5007e" }}><Icon name="event" size={18} /></span>Plan a meetup<em>›</em></button>
         </section>
 
         <section className="km-card">
           <b className="km-h">Shared memory</b>
           {memories.length === 0 ? (
-            <p className="km-note">Nothing saved yet. Tap ❖ on any message to keep it.</p>
+            <p className="km-note">Nothing saved yet. Tap on any message to keep it.</p>
           ) : (
             <ol className="km-mem">{memories.map((mm, i) => <li key={i}><b>{mm.title}</b><span>{mm.body}</span></li>)}</ol>
           )}
@@ -437,7 +438,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
           {ai ? (
             <>
               {!summary ? (
-                <button className="km-sum-btn" onClick={() => setSummary(true)}>✦ Summarise this conversation</button>
+                <button className="km-sum-btn" onClick={() => setSummary(true)}><Icon name="spark" size={15} className="ic-inline" /> Summarise this conversation</button>
               ) : (
                 <div className="km-sum">
                   <p><b>So far:</b> {msgs.length} messages. {c.kind === "direct" ? `You and ${people!.name.split(" ")[0]}` : "The group"} {intentId === "plan" ? "are close to choosing a time" : intentId === "create" ? "are deciding what to make next" : intentId === "support" ? "are working through something together" : "are keeping in touch"}.</p>
@@ -448,7 +449,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
               <p className="km-note">Runs only when you ask. Nothing is stored or shown to anyone else.</p>
             </>
           ) : (
-            <p className="km-note">🔒 Off. Akines doesn&apos;t read message content. Only actions you approve are remembered.</p>
+            <p className="km-note"><Icon name="private" size={15} className="ic-inline" /> Off. Akines doesn&apos;t read message content. Only actions you approve are remembered.</p>
           )}
         </section>
       </aside>
@@ -462,7 +463,7 @@ export default function KinMessage({ initial }: { initial?: string }) {
 function Row({ c, active, needs, onClick, extra }: { c: Convo; active: boolean; needs?: boolean; onClick: () => void; extra?: KMsg[] }) {
   const all = [...c.msgs, ...(extra ?? [])];
   const last = all[all.length - 1];
-  const preview = !last ? "" : last.kind === "text" ? last.text : last.kind === "voice" ? "◉ Voice note" : last.kind === "photo" ? "▣ Photo" : last.kind === "poll" ? `≡ ${last.question}` : last.kind === "invite" ? `Invitation: ${last.title}` : `✦ ${last.title}`;
+  const preview = !last ? "" : last.kind === "text" ? last.text : last.kind === "voice" ? "Voice note" : last.kind === "photo" ? "Photo" : last.kind === "poll" ? `${last.question}` : last.kind === "invite" ? `Invitation: ${last.title}` : `${last.title}`;
   const who = last && last.from !== "ai" ? (last.from === ME_ID ? "You: " : c.kind !== "direct" ? `${PEOPLE[last.from as PersonId].name.split(" ")[0]}: ` : "") : "";
   const intent = INTENTS.find((i) => i.id === c.intent)!;
   return (

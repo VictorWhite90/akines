@@ -76,7 +76,7 @@ export default function Companion({ open, onClose }: { open: boolean; onClose: (
             <p className="mt-0.5 text-xs text-ink-200">Trained on African art history, materials, symbolism, exhibition planning and collector education.</p>
           </div>
           <button onClick={onClose} aria-label="Close Companion" className="rounded-full p-1 text-ink-200 hover:text-paper-50">
-            <span aria-hidden className="text-2xl leading-none">✕</span>
+            <Icon name="close" size={22} />
           </button>
         </header>
 

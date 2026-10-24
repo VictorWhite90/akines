@@ -4,6 +4,7 @@ import Link from "next/link";
 import Avatar from "@/components/ui/Avatar";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { useKinnections } from "./useKinnections";
+import Icon from "@/components/ui/Icon";
 
 /**
  * Kinnections, not followers: relationships the member has chosen to acknowledge.
@@ -36,7 +37,7 @@ export default function KinnectionsList({ compact = false, limit }: { compact?: 
               </span>
             </span>
             <span className="acts">
-              <Link href={`/messages/${id}`} aria-label={`Message ${p.name}`}>✉</Link>
+              <Link href={`/messages/${id}`} aria-label={`Message ${p.name}`}><Icon name="message" size={18} /></Link>
               {!compact && <button onClick={() => remove(id)} aria-label={`Remove ${p.name} from your Kinnections`}>×</button>}
             </span>
           </li>

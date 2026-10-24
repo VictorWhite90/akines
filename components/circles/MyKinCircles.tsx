@@ -3,7 +3,8 @@
 import Avatar from "@/components/ui/Avatar";
 import { allPeople } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
-import { CIRCLE_TYPES, type SavedKinCircle } from "./CreateKinCircle";
+import { CIRCLE_TYPES, type SavedKinCircle } from "./kincircleDraft";
+import { Glyph } from "@/components/ui/Icon";
 
 /** The circles a member has created through the wizard. Nothing to show, nothing rendered. */
 export default function MyKinCircles() {
@@ -20,7 +21,7 @@ export default function MyKinCircles() {
           const invited = c.invitees.map((id) => allPeople.find((p) => p.id === id)).filter(Boolean);
           return (
             <div key={c.id} className="rounded-2xl border border-line bg-paper-50 p-5">
-              <span className="inline-flex items-center gap-2 rounded-full bg-paper-200 px-3 py-1 text-[11px] font-semibold text-ink-950">{type?.glyph} {type?.label}</span>
+              <span className="inline-flex items-center gap-2 rounded-full bg-paper-200 px-3 py-1 text-[11px] font-semibold text-ink-950">{type?.glyph && <Glyph g={type.glyph} size={13} />} {type?.label}</span>
               <h3 className="font-display mt-3 text-[18px] font-semibold text-ink-950">{c.name}</h3>
               {c.purpose && <p className="mt-1 text-[13px] leading-relaxed text-mute">{c.purpose}</p>}
               <div className="mt-4 flex items-center justify-between">

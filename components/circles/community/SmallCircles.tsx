@@ -8,6 +8,7 @@ import { fullName } from "@/lib/api/account";
 import { circles, type Community, type SmallCircle } from "@/lib/api/community";
 import CircleForm from "./CircleForm";
 import KindIcon from "./KindIcon";
+import { clearCirclePrefill, readCirclePrefill } from "../kincircleDraft";
 
 export const circleHref = (c: { community_id: string; id: string }) => `/circles/community/${c.community_id}/circles/${c.id}`;
 
@@ -20,6 +21,11 @@ export default function SmallCircles({ c, startOpen }: { c: Community; startOpen
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(!!startOpen && !!c.my_role);
   const [busy, setBusy] = useState<string | null>(null);
+  // A circle handed over from a Banter, game or chat (only when opening the form from the picker).
+  const [draft] = useState(() => (startOpen && typeof window !== "undefined" ? readCirclePrefill() : null));
+  useEffect(() => {
+    if (draft) clearCirclePrefill(); // used: don't fill the next circle with it too
+  }, [draft]);
   const member = !!c.my_role;
 
   const load = useCallback(async (p: number) => {
@@ -107,7 +113,7 @@ export default function SmallCircles({ c, startOpen }: { c: Community; startOpen
       {more && <button className="kh-btn outline sc-more" onClick={() => load(page + 1)}>Show more circles</button>}
 
       {starting && (
-        <CircleForm communityName={c.name} onClose={() => setStarting(false)} onSave={async (input) => {
+        <CircleForm communityName={c.name} draft={draft} onClose={() => setStarting(false)} onSave={async (input) => {
           const r = await circles.create(c.id, input);
           if (!r.ok) return r;
           router.push(`${circleHref(r.data)}?invite=1`);

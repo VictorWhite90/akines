@@ -10,6 +10,7 @@ import { useState } from "react";
 import Pic from "@/components/home/Pic";
 import DateOfBirth from "@/components/ui/DateOfBirth";
 import { INTENTS } from "@/lib/data/community";
+import Icon from "@/components/ui/Icon";
 
 type Mode = "login" | "signup";
 type Step = "account" | "verify" | "about" | "intent" | "arrive";
@@ -145,9 +146,9 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
           <h2>Less scrolling. <em>More belonging.</em></h2>
           <p>Akines brings people together on purpose: friends, families, teams, students and professionals from every line of work, through honest conversation, small circles and things you make together.</p>
           <div className="auth-points">
-            <div><b>◇</b>Introductions that come with a reason, not a wall of profiles.</div>
-            <div><b>◎</b>Banter, KinCircles, live rooms and collaborations in one place.</div>
-            <div><b>♡</b>Kind by design: no follower counts, and AI that never diagnoses.</div>
+            <div><b><Icon name="discover" size={18} /></b>Introductions that come with a reason, not a wall of profiles.</div>
+            <div><b><Icon name="circle" size={18} /></b>Banter, KinCircles, live rooms and collaborations in one place.</div>
+            <div><b><Icon name="wellbeing" size={18} /></b>Kind by design: no follower counts, and AI that never diagnoses.</div>
           </div>
           <small className="auth-copy">© 2026 Akines. Built for real connection.</small>
         </div>

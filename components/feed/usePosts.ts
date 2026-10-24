@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
 import { useLocal, newId } from "@/lib/useLocal";
 import { ME, type PersonId } from "@/lib/data/people";
 import { POSTS, type Post, type PostType, type ReactionKey } from "@/lib/data/feed";
@@ -9,12 +8,6 @@ import type { PhotoKey } from "@/lib/data/images";
 const POSTS_KEY = "kn:posts";
 const REACTIONS_KEY = "kn:reactions";
 type ReactionOverlay = Record<string, Partial<Record<ReactionKey, boolean>>>;
-
-const LEGACY_DEMO_TEXT = [
-  "my very best product",
-  "does a glaze recipe count as intellectual property",
-  "stopped by kwame",
-];
 
 /**
  * The shared feed store: Home, a Circle's Feed tab and a profile's "My World" all read from this,
@@ -25,11 +18,6 @@ export function usePosts() {
   const [mine, setMine] = useLocal<Post[]>(POSTS_KEY, []);
   const [overlay, setOverlay] = useLocal<ReactionOverlay>(REACTIONS_KEY, {});
   const me = ME.id as PersonId;
-  const cleanMine = useMemo(() => mine.filter((post) => !(post.by === me && LEGACY_DEMO_TEXT.some((text) => post.text.trim().toLowerCase().startsWith(text)))), [mine, me]);
-
-  useEffect(() => {
-    if (cleanMine.length !== mine.length) setMine(cleanMine);
-  }, [cleanMine, mine.length, setMine]);
 
   const withReactions = (p: Post): Post => {
     const over = overlay[p.id];
@@ -45,7 +33,7 @@ export function usePosts() {
     return { ...p, reactions };
   };
 
-  const all = [...cleanMine, ...POSTS].map(withReactions).sort((a, b) => (a.at === b.at ? 0 : cleanMine.some((m) => m.id === a.id) ? -1 : cleanMine.some((m) => m.id === b.id) ? 1 : 0));
+  const all = [...mine, ...POSTS].map(withReactions).sort((a, b) => (a.at === b.at ? 0 : mine.some((m) => m.id === a.id) ? -1 : mine.some((m) => m.id === b.id) ? 1 : 0));
 
   const addPost = (input: { type: PostType; text: string; photo?: PhotoKey; photos?: string[]; circle?: string; collab?: string }) => {
     const post: Post = { id: newId("post"), by: me, type: input.type, text: input.text.trim(), photo: input.photo, photos: input.photos, circle: input.circle, collab: input.collab, at: "Just now", reactions: {}, replies: 0 };

@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Photo from "@/components/ui/Photo";
-import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
+import { KINCIRCLE_PREFILL } from "@/components/circles/kincircleDraft";
 import { useBanterReplies, useBanters, usePollVotes, useResonance } from "./useBanters";
 import { BANTER_MOODS, MOOD_LOOK, REACTIONS, lifeLeft, softenWording, toneIssue } from "@/lib/data/banter";
 import type { PhotoKey } from "@/lib/data/images";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
 import BackLink from "@/components/ui/BackLink";
+import Icon from "@/components/ui/Icon";
 
 const ME_ID = ME.id as PersonId;
 const PHOTOS: PhotoKey[] = ["studioEasel", "clayBowl", "textileRolls", "beadsHung", "galleryHall", "talkMugs"];
@@ -21,7 +22,7 @@ function Voice({ length }: { length: string }) {
   const [on, setOn] = useState(false);
   return (
     <button className="br-voice" onClick={() => setOn(!on)} aria-label={on ? "Pause voice note" : "Play voice note"}>
-      <i>{on ? "❚❚" : "▶"}</i>
+      <i><Icon name={on ? "pause" : "play-media"} size={14} /></i>
       <span aria-hidden>{Array.from({ length: 22 }, (_, k) => <b key={k} className={on ? "on" : undefined} style={{ height: `${25 + ((k * 37) % 75)}%`, animationDelay: `${k * 50}ms` }} />)}</span>
       <em>{length}</em>
     </button>
@@ -129,7 +130,7 @@ export default function BanterRoom({ id }: { id: string }) {
               // eslint-disable-next-line @next/next/no-img-element -- member's own upload, stored as a data URL
               <img src={b.image} alt="" className="br-open-photo br-own" />
             ) : b.photo ? <Photo name={b.photo} sizes="460px" className="br-open-photo" /> : null}
-            {b.media && <p className="br-chip">{b.media.kind === "music" ? "♪" : "▶"} {b.media.label}</p>}
+            {b.media && <p className="br-chip"><Icon name={b.media.kind === "music" ? "music" : "video-play"} size={13} className="ic-inline" /> {b.media.label}</p>}
             {b.poll && (
               <div className="br-poll">
                 {b.poll.options.map((o, k) => {
@@ -148,7 +149,7 @@ export default function BanterRoom({ id }: { id: string }) {
                 const n = (b.reactions[r] ?? 0) + (myReacts.includes(r) ? 1 : 0);
                 return <button key={r} className={myReacts.includes(r) ? "on" : undefined} onClick={() => setMyReacts(myReacts.includes(r) ? myReacts.filter((x) => x !== r) : [...myReacts, r])}>{r}{n ? <em>{n}</em> : null}</button>;
               })}
-              <button className={`br-explore${iExplore ? " on" : ""}`} onClick={() => toggle(b.id)}>✦ {iExplore ? "You want to explore this" : "I want to explore this"}</button>
+              <button className={`br-explore${iExplore ? " on" : ""}`} onClick={() => toggle(b.id)}><Icon name="spark" size={15} className="ic-inline" /> {iExplore ? "You want to explore this" : "I want to explore this"}</button>
             </div>
             <p className="br-hint">{mood.hint}</p>
           </div>
@@ -172,7 +173,7 @@ export default function BanterRoom({ id }: { id: string }) {
 
           {b.spark && !b.closed && (
             <div className="br-spark">
-              <span>✦</span>
+              <span><Icon name="spark" size={18} /></span>
               <div>
                 <b>Something is taking shape here</b>
                 <p>{b.spark.text}</p>
@@ -198,9 +199,9 @@ export default function BanterRoom({ id }: { id: string }) {
               <div className="br-rec"><i />Recording… 0:{String(rec - 1).padStart(2, "0")}<button onClick={() => setRec(0)}>Cancel</button><button className="go" onClick={() => { const s = Math.max(rec - 1, 1); setRec(0); send("voice", { length: `0:${String(s).padStart(2, "0")}` }); }}>Send</button></div>
             ) : (
               <div className="br-bar">
-                <button onClick={() => setAttach(!attach)} aria-label="Photo" className={attach ? "on" : undefined}>▣</button>
-                <button onClick={() => setRec(1)} aria-label="Voice note">◉</button>
-                <input value={text} onChange={(e) => { setText(e.target.value); setAck(false); }} onKeyDown={(e) => e.key === "Enter" && send("text")} placeholder={b.mood === "encourage" ? "Something kind and useful…" : "Add your voice to the conversation…"} />
+                <button onClick={() => setAttach(!attach)} aria-label="Photo" className={attach ? "on" : undefined}><Icon name="photo" size={18} /></button>
+                <button onClick={() => setRec(1)} aria-label="Voice note"><Icon name="live" size={18} /></button>
+                <input value={text} onChange={(e) => { setText(e.target.value); setAck(false); }} onKeyDown={(e) => e.key === "Enter" && send("text")} placeholder={b.mood === "encourage" ? "Something kind and useful…" : "Add your voice…"} />
                 <button className="go" onClick={() => send("text")} disabled={!text.trim() || !!issue}>Send</button>
               </div>
             )}
@@ -223,11 +224,11 @@ export default function BanterRoom({ id }: { id: string }) {
         <section className="hm-card">
           <h3>Turn it into something</h3>
           <p className="br-sub">Most Banter should simply fade. When it shouldn&apos;t:</p>
-          <button className="km-go" onClick={toCircle}><span style={{ background: "#00a86b" }}>◎</span>Turn into a KinCircle<em>›</em></button>
-          <Link className="km-go" href="/rooms/new"><span style={{ background: "#e5007e" }}>◉</span>Meet live in a room<em>›</em></Link>
-          <Link className="km-go" href="/collaborate"><span style={{ background: "#2547d0" }}>⌘</span>Start a project<em>›</em></Link>
-          <Link className="km-go" href="/messages"><span style={{ background: "#7b2ff7" }}>✉</span>Continue privately<em>›</em></Link>
-          <button className="km-go" onClick={() => { setInsights(insights.includes(b.prompt) ? insights : [b.prompt, ...insights]); setToast("Insight saved. It stays after the Banter fades."); }}><span style={{ background: "#ffb000" }}>❖</span>Save this insight<em>›</em></button>
+          <button className="km-go" onClick={toCircle}><span style={{ background: "#00a86b" }}><Icon name="circle" size={18} /></span>Turn into a KinCircle<em>›</em></button>
+          <Link className="km-go" href="/rooms/new"><span style={{ background: "#e5007e" }}><Icon name="live" size={18} /></span>Meet live in a room<em>›</em></Link>
+          <Link className="km-go" href="/collaborate"><span style={{ background: "#2547d0" }}><Icon name="collaborate" size={18} /></span>Start a project<em>›</em></Link>
+          <Link className="km-go" href="/messages"><span style={{ background: "#7b2ff7" }}><Icon name="message" size={18} /></span>Continue privately<em>›</em></Link>
+          <button className="km-go" onClick={() => { setInsights(insights.includes(b.prompt) ? insights : [b.prompt, ...insights]); setToast("Insight saved. It stays after the Banter fades."); }}><span style={{ background: "#ffb000" }}><Icon name="save" size={18} /></span>Save this insight<em>›</em></button>
           {b.mine && !b.closed && <button className="km-go" onClick={() => { close(b.id); setToast("Banter closed."); }}><span style={{ background: "#6b6774" }}>×</span>Close the Banter<em>›</em></button>}
         </section>
 
@@ -241,7 +242,7 @@ export default function BanterRoom({ id }: { id: string }) {
               <p><b>Quieter voices:</b> {inside.length < 3 ? "few people yet; a direct question could help." : "most have spoken."}</p>
             </div>
           ) : (
-            <button className="km-sum-btn" onClick={() => setSummary(true)}>✦ Summarise the conversation</button>
+            <button className="km-sum-btn" onClick={() => setSummary(true)}><Icon name="spark" size={15} className="ic-inline" /> Summarise the conversation</button>
           )}
         </section>
       </aside>

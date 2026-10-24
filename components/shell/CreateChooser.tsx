@@ -12,27 +12,27 @@ const GROUPS: { title: string; items: Item[] }[] = [
   {
     title: "Talk",
     items: [
-      { glyph: "❝", label: "Banter", body: "One honest question, a small chat.", href: "/banter?new=chat", color: "#ffb000" },
-      { glyph: "◉", label: "Live talk", body: "A voice Banter, now, 2–8 people.", href: "/banter?new=live", color: "#e5007e" },
-      { glyph: "✉", label: "KinMessage", body: "A private chat with someone.", href: "/messages", color: "#7b2ff7" },
+      { glyph: "banter", label: "Banter", body: "One honest question, a small chat.", href: "/banter?new=chat", color: "#ffb000" },
+      { glyph: "live", label: "Live talk", body: "A voice Banter, now, 2–8 people.", href: "/banter?new=live", color: "#e5007e" },
+      { glyph: "message", label: "KinMessage", body: "A private chat with someone.", href: "/messages", color: "#7b2ff7" },
     ],
   },
   {
     title: "Gather",
     items: [
-      { glyph: "◎", label: "KinCircle", body: "A small group on a journey.", href: "/circles/new", color: "#00a86b" },
-      { glyph: "◌", label: "Cliq", body: "The 5–8 people you want to hear from.", href: "/cliqs", color: "#e09a00" },
-      { glyph: "◐", label: "Presence Room", body: "Six seats, one live conversation.", href: "/rooms/new", color: "#e5007e" },
-      { glyph: "☺", label: "Game", body: "Play together, live or slowly.", href: "/play/new", color: "#ff6b1a" },
+      { glyph: "circle", label: "KinCircle", body: "A small group on a journey.", href: "/circles/new", color: "#00a86b" },
+      { glyph: "cliq", label: "Cliq", body: "The 5–8 people you want to hear from.", href: "/cliqs", color: "#e09a00" },
+      { glyph: "voice", label: "Presence Room", body: "Six seats, one live conversation.", href: "/rooms/new", color: "#e5007e" },
+      { glyph: "play", label: "Game", body: "Play together, live or slowly.", href: "/play/new", color: "#ff6b1a" },
     ],
   },
   {
     title: "Make",
     items: [
-      { glyph: "⌘", label: "Collaboration", body: "Shared work with fair credit.", href: "/collaborate", color: "#2547d0" },
-      { glyph: "✦", label: "My space", body: "Show your work, let people visit.", href: "/studio", color: "#7b2ff7" },
-      { glyph: "▣", label: "Product", body: "Sell something in your store.", href: "/store", color: "#2547d0" },
-      { glyph: "▤", label: "Journal entry", body: "For you, or for your people.", href: "/journal", color: "#00a86b" },
+      { glyph: "collaborate", label: "Collaboration", body: "Shared work with fair credit.", href: "/collaborate", color: "#2547d0" },
+      { glyph: "studio", label: "My space", body: "Show your work, let people visit.", href: "/studio", color: "#7b2ff7" },
+      { glyph: "store", label: "Product", body: "Sell something in your store.", href: "/store", color: "#2547d0" },
+      { glyph: "journal", label: "Journal entry", body: "For you, or for your people.", href: "/journal", color: "#00a86b" },
     ],
   },
 ];

@@ -635,7 +635,7 @@ a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: trans
 /* =========================================================
    KinMessage
    ========================================================= */
-.km { display: grid; grid-template-columns: 330px minmax(0, 1fr) 320px; height: calc(100vh - 74px - 58px); min-height: 600px; border-radius: 26px; overflow: hidden; border: 1px solid var(--ap-line); background: #fff; }
+.km { display: grid; grid-template-columns: 330px minmax(0, 1fr) 320px; height: calc(100vh - 74px - 58px); height: calc(100dvh - 74px - 58px); min-height: 600px; border-radius: 26px; overflow: hidden; border: 1px solid var(--ap-line); background: #fff; }
 .km button { font-family: inherit; cursor: pointer; }
 .km-inbox { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--ap-line); background: #fbfafd; }
 .km-inbox-head { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px 18px 12px; }
@@ -809,7 +809,7 @@ a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: trans
 
 @media (max-width: 1280px) { .km { grid-template-columns: 300px minmax(0, 1fr); } .km-side { display: none; } }
 @media (max-width: 800px) {
-  .km { grid-template-columns: 1fr; height: calc(100vh - 64px - 110px); border-radius: 20px; }
+  .km { grid-template-columns: 1fr; height: calc(100vh - 64px - 110px); height: calc(100dvh - 64px - 110px); border-radius: 20px; }
   .km-thread { display: none; }
   .km.show-thread .km-inbox { display: none; }
   .km.show-thread .km-thread { display: flex; }
@@ -941,7 +941,7 @@ html[data-theme="dark"] .ap-calm :is(section, div, aside, article).bg-night inpu
 
 /* The room */
 .br { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
-.br-chat { display: flex; flex-direction: column; height: calc(100vh - 74px - 58px); min-height: 560px; border-radius: 28px; overflow: hidden; border: 1px solid var(--ap-line); background: var(--ap-bg, #fff); }
+.br-chat { display: flex; flex-direction: column; height: calc(100vh - 74px - 58px); height: calc(100dvh - 74px - 58px); min-height: 560px; border-radius: 28px; overflow: hidden; border: 1px solid var(--ap-line); background: var(--ap-bg, #fff); }
 .br-head { display: flex; align-items: flex-start; gap: 14px; padding: 18px 20px; background: var(--mood); color: var(--mood-ink); }
 .br-back { width: 38px; height: 38px; flex: none; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.2); color: inherit; text-decoration: none; }
 .br-q { flex: 1; min-width: 0; }
@@ -1243,3 +1243,14 @@ html:not([data-theme="dark"]) .app.nx .nx-fly a:hover, html:not([data-theme="dar
 .app .hm .hb-list .bc-acts > * { font-weight: 500 !important; }
 .app .hm .kn-post .who b, .app .hm .kn-post .who a { font-weight: 500; }
 html[data-theme="dark"] .app .hm .kn-composer .types button.on { background: var(--dk-btn); color: var(--dk-btn-ink); }
+
+/* Dark mode for the home redesign (story cards and post text use fixed light colours above). */
+html[data-theme="dark"] .hm-resonate-card { background: var(--dk-s1); border-color: var(--dk-line); color: var(--dk-ink); }
+html[data-theme="dark"] .hm-resonate-image { background: var(--dk-s2); }
+html[data-theme="dark"] .hm-resonate-copy b { color: var(--dk-ink); }
+html[data-theme="dark"] .hm-resonate-copy > span { color: var(--dk-mute); }
+html[data-theme="dark"] .hm-resonate-copy .hm-resonate-stats { border-top-color: var(--dk-line); color: var(--dk-mute); }
+html[data-theme="dark"] .app .hm .kn-post .who > p:first-child { color: var(--dk-ink); }
+html[data-theme="dark"] .app .hm .kn-post :is(.body, .meta) { color: var(--dk-mute); }
+html[data-theme="dark"] .hs-strip.hm-resonate { background: transparent; border: 0; }
+.hm-resonate-stats span :is(svg) { flex: none; }

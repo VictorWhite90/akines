@@ -8,6 +8,7 @@ import GameCover from "./GameCover";
 import { useGames } from "./useGames";
 import { GAME_CATEGORIES, GAME_SAFEGUARDS, GAME_SESSIONS, PLAY_MODES, PLAY_OUTCOMES, PLAY_PURPOSES, type GameCategory, type PlayPurpose } from "@/lib/data/games";
 import { PEOPLE } from "@/lib/data/people";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 export default function PlayHome() {
   const { all } = useGames();
@@ -20,7 +21,7 @@ export default function PlayHome() {
     <div className="flex flex-col gap-9">
       <PageHeader eyebrow="Play Together" title={<>The game is just <em>a reason to connect.</em></>} sub="Play live or slowly with friends, Cliqs and KinCircle members. Talk while you play, then decide what to carry forward together.">
         <div className="flex flex-wrap gap-2">
-          <Link href="/play/new" className="rounded-full border border-ink-900/20 px-5 py-3 text-[14px] font-semibold hover:bg-ink-900/5">✦ Create a Game</Link>
+          <Link href="/play/new" className="rounded-full border border-ink-900/20 px-5 py-3 text-[14px] font-semibold hover:bg-ink-900/5"><Icon name="spark" size={15} className="ic-inline" /> Create a Game</Link>
           <a href="#choose" className="rounded-full bg-night px-6 py-3 text-[14px] font-semibold text-white hover:bg-ink-800">Choose a Game</a>
         </div>
       </PageHeader>
@@ -57,7 +58,7 @@ export default function PlayHome() {
         <div className="pl-swipe mt-3 flex flex-wrap gap-2">
           {PLAY_PURPOSES.map((p) => (
             <button key={p.id} onClick={() => setPurpose(purpose === p.id ? null : p.id)} aria-pressed={purpose === p.id} className={`flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] ${purpose === p.id ? "border-ink-900 bg-ink-900 text-white" : "border-line bg-paper-50 hover:border-ink-400"}`}>
-              <span aria-hidden>{p.glyph}</span>{p.label}
+              <Glyph g={p.glyph} size={15} />{p.label}
             </button>
           ))}
         </div>

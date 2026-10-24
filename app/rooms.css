@@ -1,5 +1,5 @@
 /* Presence Room as a live space: group chat, voice notes, photos and a group call. */
-.app .rs{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;height:calc(100vh - 128px);min-height:560px}
+.app .rs{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;height:calc(100vh - 128px); height:calc(100dvh - 128px);min-height:560px}
 .app .rs button{font-family:inherit;cursor:pointer}
 .app .rs .show-sm{display:none}
 .app .rs-main{background:var(--cream);border:1px solid var(--line);border-radius:22px;display:flex;flex-direction:column;overflow:hidden;min-width:0;box-shadow:var(--shadow)}
@@ -139,7 +139,7 @@
 .app .rs-side .promise{margin:0;font-size:11px;line-height:1.5;color:var(--muted);text-align:center;padding:4px 8px 2px}
 /* dialogs */
 .app .rs-modal{position:fixed;inset:0;background:rgba(21,16,11,.66);backdrop-filter:blur(8px);z-index:70;display:grid;place-items:center;padding:20px}
-.app .rs-modal .card{width:min(500px,100%);background:var(--cream);border-radius:24px;padding:26px;position:relative;box-shadow:0 30px 90px rgba(0,0,0,.3);max-height:calc(100vh - 40px);overflow:auto}
+.app .rs-modal .card{width:min(500px,100%);background:var(--cream);border-radius:24px;padding:26px;position:relative;box-shadow:0 30px 90px rgba(0,0,0,.3);max-height:calc(100vh - 40px); max-height:calc(100dvh - 40px);overflow:auto}
 .app .rs-modal .x{position:absolute;top:14px;right:16px;border:0;background:none;font-size:26px;color:var(--muted)}
 .app .rs-modal h2{font-family:var(--font-playfair),serif;font-size:27px;font-weight:600;margin:4px 0 8px}
 .app .rs-modal .card>p{margin:0 0 16px;font-size:13px;line-height:1.55;color:var(--muted)}
@@ -166,7 +166,7 @@
   .app .rs-scrim{position:fixed;inset:0;background:rgba(21,16,11,.45);z-index:55;display:block!important}
 }
 @media(max-width:760px){
-  .app .rs{height:calc(100vh - 66px - 100px);min-height:480px}
+  .app .rs{height:calc(100vh - 66px - 100px); height:calc(100dvh - 66px - 100px);min-height:0}
   .app .rs-head .go{padding:9px 12px;font-size:12px}
   .app .rs .row{max-width:92%}
   .app .rs-head .go.hide-sm{display:none}

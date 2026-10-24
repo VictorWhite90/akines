@@ -9,6 +9,8 @@ import { useCallback, useRef, useSyncExternalStore } from "react";
  */
 const listeners = new Set<() => void>();
 const parsed = new Map<string, { raw: string; value: unknown }>();
+/** Values that didn't fit in storage (it's full, or blocked): kept for this visit so the change still shows. */
+const memory = new Map<string, unknown>();
 const notify = () => listeners.forEach((l) => l());
 
 function subscribe(cb: () => void) {
@@ -24,6 +26,7 @@ export function useLocal<T>(key: string, initial: T): [T, (next: T | ((prev: T) 
   const seed = useRef(initial);
 
   const read = useCallback((): T => {
+    if (memory.has(key)) return memory.get(key) as T;
     try {
       const raw = localStorage.getItem(key);
       if (raw === null) return seed.current;
@@ -45,8 +48,9 @@ export function useLocal<T>(key: string, initial: T): [T, (next: T | ((prev: T) 
       const resolved = typeof next === "function" ? (next as (p: T) => T)(read()) : next;
       try {
         localStorage.setItem(key, JSON.stringify(resolved));
+        memory.delete(key);
       } catch {
-        /* prototype only: keep working without storage */
+        memory.set(key, resolved); // storage full or blocked: keep it for this visit
       }
       notify();
     },

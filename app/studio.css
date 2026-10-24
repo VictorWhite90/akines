@@ -196,7 +196,7 @@
 
 /* ---- modal ---- */
 .app .sd-modal{position:fixed;inset:0;background:rgba(21,16,11,.66);backdrop-filter:blur(8px);z-index:70;display:grid;place-items:center;padding:20px}
-.app .sd-modal .card{width:min(500px,100%);background:var(--cream);border-radius:24px;padding:26px;position:relative;box-shadow:0 30px 90px rgba(0,0,0,.3);max-height:calc(100vh - 40px);overflow:auto}
+.app .sd-modal .card{width:min(500px,100%);background:var(--cream);border-radius:24px;padding:26px;position:relative;box-shadow:0 30px 90px rgba(0,0,0,.3);max-height:calc(100vh - 40px); max-height:calc(100dvh - 40px);overflow:auto}
 .app .sd-modal .card.wide{width:min(660px,100%)}
 .app .sd-modal .x{position:absolute;top:14px;right:16px;border:0;background:none;font-size:26px;color:var(--muted);line-height:1}
 .app .sd-modal h2{font-family:var(--font-playfair),serif;font-size:27px;font-weight:600;margin:4px 0 0}

@@ -4,11 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Avatar from "@/components/ui/Avatar";
-import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
+import { KINCIRCLE_PREFILL } from "@/components/circles/kincircleDraft";
 import { AFTER_GAME, PLAY_MODES, type Game, type PlayMode } from "@/lib/data/games";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 import BackLink from "@/components/ui/BackLink";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 /** Warm, varied stand-in answers from the other players, so the prototype feels like a real round. */
 const ANSWERS = [
@@ -100,7 +101,7 @@ export default function GameCircle({ game, title, players, mode }: { game: Game;
               };
               return (
                 <button key={a.id} onClick={act} className={`rounded-[18px] border p-4 text-left ${on ? "border-ink-900 bg-paper-200" : "border-line bg-paper-50 hover:border-ink-400"}`}>
-                  <p className="text-[18px]" aria-hidden>{a.glyph}</p>
+                  <p className="text-[18px]" aria-hidden><Glyph g={a.glyph} size={20} /></p>
                   <p className="mt-1 text-[14px] font-semibold">{a.label}</p>
                   {on && <p className="mt-0.5 text-[12px] text-moss-700">{a.id === "memory" ? "Saved to your shared memories" : "Invitation sent for next week"}</p>}
                 </button>
@@ -217,7 +218,7 @@ export default function GameCircle({ game, title, players, mode }: { game: Game;
           {memories.length === 0 ? (
             <p className="mt-1 text-[12.5px] text-mute">Nothing saved yet. Tap “Save as memory” on any answer, and everyone is asked first.</p>
           ) : (
-            <ul className="mt-2 flex flex-col gap-2 text-[12.5px]">{memories.slice(0, 5).map((m) => <li key={m}>❖ {m}</li>)}</ul>
+            <ul className="mt-2 flex flex-col gap-2 text-[12.5px]">{memories.slice(0, 5).map((m) => <li key={m}><Icon name="save" size={15} className="ic-inline" /> {m}</li>)}</ul>
           )}
         </section>
         <section className="rounded-[20px] border border-line p-4 text-[12px] text-mute">

@@ -1,4 +1,5 @@
 import { auth, type Member } from "@/lib/api/client";
+import { DEMO } from "@/lib/demo/mode";
 
 /**
  * The real session lives in HttpOnly cookies set by /api/auth/* (see lib/api/server.ts).
@@ -6,31 +7,21 @@ import { auth, type Member } from "@/lib/api/client";
  */
 export const SESSION_KEY = "artelia-connect:session";
 
-export function isGuest(): boolean {
-  if (typeof document === "undefined") return false;
-  return document.cookie.split("; ").some((c) => c === "ak_guest=1");
-}
-
 export function isSignedIn(): boolean {
   if (typeof document === "undefined") return false;
-  return document.cookie.split("; ").some((c) => c === "ak_in=1" || c === "ak_guest=1");
+  return document.cookie.split("; ").some((c) => c === "ak_in=1");
 }
 
-export function startGuestSession() {
-  if (typeof document === "undefined") return;
-  const secure = window.location.protocol === "https:" ? "; Secure" : "";
-  document.cookie = `ak_guest=1; Path=/; SameSite=Lax${secure}`;
-  try {
-    sessionStorage.removeItem("ak:me");
-    localStorage.removeItem(SESSION_KEY);
-  } catch {
-    /* storage unavailable: the preview still works without saved guest details */
-  }
+/** Demo mode only: sign straight in as the sample member, without a form. */
+export async function previewAsGuest() {
+  if (!DEMO) return false;
+  const r = await auth<{ user?: Member }>("guest");
+  if (r.ok && r.data.user) rememberMember(r.data.user);
+  return r.ok;
 }
 
 /** Keeps the member's name and email for screens that greet them. Never holds tokens. */
 export function rememberMember(user: Partial<Member> & Record<string, unknown>, extra: Record<string, unknown> = {}) {
-  if (typeof document !== "undefined") document.cookie = "ak_guest=; Max-Age=0; Path=/; SameSite=Lax";
   try {
     sessionStorage.removeItem("ak:me"); // the app frame reloads the member (a different account may have signed in)
     const prev = JSON.parse(localStorage.getItem(SESSION_KEY) ?? "{}");
@@ -49,9 +40,7 @@ export function rememberChoices(extra: Record<string, unknown>) {
 }
 
 export async function signOut() {
-  const guest = isGuest();
-  if (!guest) await auth("logout");
-  if (typeof document !== "undefined") document.cookie = "ak_guest=; Max-Age=0; Path=/; SameSite=Lax";
+  await auth("logout");
   try {
     localStorage.removeItem(SESSION_KEY);
     sessionStorage.removeItem("ak:me");

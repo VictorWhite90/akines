@@ -9,6 +9,7 @@ import { CIRCLES, ROOMS } from "@/lib/data/community";
 import { STARS } from "@/lib/data/constellation";
 import { GAMES, GAME_SESSIONS } from "@/lib/data/games";
 import { PEOPLE, PRESENCE, type Person, type PersonId } from "@/lib/data/people";
+import Icon from "@/components/ui/Icon";
 
 type Pane =
   | { kind: "today" }
@@ -79,7 +80,7 @@ function PaneBody({ pane, open, sel }: { pane: Pane; open: (p: Pane) => void; se
           const p: Pane = { kind: "game", id: s.game };
           return (
             <button key={s.id} className={`lx-row${sel(p) ? " on" : ""}`} onClick={() => open(p)}>
-              <span className="lx-ico">☺</span>
+              <span className="lx-ico"><Icon name="play" size={18} /></span>
               <span><span className="lx-when">{s.when}</span><span style={{ display: "block", fontSize: 13.5, fontWeight: 600 }}>{s.title}</span></span>
             </button>
           );
@@ -88,7 +89,7 @@ function PaneBody({ pane, open, sel }: { pane: Pane; open: (p: Pane) => void; se
           const p: Pane = { kind: "room", id: r.id };
           return (
             <button key={r.id} className={`lx-row${sel(p) ? " on" : ""}`} onClick={() => open(p)}>
-              <span className="lx-ico">◉</span>
+              <span className="lx-ico"><Icon name="live" size={18} /></span>
               <span><span className={`lx-when${r.status === "live" ? " live" : ""}`}>{r.when}</span><span style={{ display: "block", fontSize: 13.5, fontWeight: 600 }}>{r.title}</span></span>
             </button>
           );
@@ -126,12 +127,12 @@ function PaneBody({ pane, open, sel }: { pane: Pane; open: (p: Pane) => void; se
         {b.replies.map((r) => (
           <button key={r.id} className={`lx-row${sel({ kind: "person", id: r.by }) ? " on" : ""}`} onClick={() => open({ kind: "person", id: r.by })} style={{ alignItems: "flex-start" }}>
             <Avatar person={PEOPLE[r.by]} size={30} />
-            <span style={{ fontSize: 13, lineHeight: 1.45 }}><b>{PEOPLE[r.by].name.split(" ")[0]}</b> <span className="lx-mute">{r.kind === "voice" ? `◉ voice note · ${r.length}` : r.text}</span></span>
+            <span style={{ fontSize: 13, lineHeight: 1.45 }}><b>{PEOPLE[r.by].name.split(" ")[0]}</b> <span className="lx-mute">{r.kind === "voice" ? `voice note · ${r.length}` : r.text}</span></span>
           </button>
         ))}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 14 }}>
-          <button className="lx-btn brass" onClick={() => open({ kind: "circle", id: "textiles" })}>◎ Turn into a KinCircle</button>
-          <button className="lx-btn" onClick={() => open({ kind: "game", id: "unfinished-artwork" })}>☺ Play about it</button>
+          <button className="lx-btn brass" onClick={() => open({ kind: "circle", id: "textiles" })}><Icon name="circle" size={15} className="ic-inline" /> Turn into a KinCircle</button>
+          <button className="lx-btn" onClick={() => open({ kind: "game", id: "unfinished-artwork" })}><Icon name="play" size={15} className="ic-inline" /> Play about it</button>
         </div>
       </>
     );
@@ -159,20 +160,20 @@ function PaneBody({ pane, open, sel }: { pane: Pane; open: (p: Pane) => void; se
           </div>
         )}
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", margin: "14px 0" }}>
-          <Link className="lx-btn brass" href="/banter?new=chat">❝ Banter</Link>
-          <button className="lx-btn">◉ Voice note</button>
-          <button className="lx-btn" onClick={() => open({ kind: "game", id: "two-truths" })}>☺ Play</button>
+          <Link className="lx-btn brass" href="/banter?new=chat"><Icon name="banter" size={15} className="ic-inline" /> Banter</Link>
+          <button className="lx-btn"><Icon name="live" size={15} className="ic-inline" /> Voice note</button>
+          <button className="lx-btn" onClick={() => open({ kind: "game", id: "two-truths" })}><Icon name="play" size={15} className="ic-inline" /> Play</button>
         </div>
         {theirs.length > 0 && <p className="lx-eye">Their Banters</p>}
         {theirs.map((b) => (
           <button key={b.id} className={`lx-row${sel({ kind: "banter", id: b.id }) ? " on" : ""}`} onClick={() => open({ kind: "banter", id: b.id })}>
-            <span className="lx-ico">❝</span><span style={{ fontSize: 13.5, fontWeight: 600 }}>{b.prompt}</span>
+            <span className="lx-ico"><Icon name="banter" size={18} /></span><span style={{ fontSize: 13.5, fontWeight: 600 }}>{b.prompt}</span>
           </button>
         ))}
         <p className="lx-eye" style={{ marginTop: 12 }}>Circles you share</p>
         {CIRCLES.slice(3, 5).map((c) => (
           <button key={c.id} className={`lx-row${sel({ kind: "circle", id: c.id }) ? " on" : ""}`} onClick={() => open({ kind: "circle", id: c.id })}>
-            <span className="lx-ico">◎</span><span style={{ fontSize: 13.5, fontWeight: 600 }}>{c.name}</span>
+            <span className="lx-ico"><Icon name="circle" size={18} /></span><span style={{ fontSize: 13.5, fontWeight: 600 }}>{c.name}</span>
           </button>
         ))}
       </>
@@ -200,7 +201,7 @@ function PaneBody({ pane, open, sel }: { pane: Pane; open: (p: Pane) => void; se
             </button>
           ))}
         </div>
-        <button className="lx-btn brass" style={{ marginTop: 14 }} onClick={() => open({ kind: "room", id: "indigo-memory" })}>◉ Open this week&apos;s room</button>
+        <button className="lx-btn brass" style={{ marginTop: 14 }} onClick={() => open({ kind: "room", id: "indigo-memory" })}><Icon name="live" size={15} className="ic-inline" /> Open this week&apos;s room</button>
       </>
     );
   }

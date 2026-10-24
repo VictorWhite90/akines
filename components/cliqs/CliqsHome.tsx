@@ -7,13 +7,14 @@ import Photo from "@/components/ui/Photo";
 import { CLIQS, type Cliq } from "@/lib/data/cliqs";
 import { allPeople, ME, PEOPLE, PRESENCE, type Person, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 const SAFFRON = "#e09a00";
 const c = { ["--c" as string]: SAFFRON } as React.CSSProperties;
 const MAX = 8;
 const others = allPeople.filter((p) => p.id !== ME.id);
 const DOT: Record<string, string> = { studio: "#ffb000", room: "#e5007e", quiet: "#c4c1cc", open: "#00a86b" };
-const KIND: Record<string, string> = { banter: "❝", voice: "◉", game: "☺", photo: "▣" };
+const KIND: Record<string, string> = { banter: "banter", voice: "voice", game: "play", photo: "photo" };
 const RITUALS = ["One photo each, every Friday", "Sunday show-and-tell of something unfinished", "A monthly 20-minute Banter Now", "A slow game once a fortnight", "No ritual, just here when needed"];
 
 /** How Cliqs differ from the other ways of being together on Akines. */
@@ -135,7 +136,7 @@ export default function CliqsHome() {
 
               {latest && (
                 <div className="cq-latest">
-                  <span className="cq-k">{KIND[latest.kind]}</span>
+                  <span className="cq-k"><Glyph g={KIND[latest.kind] ?? ""} size={14} /></span>
                   <p><b>{PEOPLE[latest.by].name.split(" ")[0]}</b> {latest.text}</p>
                   <small>{latest.ago}</small>
                 </div>
@@ -150,10 +151,10 @@ export default function CliqsHome() {
               )}
 
               <div className="cq-actions">
-                <Link href="/banter?new=chat" className="cq-act lead"><span>❝</span>Banter</Link>
-                <Link href="/banter" className="cq-act"><span>◉</span>Banter Now</Link>
-                <Link href="/play" className="cq-act"><span>☺</span>Play</Link>
-                <button className="cq-act" onClick={() => setToast(`Voice note sent to ${q.name}.`)}><span>♪</span>Voice note</button>
+                <Link href="/banter?new=chat" className="cq-act lead"><span><Icon name="banter" size={18} /></span>Banter</Link>
+                <Link href="/banter" className="cq-act"><span><Icon name="live" size={18} /></span>Banter Now</Link>
+                <Link href="/play" className="cq-act"><span><Icon name="play" size={18} /></span>Play</Link>
+                <button className="cq-act" onClick={() => setToast(`Voice note sent to ${q.name}.`)}><span><Icon name="voice" size={18} /></span>Voice note</button>
               </div>
             </article>
           );

@@ -10,6 +10,7 @@ import { CLIQS } from "@/lib/data/cliqs";
 import { CIRCLES } from "@/lib/data/community";
 import { ME, PEOPLE, allPeople, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 const OTHERS = allPeople.filter((p) => p.id !== ME.id).map((p) => p.id as PersonId);
 const AUDIENCES: { id: string; label: string; reach: number; kind: string; people: PersonId[] }[] = [
@@ -125,11 +126,11 @@ export default function BanterCreate({ open, onClose, initialShape = "chat" }: {
           {step === 0 && (
             <div className="bc-shapes" role="radiogroup">
               {([
-                { id: "chat", t: "Banter chat", d: "People reply in their own time. It stays open for a few days, then fades.", g: "💬" },
-                { id: "live", t: "Live Banter", d: "A voice chat right now, for 2–8 people. Nothing is recorded.", g: "◉" },
+                { id: "chat", t: "Banter chat", d: "People reply in their own time. It stays open for a few days, then fades.", g: "discuss" },
+                { id: "live", t: "Live Banter", d: "A voice chat right now, for 2–8 people. Nothing is recorded.", g: "live" },
               ] as const).map((o) => (
                 <button key={o.id} role="radio" aria-checked={shape === o.id} className={shape === o.id ? "on" : undefined} onClick={() => setShape(o.id)}>
-                  <span className="g">{o.g}</span><b>{o.t}</b><small>{o.d}</small>
+                  <span className="g"><Glyph g={o.g} size={20} /></span><b>{o.t}</b><small>{o.d}</small>
                 </button>
               ))}
             </div>
@@ -150,7 +151,7 @@ export default function BanterCreate({ open, onClose, initialShape = "chat" }: {
                   ) : (
                     <label className="bc-add">
                       <input type="file" accept="image/*" onChange={(e) => pick(e.target.files?.[0])} />
-                      <span aria-hidden>▣</span> Add a photo <small>optional</small>
+                      <span aria-hidden><Icon name="photo" size={18} /></span> Add a photo <small>optional</small>
                     </label>
                   )}
                   {imgErr && <small className="bc-err">{imgErr}</small>}
@@ -204,7 +205,7 @@ export default function BanterCreate({ open, onClose, initialShape = "chat" }: {
           {step > 0 ? <button className="bc-back" onClick={() => setStep(step - 1)}>Back</button> : <span />}
           {step < 2
             ? <button className="bc-next" disabled={!canNext} onClick={() => setStep(step + 1)}>Continue</button>
-            : <button className="bc-next" onClick={start}>{shape === "live" ? "◉ Go live now" : "Start the Banter"}</button>}
+            : <button className="bc-next" onClick={start}>{shape === "live" ? "Go live now" : "Start the Banter"}</button>}
         </footer>
       </div>
     </div>,

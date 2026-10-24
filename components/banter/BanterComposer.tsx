@@ -21,6 +21,7 @@ import { CIRCLES } from "@/lib/data/community";
 import type { PhotoKey } from "@/lib/data/images";
 import { allPeople, ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { newId } from "@/lib/useLocal";
+import Icon from "@/components/ui/Icon";
 
 type Attach = "photo" | "voice" | "poll" | "music" | "video" | null;
 type AudienceKey = `cliq:${string}` | `circle:${string}` | "people" | "suggested" | "community";
@@ -121,17 +122,17 @@ export default function BanterComposer({ onPost }: { onPost: (b: Banter) => void
           <textarea value={prompt} onChange={(e) => { setPrompt(e.target.value); setKeepTone(false); }} rows={3} placeholder="Can an unfinished artwork still be honest?" className="w-full resize-none rounded-2xl bg-transparent px-4 pt-3.5 text-[17px] outline-none" aria-label="Your Banter" />
           <div className="flex flex-wrap items-center gap-1 border-t border-line px-2 py-1.5">
             {([
-              ["photo", "▣", "Photo"],
-              ["voice", "◉", "Voice note"],
-              ["poll", "≡", "Poll"],
-              ["music", "♪", "Song"],
-              ["video", "▶", "Short video"],
+              ["photo", "photo", "Photo"],
+              ["voice", "voice", "Voice note"],
+              ["poll", "poll", "Poll"],
+              ["music", "music", "Song"],
+              ["video", "video-play", "Short video"],
             ] as const).map(([k, g, label]) => (
               <button key={k} onClick={() => toggleAttach(k)} aria-pressed={attach === k} className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] ${attach === k ? "bg-ink-950 text-white" : "text-ink-700 hover:bg-paper-200"}`}>
-                <span aria-hidden>{g}</span>{label}
+                <Icon name={g} size={15} />{label}
               </button>
             ))}
-            <button onClick={() => setSparks((s) => !s)} className="ml-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold text-ink-900 hover:bg-paper-200"><span aria-hidden>✦</span> Spark an idea</button>
+            <button onClick={() => setSparks((s) => !s)} className="ml-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold text-ink-900 hover:bg-paper-200"><span aria-hidden><Icon name="spark" size={18} /></span> Spark an idea</button>
           </div>
         </div>
 
@@ -153,7 +154,7 @@ export default function BanterComposer({ onPost }: { onPost: (b: Banter) => void
               </>
             ) : voice ? (
               <>
-                <span className="flex-1">◉ Voice note ready · {voice}</span>
+                <span className="flex-1"><Icon name="live" size={15} className="ic-inline" /> Voice note ready · {voice}</span>
                 <button onClick={() => setVoice(null)} className="text-mute hover:text-ink-900">Remove</button>
               </>
             ) : (
@@ -212,7 +213,7 @@ export default function BanterComposer({ onPost }: { onPost: (b: Banter) => void
         <div className="mt-2 flex flex-wrap gap-1.5">
           {CLIQS.map((c) => <button key={c.id} onClick={() => setAudience(`cliq:${c.id}`)} className={chip(audience === `cliq:${c.id}`)}>{c.name}</button>)}
           {CIRCLES.slice(0, 2).map((c) => <button key={c.id} onClick={() => setAudience(`circle:${c.id}`)} className={chip(audience === `circle:${c.id}`)}>{c.name}</button>)}
-          <button onClick={() => setAudience("suggested")} className={chip(audience === "suggested")}>✦ Suggested people</button>
+          <button onClick={() => setAudience("suggested")} className={chip(audience === "suggested")}><Icon name="spark" size={15} className="ic-inline" /> Suggested people</button>
           <button onClick={() => setAudience("people")} className={chip(audience === "people")}>Choose people</button>
           <button onClick={() => setAudience("community")} className={chip(audience === "community")}>Wider community</button>
         </div>
@@ -248,8 +249,8 @@ export default function BanterComposer({ onPost }: { onPost: (b: Banter) => void
             <p className="mt-2 text-[15px] leading-snug font-semibold">{prompt.trim() || "Your question appears here."}</p>
             {attach === "photo" && photo && <Photo name={photo} sizes="300px" className="mt-2 h-28 rounded-xl" />}
             {attach === "poll" && pollOptions.length > 0 && <ul className="mt-2 flex flex-col gap-1">{pollOptions.map((o) => <li key={o} className="rounded-lg border border-line px-3 py-1.5 text-[12.5px]">{o}</li>)}</ul>}
-            {media.trim() && (attach === "music" || attach === "video") && <p className="mt-2 rounded-lg bg-paper-200 px-3 py-1.5 text-[12px]">{attach === "music" ? "♪" : "▶"} {media}</p>}
-            {voice && <p className="mt-2 rounded-lg bg-paper-200 px-3 py-1.5 text-[12px]">◉ Voice note · {voice}</p>}
+            {media.trim() && (attach === "music" || attach === "video") && <p className="mt-2 rounded-lg bg-paper-200 px-3 py-1.5 text-[12px]"><Icon name={attach === "music" ? "music" : "video-play"} size={13} className="ic-inline" /> {media}</p>}
+            {voice && <p className="mt-2 rounded-lg bg-paper-200 px-3 py-1.5 text-[12px]"><Icon name="live" size={15} className="ic-inline" /> Voice note · {voice}</p>}
             <div className="mt-2.5 flex flex-wrap gap-1.5 text-[11px]">
               <span className={`rounded-full px-2.5 py-0.5 font-semibold ${mood0.tone}`}>{mood0.label}</span>
               <span className="rounded-full border border-line px-2.5 py-0.5 text-mute">{BANTER_LIFETIMES.find((l) => l.id === lifetime)!.short}</span>

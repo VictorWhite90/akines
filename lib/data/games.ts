@@ -4,15 +4,15 @@ import type { PersonId } from "./people";
 /* ---------- Play Together: the game is a comfortable reason to connect ---------- */
 
 export const PLAY_PURPOSES = [
-  { id: "fun", label: "Have fun together", glyph: "☺" },
+  { id: "fun", label: "Have fun together", glyph: "play" },
   { id: "reconnect", label: "Reconnect with old friends", glyph: "↺" },
-  { id: "know", label: "Know one another better", glyph: "◎" },
-  { id: "welcome", label: "Welcome a new member", glyph: "✋" },
-  { id: "team", label: "Strengthen a team", glyph: "⌘" },
-  { id: "ideas", label: "Generate creative ideas", glyph: "✦" },
+  { id: "know", label: "Know one another better", glyph: "people" },
+  { id: "welcome", label: "Welcome a new member", glyph: "invite" },
+  { id: "team", label: "Strengthen a team", glyph: "team" },
+  { id: "ideas", label: "Generate creative ideas", glyph: "spark" },
   { id: "tension", label: "Gently resolve tension", glyph: "≈" },
-  { id: "culture", label: "Learn about art and culture", glyph: "❖" },
-  { id: "support", label: "Support someone who feels isolated", glyph: "♡" },
+  { id: "culture", label: "Learn about art and culture", glyph: "creative" },
+  { id: "support", label: "Support someone who feels isolated", glyph: "wellbeing" },
 ] as const;
 export type PlayPurpose = (typeof PLAY_PURPOSES)[number]["id"];
 
@@ -264,12 +264,12 @@ export const GAME_SAFEGUARDS = [
 ];
 
 export const AFTER_GAME = [
-  { id: "memory", label: "Save a shared memory", glyph: "❖" },
-  { id: "private", label: "Continue privately", glyph: "✉", href: "/messages" },
+  { id: "memory", label: "Save a shared memory", glyph: "save" },
+  { id: "private", label: "Continue privately", glyph: "message", href: "/messages" },
   { id: "again", label: "Schedule another game", glyph: "↺" },
-  { id: "circle", label: "Start a KinCircle", glyph: "◎", href: "/circles/new" },
-  { id: "collab", label: "Create a collaboration", glyph: "⌘", href: "/collaborate" },
-  { id: "journal", label: "Add to a group journal", glyph: "▤", href: "/journal" },
+  { id: "circle", label: "Start a KinCircle", glyph: "circle", href: "/circles/new" },
+  { id: "collab", label: "Create a collaboration", glyph: "collaborate", href: "/collaborate" },
+  { id: "journal", label: "Add to a group journal", glyph: "journal", href: "/journal" },
 ];
 
 /** A member-built or AI-drafted game, saved locally. */

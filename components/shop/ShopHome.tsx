@@ -8,6 +8,7 @@ import { PEOPLE } from "@/lib/data/people";
 import { CATEGORIES, SHIPPING, STATUS_LABEL, demoPurchases, matchesQuery, sortProducts, usd, type Category, type Order } from "@/lib/data/shop";
 import ProductCard from "./ProductCard";
 import { useSaved, useShop } from "./useShop";
+import Icon from "@/components/ui/Icon";
 
 type Tab = "browse" | "saved" | "orders";
 const PRICES = [
@@ -67,7 +68,7 @@ export default function ShopHome({ demo, view, seller, cat: initialCat }: { demo
           <p className="sub">Food, classes, services and things people make, from members of the community. Buy straight from the person.</p>
         </div>
         <Link href="/store" className="sh-sell">
-          <span className="ic" aria-hidden>▣</span>
+          <span className="ic" aria-hidden><Icon name="photo" size={18} /></span>
           <span><b>{store ? store.name : "Sell your own work"}</b><small>{store ? `${published} product${published === 1 ? "" : "s"} live · Manage My store` : "Open My store and list your first piece"}</small></span>
           <span className="arr" aria-hidden>→</span>
         </Link>

@@ -13,7 +13,7 @@ export const RAIL: RailGroup[] = [
     Icon: Star1,
     href: "/",
     items: [
-      { href: "/", label: "Home", glyph: "⌂" },
+      { href: "/", label: "Home", glyph: "home" },
     ],
   },
   { id: "connect", label: "Connect", Icon: People, href: "/banter", items: group("Connect"), dot: true },

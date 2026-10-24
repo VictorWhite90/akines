@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { isGuest, isSignedIn, signOut } from "@/lib/session";
+import { DEMO } from "@/lib/demo/mode";
+import { isSignedIn, signOut } from "@/lib/session";
 import { recordRoute } from "@/lib/navHistory";
 import { Add, Game, Home2, Message, Messages2, People } from "iconsax-reactjs";
 import CommandBar from "./CommandBar";
@@ -56,7 +57,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   if (open || pathname === "/circles/new") return <>{children}</>;
   if (gate !== "in") return <div className="gate-wait" aria-busy="true" />;
 
-  const guest = isGuest();
   const night = pathname === "/constellation" || pathname.startsWith("/layouts");
   // Pages restyled by remapping the older tokens inside a calm scope, each with its own accent.
   const CALM: [string, string][] = [["/kindred", "#2547d0"], ["/play", "#ff6b1a"], ["/activities", "#00a86b"], ["/collaborate", "#2547d0"], ["/messages", "#7b2ff7"], ["/studio", "#7b2ff7"], ["/journal", "#00a86b"], ["/store", "#7b2ff7"], ["/shop", "#7b2ff7"], ["/studios", "#7b2ff7"], ["/stories", "#e5007e"], ["/wellbeing", "#00a86b"], ["/dna", "#2547d0"], ["/applications", "#2547d0"], ["/profile", "#2547d0"]];
@@ -70,10 +70,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className={`app nx${night ? " is-night" : ""}${ankara ? " is-ankara" : ""}${pathname.startsWith("/atelier") || pathname === "/community" ? " is-bleed" : ""}${chat ? " is-chat" : ""}`}>
         <Rail />
         <main className="main">
-          {guest && (
+          {DEMO && (
             <div className="guest-preview" role="status">
-              <span><strong>Guest preview</strong> · You’re exploring without an account; some actions won’t be saved.</span>
-              <button type="button" onClick={() => void signOut().then(() => router.replace("/about"))}>Exit preview</button>
+              <span><strong>Demo</strong> · Sample data in your browser. Nothing here reaches Akines.</span>
+              <button type="button" onClick={() => void import("@/lib/demo/backend").then((d) => { d.resetDemo(); window.location.assign("/login"); })}>Reset demo</button>
+              <button type="button" onClick={() => void signOut().then(() => router.replace("/about"))}>Sign out</button>
             </div>
           )}
           <CommandBar onIntent={() => setIntent(true)} onCompanion={() => setCompanion(true)} onMenu={() => setMore(true)} />

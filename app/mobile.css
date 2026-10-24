@@ -284,8 +284,11 @@ html[data-theme="dark"] .dr { background: var(--dk-bg); border-right: 1px solid 
   .app .hm .kn-composer .types button { flex: none; white-space: nowrap; font-size: 12px !important; padding: 5px 10px !important; }
   .app .hm .kn-composer textarea { font-size: 14.5px !important; min-height: 0; }
   .app .hm .kn-composer textarea:not(:focus):placeholder-shown { height: 44px; }
-  .app .hm .kn-composer .foot { flex-wrap: nowrap; gap: 6px; padding-top: 8px; }
-  .app .hm .kn-composer .foot select { max-width: 130px; font-size: 12.5px; }
+  .app .hm .kn-composer .foot { flex-wrap: wrap; gap: 8px; padding-top: 8px; }
+  .app .hm .kn-composer .foot .tools { flex: 1 1 100%; min-width: 0; gap: 4px; }
+  .app .hm .kn-composer .foot .tools button { padding: 6px 8px; }
+  .app .hm .kn-composer .foot select { min-width: 0; flex: 1 1 auto; max-width: 170px; font-size: 12.5px; }
+  .app .hm .kn-composer .foot .actions { margin-left: auto; }
   .app .hm .kn-composer .foot button { font-size: 13px; }
 }
 @media (max-width: 760px) {
@@ -307,4 +310,18 @@ html[data-theme="dark"] .dr { background: var(--dk-bg); border-right: 1px solid 
   .cm-sizes b { font-size: 18px; }
   .app p.font-display { font-size: 18px !important; line-height: 1.35; }
   .app h1 em, .app h2 em { font-size: inherit; }
+}
+
+/* Long subtitles end in "…" instead of being cut mid-word. */
+@media (max-width: 760px) {
+  .km-who small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .km-who small i { display: inline-block; margin-right: 6px; vertical-align: 1px; }
+}
+/* Rows you can swipe sideways fade out at the edge, so it's clear there's more. */
+@media (max-width: 760px) {
+  .app .hm .kn-composer .types, .km-quick {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    padding-right: 24px;
+  }
 }

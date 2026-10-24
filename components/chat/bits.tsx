@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
+import Icon from "@/components/ui/Icon";
 
 /* ---------- tiny icons ---------- */
 const P = {
@@ -58,7 +59,7 @@ export function Voice({ length, mine }: { length: string; mine: boolean }) {
   const done = Math.round((pos / total) * BARS.length);
   return (
     <div className={`voice${mine ? " mine" : ""}`}>
-      <button onClick={() => setPlaying((v) => !v)} aria-label={playing ? "Pause voice note" : "Play voice note"}>{playing ? "❚❚" : "▶︎"}</button>
+      <button onClick={() => setPlaying((v) => !v)} aria-label={playing ? "Pause voice note" : "Play voice note"}><Icon name={playing ? "pause" : "play-media"} size={14} /></button>
       <div className="wave" aria-hidden>{BARS.map((h, i) => <i key={i} style={{ height: h * 0.55 + 4 }} className={i < done ? "on" : undefined} />)}</div>
       <span>{playing ? mmss(pos) : length}</span>
     </div>

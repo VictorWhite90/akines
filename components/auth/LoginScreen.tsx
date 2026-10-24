@@ -7,7 +7,8 @@ import { useEffect, useState } from "react";
 import ThemeToggle from "@/components/shell/ThemeToggle";
 import { FACE, type FaceKey } from "@/lib/data/images";
 import { auth, type Member } from "@/lib/api/client";
-import { rememberMember, signOut, startGuestSession } from "@/lib/session";
+import { DEMO } from "@/lib/demo/mode";
+import { previewAsGuest, rememberMember, signOut } from "@/lib/session";
 
 /** Matches the backend rule: 12+ characters with upper and lower case, a number and a symbol. */
 export const STRONG = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/;
@@ -70,13 +71,14 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
 
   // Returning members go straight to Home; "What brings you here?" is asked once, during sign-up.
   const signedIn = (data: { user?: Member }) => {
-    rememberMember(data.user ?? {});
+    if (data.user) rememberMember(data.user);
     router.replace("/");
     router.refresh();
   };
 
-  const continueAsGuest = () => {
-    startGuestSession();
+  // Demo mode only (no backend): one tap into the app as the sample member.
+  const continueAsGuest = async () => {
+    if (!(await previewAsGuest())) return;
     router.replace("/");
     router.refresh();
   };
@@ -203,8 +205,12 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
 
             {view === "login" && (
               <div className="lg-alt">
-                <button type="button" className="lg-outline" onClick={continueAsGuest}>Preview as guest</button>
-                <small className="lg-guest-note">Explore the interface without an account. Guest activity may not be saved.</small>
+                {DEMO && (
+                  <>
+                    <button type="button" className="lg-outline" onClick={continueAsGuest}>Preview as guest</button>
+                    <small className="lg-guest-note">Demo: sample data only. Any email and password sign you in, and any 6-digit code works.</small>
+                  </>
+                )}
                 <Link href="/signup" className="lg-outline">Create New Account</Link>
               </div>
             )}

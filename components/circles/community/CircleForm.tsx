@@ -8,18 +8,20 @@ import KindIcon from "./KindIcon";
 const STEPS = ["Kind", "Name", "People", "Agree"] as const;
 
 /** Start a small circle in four short steps, or (with `circle`) edit one you host, jumping to any step. */
-export default function CircleForm({ communityName, circle, onSave, onClose }: {
+export default function CircleForm({ communityName, circle, draft, onSave, onClose }: {
   communityName: string;
   circle?: SmallCircle;
+  /** Starting values for a new circle, e.g. handed over from a Banter. */
+  draft?: Partial<CircleInput> | null;
   onSave: (input: CircleInput) => Promise<{ ok: true } | { ok: false; message: string; field?: string }>;
   onClose: () => void;
 }) {
   const editing = !!circle;
   const [step, setStep] = useState(editing ? 1 : 0);
   const [f, setF] = useState<Required<CircleInput>>({
-    name: circle?.name ?? "",
-    purpose: circle?.purpose ?? "",
-    kind: circle?.kind ?? "friendship",
+    name: circle?.name ?? draft?.name ?? "",
+    purpose: circle?.purpose ?? draft?.purpose ?? "",
+    kind: circle?.kind ?? draft?.kind ?? "friendship",
     join_mode: circle?.join_mode ?? "open",
     capacity: circle?.capacity ?? 6,
     agreements: circle?.agreements ?? CIRCLE_AGREEMENTS.slice(0, 2),

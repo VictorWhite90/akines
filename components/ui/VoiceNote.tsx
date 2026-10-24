@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/cn";
+import Icon from "@/components/ui/Icon";
 
 const BARS = [8, 14, 22, 12, 28, 18, 34, 20, 12, 26, 38, 24, 16, 30, 42, 26, 14, 20, 32, 22, 10, 18, 28, 36, 20, 12, 24, 16, 30, 18, 10, 22, 14, 8];
 
@@ -36,7 +37,7 @@ export default function VoiceNote({ length, caption, tone = "light" }: { length:
   return (
     <div className={cn("flex items-center gap-4 rounded-2xl p-3.5 pr-5", dark ? "bg-paper-50/10" : "border border-line bg-paper-100")}>
       <button onClick={() => setPlaying((v) => !v)} aria-label={playing ? "Pause voice note" : "Play voice note"} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-clay-500 text-paper-50 hover:bg-clay-600">
-        <span aria-hidden className="text-lg leading-none">{playing ? "❚❚" : "▶\uFE0E"}</span>
+        <Icon name={playing ? "pause" : "play-media"} size={14} />
       </button>
       <div className="min-w-0 flex-1">
         <div className="flex h-10 items-center gap-[3px]" aria-hidden>

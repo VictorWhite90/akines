@@ -8,6 +8,7 @@ import { useMe } from "@/components/shell/MemberContext";
 import { communities, type Community, type CommunityPost, type PostAuthor, type PostComment } from "@/lib/api/community";
 import { shrinkImage } from "@/lib/imageShrink";
 import { timeAgo } from "@/components/notifications/NotificationList";
+import Icon from "@/components/ui/Icon";
 
 const MAX_IMAGES = 4;
 const name = (a: PostAuthor) => [a.first_name, a.last_name].filter(Boolean).join(" ") || (a.username ? `@${a.username}` : "Member");
@@ -204,7 +205,7 @@ function PostItem({ c, p, focus, onChange, onRemoved, onPin }: { c: Community; p
           )}
         </header>
         {(p.is_pinned || p.kind === "announcement") && (
-          <p className="cmp-flags">{p.is_pinned && <span>📌 Pinned</span>}{p.kind === "announcement" && <span className="ann">Announcement</span>}</p>
+          <p className="cmp-flags">{p.is_pinned && <span><Icon name="pin" size={15} className="ic-inline" /> Pinned</span>}{p.kind === "announcement" && <span className="ann">Announcement</span>}</p>
         )}
 
         {editing ? (

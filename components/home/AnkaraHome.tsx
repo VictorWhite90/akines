@@ -23,6 +23,7 @@ import { TODAYS_BANTER } from "@/lib/data/banter";
 import { MATCHES } from "@/lib/data/matches";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
+import Icon from "@/components/ui/Icon";
 
 const MOODS = [
   { face: "😞", label: "Low" },
@@ -139,7 +140,7 @@ export default function AnkaraHome() {
           <Link href="/banter"><b>8</b>Banters for you</Link>
           <Link href="/rooms"><b className="live">1</b>room live now</Link>
           <Link href="/kindred"><b>2</b>introductions</Link>
-          <Link href="/banter?new=chat" className="go">❝ Start a Banter</Link>
+          <Link href="/banter?new=chat" className="go"><Icon name="banter" size={15} className="ic-inline" /> Start a Banter</Link>
         </nav>
       </header>
 
@@ -182,8 +183,8 @@ export default function AnkaraHome() {
                     <b>{st.title}</b>
                     <span>{st.excerpt}</span>
                     <small className="hm-resonate-stats">
-                      <span><i aria-hidden>♡</i>128 felt this</span>
-                      <span>{st.reflections} Reflections</span>
+                      <span>{st.voice ? <><Icon name="voice" size={13} />Voice note · {st.voice}</> : <><Icon name="time" size={13} />{st.read} read</>}</span>
+                      <span>{st.reflections} reflections</span>
                     </small>
                   </span>
                 </Link>

@@ -9,9 +9,10 @@ import { stockLeft, usd } from "@/lib/data/shop";
 import CheckoutDrawer from "./CheckoutDrawer";
 import ProductCard, { Heart } from "./ProductCard";
 import { useSaved, useShop } from "./useShop";
+import Icon, { Glyph } from "@/components/ui/Icon";
 
 const Note = ({ g, t, children }: { g: string; t: string; children: React.ReactNode }) => (
-  <li><span aria-hidden>{g}</span><div><b>{t}</b><p>{children}</p></div></li>
+  <li><span aria-hidden><Glyph g={g} size={18} /></span><div><b>{t}</b><p>{children}</p></div></li>
 );
 
 export default function ProductDetail({ id, demo }: { id: string; demo?: string }) {
@@ -105,7 +106,7 @@ export default function ProductDetail({ id, demo }: { id: string; demo?: string 
                 <button className="sh-btn lime big" disabled={sold} onClick={() => setBuy(true)}>{sold ? "Sold out" : `Buy now · ${usd(p.price * Math.min(qty, Math.max(1, left)))}`}</button>
                 <button className={`sh-icbtn${has(p.id) ? " on" : ""}`} onClick={() => toggle(p.id)} aria-pressed={has(p.id)} aria-label={has(p.id) ? "Saved" : "Save"}><Heart on={has(p.id)} size={20} /></button>
               </div>
-              <button className="sh-msgbtn" onClick={() => setMsg(msg ? null : "open")}>✉ Message {first}</button>
+              <button className="sh-msgbtn" onClick={() => setMsg(msg ? null : "open")}><Icon name="message" size={15} className="ic-inline" /> Message {first}</button>
               {msg === "open" && (
                 <div className="sh-msg">
                   <textarea value={text} onChange={(e) => setText(e.target.value)} rows={3} placeholder={`Hi ${first}, I love ${p.title}. Is it still available?`} />

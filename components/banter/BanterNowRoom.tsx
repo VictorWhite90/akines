@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
+import { KINCIRCLE_PREFILL } from "@/components/circles/kincircleDraft";
 import { BANTER_NOW, type BanterNow } from "@/lib/data/banter";
 import { ME, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 import LiveStage from "./LiveStage";
+import Icon from "@/components/ui/Icon";
 
 export default function BanterNowRoom({ id }: { id: string }) {
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function BanterNowRoom({ id }: { id: string }) {
         </section>
         <div className="grid gap-3 sm:grid-cols-3">
           <Link href="/collaborate" className="rounded-[18px] border border-line bg-paper-50 p-4 hover:border-ink-400">
-            <p className="text-[18px]" aria-hidden>⌘</p>
+            <p className="text-[18px]" aria-hidden><Icon name="collaborate" size={18} /></p>
             <p className="mt-1 text-[14px] font-semibold">Create a project</p>
             <p className="mt-0.5 text-[12px] text-mute">Open a Collaboration Studio.</p>
           </Link>
@@ -78,7 +79,7 @@ export default function BanterNowRoom({ id }: { id: string }) {
             }}
             className="rounded-[18px] border border-line bg-paper-50 p-4 text-left hover:border-ink-400"
           >
-            <p className="text-[18px]" aria-hidden>◎</p>
+            <p className="text-[18px]" aria-hidden><Icon name="circle" size={18} /></p>
             <p className="mt-1 text-[14px] font-semibold">Turn into a KinCircle</p>
             <p className="mt-0.5 text-[12px] text-mute">Keep meeting with purpose.</p>
           </button>

@@ -13,6 +13,7 @@ import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
 import type { BanterNow } from "@/lib/data/banter";
 import { allPeople } from "@/lib/data/people";
+import Icon from "@/components/ui/Icon";
 
 const OTHERS = allPeople.filter((p) => p.id !== ME.id).map((p) => p.id as PersonId);
 const AUDIENCES: { id: string; label: string; reach: number; kind: string; people: PersonId[] }[] = [
@@ -76,8 +77,8 @@ function Card({ b, depth, onSkip }: { b: Banter; depth: number; onSkip: () => vo
         <div className="bd-ask">
           <p className="bd-who"><Avatar person={by} size={30} ring /> <b>{b.mine ? "You" : by.name.split(" ")[0]}</b> {b.mine ? "ask" : "asks"}{b.tagged?.length ? <> · with {b.tagged.map((t) => `@${PEOPLE[t].name.split(" ")[0]}`).join(", ")}</> : null}</p>
           <h2>{b.prompt}</h2>
-          {b.poll && <p className="bd-chip">≡ Poll · {b.poll.options.length} options</p>}
-          {b.media && <p className="bd-chip">{b.media.kind === "music" ? "♪" : "▶"} {b.media.label}</p>}
+          {b.poll && <p className="bd-chip"><Icon name="poll" size={15} className="ic-inline" /> Poll · {b.poll.options.length} options</p>}
+          {b.media && <p className="bd-chip"><Icon name={b.media.kind === "music" ? "music" : "video-play"} size={13} className="ic-inline" /> {b.media.label}</p>}
         </div>
         {b.image ? (
           // eslint-disable-next-line @next/next/no-img-element -- member's own upload, stored as a data URL
@@ -93,7 +94,7 @@ function Card({ b, depth, onSkip }: { b: Banter; depth: number; onSkip: () => vo
           last.map((r) => (
             <div key={r.id} className="bd-bubble">
               <Avatar person={PEOPLE[r.by]} size={24} />
-              <span><b>{r.by === ME.id ? "You" : PEOPLE[r.by].name.split(" ")[0]}</b> {r.kind === "voice" ? `◉ voice note ${r.length}` : r.kind === "photo" ? "▣ shared a photo" : r.text}</span>
+              <span><b>{r.by === ME.id ? "You" : PEOPLE[r.by].name.split(" ")[0]}</b> {r.kind === "voice" ? `voice note ${r.length}` : r.kind === "photo" ? "shared a photo" : r.text}</span>
             </div>
           ))
         )}
@@ -243,10 +244,10 @@ export default function BanterDeck() {
             <p className="bd-note" style={{ marginTop: -4, marginBottom: 10 }}>Write one honest question, then choose how people join in.</p>
             <div className="bd-shape" role="radiogroup" aria-label="How people join in">
               <button role="radio" aria-checked={shape === "chat"} className={shape === "chat" ? "on" : undefined} onClick={() => setShape("chat")}>
-                <span>💬</span><b>Chat room</b><small>People reply in their own time</small>
+                <span><Icon name="discuss" size={18} /></span><b>Chat room</b><small>People reply in their own time</small>
               </button>
               <button role="radio" aria-checked={shape === "live"} className={shape === "live" ? "on" : undefined} onClick={() => setShape("live")}>
-                <span>◉</span><b>Live talk</b><small>Voice, now, 2–8 people</small>
+                <span><Icon name="voice" size={18} /></span><b>Live talk</b><small>Voice, now, 2–8 people</small>
               </button>
             </div>
             <textarea id="bd-q" value={q} onChange={(e) => { setQ(e.target.value); setAck(false); }} rows={3} placeholder={shape === "live" ? "Is AI helping or damaging African art?" : "Can an unfinished artwork still be honest? Type @ to tag someone"} />
@@ -279,7 +280,7 @@ export default function BanterDeck() {
                 ) : (
                   <label className="bd-add">
                     <input type="file" accept="image/*" onChange={(e) => pickImage(e.target.files?.[0])} />
-                    ▣ Add your own photo
+                    <Icon name="photo" size={15} className="ic-inline" /> Add your own photo
                   </label>
                 )}
                 <button className="bd-add" onClick={() => setTagOpen(!tagOpen)} aria-expanded={showTags}>＠ Tag people</button>
@@ -330,7 +331,7 @@ export default function BanterDeck() {
                 <p className="bd-note">Invites {Math.min(audience.people.length, 7)} people from {audience.label}. Everyone is equal; nothing is recorded.</p>
               </>
             )}
-            <button className="bd-start" disabled={q.trim().length < 5 || !!issue} onClick={start}>{shape === "live" ? "◉ Go live now" : "Start the Banter"}</button>
+            <button className="bd-start" disabled={q.trim().length < 5 || !!issue} onClick={start}>{shape === "live" ? "Go live now" : "Start the Banter"}</button>
             <p className="bd-note">Goes to {audience.reach} {audience.reach === 1 ? "person" : "people"}, each told why. No likes, no followers.</p>
           </section>
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Field, PhotoPicker, StudioCard } from "./parts";
 import { COVER_CHOICES, DAYS, DISCIPLINES, THEMES, VISITING, blankStudio, hoursText, sampleNotes, sampleVisits, sampleWorks, todayIso, type Studio, type VisitingStyle } from "@/lib/data/studio";
 import { cn } from "@/lib/cn";
+import Icon from "@/components/ui/Icon";
 
 const STEPS = ["Name it", "Look & feel", "The door"];
 const MOODS: Record<string, string> = { forest: "Calm and deep", indigo: "Night-shift focus", clay: "Warm, busy hands", cream: "Quiet daylight", lime: "Bright and awake" };
@@ -142,7 +143,7 @@ export default function Wizard({ onFinish, initialStep = 1, prefill = false }: {
             {step < 3 ? (
               <button className="sd-btn dark" disabled={!canNext} onClick={() => setStep(step + 1)}>{canNext ? "Continue →" : step === 1 ? "Add a name and what you do" : "Continue"}</button>
             ) : (
-              <button className="sd-btn dark big" onClick={finish}>Open my space ✦</button>
+              <button className="sd-btn dark big" onClick={finish}>Open my space <Icon name="spark" size={16} className="ic-inline" /></button>
             )}
           </div>
         </section>

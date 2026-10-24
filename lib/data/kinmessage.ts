@@ -9,11 +9,11 @@ export const KIND_LABEL: Record<ConvoKind, string> = { direct: "Person", cliq: "
 export const KIND_COLOR: Record<ConvoKind, string> = { direct: "#7b2ff7", cliq: "#e09a00", circle: "#00a86b", project: "#2547d0" };
 
 export const INTENTS = [
-  { id: "checkin", label: "Check in", glyph: "♡", tint: "#fdf3fb", color: "#c2187a", hint: "Just seeing how they are. No agenda." },
-  { id: "plan", label: "Plan", glyph: "◷", tint: "#eef4ff", color: "#2547d0", hint: "Pick a time, a place, a next step." },
-  { id: "create", label: "Create", glyph: "✦", tint: "#fff6e8", color: "#c26a00", hint: "Make or decide something together." },
-  { id: "support", label: "Support", glyph: "◌", tint: "#eefaf4", color: "#00845a", hint: "Someone needs care or advice." },
-  { id: "celebrate", label: "Celebrate", glyph: "✺", tint: "#fffbe6", color: "#b08600", hint: "Share good news, mark a moment." },
+  { id: "checkin", label: "Check in", glyph: "wellbeing", tint: "#fdf3fb", color: "#c2187a", hint: "Just seeing how they are. No agenda." },
+  { id: "plan", label: "Plan", glyph: "event", tint: "#eef4ff", color: "#2547d0", hint: "Pick a time, a place, a next step." },
+  { id: "create", label: "Create", glyph: "spark", tint: "#fff6e8", color: "#c26a00", hint: "Make or decide something together." },
+  { id: "support", label: "Support", glyph: "support", tint: "#eefaf4", color: "#00845a", hint: "Someone needs care or advice." },
+  { id: "celebrate", label: "Celebrate", glyph: "celebrate", tint: "#fffbe6", color: "#b08600", hint: "Share good news, mark a moment." },
 ] as const;
 export type IntentId = (typeof INTENTS)[number]["id"];
 

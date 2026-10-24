@@ -5,15 +5,15 @@ import type { PersonId } from "./people";
 
 export const BANTER_FORMATS = [
   { id: "ask", label: "Ask something", glyph: "?" },
-  { id: "thought", label: "Share a thought", glyph: "✎" },
+  { id: "thought", label: "Share a thought", glyph: "edit" },
   { id: "debate", label: "Debate playfully", glyph: "⇄" },
-  { id: "wip", label: "Show what you're working on", glyph: "✦" },
-  { id: "story", label: "Tell a story", glyph: "❝" },
-  { id: "photo", label: "Share a photograph", glyph: "▣" },
-  { id: "voice", label: "Drop a voice note", glyph: "◉" },
+  { id: "wip", label: "Show what you're working on", glyph: "spark" },
+  { id: "story", label: "Tell a story", glyph: "stories" },
+  { id: "photo", label: "Share a photograph", glyph: "photo" },
+  { id: "voice", label: "Drop a voice note", glyph: "voice" },
   { id: "predict", label: "Make a prediction", glyph: "↗" },
-  { id: "celebrate", label: "Celebrate someone", glyph: "✺" },
-  { id: "honest", label: "Request an honest opinion", glyph: "◐" },
+  { id: "celebrate", label: "Celebrate someone", glyph: "celebrate" },
+  { id: "honest", label: "Request an honest opinion", glyph: "ask" },
 ] as const;
 export type BanterFormat = (typeof BANTER_FORMATS)[number]["id"];
 

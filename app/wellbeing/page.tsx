@@ -5,6 +5,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import Photo from "@/components/ui/Photo";
 import ToggleButton from "@/components/ui/Toggle";
 import { CARE_TEAM } from "@/lib/data/community";
+import Icon from "@/components/ui/Icon";
 
 export const metadata: Metadata = { title: "Wellbeing · Akines" };
 
@@ -16,7 +17,7 @@ export default function Wellbeing() {
       <PageHeader eyebrow="Wellbeing" title={<>A place to <em>breathe out.</em></>} sub="Loneliness, stress at work, money worry and impostor feelings are part of being human. This space helps you notice them, and points to real people when you need more." />
 
       <aside className="flex gap-4 rounded-2xl border border-ochre-400/50 bg-ochre-200/40 p-5" role="note">
-        <span aria-hidden className="mt-0.5 shrink-0 text-2xl leading-none text-ochre-600">ⓘ</span>
+        <span aria-hidden className="mt-0.5 shrink-0 text-2xl leading-none text-ochre-600"><Icon name="about" size={18} /></span>
         <div className="text-[15px] leading-relaxed"><b className="font-semibold">The Companion is AI, not a clinician.</b> It doesn't diagnose or treat anything. It can help you reflect, and it will point you to licensed professionals whenever that would help. <span className="mt-1 flex items-center gap-1.5 text-sm text-mute"><span aria-hidden>⊛</span> Everything here is private and never shapes matching, ranking or ads.</span></div>
       </aside>
 

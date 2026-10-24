@@ -3,7 +3,7 @@
 import { SEED_COMMUNITIES, SEED_EVENTS, ticketCode, type CircleEvent, type CommunityCircle, type Ticket } from "@/lib/data/communityCircles";
 import { ME, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
-import type { SavedKinCircle } from "./CreateKinCircle";
+import type { SavedKinCircle } from "./kincircleDraft";
 
 /**
  * Community circles, their events and the viewer's tickets.

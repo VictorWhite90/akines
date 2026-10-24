@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Photo from "@/components/ui/Photo";
-import { KINCIRCLE_PREFILL } from "@/components/circles/CreateKinCircle";
+import { KINCIRCLE_PREFILL } from "@/components/circles/kincircleDraft";
 import { useBanterReplies, usePollVotes, useResonance } from "./useBanters";
 import { BANTER_LIFETIMES, BANTER_MOODS, softenWording, toneCheck, type Banter } from "@/lib/data/banter";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { newId } from "@/lib/useLocal";
+import Icon from "@/components/ui/Icon";
 
 /** Resonance needed before Akines offers to grow a Banter into something bigger. */
 const GROW_AT = 3;
@@ -62,7 +63,7 @@ export default function BanterCard({ banter, highlight = false }: { banter: Bant
             <span>· {banter.ago}</span>
           </div>
           <Link href={`/banter/${banter.id}`} className="mt-2.5 block text-[16.5px] leading-snug font-semibold text-ink-950 hover:underline">{banter.prompt}</Link>
-          {banter.media && <p className="mt-2 inline-flex rounded-full bg-paper-200 px-3 py-1 text-[12px]">{banter.media.kind === "music" ? "♪" : "▶"} {banter.media.label}</p>}
+          {banter.media && <p className="mt-2 inline-flex rounded-full bg-paper-200 px-3 py-1 text-[12px]"><Icon name={banter.media.kind === "music" ? "music" : "video-play"} size={13} className="ic-inline" /> {banter.media.label}</p>}
         </div>
         {banter.photo && <Photo name={banter.photo} sizes="96px" className="hidden h-24 w-24 flex-none rounded-xl sm:block" />}
       </div>
@@ -112,7 +113,7 @@ export default function BanterCard({ banter, highlight = false }: { banter: Bant
       <div className="bc-acts mt-3.5 flex flex-wrap items-center gap-2 border-t border-line pt-3">
         {!banter.closed && !open && <button onClick={() => setOpen(true)} className="rounded-full bg-ai/15 px-3.5 py-2 text-[12.5px] font-semibold text-ink-900 hover:bg-ai/25">Add a thoughtful response</button>}
         <button onClick={() => toggle(banter.id)} aria-pressed={iResonate} className={`flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12.5px] font-semibold ${iResonate ? "border-ink-950 bg-ink-950 text-white" : "border-line bg-white hover:border-ink-400"}`}>
-          ✦ {iResonate ? "You want to explore this" : "I want to explore this"}
+          <Icon name="spark" size={15} className="ic-inline" /> {iResonate ? "You want to explore this" : "I want to explore this"}
         </button>
         {resonance.length >= GROW_AT && !banter.closed && (
           <>

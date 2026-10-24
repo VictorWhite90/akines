@@ -1,12 +1,12 @@
 /* Akines's typed posts, reactions and composer — feed cards inspired by X/Facebook: soft
    shadow instead of hard borders, no loud chrome, content does the talking. */
-.app .kn-composer{background:#fff;border-radius:16px;padding:10px 14px;display:grid;gap:8px;box-shadow:0 1px 2px rgba(21,16,11,.05),0 1px 8px rgba(21,16,11,.04)}
+.app .kn-composer{background:#fff;border-radius:16px;padding:10px 14px;display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:8px;box-shadow:0 1px 2px rgba(21,16,11,.05),0 1px 8px rgba(21,16,11,.04)}
 .app .kn-composer .types{display:flex;gap:2px;flex-wrap:wrap}
 .app .kn-composer .types button{display:inline-flex;gap:5px;align-items:center;border:0;background:transparent;color:var(--muted);border-radius:20px;padding:4px 9px;font:inherit;font-size:11.5px;cursor:pointer;transition:background .15s,color .15s}
 .app .kn-composer .types button:hover{background:var(--paper);color:var(--ink)}
 .app .kn-composer .types button.on{background:var(--forest);color:#fff}
 .app .kn-composer .row{display:flex;gap:10px;align-items:flex-start}
-.app .kn-composer textarea{flex:1;border:0;background:transparent;padding:6px 0;font:inherit;font-size:14px;resize:vertical;min-height:40px;outline:0;color:var(--ink)}
+.app .kn-composer textarea{flex:1;min-width:0;border:0;background:transparent;padding:6px 0;font:inherit;font-size:14px;resize:vertical;min-height:40px;outline:0;color:var(--ink)}
 .app .kn-composer textarea::placeholder{color:#9aa19b}
 .app .kn-composer .photo-preview{display:flex;gap:8px;flex-wrap:wrap}
 .app .kn-composer .photo-thumb{position:relative;width:96px;height:96px;border-radius:12px;overflow:hidden;background:#e9e4d6}
@@ -16,7 +16,7 @@
 .app .kn-composer .photo-grid button{position:relative;aspect-ratio:1;border:0;padding:0;border-radius:10px;overflow:hidden}
 .app .kn-composer .foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}
 .app .kn-composer .tools{display:flex;gap:6px;align-items:center}
-.app .kn-composer .tools button{border:0;background:transparent;border-radius:20px;padding:6px 12px;font:inherit;font-size:12.5px;color:var(--muted);cursor:pointer}
+.app .kn-composer .tools button{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;border:0;background:transparent;border-radius:20px;padding:6px 12px;font:inherit;font-size:12.5px;color:var(--muted);cursor:pointer}
 .app .kn-composer .tools button:hover{background:var(--paper);color:var(--ink)}
 .app .kn-composer .tools select{border:0;background:var(--paper);border-radius:20px;padding:6px 12px;font:inherit;font-size:12.5px;color:var(--ink)}
 .app .kn-composer .actions{display:flex;gap:8px}

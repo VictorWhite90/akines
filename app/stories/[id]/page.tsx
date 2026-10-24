@@ -8,6 +8,7 @@ import VoiceNote from "@/components/ui/VoiceNote";
 import { PEOPLE } from "@/lib/data/people";
 import { ARTWORK, STORIES, STORY_BODY } from "@/lib/data/stories";
 import BackLink from "@/components/ui/BackLink";
+import Icon from "@/components/ui/Icon";
 
 export function generateStaticParams() {
   return STORIES.map((s) => ({ id: s.id }));
@@ -77,8 +78,8 @@ export default async function StoryPage({ params }: { params: Promise<{ id: stri
       </section>
 
       <section className="grid gap-6 md:grid-cols-2" aria-label="Music and poem">
-        <div className="pattern-adire on-dark rounded-[24px] bg-ink-900 p-7 text-paper-50"><p className="eyebrow flex items-center gap-2 text-ochre-300"><span aria-hidden>♪</span>The music that goes with it</p><p className="font-display mt-3 text-[26px] leading-tight">{A.music.title}</p><p className="mt-2 text-paper-100/80">{A.music.note}</p></div>
-        <div className="card p-7"><p className="eyebrow flex items-center gap-2 text-clay-600"><span aria-hidden>✎</span>The poem behind it</p><p className="font-display mt-3 text-[24px] leading-snug italic">{A.poem.map((l) => <span key={l} className="block">{l}</span>)}</p></div>
+        <div className="pattern-adire on-dark rounded-[24px] bg-ink-900 p-7 text-paper-50"><p className="eyebrow flex items-center gap-2 text-ochre-300"><span aria-hidden><Icon name="music" size={18} /></span>The music that goes with it</p><p className="font-display mt-3 text-[26px] leading-tight">{A.music.title}</p><p className="mt-2 text-paper-100/80">{A.music.note}</p></div>
+        <div className="card p-7"><p className="eyebrow flex items-center gap-2 text-clay-600"><span aria-hidden><Icon name="edit" size={18} /></span>The poem behind it</p><p className="font-display mt-3 text-[24px] leading-snug italic">{A.poem.map((l) => <span key={l} className="block">{l}</span>)}</p></div>
       </section>
 
       <section id="legacy" aria-label="Legacy" className="scroll-mt-28">

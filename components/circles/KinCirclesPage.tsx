@@ -5,12 +5,13 @@ import { useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import Photo from "@/components/ui/Photo";
 import KinCircleHero from "./KinCircleHero";
-import { CIRCLE_TYPES, type SavedKinCircle } from "./CreateKinCircle";
+import { CIRCLE_TYPES, type SavedKinCircle } from "./kincircleDraft";
 import { useJoined } from "./useJoined";
 import { CIRCLES } from "@/lib/data/community";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 import CommunityDirectory from "./community/CommunityDirectory";
+import { Glyph } from "@/components/ui/Icon";
 
 const EMERALD = "#00a86b";
 const c = { ["--c" as string]: EMERALD } as React.CSSProperties;
@@ -114,7 +115,7 @@ export default function KinCirclesPage() {
             return (
               <div key={s.id} className="ap-card" style={c}>
                 <div className="ap-card-body">
-                  <span><span className="ap-tag">{t?.glyph} {t?.label} · forming</span></span>
+                  <span><span className="ap-tag">{t?.glyph && <Glyph g={t.glyph} size={12} />} {t?.label} · forming</span></span>
                   <h3>{s.name}</h3>
                   {s.purpose && <p>{s.purpose}</p>}
                   <div className="ap-foot">
@@ -163,7 +164,7 @@ export default function KinCirclesPage() {
         <div className="kc-types">
           {CIRCLE_TYPES.map((t) => (
             <Link key={t.id} href="/circles/new" className="kc-type">
-              <span>{t.glyph}</span>
+              <span><Glyph g={t.glyph} size={18} /></span>
               <b>{t.label}</b>
               <p>{t.body}</p>
             </Link>

@@ -9,6 +9,8 @@
  * - Messages are always sent over the API; this connection only brings news in (and "typing").
  */
 import { chat, type LiveEvent } from "./api/chat";
+import { demoBus } from "./demo/bus";
+import { DEMO } from "./demo/mode";
 
 type Status = "connecting" | "open" | "offline";
 type Listener = (event: LiveEvent) => void;
@@ -19,7 +21,7 @@ const MAX_BACKOFF_MS = 30_000;
 const CLOSE_SIGNED_OUT = 4401;
 
 let socket: WebSocket | null = null;
-let status: Status = "offline";
+let status: Status = DEMO ? "open" : "offline";
 let users = 0;
 let attempt = 0;
 let retryTimer: ReturnType<typeof setTimeout> | undefined;
@@ -111,6 +113,7 @@ if (typeof window !== "undefined") {
 export const live = {
   /** Keeps the connection open while at least one screen uses it. Returns a function to call when done. */
   use(): () => void {
+    if (DEMO) return () => {}; // demo: the pretend backend pushes events through demoBus, no socket
     users += 1;
     if (users === 1) {
       attempt = 0;
@@ -122,6 +125,7 @@ export const live = {
     };
   },
   on(fn: Listener): () => void {
+    if (DEMO) return demoBus.on(fn);
     listeners.add(fn);
     return () => listeners.delete(fn);
   },

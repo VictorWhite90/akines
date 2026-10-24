@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { DEMO } from "@/lib/demo/mode";
 
 /**
  * Who sees what, decided on the server before any page renders:
- * - Visitors without an account only reach public pages, unless they start a guest preview.
+ * - Visitors without an account only reach the public pages (About, sign-up, log-in, invite links); everything else sends them to About.
  * - Signed-in members skip About, log-in and sign-up and go straight to Home.
  */
 const PUBLIC = ["/about", "/about/philosophy", "/login", "/signup"];
@@ -18,17 +19,17 @@ export function proxy(req: NextRequest) {
     url.pathname = pathname.replace(/\/+$/, "");
     return NextResponse.redirect(url, 308);
   }
-  const signedIn = Boolean(req.cookies.get("ak_refresh")?.value);
-  const guest = req.cookies.get("ak_guest")?.value === "1";
+  // Demo builds have no backend: the in-browser demo marks the session with the readable ak_in flag instead.
+  const signedIn = DEMO ? req.cookies.get("ak_in")?.value === "1" : Boolean(req.cookies.get("ak_refresh")?.value);
   const isPublic = PUBLIC.includes(pathname) || PUBLIC_PREFIX.some((p) => pathname.startsWith(p));
 
   // The steps after log-in (?step=…) need a session.
-  if (!signedIn && !guest && pathname === "/login" && searchParams.get("step")) {
+  if (!signedIn && pathname === "/login" && searchParams.get("step")) {
     const url = req.nextUrl.clone();
     url.search = "";
     return NextResponse.redirect(url);
   }
-  if (!signedIn && !guest && !isPublic) {
+  if (!signedIn && !isPublic) {
     const url = req.nextUrl.clone();
     url.pathname = "/about";
     url.search = "";

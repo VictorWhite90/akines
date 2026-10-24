@@ -11,6 +11,7 @@ import { useBanters, useResonance } from "./useBanters";
 import { BANTER_NOW, BANTER_NOW_RULES, BANTER_TYPES, TODAYS_BANTER, type Banter, type BanterNow, type BanterType } from "@/lib/data/banter";
 import { allPeople, ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
+import Icon from "@/components/ui/Icon";
 
 const BECOME = [
   { title: "Spark", body: "One honest question, shared on purpose." },
@@ -60,7 +61,7 @@ export default function BanterHome() {
           </div>
           <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap" }}>
             <a href="#compose" className="ap-cta" style={{ marginTop: 0, background: "#14121a", color: "#fff" }}>Start a Banter</a>
-            <button onClick={() => setStarting((v) => !v)} className="ap-btn" style={{ height: 42, padding: "0 18px" }}>◉ Banter Now</button>
+            <button onClick={() => setStarting((v) => !v)} className="ap-btn" style={{ height: 42, padding: "0 18px" }}><Icon name="live" size={15} className="ic-inline" /> Banter Now</button>
           </div>
         </section>
         <Link href="/banter/unfinished" className="bt-today">
@@ -108,7 +109,7 @@ export default function BanterHome() {
         <div id="feed" className="flex min-w-0 scroll-mt-24 flex-col gap-4">
 
           <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Filter Banter">
-            {[{ id: "all", label: "All" }, { id: "resonate", label: "✦ Exploring" }, ...BANTER_TYPES, { id: "mine", label: "Started by me" }].map((t) => (
+            {[{ id: "all", label: "All" }, { id: "resonate", label: "Exploring" }, ...BANTER_TYPES, { id: "mine", label: "Started by me" }].map((t) => (
               <button key={t.id} role="tab" aria-selected={type === t.id} onClick={() => setType(t.id as typeof type)} className={`rounded-full border px-3.5 py-1.5 text-[12.5px] ${type === t.id ? "border-ink-950 bg-ink-950 text-white" : "border-line bg-paper-50 text-ink-700 hover:border-ink-400"}`}>{t.label}</button>
             ))}
           </div>

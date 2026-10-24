@@ -1,8 +1,8 @@
 /* Login / sign-up flow. Same palette and fonts as the app, laid out as a split screen. */
-.auth{min-height:100vh;display:grid;grid-template-columns:3fr 2fr;background:#f3f0e7;color:var(--ink);font-family:var(--font-dmsans),sans-serif}
+.auth{min-height:100vh; min-height:100dvh;display:grid;grid-template-columns:3fr 2fr;background:#f3f0e7;color:var(--ink);font-family:var(--font-dmsans),sans-serif}
 .auth *{box-sizing:border-box}
 .auth button{font-family:inherit;cursor:pointer}
-.auth-side{position:sticky;top:0;height:100vh;background:var(--forest);color:#fff;padding:44px 56px 36px;display:flex;flex-direction:column;overflow:hidden}
+.auth-side{position:sticky;top:0;height:100vh; height:100dvh;background:var(--forest);color:#fff;padding:44px 56px 36px;display:flex;flex-direction:column;overflow:hidden}
 .auth-side .bg{position:absolute;inset:0}
 .auth-side .bg:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(21,16,11,.82) 0%,rgba(21,16,11,.35) 38%,rgba(21,16,11,.9) 100%)}
 .auth-side>*:not(.bg){position:relative;z-index:1}
@@ -26,7 +26,7 @@
 .auth-points{display:grid;gap:10px;padding:18px 0 0;border-top:1px solid rgba(255,255,255,.18)}
 .auth-points div{display:flex;gap:12px;align-items:center;font-size:14px;color:#eef2f0}
 .auth-points b{width:26px;height:26px;border-radius:50%;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-size:12px;flex:none}
-.auth-main{padding:32px clamp(20px,3vw,48px) 48px;display:flex;flex-direction:column;min-height:100vh}
+.auth-main{padding:32px clamp(20px,3vw,48px) 48px;display:flex;flex-direction:column;min-height:100vh; min-height:100dvh}
 .auth-top{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--muted);padding-bottom:24px}
 .auth-top a{color:var(--ink);font-weight:700;text-decoration:none;border-bottom:1px solid var(--orange)}
 .auth-top .mbrand{display:none}
