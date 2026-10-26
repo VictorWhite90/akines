@@ -77,3 +77,9 @@ html:not([data-splash="1"]) .sp { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .wl *, .wl-glow { animation-duration: .01s !important; animation-delay: 0s !important; }
 }
+
+/* NavProgress: shows straight away on a tap, creeps towards the end while the page loads, then completes. */
+.nav-progress { position: fixed; top: 0; left: 0; z-index: 2000; height: 3px; width: 100%; transform-origin: 0 50%; background: linear-gradient(90deg, #ffb000, #e5007e); box-shadow: 0 0 10px rgba(255,176,0,.6); pointer-events: none; }
+.nav-progress.going { animation: np-creep 8s cubic-bezier(.1,.7,.2,1) forwards; }
+.nav-progress.done { transform: scaleX(1); opacity: 0; transition: transform .2s ease, opacity .3s ease .15s; }
+@keyframes np-creep { 0% { transform: scaleX(0); } 6% { transform: scaleX(.25); } 100% { transform: scaleX(.92); } }

@@ -10,6 +10,7 @@ import "@fontsource/dm-mono/400.css";
 import "@fontsource/dm-mono/500.css";
 import AppShell from "@/components/shell/AppShell";
 import Splash from "@/components/onboarding/Splash";
+import NavProgress from "@/components/shell/NavProgress";
 import "./fonts.css";
 import "./tokens.css";
 import "./welcome.css";
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <Splash />
+        <NavProgress />
         <AppShell>{children}</AppShell>
       </body>
     </html>
