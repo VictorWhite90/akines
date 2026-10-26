@@ -107,6 +107,18 @@ export function seedState(): CollabState {
       history: [{ stage: "submitted", at: now - 2 * DAY }, { stage: "viewed", at: now - DAY, note: "Ayo opened your application." }], notes: [], tags: [],
     },
     {
+      id: "a-bread", callId: "kubwa-bread", applicant: ME, role: "Photographer", works: ["w-poster"],
+      statement: "I'd shoot the bakery in the dark before 4am: flour in the lamp light, the first tray out. Honest, warm, no staging.", availability: "22 Nov from 3am, and edits the week after",
+      materials: { works: true, why: true, availability: true }, stage: "joined", slot: "Tue 12 Nov · 10:00", projectId: "kubwa-bread-shoot",
+      offer: { role: "Photographer", fee: "₦175,000", start: "Fri 22 Nov, 3:30am at the bakery" },
+      history: [
+        { stage: "submitted", at: now - 6 * DAY }, { stage: "viewed", at: now - 5 * DAY }, { stage: "shortlisted", at: now - 5 * DAY + 3 * HOUR },
+        { stage: "conversation", at: now - 3 * DAY, note: "Conversation booked: Tue 12 Nov · 10:00." }, { stage: "offer", at: now - DAY, note: "Fatou offered you the Photographer role." },
+        { stage: "joined", at: now - 2 * HOUR, note: "You accepted. The project workspace is open." },
+      ],
+      notes: [], tags: [],
+    },
+    {
       id: "a-indigo", callId: "indigo-futures", applicant: ME, role: "Resident", works: ["w-poster", "w-mentoring"],
       statement: "I want to learn how pattern carries meaning in cloth, for my stall identity work.", availability: "All of January",
       materials: { works: true, why: true, availability: true }, stage: "not-selected",
@@ -178,5 +190,47 @@ export function seedState(): CollabState {
     convoId: "co-market-light", rooms: [],
   };
 
-  return { v: 1, calls: SEED_CALLS, applications, projects: [market], proposals: [], saved: [] };
+  /** Just accepted: the team agrees the terms first. Fatou and Chidi have signed; your signature opens the work. */
+  const bread: Project = {
+    id: "kubwa-bread-shoot", title: "A short brand film for Kubwa Bread Co.", summary: "A 60-second film and ten photos about the family behind Kubwa's favourite bakery.", photo: "talkCafe", host: "fatou", callId: "kubwa-bread",
+    members: [
+      { id: "fatou", role: "Host", contribution: "For Kubwa Bread Co." },
+      { id: "chidi", role: "Videographer", contribution: "The 60-second film and sound" },
+      { id: ME, role: "Photographer", contribution: "Ten photos for the page and the shop wall" },
+    ],
+    stage: 2, createdAt: now - 2 * HOUR,
+    charter: {
+      credit: "Film and photos credited to Chidi and Amara on every post and on the shop wall. The bakery is credited as the client.",
+      ownership: "The bakery may use the film and photos online and in the shop for three years. Raw footage and outtakes stay with Chidi and Amara.",
+      decisions: "Fatou approves the final cut and the ten photos. Chidi and Amara decide how to shoot.",
+      expenses: "Transport to the 4am shoot comes out of the budget first, with receipts in the workspace.",
+      uses: "Chidi and Amara can show the work in their portfolios once the bakery has posted it.",
+      exit: "If someone can't make the shoot, they say so a week before. Work already delivered is paid for.",
+      split: { fatou: 0, chidi: 50, amara: 50 }, signed: ["fatou", "chidi"],
+    },
+    tasks: [
+      { id: "b1", title: "Visit the bakery and plan the shots", who: "chidi", due: "Mon 18 Nov", status: "todo" },
+      { id: "b2", title: "Shot list: ten photos", who: ME, due: "Tue 19 Nov", status: "todo" },
+      { id: "b3", title: "Share opening hours and who'll be on shift", who: "fatou", due: "Mon 18 Nov", status: "todo" },
+    ],
+    milestones: [
+      { id: "bm1", title: "Terms agreed by everyone", due: "This week", done: false },
+      { id: "bm2", title: "Shoot day at 4am", due: "22 Nov", done: false },
+      { id: "bm3", title: "Film and photos delivered", due: "6 Dec", done: false },
+    ],
+    studio: [
+      { id: "bs1", kind: "note", title: "What the film should feel like", by: "fatou", tag: "Reference", at: now - HOUR, text: "Warm, early, a bit sleepy. My mother kneading, my brother loading the van. No music with words.", comments: [] },
+    ],
+    present: { what: "Film on the bakery's page, photos on the shop wall", where: "Kubwa Bread Co., Kubwa", when: "Sat 7 Dec", checklist: [{ label: "Final cut approved by Fatou", done: false }, { label: "Ten photos printed for the wall", done: false }, { label: "Post the film", done: false }] },
+    budget: { total: 350_000, currency: "₦", expenses: [], paidOut: [] },
+    ledger: [
+      { at: now - 2 * HOUR - 20 * MIN, who: "fatou", what: "Accepted Amara and Chidi from the open call" },
+      { at: now - 2 * HOUR, who: "akines", what: "Workspace opened. Agree the terms to start." },
+      { at: now - 90 * MIN, who: "fatou", what: "Signed the charter" },
+      { at: now - HOUR, who: "chidi", what: "Signed the charter" },
+    ],
+    convoId: "co-kubwa-bread-shoot", rooms: [],
+  };
+
+  return { v: 1, calls: SEED_CALLS, applications, projects: [bread, market], proposals: [], saved: [] };
 }

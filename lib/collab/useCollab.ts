@@ -12,7 +12,8 @@ import { seedState } from "./seed";
 import type { AppStage, Application, CollabCall, CollabState, Charter, JourneyStage, Project, Proposal, StudioItem, Task } from "./types";
 
 export const ME: PersonId = "amara";
-const KEY = "co:v1";
+// v2: the sample data gained a just-accepted project, so older saved demos start fresh.
+const KEY = "co:v2";
 const SEC = 1000;
 const first = (id: PersonId) => PEOPLE[id].name.split(" ")[0];
 const clock = () => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
