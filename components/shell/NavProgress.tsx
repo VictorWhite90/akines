@@ -3,13 +3,13 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+const STALL_MS = 4000;
+
 /**
  * A thin bar across the top the moment someone taps a link, until the next page is on screen. In-app
  * navigation doesn't spin the browser's own loading icon, so without this a tap on a slow connection
  * looks like nothing happened. If the switch stalls, it falls back to a normal page load.
  */
-const STALL_MS = 4000;
-
 export default function NavProgress() {
   const path = usePathname();
   const [state, setState] = useState<"idle" | "going" | "done">("idle");

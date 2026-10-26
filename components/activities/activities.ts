@@ -6,7 +6,8 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 export type FlatActivity = Activity & { circleId: string; circleName: string };
 
 /** Every activity across every circle — the "Activities" layer isn't only a circle sub-tab (brief §6). */
-export function allActivities(): FlatActivity[] {
+export function allActivities(): FlatActivity[]
+ {
   return CIRCLES.flatMap((c) => circleActivities(c).map((a) => ({ ...a, circleId: c.id, circleName: c.name })));
 }
 
