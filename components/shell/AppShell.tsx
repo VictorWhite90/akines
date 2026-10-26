@@ -59,7 +59,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const night = pathname === "/constellation" || pathname.startsWith("/layouts");
   // Pages restyled by remapping the older tokens inside a calm scope, each with its own accent.
-  const CALM: [string, string][] = [["/kindred", "#2547d0"], ["/play", "#ff6b1a"], ["/activities", "#00a86b"], ["/collaborate", "#2547d0"], ["/messages", "#7b2ff7"], ["/studio", "#7b2ff7"], ["/journal", "#00a86b"], ["/store", "#7b2ff7"], ["/shop", "#7b2ff7"], ["/studios", "#7b2ff7"], ["/stories", "#e5007e"], ["/wellbeing", "#00a86b"], ["/dna", "#2547d0"], ["/applications", "#2547d0"], ["/profile", "#2547d0"]];
+  const CALM: [string, string][] = [["/kindred", "#2547d0"], ["/play", "#ff6b1a"], ["/activities", "#00a86b"], ["/messages", "#7b2ff7"], ["/studio", "#7b2ff7"], ["/journal", "#00a86b"], ["/store", "#7b2ff7"], ["/shop", "#7b2ff7"], ["/studios", "#7b2ff7"], ["/stories", "#e5007e"], ["/wellbeing", "#00a86b"], ["/dna", "#2547d0"], ["/applications", "#2547d0"], ["/profile", "#2547d0"]];
   const calm = CALM.find(([p]) => isActive(pathname, p));
   // Chat screens: on phones they fill the screen like a messaging app (see mobile.css).
   const chat = /^\/(circles\/(?!new$)[^/]+|rooms\/(?!new$)[^/]+|banter\/(?!classic|now|new)[^/]+|banter\/now\/[^/]+)$/.test(pathname);

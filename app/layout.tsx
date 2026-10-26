@@ -35,6 +35,7 @@ import "./cm.css";
 import "./settings.css";
 import "./profile.css";
 import "./notifications.css";
+import "./collab.css";
 import "./mobile.css";
 
 /** The keyboard shrinks the page (Android), and the app can use the full screen around the notch (iOS). */

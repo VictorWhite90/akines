@@ -252,6 +252,11 @@ export default function KinMessage({ initial }: { initial?: string }) {
               </div>
             )}
           </div>
+          {c.kind === "project" && (
+            <Link href={c.id.startsWith("co-") ? `/collaborate/projects/${c.id.slice(3)}` : "/collaborate#projects"} className="km-workspace" title="Open the project workspace">
+              <Icon name="collaborate" size={16} /><span>Workspace</span>
+            </Link>
+          )}
           <Link href="/rooms/new" className="km-icon" aria-label="Start a voice room" title="Voice room"><Icon name="live" size={18} /></Link>
         </header>
 

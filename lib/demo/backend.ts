@@ -75,6 +75,12 @@ function notify(recipient: string, kind: string, text: string, link: string, act
   if (recipient === actor) return;
   load().notices.unshift({ id: nextId(), recipient, kind, text, link, target_type, target_id: String(target_id), actor, read: false, created_at: now() });
 }
+/** Lets sample-data features (collaboration) put a line in the demo member's 🔔 bell. */
+export function demoNotice(kind: string, text: string, link: string) {
+  if (!load().session) return;
+  notify(ME_ID, kind, text, link, null);
+  save();
+}
 function resolve(target_type: string, target_id: string | number) {
   for (const n of load().notices) if (n.target_type === target_type && n.target_id === String(target_id)) n.read = true;
 }

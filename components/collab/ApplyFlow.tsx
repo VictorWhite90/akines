@@ -1,0 +1,151 @@
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import Avatar from "@/components/ui/Avatar";
+import BackLink from "@/components/ui/BackLink";
+import Icon from "@/components/ui/Icon";
+import { MY_WORKS } from "@/lib/collab/seed";
+import { ME, useCollab } from "@/lib/collab/useCollab";
+import { PEOPLE } from "@/lib/data/people";
+import { DemoNote, Thumb, firstName } from "./parts";
+
+const STEPS = ["Your role", "Your work", "Why you", "Review"] as const;
+
+/** Applying to an open call (S2): selected work and a tailored statement, never a link in a comment. */
+export default function ApplyFlow({ id }: { id: string }) {
+  const co = useCollab({ engine: true });
+  const call = co.call(id);
+  const [step, setStep] = useState(0);
+  const [role, setRole] = useState("");
+  const [works, setWorks] = useState<string[]>([]);
+  const [statement, setStatement] = useState("");
+  const [availability, setAvailability] = useState("");
+  const [sent, setSent] = useState(false);
+
+  if (!co.ready) return <div className="kh co" aria-busy="true" />;
+  if (!call) return <div className="kh co"><div className="co-empty"><h3>This call isn&apos;t available</h3><Link href="/collaborate#calls" className="kh-btn amber sm">See open calls</Link></div></div>;
+  const host = firstName(call.host);
+  const already = co.appFor(call.id);
+  const needsWork = call.materials.some((m) => m.id === "works");
+
+  if (sent || (already && !sent)) {
+    return (
+      <div className="kh co">
+        <section className="co-done">
+          <span className="mark"><Icon name="send" size={28} /></span>
+          <h1>{sent ? "Application sent" : "You've already applied"}</h1>
+          <p>{host} sees it on their review desk now, exactly as you saw it in the preview. Here&apos;s what happens next, and you&apos;ll get a notification at each step.</p>
+          <ol className="co-next-steps" style={{ margin: 0, padding: 0 }}>
+            <li><i>1</i><div><b>{host} reviews it</b><span>You&apos;ll see &ldquo;Seen by the host&rdquo; when they open it.</span></div></li>
+            <li><i>2</i><div><b>A short conversation</b><span>If you&apos;re shortlisted, you pick a time for a 20-minute call.</span></div></li>
+            <li><i>3</i><div><b>An offer, or honest feedback</b><span>Everyone hears back. If you&apos;re chosen, you&apos;ll see the role, the fee and the dates.</span></div></li>
+            <li><i>4</i><div><b>The workspace opens</b><span>Accept, and you join the team&apos;s workspace: agree the terms first, then start.</span></div></li>
+          </ol>
+          <DemoNote>In the demo, {host}&apos;s replies arrive within seconds. Watch My applications.</DemoNote>
+          <div className="co-row" style={{ justifyContent: "center" }}>
+            <Link href="/collaborate/applications" className="kh-btn amber">My applications</Link>
+            <Link href="/collaborate#calls" className="kh-btn outline">More open calls</Link>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  const can = [!!role, !needsWork || works.length > 0, statement.trim().length >= 20 && availability.trim().length > 0, true];
+  const toggleWork = (wid: string) => setWorks((w) => (w.includes(wid) ? w.filter((x) => x !== wid) : w.length >= 3 ? w : [...w, wid]));
+  const submit = () => {
+    co.apply({ callId: call.id, role, works, statement: statement.trim(), availability: availability.trim(), materials: Object.fromEntries(call.materials.map((m) => [m.id, m.id === "works" ? works.length > 0 : m.id === "why" ? !!statement.trim() : m.id === "availability" ? !!availability.trim() : false])) });
+    setSent(true);
+    window.scrollTo({ top: 0 });
+  };
+
+  return (
+    <div className="kh co">
+      <BackLink fallback={`/collaborate/calls/${call.id}`} className="co-link">← {call.title}</BackLink>
+      <div className="co-flow">
+        <div>
+          <nav className="co-steps" style={{ ["--n" as string]: STEPS.length } as React.CSSProperties} aria-label="Steps">
+            {STEPS.map((s, i) => <button key={s} className={i === step ? "on" : i < step ? "done" : undefined} disabled={i > step} onClick={() => setStep(i)} aria-current={i === step ? "step" : undefined}>{s}</button>)}
+          </nav>
+          <div className="co-panel">
+            {step === 0 && (
+              <>
+                <h2>Which role are you applying for?</h2>
+                <p className="hint">{call.org} needs a team of {call.teamSize}. Pick the one that fits you best.</p>
+                <div className="co-options" role="radiogroup" aria-label="Role">
+                  {call.roles.map((r) => (
+                    <button key={r} type="button" role="radio" aria-checked={role === r} className={`co-option${role === r ? " on" : ""}`} onClick={() => setRole(r)}>
+                      <b>{r}</b><small>{call.fee.split(" · ").find((f) => f.toLowerCase().includes(r.split(" ")[0].toLowerCase())) ?? call.fee.split(" · ")[0]}</small>
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+            {step === 1 && (
+              <>
+                <h2>Choose your work</h2>
+                <p className="hint">Up to three pieces that show you can do this. {host} sees them first.</p>
+                <div className="co-works">
+                  {MY_WORKS.map((w) => {
+                    const on = works.includes(w.id);
+                    return (
+                      <button key={w.id} type="button" className={`co-work${on ? " on" : ""}`} onClick={() => toggleWork(w.id)} aria-pressed={on}>
+                        <span className="ph"><Thumb photo={w.photo} className="" sizes="220px" /><span className="tick">{on ? works.indexOf(w.id) + 1 : "+"}</span></span>
+                        <b>{w.title}</b><small>{w.kind} · {w.year}</small>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="co-muted" style={{ fontSize: 13 }}>{works.length} of 3 chosen{!needsWork && " · optional for this call"}</p>
+              </>
+            )}
+            {step === 2 && (
+              <>
+                <h2>Why this, and why you?</h2>
+                <p className="hint">A few honest lines for {host}, written for this call. What would you bring, and how would you start?</p>
+                <div className="co-field">
+                  <label htmlFor="ap-s">Your note to {host} <small>({statement.trim().length}/600, at least 20)</small></label>
+                  <textarea id="ap-s" value={statement} maxLength={600} onChange={(e) => setStatement(e.target.value)} placeholder={`e.g. I'd start by spending a morning at ${call.org} to see how it really works…`} />
+                </div>
+                <div className="co-field">
+                  <label htmlFor="ap-a">Your availability</label>
+                  <input id="ap-a" value={availability} onChange={(e) => setAvailability(e.target.value)} placeholder={`Can you make ${call.timeline.slice(1).map((t) => t.when).join(", ")}?`} />
+                </div>
+              </>
+            )}
+            {step === 3 && (
+              <>
+                <h2>Ready to send?</h2>
+                <p className="hint">Check it&apos;s right. You can withdraw any time before an offer.</p>
+                <ul className="co-checklist">
+                  {call.materials.map((m) => {
+                    const ok = m.id === "works" ? works.length > 0 : m.id === "why" ? !!statement.trim() : m.id === "availability" ? !!availability.trim() : false;
+                    return <li key={m.id}><i aria-hidden style={ok ? undefined : { background: "var(--k-muted)", color: "var(--k-ink-3)" }}>{ok ? "✓" : "–"}</i><span>{m.label}{!m.required && " (optional)"}<small>{ok ? "Attached" : m.required ? "Missing" : "Not added"}</small></span></li>;
+                  })}
+                </ul>
+              </>
+            )}
+            <div className="co-flow-foot">
+              {step > 0 ? <button className="kh-btn outline" onClick={() => setStep(step - 1)}>Back</button> : <span />}
+              {step < STEPS.length - 1
+                ? <button className="kh-btn amber" disabled={!can[step]} onClick={() => setStep(step + 1)}>Continue</button>
+                : <button className="kh-btn amber" onClick={submit}><Icon name="send" size={16} />Send application</button>}
+            </div>
+          </div>
+        </div>
+
+        <aside className="co-preview" aria-label={`What ${host} will see`}>
+          <span className="cap">What {host} will see</span>
+          <div className="sheet">
+            <div className="co-host"><Avatar person={PEOPLE[ME]} size={40} /><div><b>{PEOPLE[ME].name}</b><small>{role || "Choose a role"} · {PEOPLE[ME].city}</small></div></div>
+            {works.length > 0 && <div className="co-thumbs">{works.map((w) => <Thumb key={w} photo={MY_WORKS.find((x) => x.id === w)!.photo} className="" sizes="60px" />)}</div>}
+            <blockquote>{statement.trim() || <span className="co-muted">Your note appears here.</span>}</blockquote>
+            {availability.trim() && <span className="co-chip"><Icon name="event" size={13} />{availability.trim()}</span>}
+          </div>
+          <p className="co-muted" style={{ fontSize: 12.5, lineHeight: 1.5 }}>Only {host} and the people they invite to review can see your application.</p>
+        </aside>
+      </div>
+    </div>
+  );
+}

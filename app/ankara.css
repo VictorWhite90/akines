@@ -1254,3 +1254,8 @@ html[data-theme="dark"] .app .hm .kn-post .who > p:first-child { color: var(--dk
 html[data-theme="dark"] .app .hm .kn-post :is(.body, .meta) { color: var(--dk-mute); }
 html[data-theme="dark"] .hs-strip.hm-resonate { background: transparent; border: 0; }
 .hm-resonate-stats span :is(svg) { flex: none; }
+
+/* KinMessage: a collaboration's chat links to its workspace. */
+.km-workspace { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 999px; background: #2547d0; color: #fff !important; font-size: 13px; font-weight: 600; text-decoration: none; flex: none; }
+.km-workspace:hover { background: #1d3bb0; }
+@media (max-width: 760px) { .km-workspace span { display: none; } .km-workspace { width: 36px; padding: 0; justify-content: center; } }

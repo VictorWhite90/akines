@@ -5,7 +5,7 @@ import type { PersonId } from "./people";
 
 export type ConvoKind = "direct" | "cliq" | "circle" | "project";
 
-export const KIND_LABEL: Record<ConvoKind, string> = { direct: "Person", cliq: "Cliq", circle: "KinCircle", project: "Project" };
+export const KIND_LABEL: Record<ConvoKind, string> = { direct: "Person", cliq: "Cliq", circle: "KinCircle", project: "Collaboration" };
 export const KIND_COLOR: Record<ConvoKind, string> = { direct: "#7b2ff7", cliq: "#e09a00", circle: "#00a86b", project: "#2547d0" };
 
 export const INTENTS = [
