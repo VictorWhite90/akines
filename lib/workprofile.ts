@@ -6,8 +6,10 @@ import { newId, useLocal } from "@/lib/useLocal";
 import { samplePieces, usePortfolio } from "@/lib/portfolio";
 
 /**
- * A member's work profile: what they do, their skills, experience, education, projects, availability and CV,
- * built step by step like a freelance or LinkedIn profile. It shows on the Work tab of their profile and goes
+ * A member's work profile: what they do, years of experience, skills, projects, CV and links, and availability,
+ * built in a few skippable steps like a freelance profile. The CV carries the detail (jobs, schools), so the
+ * profile doesn't ask for it again. (`experience`, `education` and `certificates` stay in the shape for the
+ * API and older saved profiles, but the setup no longer asks for them.) It shows on the Work tab of their profile and goes
  * with every application. Projects live in lib/portfolio (shared with My Studio). Saved in the browser for now
  * ("ak:workprofile"); the same shape goes to the API later.
  */
@@ -15,7 +17,8 @@ export type ExperienceKind = "Job" | "Freelance" | "Own business" | "Volunteer" 
 export type Experience = { id: string; title: string; org: string; kind: ExperienceKind; from: string; to?: string; current?: boolean; place?: string; summary?: string };
 export type Education = { id: string; school: string; qualification: string; field?: string; year?: string };
 export type Certificate = { id: string; name: string; issuer: string; year?: string; link?: string };
-export type Level = "Just starting" | "Some experience" | "Experienced" | "Expert";
+/** Years of experience, the way most job and freelance sites ask it. Older saved profiles used words; see levelLabel. */
+export type Level = "0–1 years" | "2–4 years" | "4+ years";
 export type RateUnit = "hour" | "day" | "project" | "negotiable" | "unpaid";
 
 export type WorkProfile = {
@@ -75,12 +78,17 @@ export const SKILLS: Record<string, string[]> = {
 
 export const OPEN_TO = ["Collaborations", "Paid projects", "Part-time work", "Full-time work", "Volunteering", "Mentoring others", "Being mentored"];
 export const EXPERIENCE_KINDS: ExperienceKind[] = ["Job", "Freelance", "Own business", "Volunteer", "Community", "Internship"];
-export const LEVELS: { id: Level; hint: string }[] = [
-  { id: "Just starting", hint: "Learning, first projects" },
-  { id: "Some experience", hint: "A few projects or a year or two" },
-  { id: "Experienced", hint: "Several years, people rely on you" },
-  { id: "Expert", hint: "You lead and teach others" },
+export const LEVELS: { id: Level; label: string; hint: string }[] = [
+  { id: "0–1 years", label: "0–1 years", hint: "Starting out" },
+  { id: "2–4 years", label: "2–4 years", hint: "Some experience" },
+  { id: "4+ years", label: "More than 4 years", hint: "Experienced" },
 ];
+const OLD_LEVELS: Record<string, Level> = { "Just starting": "0–1 years", "Some experience": "2–4 years", Experienced: "4+ years", Expert: "4+ years" };
+/** "4+ years of experience", reading older saved words too. */
+export const levelLabel = (l?: string) => {
+  const y = l ? OLD_LEVELS[l] ?? l : "";
+  return y ? `${y} experience` : "";
+};
 
 const empty = (): WorkProfile => ({ field: "", headline: "", about: "", skills: [], experience: [], education: [], certificates: [], openTo: [], languages: ["English"], links: [] });
 
@@ -88,16 +96,12 @@ const empty = (): WorkProfile => ({ field: "", headline: "", about: "", skills: 
 const example = (): WorkProfile => ({
   field: "Design",
   headline: "Product designer for clinics, markets and the people who run them",
-  level: "Experienced",
+  level: "4+ years",
   about: "I design simple tools for busy places: clinic waiting rooms, market stalls, night shifts. I start by spending time where the work happens, then design with the people who'll use it.\n\nSix years in product design, the last three freelance in Abuja.",
   skills: ["Product design", "User research", "Prototyping", "Figma", "Accessibility", "Mentoring"],
-  experience: [
-    { id: "x1", title: "Freelance product designer", org: "Self-employed", kind: "Freelance", from: "2023-03", current: true, place: "Abuja", summary: "Clinics, NGOs and small businesses. Research, design and hand-off to developers." },
-    { id: "x2", title: "Product designer", org: "Naira Ledger", kind: "Job", from: "2020-06", to: "2023-02", place: "Lagos", summary: "Merchant onboarding and the dashboard for small businesses." },
-    { id: "x3", title: "Design mentor", org: "Abuja Tech Hub", kind: "Volunteer", from: "2022-01", current: true, summary: "Weekly sessions with junior designers." },
-  ],
-  education: [{ id: "e1", school: "University of Abuja", qualification: "BSc", field: "Computer Science", year: "2019" }],
-  certificates: [{ id: "c1", name: "Google UX Design Certificate", issuer: "Google / Coursera", year: "2021" }],
+  experience: [],
+  education: [],
+  certificates: [],
   openTo: ["Collaborations", "Paid projects", "Mentoring others"],
   hours: "10–20 hours a week",
   rate: { amount: 15000, unit: "hour" },
@@ -136,14 +140,11 @@ export function useWorkProfile() {
 /** Which parts are done, for the "how complete" meter and the Work tab's nudges. */
 export function completeness(wp: WorkProfile, projects: number) {
   const parts = [
-    { id: "work", label: "What you do", done: !!wp.field && wp.headline.trim().length >= 10 },
+    { id: "work", label: "What you do", done: !!wp.field && wp.headline.trim().length >= 5 },
     { id: "skills", label: "Skills", done: wp.skills.length >= 3 },
-    { id: "experience", label: "Experience", done: wp.experience.length > 0 || !!wp.noExperience },
-    { id: "education", label: "Education", done: wp.education.length > 0 || wp.certificates.length > 0 },
     { id: "projects", label: "Projects", done: projects > 0 },
+    { id: "cv", label: "Your CV or links", done: wp.links.length > 0 || !!wp.cv },
     { id: "availability", label: "Availability", done: wp.openTo.length > 0 },
-    { id: "links", label: "Links and CV", done: wp.links.length > 0 || !!wp.cv },
-    { id: "about", label: "About you", done: wp.about.trim().length >= 40 },
   ];
   return { parts, pct: Math.round((parts.filter((p) => p.done).length / parts.length) * 100) };
 }

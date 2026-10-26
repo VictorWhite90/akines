@@ -8,16 +8,14 @@ import Icon, { type IconName } from "@/components/ui/Icon";
 import { linkLook } from "@/lib/collab/proof";
 import { DEMO } from "@/lib/demo/mode";
 import { usePortfolio, type Piece } from "@/lib/portfolio";
-import { WORK_FIELDS, completeness, monthLabel, rateLabel, useWorkProfile, type WorkProfile } from "@/lib/workprofile";
+import { WORK_FIELDS, completeness, levelLabel, rateLabel, useWorkProfile, type WorkProfile } from "@/lib/workprofile";
 
 export const SETUP_STEPS: { id: string; label: string; icon: IconName; hint: string }[] = [
-  { id: "work", label: "What you do", icon: "project", hint: "Your field, a headline and your level" },
+  { id: "work", label: "What you do", icon: "project", hint: "Your field, a headline and years of experience" },
   { id: "skills", label: "Skills", icon: "spark", hint: "What you're good at" },
-  { id: "experience", label: "Experience", icon: "team", hint: "Jobs, freelance, your own business, volunteering" },
-  { id: "education", label: "Education", icon: "study", hint: "Schools, courses and certificates" },
-  { id: "projects", label: "Projects", icon: "creative", hint: "Work you've done, shown your way" },
+  { id: "projects", label: "Projects", icon: "creative", hint: "Work you've done: links, files, photos or a write-up" },
+  { id: "cv", label: "CV and links", icon: "cv", hint: "Your CV, your links and a short intro" },
   { id: "availability", label: "Availability", icon: "time", hint: "What you're open to, hours and rate" },
-  { id: "about", label: "About and CV", icon: "cv", hint: "A short intro, your links and your CV" },
   { id: "review", label: "Review", icon: "verified", hint: "Check it and publish" },
 ];
 
@@ -39,7 +37,7 @@ export function WorkProfileBody({ wp, projects, own = true, onOpenProject }: { w
   return (
     <div className="wk-body">
       <section className="wk-top">
-        {field && <span className="wk-field-chip"><Icon name={field.icon} size={14} />{field.id}{wp.level ? ` · ${wp.level}` : ""}</span>}
+        {field && <span className="wk-field-chip"><Icon name={field.icon} size={14} />{field.id}{wp.level ? ` · ${levelLabel(wp.level)}` : ""}</span>}
         <h2>{wp.headline || <span className="co-muted">Your headline goes here</span>}</h2>
         <div className="wk-facts">
           {wp.openTo.length > 0 && <span><Icon name="spark" size={14} />Open to {wp.openTo.slice(0, 3).join(", ").toLowerCase()}</span>}
@@ -49,7 +47,7 @@ export function WorkProfileBody({ wp, projects, own = true, onOpenProject }: { w
         </div>
       </section>
 
-      {(wp.about || own) && <Sec title="About" step="about" empty="Write a short intro">{wp.about ? <p className="wk-story">{wp.about}</p> : undefined}</Sec>}
+      {(wp.about || own) && <Sec title="About" step="cv" empty="Write a short intro">{wp.about ? <p className="wk-story">{wp.about}</p> : undefined}</Sec>}
 
       {(wp.skills.length > 0 || own) && <Sec title="Skills" step="skills" empty="Add your skills">{wp.skills.length ? <div className="wk-tags">{wp.skills.map((s) => <span key={s}>{s}</span>)}</div> : undefined}</Sec>}
 
@@ -57,39 +55,8 @@ export function WorkProfileBody({ wp, projects, own = true, onOpenProject }: { w
         {projects.length ? <div className="wk-grid">{projects.map((p) => <PieceCard key={p.id} piece={p} onOpen={() => onOpenProject?.(p)} />)}</div> : undefined}
       </Sec>
 
-      {(wp.experience.length > 0 || own) && (
-        <Sec title="Experience" step="experience" empty={wp.noExperience ? "Just starting out" : "Add your experience"}>
-          {wp.experience.length ? (
-            <ol className="wk-timeline">
-              {[...wp.experience].sort((a, b) => (b.current ? 1 : 0) - (a.current ? 1 : 0) || b.from.localeCompare(a.from)).map((x) => (
-                <li key={x.id}>
-                  <span className="dot" aria-hidden />
-                  <div>
-                    <b>{x.title}</b>
-                    <span>{x.org} · {x.kind}</span>
-                    <small>{monthLabel(x.from)} – {x.current ? "Now" : monthLabel(x.to)}{x.place ? ` · ${x.place}` : ""}</small>
-                    {x.summary && <p>{x.summary}</p>}
-                  </div>
-                </li>
-              ))}
-            </ol>
-          ) : wp.noExperience ? <p className="co-muted" style={{ fontSize: 14 }}>Just starting out, and building experience through projects.</p> : undefined}
-        </Sec>
-      )}
-
-      {(wp.education.length > 0 || wp.certificates.length > 0 || own) && (
-        <Sec title="Education and certificates" step="education" empty="Add a school, course or certificate">
-          {wp.education.length || wp.certificates.length ? (
-            <ul className="wk-list">
-              {wp.education.map((e) => <li key={e.id}><span className="ic"><Icon name="study" size={17} /></span><div><b>{e.qualification}{e.field ? `, ${e.field}` : ""}</b><small>{e.school}{e.year ? ` · ${e.year}` : ""}</small></div></li>)}
-              {wp.certificates.map((c) => <li key={c.id}><span className="ic"><Icon name="verified" size={17} /></span><div><b>{c.name}</b><small>{c.issuer}{c.year ? ` · ${c.year}` : ""}{c.link && <> · <a href={c.link} target="_blank" rel="noopener noreferrer nofollow">View</a></>}</small></div></li>)}
-            </ul>
-          ) : undefined}
-        </Sec>
-      )}
-
       {(wp.links.length > 0 || wp.cv || own) && (
-        <Sec title="Links and CV" step="about" empty="Add your links and CV">
+        <Sec title="CV and links" step="cv" empty="Add your CV or links">
           {wp.links.length || wp.cv ? (
             <ul className="co-items">
               {wp.cv && <FileRow f={wp.cv} />}
@@ -121,10 +88,10 @@ export default function WorkTab() {
       <section className="wk-start">
         <span className="wk-start-ic"><Icon name="cv" size={26} /></span>
         <h2>Build your work profile</h2>
-        <p>Show what you do, the way it suits your work: projects with links, files or photos, your experience, skills and CV. It goes with you when you apply to open calls and join projects.</p>
-        <ol className="wk-start-steps">{SETUP_STEPS.slice(0, 7).map((s) => <li key={s.id}><span><Icon name={s.icon} size={16} /></span><b>{s.label}</b><small>{s.hint}</small></li>)}</ol>
+        <p>Five quick steps, all optional: what you do, your skills, a few projects (links, files, photos or a write-up) and your CV. It goes with you when you apply to open calls and join projects.</p>
+        <ol className="wk-start-steps">{SETUP_STEPS.slice(0, 5).map((s) => <li key={s.id}><span><Icon name={s.icon} size={16} /></span><b>{s.label}</b><small>{s.hint}</small></li>)}</ol>
         <div className="wk-row">
-          <Link href="/profile/work" className="kh-btn amber">Start · about 5 minutes</Link>
+          <Link href="/profile/work" className="kh-btn amber">Start · about 3 minutes</Link>
           {DEMO && <button type="button" className="kh-btn outline" onClick={w.fillExample}>See an example</button>}
         </div>
       </section>
@@ -134,7 +101,7 @@ export default function WorkTab() {
   return (
     <>
       {!wp.publishedAt && (
-        <div className="wk-draft"><Icon name="private" size={18} /><span><b>Draft.</b> Only you can see this until you publish.</span><Link href={editHref(next?.id === "about" || !next ? "review" : next.id)} className="kh-btn amber sm">Continue setup</Link></div>
+        <div className="wk-draft"><Icon name="private" size={18} /><span><b>Draft.</b> Only you can see this until you publish.</span><Link href={editHref(next ? next.id : "review")} className="kh-btn amber sm">Continue setup</Link></div>
       )}
       {wp.publishedAt && pct < 100 && next && (
         <Link href={editHref(next.id)} className="wk-meter">

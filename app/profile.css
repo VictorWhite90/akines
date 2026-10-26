@@ -2,7 +2,7 @@
    Profile page and editor, laid out like X: banner, overlapping photo, identity, tabs.
    Akines tokens (.kh scope), so light and dark mode follow the design system.
    ========================================================= */
-.mp { max-width: 680px; margin: 0 auto 64px; border-inline: .5px solid var(--k-border); min-height: 70vh; background: var(--k-surface); }
+.mp { max-width: 920px; margin: 0 auto 64px; border-inline: .5px solid var(--k-border); min-height: 70vh; background: var(--k-surface); }
 .mp-bar { display: flex; align-items: center; gap: 20px; padding: 6px 16px; min-height: 52px; }
 .mp-bar span { display: flex; flex-direction: column; min-width: 0; }
 .mp-bar b { font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
