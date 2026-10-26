@@ -6,12 +6,15 @@ import { useEffect, useRef, useState } from "react";
 /**
  * A thin bar across the top the moment someone taps a link, until the next page is on screen. In-app
  * navigation doesn't spin the browser's own loading icon, so without this a tap on a slow connection
- * looks like nothing happened.
+ * looks like nothing happened. If the switch stalls, it falls back to a normal page load.
  */
+const STALL_MS = 4000;
+
 export default function NavProgress() {
   const path = usePathname();
   const [state, setState] = useState<"idle" | "going" | "done">("idle");
   const done = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const stuck = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -22,7 +25,11 @@ export default function NavProgress() {
       if (to.origin !== location.origin) return;
       if (to.pathname === location.pathname && to.search === location.search) return; // same page or a #section
       clearTimeout(done.current);
+      clearTimeout(stuck.current);
       setState("going");
+      // A slow connection can stall the in-app page switch. After a few seconds, load the page the normal way
+      // instead: it gets a fresh request and the browser shows its own loading icon.
+      stuck.current = setTimeout(() => { if (location.pathname !== to.pathname) location.assign(to.href); }, STALL_MS);
     };
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
@@ -30,6 +37,7 @@ export default function NavProgress() {
 
   // The new page is showing: finish the bar and fade it out.
   useEffect(() => {
+    clearTimeout(stuck.current);
     setState((s) => {
       if (s !== "going") return s;
       done.current = setTimeout(() => setState("idle"), 400);
