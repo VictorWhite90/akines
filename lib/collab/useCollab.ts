@@ -7,6 +7,7 @@ import type { Convo, KMsg } from "@/lib/data/kinmessage";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
+import { sampleProof } from "./proof";
 import { seedState } from "./seed";
 import type { AppStage, Application, CollabCall, CollabState, Charter, JourneyStage, Project, Proposal, StudioItem, Task } from "./types";
 
@@ -166,7 +167,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
   }, [ready, engine, state, setState, ensureConvo]);
 
   // ── Applicant ──
-  const apply = (input: Pick<Application, "callId" | "role" | "works" | "statement" | "availability" | "materials">) => {
+  const apply = (input: Pick<Application, "callId" | "role" | "works" | "links" | "files" | "statement" | "availability" | "materials">) => {
     const id = newId("a");
     update((s) => ({ ...s, applications: [{ ...input, id, applicant: ME, stage: "submitted", history: [{ stage: "submitted", at: Date.now() }], notes: [], tags: [], nextAt: Date.now() + 6 * SEC }, ...s.applications] }));
     return id;
@@ -226,7 +227,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
       ...s,
       calls: [{ ...call, id, host: ME, postedByMe: true, verified: false }, ...s.calls],
       applications: [...arrivals.map(([who, sec, statement], i): Application => ({
-        id: `${id}-${who}`, callId: id, applicant: who, role: call.roles[i % call.roles.length], works: [], statement, availability: "Weekends and evenings",
+        id: `${id}-${who}`, callId: id, applicant: who, role: call.roles[i % call.roles.length], works: [], ...sampleProof(who, call.roles[i % call.roles.length]), statement, availability: "Weekends and evenings",
         materials: { works: true, why: true, availability: true }, stage: "submitted", history: [{ stage: "submitted", at: now + sec * SEC }], notes: [], tags: [], arrivesAt: now + sec * SEC,
       })), ...s.applications],
     }));

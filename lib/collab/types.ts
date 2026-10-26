@@ -43,6 +43,12 @@ export type CollabCall = {
 /** A piece of someone's work they can attach to an application or bring into a studio. */
 export type Work = { id: string; title: string; kind: string; year: string; photo: PhotoKey };
 
+/** A link that shows someone's work: GitHub, a live project, a portfolio, a profile, a recording. */
+export type ProofLink = { url: string; kind: LinkKind; note?: string };
+export type LinkKind = "github" | "gitlab" | "figma" | "behance" | "dribbble" | "linkedin" | "instagram" | "youtube" | "vimeo" | "soundcloud" | "spotify" | "medium" | "substack" | "drive" | "site";
+/** A file sent with an application: a CV, or a sample (writing, audio, a deck, a menu, a certificate). */
+export type ProofFile = { id: string; name: string; size: number; type: string; kind: "cv" | "sample" };
+
 /**
  * Where an application stands. The applicant and the host see the same stage; only the words differ.
  * submitted → viewed → shortlisted → conversation → offer → joined, or not-selected / withdrawn.
@@ -56,6 +62,9 @@ export type Application = {
   applicant: PersonId;
   role: string;
   works: string[];
+  /** Links and files, for work that isn't a picture (code, writing, audio, a CV). Older saved applications have none. */
+  links?: ProofLink[];
+  files?: ProofFile[];
   statement: string;
   availability: string;
   materials: Record<string, boolean>;

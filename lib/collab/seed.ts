@@ -1,5 +1,5 @@
 import type { PersonId } from "@/lib/data/people";
-import type { Application, CollabCall, CollabState, Project, Work } from "./types";
+import type { Application, CollabCall, CollabState, ProofFile, Project, Work } from "./types";
 
 const ME: PersonId = "amara";
 const MIN = 60_000, HOUR = 60 * MIN, DAY = 24 * HOUR;
@@ -15,11 +15,22 @@ export const MY_WORKS: Work[] = [
 ];
 
 const ab = (id: string) => [
-  { id: "works", label: "Three pieces of your work", hint: "Pick from your work; no links in comments.", required: true },
+  { id: "works", label: "Your work", hint: "Pieces, links or files that show you can do this: whatever fits your work.", required: true },
   { id: "why", label: "Why this, and why you", hint: "A few honest lines, tailored to this call.", required: true },
   { id: "availability", label: "Your availability", hint: "The dates in the timeline below.", required: true },
   { id: `${id}-extra`, label: "A rough idea or sketch", hint: "Optional, but it helps.", required: false },
 ];
+
+const f = (kind: ProofFile["kind"], name: string, kb: number): ProofFile => ({ id: `${kind}-${name}`, name, size: kb * 1024, type: name.split(".").pop() ?? "", kind });
+
+/** What the sample applicants to the podcast sent: different work, different proof. */
+const INCOMING_PROOF: Record<string, Pick<Application, "links" | "files">> = {
+  chidi: { links: [{ url: "https://soundcloud.com/chidi-eze/derby-day-pod-ep12", kind: "soundcloud", note: "Football podcast, episode 12" }], files: [f("sample", "lecture-cleanup-before-after.mp3", 3900)] },
+  kwame: { links: [{ url: "https://open.spotify.com/show/devs-after-dark", kind: "spotify", note: "Devs After Dark (I edit it)" }, { url: "https://github.com/kwame-asante", kind: "github" }, { url: "https://linkedin.com/in/kwame-asante", kind: "linkedin" }], files: [f("cv", "Kwame-Asante-CV.pdf", 182)] },
+  wanjiru: { links: [{ url: "https://behance.net/wanjirukamau", kind: "behance" }, { url: "https://instagram.com/wanjiru.frames", kind: "instagram" }], files: [] },
+  leila: { links: [{ url: "https://youtube.com/watch?v=founder-talks-casablanca", kind: "youtube", note: "Panel I hosted, Casablanca" }, { url: "https://linkedin.com/in/leila-benali", kind: "linkedin" }], files: [f("cv", "Leila-Benali-Resume.pdf", 240)] },
+  nandi: { links: [{ url: "https://linkedin.com/in/nandi-moyo", kind: "linkedin" }], files: [f("cv", "Nandi-Moyo-CV.docx", 96), f("sample", "Radio-segment-money-and-family.m4a", 4700)] },
+};
 
 export const SEED_CALLS: CollabCall[] = [
   {
@@ -120,7 +131,7 @@ export function seedState(): CollabState {
       ["leila", "Co-host", "I started my company at 23 and made every mistake. I'd ask the questions I wish someone had asked me.", "submitted", 3 * HOUR],
       ["nandi", "Co-host", "I'm a therapist; I'd bring the quieter questions about money, family and pressure.", "submitted", 40 * MIN],
     ] as const).map(([who, role, statement, stage, ago]): Application => ({
-      id: `in-${who}`, callId: "youth-podcast", applicant: who, role, works: [], statement, availability: "Weekends", materials: { works: true, why: true, availability: true },
+      id: `in-${who}`, callId: "youth-podcast", applicant: who, role, works: [], ...INCOMING_PROOF[who], statement, availability: "Weekends", materials: { works: true, why: true, availability: true },
       stage, slot: stage === "shortlisted" ? "Thu 14 Nov · 16:00" : undefined,
       history: [{ stage: "submitted", at: now - ago }, ...(stage !== "submitted" ? [{ stage: "viewed" as const, at: now - ago + HOUR }] : []), ...(stage === "shortlisted" ? [{ stage: "shortlisted" as const, at: now - ago + 2 * HOUR }] : [])],
       notes: who === "kwame" ? [{ at: now - 20 * HOUR, text: "Strong on audio quality. Ask about time per episode." }] : [], tags: who === "wanjiru" ? ["Strong visuals"] : [],

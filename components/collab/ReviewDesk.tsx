@@ -7,7 +7,9 @@ import Sheet from "@/components/circles/community/Sheet";
 import Avatar from "@/components/ui/Avatar";
 import BackLink from "@/components/ui/BackLink";
 import Icon from "@/components/ui/Icon";
+import { fileSize, linkLook } from "@/lib/collab/proof";
 import { MY_WORKS } from "@/lib/collab/seed";
+import { DEMO } from "@/lib/demo/mode";
 import type { AppStage, Application } from "@/lib/collab/types";
 import { STAGE_LABEL, useCollab } from "@/lib/collab/useCollab";
 import { PEOPLE } from "@/lib/data/people";
@@ -105,6 +107,13 @@ export default function ReviewDesk({ id }: { id: string }) {
                         {a.stage === "submitted" && <span className="co-new-dot" aria-label="New" />}
                       </span>
                       <p>{a.statement}</p>
+                      {(a.links?.length || a.files?.length) ? (
+                        <span className="co-sent-mini">
+                          {a.files?.some((f) => f.kind === "cv") && <span><Icon name="cv" size={13} />CV</span>}
+                          {a.links?.slice(0, 3).map((l) => { const k = linkLook({ ...l, note: undefined }); return <span key={l.url}><Icon name={k.icon} size={13} />{k.label}</span>; })}
+                          {!!a.files?.some((f) => f.kind === "sample") && <span><Icon name="document" size={13} />{a.files.filter((f) => f.kind === "sample").length} file</span>}
+                        </span>
+                      ) : null}
                       <span className="co-row" style={{ gap: 6 }}><Stars value={a.rating} />{a.tags.slice(0, 1).map((t) => <span key={t} className="co-chip blue" style={{ height: 22, fontSize: 11 }}>{t}</span>)}<small style={{ marginLeft: "auto" }}>{ago(a.history[0].at)}</small></span>
                     </button>
                     <label style={{ position: "absolute", right: 10, bottom: -26, fontSize: 11.5, color: "var(--k-ink-3)", display: "flex", gap: 4, alignItems: "center" }}>
@@ -154,6 +163,11 @@ function ApplicantDrawer({ a, onClose }: { a: Application; onClose: () => void }
   }, [onClose]);
 
   const works = a.applicant === "amara" ? a.works.map((w) => MY_WORKS.find((x) => x.id === w)!).filter(Boolean) : [];
+  const links = a.links ?? [];
+  const files = a.files ?? [];
+  const cv = files.find((f) => f.kind === "cv");
+  const samples = files.filter((f) => f.kind === "sample");
+  const ext = (n: string) => (n.split(".").pop() ?? "file").toUpperCase().slice(0, 4);
   const next: Partial<Record<AppStage, { to: AppStage; label: string; note: string }>> = {
     submitted: { to: "shortlisted", label: "Shortlist", note: "You shortlisted them. They'll pick a time to talk." },
     viewed: { to: "shortlisted", label: "Shortlist", note: "You shortlisted them. They'll pick a time to talk." },
@@ -184,10 +198,29 @@ function ApplicantDrawer({ a, onClose }: { a: Application; onClose: () => void }
             <span className="co-chip"><Icon name="event" size={13} />{a.availability}</span>
           </section>
 
-          {works.length > 0 && (
+          {(works.length > 0 || links.length > 0 || files.length > 0) && (
             <section className="co-block">
-              <h2 style={{ fontSize: 15 }}>Work they chose</h2>
-              <div className="co-works">{works.map((w) => <div key={w.id} className="co-work"><span className="ph"><Thumb photo={w.photo} className="" sizes="160px" /></span><b>{w.title}</b><small>{w.kind}</small></div>)}</div>
+              <h2 style={{ fontSize: 15 }}>What they sent</h2>
+              {cv && (
+                <div className="co-cv">
+                  <span className="ic doc">{ext(cv.name)}</span>
+                  <span className="t"><b>CV · {cv.name}</b><small>{fileSize(cv.size)}{DEMO ? " · files open once Akines is live" : ""}</small></span>
+                </div>
+              )}
+              {links.length > 0 && (
+                <ul className="co-items">
+                  {links.map((l) => {
+                    const k = linkLook(l);
+                    return <li key={l.url} className="co-item"><span className="ic"><Icon name={k.icon} size={18} /></span><span className="t"><b>{k.label}</b><a href={l.url} target="_blank" rel="noopener noreferrer">{k.short}</a></span><Icon name="more" size={16} /></li>;
+                  })}
+                </ul>
+              )}
+              {samples.length > 0 && (
+                <ul className="co-items">
+                  {samples.map((f) => <li key={f.id} className="co-item"><span className="ic doc">{ext(f.name)}</span><span className="t"><b>{f.name}</b><small>{fileSize(f.size)}</small></span></li>)}
+                </ul>
+              )}
+              {works.length > 0 && <div className="co-works">{works.map((w) => <div key={w.id} className="co-work"><span className="ph"><Thumb photo={w.photo} className="" sizes="160px" /></span><b>{w.title}</b><small>{w.kind}</small></div>)}</div>}
             </section>
           )}
 

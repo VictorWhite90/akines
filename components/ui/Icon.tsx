@@ -3,7 +3,7 @@ import {
   Discover, Edit2, EmojiHappy, Flag, Gallery, Game, Global, Heart, Hierarchy, Home2, InfoCircle, Key, Lifebuoy, Like1,
   Location, Lock, MagicStar, Message, MessageQuestion, MessageText1, Microphone2, Monitor, Music, Notepad2, Notification,
   Pause, People, Play, Profile2User, QuoteUp, Radar2, Scissor, SearchNormal1, Send2, Shop, Sms, TaskSquare, Teacher,
-  Ticket, Trash, TruckFast, UserAdd, Video, VideoPlay,
+  Ticket, Trash, TruckFast, UserAdd, Video, VideoPlay, Link21, DocumentText, DocumentUpload, Code, Personalcard,
 } from "iconsax-reactjs";
 import type { ComponentType } from "react";
 
@@ -45,10 +45,11 @@ const ICONS = {
   reply: ReplyArrow, poll: TaskSquare, time: Clock, quote: QuoteUp, emoji: EmojiHappy, voice: Microphone2,
   video: Video, send: Send2, search: SearchNormal1, remove: Trash, like: Like1, chart: Chart2, save: ArchiveAdd,
   edit: Edit2, clip: Scissor, close: CloseCircle, "play-media": Play, pause: Pause, music: Music, "video-play": VideoPlay,
-  pin: PinIcon, expand: ArrowDown2, more: ArrowRight2, notify: Notification,
+  pin: PinIcon, expand: ArrowDown2, more: ArrowRight2, notify: Notification, link: Link21, upload: DocumentUpload,
   // Things
   event: Calendar, ticket: Ticket, place: Location, private: Lock, spark: MagicStar, shipping: TruckFast, team: Flag,
   screen: Monitor, verified: ShieldTick, celebrate: Cake, again: Repeat, debate: ArrowSwapHorizontal, predict: TrendUp, calm: Lovely,
+  document: DocumentText, code: Code, cv: Personalcard,
 } satisfies Record<string, ComponentType<IconProps>>;
 
 export type IconName = keyof typeof ICONS;

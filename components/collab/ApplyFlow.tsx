@@ -8,17 +8,20 @@ import Icon from "@/components/ui/Icon";
 import { MY_WORKS } from "@/lib/collab/seed";
 import { ME, useCollab } from "@/lib/collab/useCollab";
 import { PEOPLE } from "@/lib/data/people";
+import { linkLook } from "@/lib/collab/proof";
 import { DemoNote, Thumb, firstName } from "./parts";
+import ProofStep, { proofCount, proofSummary, type Proof } from "./ProofStep";
 
 const STEPS = ["Your role", "Your work", "Why you", "Review"] as const;
 
-/** Applying to an open call (S2): selected work and a tailored statement, never a link in a comment. */
+/** Applying to an open call (S2): the work that fits the role (pieces, links, a CV or files) and a tailored statement. */
 export default function ApplyFlow({ id }: { id: string }) {
   const co = useCollab({ engine: true });
   const call = co.call(id);
   const [step, setStep] = useState(0);
   const [role, setRole] = useState("");
-  const [works, setWorks] = useState<string[]>([]);
+  const [proof, setProof] = useState<Proof>({ works: [], links: [], files: [] });
+  const works = proof.works;
   const [statement, setStatement] = useState("");
   const [availability, setAvailability] = useState("");
   const [sent, setSent] = useState(false);
@@ -52,10 +55,10 @@ export default function ApplyFlow({ id }: { id: string }) {
     );
   }
 
-  const can = [!!role, !needsWork || works.length > 0, statement.trim().length >= 20 && availability.trim().length > 0, true];
-  const toggleWork = (wid: string) => setWorks((w) => (w.includes(wid) ? w.filter((x) => x !== wid) : w.length >= 3 ? w : [...w, wid]));
+  const sentWork = proofCount(proof) > 0;
+  const can = [!!role, !needsWork || sentWork, statement.trim().length >= 20 && availability.trim().length > 0, true];
   const submit = () => {
-    co.apply({ callId: call.id, role, works, statement: statement.trim(), availability: availability.trim(), materials: Object.fromEntries(call.materials.map((m) => [m.id, m.id === "works" ? works.length > 0 : m.id === "why" ? !!statement.trim() : m.id === "availability" ? !!availability.trim() : false])) });
+    co.apply({ callId: call.id, role, works, links: proof.links, files: proof.files, statement: statement.trim(), availability: availability.trim(), materials: Object.fromEntries(call.materials.map((m) => [m.id, m.id === "works" ? sentWork : m.id === "why" ? !!statement.trim() : m.id === "availability" ? !!availability.trim() : false])) });
     setSent(true);
     window.scrollTo({ top: 0 });
   };
@@ -84,20 +87,8 @@ export default function ApplyFlow({ id }: { id: string }) {
             )}
             {step === 1 && (
               <>
-                <h2>Choose your work</h2>
-                <p className="hint">Up to three pieces that show you can do this. {host} sees them first.</p>
-                <div className="co-works">
-                  {MY_WORKS.map((w) => {
-                    const on = works.includes(w.id);
-                    return (
-                      <button key={w.id} type="button" className={`co-work${on ? " on" : ""}`} onClick={() => toggleWork(w.id)} aria-pressed={on}>
-                        <span className="ph"><Thumb photo={w.photo} className="" sizes="220px" /><span className="tick">{on ? works.indexOf(w.id) + 1 : "+"}</span></span>
-                        <b>{w.title}</b><small>{w.kind} · {w.year}</small>
-                      </button>
-                    );
-                  })}
-                </div>
-                <p className="co-muted" style={{ fontSize: 13 }}>{works.length} of 3 chosen{!needsWork && " · optional for this call"}</p>
+                <ProofStep role={role} host={host} value={proof} onChange={setProof} />
+                {!needsWork && <p className="co-muted" style={{ fontSize: 13, marginTop: -8 }}>Optional for this call.</p>}
               </>
             )}
             {step === 2 && (
@@ -120,8 +111,8 @@ export default function ApplyFlow({ id }: { id: string }) {
                 <p className="hint">Check it&apos;s right. You can withdraw any time before an offer.</p>
                 <ul className="co-checklist">
                   {call.materials.map((m) => {
-                    const ok = m.id === "works" ? works.length > 0 : m.id === "why" ? !!statement.trim() : m.id === "availability" ? !!availability.trim() : false;
-                    return <li key={m.id}><i aria-hidden style={ok ? undefined : { background: "var(--k-muted)", color: "var(--k-ink-3)" }}>{ok ? "✓" : "–"}</i><span>{m.label}{!m.required && " (optional)"}<small>{ok ? "Attached" : m.required ? "Missing" : "Not added"}</small></span></li>;
+                    const ok = m.id === "works" ? sentWork : m.id === "why" ? !!statement.trim() : m.id === "availability" ? !!availability.trim() : false;
+                    return <li key={m.id}><i aria-hidden style={ok ? undefined : { background: "var(--k-muted)", color: "var(--k-ink-3)" }}>{ok ? "✓" : "–"}</i><span>{m.label}{!m.required && " (optional)"}<small>{ok ? (m.id === "works" ? proofSummary(proof) : "Attached") : m.required ? "Missing" : "Not added"}</small></span></li>;
                   })}
                 </ul>
               </>
@@ -139,6 +130,12 @@ export default function ApplyFlow({ id }: { id: string }) {
           <span className="cap">What {host} will see</span>
           <div className="sheet">
             <div className="co-host"><Avatar person={PEOPLE[ME]} size={40} /><div><b>{PEOPLE[ME].name}</b><small>{role || "Choose a role"} · {PEOPLE[ME].city}</small></div></div>
+            {(proof.links.length > 0 || proof.files.length > 0) && (
+              <ul className="co-sent">
+                {proof.links.map((l) => { const k = linkLook(l); return <li key={l.url}><Icon name={k.icon} size={14} /><b>{k.label}</b><span>{k.short}</span></li>; })}
+                {proof.files.map((f) => <li key={f.id}><Icon name={f.kind === "cv" ? "cv" : "document"} size={14} /><b>{f.kind === "cv" ? "CV" : "File"}</b><span>{f.name}</span></li>)}
+              </ul>
+            )}
             {works.length > 0 && <div className="co-thumbs">{works.map((w) => <Thumb key={w} photo={MY_WORKS.find((x) => x.id === w)!.photo} className="" sizes="60px" />)}</div>}
             <blockquote>{statement.trim() || <span className="co-muted">Your note appears here.</span>}</blockquote>
             {availability.trim() && <span className="co-chip"><Icon name="event" size={13} />{availability.trim()}</span>}
