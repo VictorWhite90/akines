@@ -1,18 +1,9 @@
 import type { PersonId } from "@/lib/data/people";
-import type { Application, CollabCall, CollabState, ProofFile, Project, Work } from "./types";
+import type { Application, CollabCall, CollabState, ProofFile, Project } from "./types";
 
 const ME: PersonId = "amara";
 const MIN = 60_000, HOUR = 60 * MIN, DAY = 24 * HOUR;
 
-/** The member's own work they can attach to applications (Amara is a product designer). */
-export const MY_WORKS: Work[] = [
-  { id: "w-clinic", title: "Clinic check-in, redesigned", kind: "Product design", year: "2026", photo: "studioBusy" },
-  { id: "w-market", title: "Wuse market stall identities", kind: "Brand design", year: "2025", photo: "beadsShop" },
-  { id: "w-journal", title: "Field notes app for nurses", kind: "Product design", year: "2025", photo: "journalOpen" },
-  { id: "w-poster", title: "Youth hackathon posters", kind: "Graphic design", year: "2025", photo: "collabArt" },
-  { id: "w-cafe", title: "Café menu and signage", kind: "Brand design", year: "2024", photo: "talkCafe" },
-  { id: "w-gallery", title: "Exhibition wayfinding", kind: "Spatial design", year: "2024", photo: "frameWall" },
-];
 
 const ab = (id: string) => [
   { id: "works", label: "Your work", hint: "Pieces, links or files that show you can do this: whatever fits your work.", required: true },

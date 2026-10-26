@@ -6,6 +6,7 @@ import Pic from "@/components/home/Pic";
 import Avatar, { AvatarStack } from "@/components/ui/Avatar";
 import LiveView from "./LiveView";
 import { DoorGlyph, Field, Ico, Modal, NoteCard, PhotoPicker, VisitingChip, WorkCard, WorkDetail } from "./parts";
+import { PieceForm } from "@/components/portfolio/Portfolio";
 import type { StudioState } from "./useMyStudio";
 import { newId, useLocal } from "@/lib/useLocal";
 import { PEOPLE } from "@/lib/data/people";
@@ -95,11 +96,11 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
             {tab === "wall" && (
               <>
                 <div className="sd-head">
-                  <div><h2>My space</h2><p>What you do and what you've made. Open anything to read the story behind it.</p></div>
+                  <div><h2>My space</h2><p>What you do and what you've made: the same work as on your profile. Open anything to read the story behind it.</p></div>
                   <button className="sd-btn dark" onClick={() => setModal("work")}>＋ Add to my space</button>
                 </div>
                 <div className="sd-works">
-                  <button className="sd-add" onClick={() => setModal("work")}><span>＋</span>Add to my space<small>A title, a photo and the story</small></button>
+                  <button className="sd-add" onClick={() => setModal("work")}><span>＋</span>Add to my space<small>A photo, a title and the story</small></button>
                   {studio.works.map((w) => <WorkCard key={w.id} work={w} onOpen={() => setDetail(w)} />)}
                 </div>
                 {studio.works.length === 0 && <p className="sd-empty">Your space is empty for now. The first thing you share is always the hardest.</p>}
@@ -210,7 +211,7 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
         </aside>
       </div>
 
-      {modal === "work" && <WorkForm onClose={() => setModal(null)} onSave={(w) => { update((s) => ({ ...s, works: [w, ...s.works] })); setModal(null); setTab("wall"); }} />}
+      {modal === "work" && <PieceForm onClose={() => setModal(null)} onSaved={() => setTab("wall")} />}
       {modal === "note" && <NoteForm onClose={() => setModal(null)} onSave={(n) => { update((s) => ({ ...s, notes: [n, ...s.notes] })); setModal(null); }} />}
       {modal === "visit" && <VisitForm onClose={() => setModal(null)} onSave={(v) => { update((s) => ({ ...s, visits: [...s.visits, v] })); setModal(null); }} />}
       {detail && <WorkDetail work={detail} onClose={() => setDetail(null)} onRemove={() => { update((s) => ({ ...s, works: s.works.filter((w) => w.id !== detail.id) })); setDetail(null); }} />}
@@ -220,31 +221,6 @@ export default function StudioHome({ state, demo }: { state: StudioState; demo?:
 }
 
 /* ---------- forms ---------- */
-function WorkForm({ onClose, onSave }: { onClose: () => void; onSave: (w: Work) => void }) {
-  const [f, setF] = useState<Work>(() => ({ id: newId("w"), title: "", medium: "", size: "", year: String(new Date().getFullYear()), photo: MAKE_CHOICES[0], story: "" }));
-  const set = (p: Partial<Work>) => setF((x) => ({ ...x, ...p }));
-  return (
-    <Modal onClose={onClose} eyebrow="My space" title="Add something to your space" wide>
-      <form className="sd-formgrid" onSubmit={(e) => { e.preventDefault(); if (f.title.trim()) onSave({ ...f, title: f.title.trim() }); }}>
-        <Field label="Title"><input value={f.title} onChange={(e) => set({ title: e.target.value })} placeholder="What do you call it?" autoFocus maxLength={60} /></Field>
-        <div className="sd-three">
-          <Field label="Medium"><input value={f.medium} onChange={(e) => set({ medium: e.target.value })} placeholder="Oil on linen" /></Field>
-          <Field label="Size"><input value={f.size} onChange={(e) => set({ size: e.target.value })} placeholder="90 × 70 cm" /></Field>
-          <Field label="Year"><input value={f.year} onChange={(e) => set({ year: e.target.value })} inputMode="numeric" maxLength={4} /></Field>
-        </div>
-        <div className="sd-field">
-          <span className="lb">Photo <small>From the catalogue for now</small></span>
-          <PhotoPicker keys={MAKE_CHOICES} value={f.photo} onChange={(k) => k && set({ photo: k })} label="Photo" size="sm" />
-        </div>
-        <Field label="The story behind it" hint="Optional, but it's what people remember">
-          <textarea rows={3} value={f.story} onChange={(e) => set({ story: e.target.value })} placeholder="Where did it start? What nearly went wrong?" />
-        </Field>
-        <button className="sd-btn dark full" type="submit" disabled={!f.title.trim()}>Add to my space</button>
-      </form>
-    </Modal>
-  );
-}
-
 function NoteForm({ onClose, onSave }: { onClose: () => void; onSave: (n: Note) => void }) {
   const [f, setF] = useState<Note>(() => ({ id: newId("n"), kind: "note", date: todayIso(), text: "" }));
   return (

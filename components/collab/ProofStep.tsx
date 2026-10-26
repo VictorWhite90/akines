@@ -1,11 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
+import { PieceForm, PieceImage, pieceMeta } from "@/components/portfolio/Portfolio";
 import Icon, { type IconName } from "@/components/ui/Icon";
 import { cleanUrl, fileSize, linkKind, linkLook, proofFor, type ProofSection } from "@/lib/collab/proof";
-import { MY_WORKS } from "@/lib/collab/seed";
 import type { ProofFile, ProofLink } from "@/lib/collab/types";
-import { Thumb } from "./parts";
+import { usePortfolio } from "@/lib/portfolio";
 
 const MAX_LINKS = 6;
 const MAX_PIECES = 3;
@@ -32,7 +33,7 @@ const SECTION: Record<ProofSection, { title: string; icon: IconName }> = {
   links: { title: "Links", icon: "link" },
   cv: { title: "CV or résumé", icon: "cv" },
   samples: { title: "Files", icon: "document" },
-  pieces: { title: "Pieces from your Akines work", icon: "photo" },
+  pieces: { title: "Pieces from your work", icon: "photo" },
 };
 
 /**
@@ -230,24 +231,34 @@ function Samples({ fit, value, onChange }: { fit: ReturnType<typeof proofFor>; v
 }
 
 function Pieces({ value, onChange }: { value: Proof; onChange: (p: Proof) => void }) {
+  const pf = usePortfolio();
+  const [adding, setAdding] = useState(false);
   const toggle = (id: string) => {
     const w = value.works;
     onChange({ ...value, works: w.includes(id) ? w.filter((x) => x !== id) : w.length >= MAX_PIECES ? w : [...w, id] });
   };
+  const full = value.works.length >= MAX_PIECES;
   return (
     <>
+      <p className="co-muted" style={{ fontSize: 13, marginTop: -4 }}>
+        {pf.pieces.length ? <>From the Work tab on <Link href="/profile" className="co-link">your profile</Link>. Anything you upload here is saved there too.</> : "You haven't added any work to your profile yet. Upload a piece here and it's saved there for next time."}
+      </p>
       <div className="co-works">
-        {MY_WORKS.map((w) => {
+        <button type="button" className="co-work co-work-add" onClick={() => setAdding(true)} disabled={full}>
+          <span className="ph"><span className="in"><Icon name="upload" size={22} /><b>Upload a new piece</b><small>{full ? `Up to ${MAX_PIECES}` : "Photo, title, story"}</small></span></span>
+        </button>
+        {pf.pieces.map((w) => {
           const on = value.works.includes(w.id);
           return (
             <button key={w.id} type="button" className={`co-work${on ? " on" : ""}`} onClick={() => toggle(w.id)} aria-pressed={on}>
-              <span className="ph"><Thumb photo={w.photo} className="" sizes="220px" /><span className="tick">{on ? value.works.indexOf(w.id) + 1 : "+"}</span></span>
-              <b>{w.title}</b><small>{w.kind} · {w.year}</small>
+              <span className="ph"><PieceImage piece={w} sizes="220px" /><span className="tick">{on ? value.works.indexOf(w.id) + 1 : "+"}</span></span>
+              <b>{w.title}</b><small>{pieceMeta(w)}</small>
             </button>
           );
         })}
       </div>
       <p className="co-muted" style={{ fontSize: 12.5 }}>{value.works.length} of {MAX_PIECES} chosen</p>
+      {adding && <PieceForm onClose={() => setAdding(false)} onSaved={(p) => { if (!full) onChange({ ...value, works: [...value.works, p.id] }); }} />}
     </>
   );
 }

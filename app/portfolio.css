@@ -1,0 +1,71 @@
+/* =========================================================
+   Portfolio: a member's work, shared by the profile Work tab,
+   the My Studio wall and applications to open calls.
+   ========================================================= */
+.wk-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.wk-none { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 6px; padding: 10px; text-align: center; background: linear-gradient(135deg, color-mix(in srgb, #2547d0 9%, var(--k-subtle, #f4f2ee)), color-mix(in srgb, #f4a63a 12%, var(--k-subtle, #f4f2ee))); color: var(--k-ink-3, #6b6b6b); }
+.wk-none small { font: 600 12px/1.3 var(--font-manrope), sans-serif; max-width: 16ch; }
+
+.wk-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0 14px; }
+.wk-head p { margin: 0; font-size: 13px; color: var(--k-ink-3); }
+.wk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.wk-card, .wk-add { display: grid; align-content: start; gap: 6px; padding: 0; border: 0; background: none; color: var(--k-ink); text-align: left; cursor: pointer; min-width: 0; }
+.wk-card b { font-size: 14.5px; font-weight: 600; line-height: 1.3; }
+.wk-card small { font-size: 12.5px; color: var(--k-ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wk-ph { position: relative; display: block; aspect-ratio: 4/3; border-radius: 14px; overflow: hidden; background: var(--k-muted); }
+.wk-card .wk-ph { transition: transform .2s ease, box-shadow .2s ease; }
+.wk-card:hover .wk-ph { transform: translateY(-2px); box-shadow: 0 14px 30px -18px rgba(0,0,0,.45); }
+.wk-badge { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.94); color: #1d1d1d; }
+.wk-add { aspect-ratio: 4/3; place-content: center; justify-items: center; gap: 4px; border-radius: 14px; border: 1.5px dashed var(--k-border-strong); background: var(--k-subtle); text-align: center; transition: border-color .15s, background .15s; }
+.wk-add:hover { border-color: var(--k-amber, #f4a63a); background: color-mix(in srgb, #f4a63a 8%, var(--k-surface)); }
+.wk-add .ic { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--k-surface); color: #c77a12; margin-bottom: 4px; }
+.wk-add b { font-size: 14px; }
+.wk-add small { font-size: 12px; color: var(--k-ink-3); }
+.wk-thumb { position: relative; display: block; width: 56px; height: 44px; border-radius: 8px; overflow: hidden; }
+
+/* Add / edit, in two steps */
+.wk-form { display: grid; gap: 16px; }
+.wk-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.wk-steps i { height: 4px; border-radius: 99px; background: var(--k-muted); }
+.wk-steps i.on { background: var(--k-amber, #f4a63a); }
+.wk-drop { display: grid; gap: 10px; }
+.wk-drop .wk-ph { aspect-ratio: 16/10; }
+.wk-drop-acts { display: flex; gap: 8px; }
+.wk-drop-empty { display: grid; justify-items: center; gap: 4px; padding: 26px 16px; border-radius: 16px; border: 1.5px dashed var(--k-border-strong); background: var(--k-subtle); color: var(--k-ink); text-align: center; cursor: pointer; }
+.wk-drop-empty:hover { border-color: var(--k-amber, #f4a63a); }
+.wk-drop-empty .ic { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--k-surface); color: #c77a12; margin-bottom: 4px; }
+.wk-drop-empty b { font-size: 15px; }
+.wk-drop-empty small { max-width: 40ch; font-size: 12.5px; line-height: 1.45; color: var(--k-ink-3); }
+.wk-field { display: grid; gap: 6px; }
+.wk-field > span, .wk-field > label { font-size: 13px; font-weight: 600; color: var(--k-ink); }
+.wk-field small { font-weight: 400; color: var(--k-ink-3); }
+.wk-field :is(input, textarea) { width: 100%; padding: 12px 14px; border-radius: 12px; border: .5px solid var(--k-border-strong); background: var(--k-surface); color: var(--k-ink); font: 400 16px/1.45 var(--font-manrope), sans-serif; outline: none; }
+.wk-field :is(input, textarea):focus { border-color: var(--k-amber, #f4a63a); box-shadow: 0 0 0 3px color-mix(in srgb, #f4a63a 22%, transparent); }
+.wk-field textarea { resize: vertical; min-height: 96px; }
+.wk-two { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 12px; }
+.wk-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.wk-chips button { height: 30px; padding: 0 12px; border-radius: 999px; border: .5px solid var(--k-border-strong); background: var(--k-surface); color: var(--k-ink-2, var(--k-ink)); font: 500 12.5px var(--font-manrope), sans-serif; cursor: pointer; }
+.wk-chips button.on { border-color: #f4a63a; background: color-mix(in srgb, #f4a63a 16%, var(--k-surface)); color: var(--k-ink); font-weight: 600; }
+.wk-err { margin: 0; font-size: 12.5px; font-style: normal; color: #c0392b; }
+html[data-theme="dark"] .wk-err { color: #ff8a7a; }
+.wk-foot { display: flex; justify-content: space-between; gap: 10px; padding-top: 4px; }
+
+/* Detail */
+.wk-detail { display: grid; gap: 14px; }
+.wk-ph.big { aspect-ratio: 16/10; border-radius: 16px; }
+.wk-link { display: inline-flex; align-items: center; gap: 6px; justify-self: start; max-width: 100%; padding: 8px 12px; border-radius: 10px; background: var(--k-subtle); color: var(--k-ink); font-size: 13.5px; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wk-link:hover { text-decoration: underline; }
+.wk-story { margin: 0; font-size: 15px; line-height: 1.6; color: var(--k-ink-2, var(--k-ink)); white-space: pre-line; }
+
+/* The upload tile among pieces in an application */
+.co-work-add .ph { border: 1.5px dashed var(--co-line); background: var(--co-soft); }
+.co-work-add .in { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 3px; padding: 8px; text-align: center; color: var(--co); }
+.co-work-add .in b { font-size: 13px; color: var(--k-ink); }
+.co-work-add .in small { font-size: 11.5px; color: var(--k-ink-3); }
+.co-work-add:disabled { opacity: .5; cursor: default; }
+
+@media (max-width: 560px) {
+  .wk-grid { gap: 10px; }
+  .wk-head { flex-wrap: wrap; }
+  .wk-two { grid-template-columns: 90px minmax(0, 1fr); }
+}

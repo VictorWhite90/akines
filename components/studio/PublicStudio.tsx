@@ -5,6 +5,7 @@ import { useState } from "react";
 import Pic from "@/components/home/Pic";
 import Avatar from "@/components/ui/Avatar";
 import { DoorGlyph, Ico, NoteCard, VisitingChip, WorkCard, WorkDetail } from "./parts";
+import { PieceImage } from "@/components/portfolio/Portfolio";
 import { useStudioState } from "./useMyStudio";
 import { MAX_SEATS, VISITING, studioToPublic, themeVars, type PublicStudio, type Work } from "@/lib/data/studio";
 import { PEOPLE } from "@/lib/data/people";
@@ -128,7 +129,7 @@ export default function PublicStudioView({ studio }: { studio: PublicStudio }) {
             </section>
           )}
           <section className="sd-card shop">
-            <div className="thumbs">{studio.works.slice(0, 3).map((w) => <span key={w.id}><Pic name={w.photo} sizes="90px" /></span>)}</div>
+            <div className="thumbs">{studio.works.slice(0, 3).map((w) => <span key={w.id}><PieceImage piece={{ image: w.image, photo: w.photo, kind: w.medium, title: w.title }} sizes="90px" /></span>)}</div>
             <h3>Shop from this space</h3>
             <p>If something here is for sale, buy it straight from the person who made it.</p>
             <Link href="/shop" className="sd-link">Browse the shop <Ico n="arrow" size={14} /></Link>

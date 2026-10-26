@@ -62,7 +62,8 @@ export type Hours = { days: string[]; from: string; to: string };
 export const hoursText = (h: Hours) => (h.days.length ? `${[...h.days].sort((a, b) => DAYS.indexOf(a as (typeof DAYS)[number]) - DAYS.indexOf(b as (typeof DAYS)[number])).join(", ")} · ${h.from}–${h.to}` : "No fixed hours");
 
 /* ---------- What a studio holds ---------- */
-export type Work = { id: string; title: string; medium: string; size: string; year: string; photo: PhotoKey; story: string };
+/** On the member's own wall these are their portfolio pieces (lib/portfolio): `image` is their upload, `photo` a sample. */
+export type Work = { id: string; title: string; medium: string; size: string; year: string; photo?: PhotoKey; image?: string; story: string };
 export type Note = { id: string; text: string; photo?: PhotoKey; date: string; kind: "note" | "sketch" };
 export type VisitMode = "Live" | "Virtual" | "360°";
 export const VISIT_MODES: VisitMode[] = ["Live", "Virtual", "360°"];

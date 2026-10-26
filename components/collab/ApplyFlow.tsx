@@ -5,11 +5,12 @@ import { useState } from "react";
 import Avatar from "@/components/ui/Avatar";
 import BackLink from "@/components/ui/BackLink";
 import Icon from "@/components/ui/Icon";
-import { MY_WORKS } from "@/lib/collab/seed";
+import { PieceImage } from "@/components/portfolio/Portfolio";
+import { usePortfolio } from "@/lib/portfolio";
 import { ME, useCollab } from "@/lib/collab/useCollab";
 import { PEOPLE } from "@/lib/data/people";
 import { linkLook } from "@/lib/collab/proof";
-import { DemoNote, Thumb, firstName } from "./parts";
+import { DemoNote, firstName } from "./parts";
 import ProofStep, { proofCount, proofSummary, type Proof } from "./ProofStep";
 
 const STEPS = ["Your role", "Your work", "Why you", "Review"] as const;
@@ -17,6 +18,7 @@ const STEPS = ["Your role", "Your work", "Why you", "Review"] as const;
 /** Applying to an open call (S2): the work that fits the role (pieces, links, a CV or files) and a tailored statement. */
 export default function ApplyFlow({ id }: { id: string }) {
   const co = useCollab({ engine: true });
+  const pf = usePortfolio();
   const call = co.call(id);
   const [step, setStep] = useState(0);
   const [role, setRole] = useState("");
@@ -136,7 +138,7 @@ export default function ApplyFlow({ id }: { id: string }) {
                 {proof.files.map((f) => <li key={f.id}><Icon name={f.kind === "cv" ? "cv" : "document"} size={14} /><b>{f.kind === "cv" ? "CV" : "File"}</b><span>{f.name}</span></li>)}
               </ul>
             )}
-            {works.length > 0 && <div className="co-thumbs">{works.map((w) => <Thumb key={w} photo={MY_WORKS.find((x) => x.id === w)!.photo} className="" sizes="60px" />)}</div>}
+            {works.length > 0 && <div className="co-thumbs">{works.map((w) => pf.get(w)).filter((w) => !!w).map((w) => <span key={w.id} className="wk-thumb"><PieceImage piece={w} sizes="60px" /></span>)}</div>}
             <blockquote>{statement.trim() || <span className="co-muted">Your note appears here.</span>}</blockquote>
             {availability.trim() && <span className="co-chip"><Icon name="event" size={13} />{availability.trim()}</span>}
           </div>

@@ -7,6 +7,7 @@ import Avatar from "@/components/ui/Avatar";
 import { account, fullName, type MemberProfile, type MyProfile } from "@/lib/api/account";
 import { api } from "@/lib/api/client";
 import { canGoBack } from "@/lib/navHistory";
+import { WorkTab } from "@/components/portfolio/Portfolio";
 import EditProfileModal from "./EditProfileModal";
 
 type MyCommunity = { id: string; name: string; tagline: string; category_label: string; area: string; member_count: number; my_role: string | null; cover_photo: string | null };
@@ -46,7 +47,7 @@ export default function ProfilePage({ username }: { username?: string }) {
   const [interestNames, setInterestNames] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
-  const [tab, setTab] = useState<"communities" | "about">(own ? "communities" : "about");
+  const [tab, setTab] = useState<"work" | "communities" | "about">(own ? "work" : "about");
   const [menu, setMenu] = useState(false);
   const [blocked, setBlocked] = useState(false);
 
@@ -128,9 +129,12 @@ export default function ProfilePage({ username }: { username?: string }) {
           </section>
 
           <nav className="mp-tabs" role="tablist">
+            {own && <button role="tab" aria-selected={tab === "work"} className={tab === "work" ? "on" : undefined} onClick={() => setTab("work")}>Work</button>}
             {own && <button role="tab" aria-selected={tab === "communities"} className={tab === "communities" ? "on" : undefined} onClick={() => setTab("communities")}>Communities</button>}
             <button role="tab" aria-selected={tab === "about"} className={tab === "about" ? "on" : undefined} onClick={() => setTab("about")}>About</button>
           </nav>
+
+          {tab === "work" && own && <section className="mp-panel"><WorkTab /></section>}
 
           {tab === "communities" && own && (
             <section className="mp-panel">

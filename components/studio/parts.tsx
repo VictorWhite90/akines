@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import Pic from "@/components/home/Pic";
+import { PieceImage } from "@/components/portfolio/Portfolio";
 import { PHOTO, type PhotoKey } from "@/lib/data/images";
 import { VISITING, fmtShort, themeVars, type Note, type ThemeId, type VisitingStyle, type Work } from "@/lib/data/studio";
 
@@ -118,7 +119,7 @@ export function StudioCard({ name, tagline, place, disciplines, cover, theme, vi
 export function WorkCard({ work, onOpen }: { work: Work; onOpen: () => void }) {
   return (
     <button className="sd-work" onClick={onOpen} aria-label={`${work.title}, open the story`}>
-      <span className="ph"><Pic name={work.photo} sizes="(max-width: 760px) 50vw, 220px" /></span>
+      <span className="ph"><PieceImage piece={{ image: work.image, photo: work.photo, kind: work.medium, title: work.title }} sizes="(max-width: 760px) 50vw, 220px" /></span>
       <span className="tt">{work.title}</span>
       <span className="mm">{[work.medium, work.year].filter(Boolean).join(" · ")}</span>
     </button>
@@ -129,7 +130,7 @@ export function WorkDetail({ work, onClose, onRemove }: { work: Work; onClose: (
   return (
     <Modal onClose={onClose} wide>
       <div className="sd-detail">
-        <div className="ph"><Pic name={work.photo} sizes="(max-width: 760px) 100vw, 320px" /></div>
+        <div className="ph"><PieceImage piece={{ image: work.image, photo: work.photo, kind: work.medium, title: work.title }} sizes="(max-width: 760px) 100vw, 320px" /></div>
         <div className="tx">
           <p className="ac-eyebrow">On the wall</p>
           <h2>{work.title}</h2>

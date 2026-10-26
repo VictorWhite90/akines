@@ -8,10 +8,11 @@ import Avatar from "@/components/ui/Avatar";
 import BackLink from "@/components/ui/BackLink";
 import Icon from "@/components/ui/Icon";
 import { fileSize, linkLook } from "@/lib/collab/proof";
-import { MY_WORKS } from "@/lib/collab/seed";
+import { PieceImage } from "@/components/portfolio/Portfolio";
+import { usePortfolio } from "@/lib/portfolio";
 import { DEMO } from "@/lib/demo/mode";
 import type { AppStage, Application } from "@/lib/collab/types";
-import { STAGE_LABEL, useCollab } from "@/lib/collab/useCollab";
+import { ME, STAGE_LABEL, useCollab } from "@/lib/collab/useCollab";
 import { PEOPLE } from "@/lib/data/people";
 import { DemoNote, Stars, Thumb, ago, firstName } from "./parts";
 
@@ -151,6 +152,7 @@ export default function ReviewDesk({ id }: { id: string }) {
 
 function ApplicantDrawer({ a, onClose }: { a: Application; onClose: () => void }) {
   const co = useCollab();
+  const pf = usePortfolio();
   const call = co.call(a.callId)!;
   const p = PEOPLE[a.applicant];
   const [note, setNote] = useState("");
@@ -162,7 +164,7 @@ function ApplicantDrawer({ a, onClose }: { a: Application; onClose: () => void }
     return () => window.removeEventListener("keydown", k);
   }, [onClose]);
 
-  const works = a.applicant === "amara" ? a.works.map((w) => MY_WORKS.find((x) => x.id === w)!).filter(Boolean) : [];
+  const works = a.applicant === ME ? a.works.map((w) => pf.get(w)).filter((w) => !!w) : [];
   const links = a.links ?? [];
   const files = a.files ?? [];
   const cv = files.find((f) => f.kind === "cv");
@@ -220,7 +222,7 @@ function ApplicantDrawer({ a, onClose }: { a: Application; onClose: () => void }
                   {samples.map((f) => <li key={f.id} className="co-item"><span className="ic doc">{ext(f.name)}</span><span className="t"><b>{f.name}</b><small>{fileSize(f.size)}</small></span></li>)}
                 </ul>
               )}
-              {works.length > 0 && <div className="co-works">{works.map((w) => <div key={w.id} className="co-work"><span className="ph"><Thumb photo={w.photo} className="" sizes="160px" /></span><b>{w.title}</b><small>{w.kind}</small></div>)}</div>}
+              {works.length > 0 && <div className="co-works">{works.map((w) => <div key={w.id} className="co-work"><span className="ph"><PieceImage piece={w} sizes="160px" /></span><b>{w.title}</b><small>{w.kind}</small></div>)}</div>}
             </section>
           )}
 

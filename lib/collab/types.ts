@@ -40,9 +40,6 @@ export type CollabCall = {
   postedByMe?: boolean;
 };
 
-/** A piece of someone's work they can attach to an application or bring into a studio. */
-export type Work = { id: string; title: string; kind: string; year: string; photo: PhotoKey };
-
 /** A link that shows someone's work: GitHub, a live project, a portfolio, a profile, a recording. */
 export type ProofLink = { url: string; kind: LinkKind; note?: string };
 export type LinkKind = "github" | "gitlab" | "figma" | "behance" | "dribbble" | "linkedin" | "instagram" | "youtube" | "vimeo" | "soundcloud" | "spotify" | "medium" | "substack" | "drive" | "site";
@@ -61,6 +58,7 @@ export type Application = {
   callId: string;
   applicant: PersonId;
   role: string;
+  /** Portfolio piece ids (lib/portfolio). */
   works: string[];
   /** Links and files, for work that isn't a picture (code, writing, audio, a CV). Older saved applications have none. */
   links?: ProofLink[];
