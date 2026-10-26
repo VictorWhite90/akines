@@ -75,10 +75,19 @@ export function CallCard({ call, applied }: { call: CollabCall; applied?: Applic
 export function nextStep(p: Project, me: PersonId) {
   if (p.stage === 1) return "Shape the idea in the studio, then agree the terms.";
   if (!p.charter.signedAt) return p.charter.signed.includes(me) ? "Waiting for everyone to sign the charter." : "Read and sign the charter so work can start.";
-  const mine = p.tasks.find((t) => t.who === me && t.status !== "done");
-  if (mine) return `Your next task: ${mine.title}${mine.due && mine.due !== "No date" ? ` (${mine.due})` : ""}`;
-  const m = p.milestones.find((x) => !x.done);
-  return m ? `Next milestone: ${m.title}` : "Present the work and share what it earned.";
+  const ds = p.deliverables ?? [];
+  const review = ds.find((d) => d.approver === me && d.status === "review");
+  if (review) return `${review.owner === me ? "You" : PEOPLE[review.owner].name.split(" ")[0]} sent "${review.title}" for your review.`;
+  const changes = ds.find((d) => d.owner === me && d.status === "changes");
+  if (changes) return `Changes asked on "${changes.title}".`;
+  const mine = ds.find((d) => d.owner === me && (d.status === "doing" || d.status === "todo"));
+  if (mine) return `Your next delivery: ${mine.title}${mine.due && mine.due !== "No date" ? ` (${mine.due})` : ""}`;
+  const waiting = ds.find((d) => d.owner === me && d.status === "review");
+  if (waiting) return `Waiting for ${PEOPLE[waiting.approver].name.split(" ")[0]} to approve "${waiting.title}".`;
+  const open = ds.filter((d) => d.status !== "approved").length;
+  if (open) return `${open} still to deliver across the team.`;
+  if (!ds.length) return "Set up the plan: what each person will deliver.";
+  return "Everything's approved. Share what it earned and keep the record.";
 }
 
 export function ProjectCard({ p, me }: { p: Project; me: PersonId }) {

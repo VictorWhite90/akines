@@ -1,5 +1,5 @@
 import type { PersonId } from "@/lib/data/people";
-import type { Application, CollabCall, CollabState, ProofFile, Project } from "./types";
+import type { Application, CollabCall, CollabState, Deliverable, ProofFile, Project } from "./types";
 
 const ME: PersonId = "amara";
 const MIN = 60_000, HOUR = 60 * MIN, DAY = 24 * HOUR;
@@ -96,6 +96,11 @@ export const SEED_CALLS: CollabCall[] = [
   },
 ];
 
+/** A deliverable for the sample projects. */
+function dl(d: Partial<Deliverable> & Pick<Deliverable, "id" | "title" | "owner" | "approver" | "due" | "status">): Deliverable {
+  return { steps: [], proof: [], thread: [], ...d };
+}
+
 export function seedState(): CollabState {
   const now = Date.now();
   const applications: Application[] = [
@@ -187,7 +192,27 @@ export function seedState(): CollabState {
       { at: now - 6 * DAY, who: "efua", what: "Marked \"Mama Ngozi at her stall\" as the cover" },
       { at: now - 6 * DAY, who: "akines", what: "Milestone done: all traders photographed" },
     ],
-    convoId: "co-market-light", rooms: [],
+    convoId: "co-market-light", rooms: [], kind: "make",
+    tools: [
+      { id: "ml-t1", label: "Photo folder", url: "https://drive.google.com/drive/folders/market-light", kind: "drive" },
+      { id: "ml-t2", label: "Book layout", url: "https://figma.com/file/market-light-book", kind: "figma" },
+    ],
+    deliverables: [
+      dl({ id: "ml-d1", title: "Portraits of 24 traders", owner: "wanjiru", approver: ME, due: "2 Nov", share: 35, status: "approved", approvedAt: now - 6 * DAY,
+        proof: [{ id: "ml-p1", kind: "image", title: "Mama Ngozi at her stall", photo: "beadsPile", by: "wanjiru", at: now - 7 * DAY }, { id: "ml-p2", kind: "link", title: "All 46 selects", url: "https://drive.google.com/drive/folders/market-light", by: "wanjiru", at: now - 7 * DAY }],
+        thread: [{ by: "wanjiru", text: "All 24 traders, two frames each. Selects are in the folder.", at: now - 7 * DAY, kind: "submitted" }, { by: ME, text: "These are beautiful. Approved.", at: now - 6 * DAY, kind: "approved" }] }),
+      dl({ id: "ml-d2", title: "Trader interviews, written up", owner: "efua", approver: "wanjiru", due: "6 Nov", share: 25, status: "doing",
+        steps: [{ id: "s1", title: "Fabric row (6)", done: true }, { id: "s2", title: "Bead sellers (8)", done: true }, { id: "s3", title: "Food stalls (10)", done: false }],
+        proof: [{ id: "ml-p3", kind: "note", title: "Caption style", text: "First name, stall, years at the market, one sentence in their own words. No more than 30 words.", by: "efua", at: now - 4 * DAY }] }),
+      dl({ id: "ml-d3", title: "Book layout, 24 pages", owner: ME, approver: "wanjiru", due: "15 Nov", share: 25, status: "doing",
+        steps: [{ id: "s1", title: "Grid and type", done: true }, { id: "s2", title: "Spreads 1–6", done: true }, { id: "s3", title: "Spreads 7–12", done: false }],
+        proof: [{ id: "ml-p4", kind: "image", title: "Spread 3 draft", photo: "journalOpen", by: ME, at: now - 2 * DAY }, { id: "ml-p5", kind: "link", title: "Layout in Figma", url: "https://figma.com/file/market-light-book", by: ME, at: now - 2 * DAY }] }),
+      dl({ id: "ml-d4", title: "Launch at Wuse Market", owner: "wanjiru", approver: "efua", due: "7 Dec", share: 15, status: "todo" }),
+    ],
+    checkins: [
+      { id: "ml-c1", who: "efua", at: now - DAY, done: "Wrote up the bead sellers.", next: "Food stalls on Thursday morning.", stuck: "Two traders want to check their quotes first." },
+      { id: "ml-c2", who: "wanjiru", at: now - DAY - 3 * HOUR, done: "Picked three cover options.", next: "Print tests on Saturday." },
+    ],
   };
 
   /** Just accepted: the team agrees the terms first. Fatou and Chidi have signed; your signature opens the work. */
@@ -229,8 +254,141 @@ export function seedState(): CollabState {
       { at: now - 90 * MIN, who: "fatou", what: "Signed the charter" },
       { at: now - HOUR, who: "chidi", what: "Signed the charter" },
     ],
-    convoId: "co-kubwa-bread-shoot", rooms: [],
+    convoId: "co-kubwa-bread-shoot", rooms: [], kind: "make",
+    tools: [{ id: "kb-t1", label: "Shot list and footage", url: "https://drive.google.com/drive/folders/kubwa-bread", kind: "drive" }],
+    deliverables: [
+      dl({ id: "kb-d1", title: "Shot list: ten photos", owner: ME, approver: "fatou", due: "Tue 19 Nov", share: 10, status: "todo" }),
+      dl({ id: "kb-d2", title: "The 60-second film", owner: "chidi", approver: "fatou", due: "6 Dec", share: 45, status: "todo" }),
+      dl({ id: "kb-d3", title: "Ten finished photos", owner: ME, approver: "fatou", due: "6 Dec", share: 45, status: "todo" }),
+    ],
+    checkins: [],
   };
 
-  return { v: 1, calls: SEED_CALLS, applications, projects: [bread, market], proposals: [], saved: [] };
+  const base = { stage: 3 as const, present: { what: "", where: "", when: "", checklist: [] }, studio: [], tasks: [], milestones: [], rooms: [] };
+
+  /** Build: a developer, a designer and a clinic. Kwame's admin screen is waiting for your review. */
+  const clinic: Project = {
+    ...base, id: "garki-clinic-booking", title: "Garki Clinic booking app", summary: "Online booking and SMS reminders, so patients stop waiting three hours to be seen.", photo: "studioBusy", host: "ayo", kind: "build", createdAt: now - 24 * DAY,
+    members: [
+      { id: "ayo", role: "Client", contribution: "For Garki Family Clinic" },
+      { id: "kwame", role: "Developer", contribution: "Booking API, SMS and the admin screen" },
+      { id: ME, role: "Product designer", contribution: "Booking flow and screens" },
+    ],
+    charter: {
+      credit: "Kwame and Amara credited as the makers in the app's About page and in their portfolios.", ownership: "The clinic owns the app and its data. Kwame keeps the right to reuse his general code; Amara keeps her design system.",
+      decisions: "Dr Ayo approves every feature after trying it on the test site.", expenses: "SMS credits and hosting come out of the budget first.", uses: "Both can show screenshots without patient data.", exit: "Two weeks' notice. Approved features are paid for.",
+      split: { ayo: 0, kwame: 60, amara: 40 }, signed: ["ayo", "kwame", ME], signedAt: now - 22 * DAY,
+    },
+    tools: [
+      { id: "gc-t1", label: "Code repository", url: "https://github.com/garki-clinic/booking", kind: "github" },
+      { id: "gc-t2", label: "Designs", url: "https://figma.com/file/garki-booking", kind: "figma" },
+      { id: "gc-t3", label: "Test site", url: "https://staging.garkiclinic.ng", kind: "site" },
+    ],
+    deliverables: [
+      dl({ id: "gc-d1", title: "Booking flow design", owner: ME, approver: "ayo", due: "Week 2", share: 20, status: "approved", approvedAt: now - 14 * DAY,
+        proof: [{ id: "gc-p1", kind: "link", title: "Booking flow in Figma", url: "https://figma.com/file/garki-booking", by: ME, at: now - 15 * DAY }],
+        thread: [{ by: ME, text: "Three screens: pick a time, confirm, reminder settings.", at: now - 15 * DAY, kind: "submitted" }, { by: "ayo", text: "My receptionist tried it on her phone in a minute. Approved.", at: now - 14 * DAY, kind: "approved" }] }),
+      dl({ id: "gc-d2", title: "Booking API and database", owner: "kwame", approver: "ayo", due: "Week 3", share: 30, status: "approved", approvedAt: now - 6 * DAY,
+        proof: [{ id: "gc-p2", kind: "link", title: "Pull request #14: bookings", url: "https://github.com/garki-clinic/booking/pull/14", by: "kwame", at: now - 7 * DAY }, { id: "gc-p3", kind: "file", title: "API docs", file: { id: "f-api", name: "Booking-API.pdf", size: 420 * 1024, type: "pdf", kind: "sample" }, by: "kwame", at: now - 7 * DAY }],
+        thread: [{ by: "kwame", text: "Bookings, cancellations and the daily list. Tested with 500 fake bookings.", at: now - 7 * DAY, kind: "submitted" }, { by: "ayo", text: "Tried booking and cancelling on the test site. Works. Approved.", at: now - 6 * DAY, kind: "approved" }] }),
+      dl({ id: "gc-d3", title: "Admin screen for the front desk", owner: "kwame", approver: ME, due: "Week 4", share: 20, status: "review",
+        proof: [{ id: "gc-p4", kind: "link", title: "Try it on the test site", url: "https://staging.garkiclinic.ng/admin", by: "kwame", at: now - 5 * HOUR }, { id: "gc-p5", kind: "link", title: "Pull request #21: admin screen", url: "https://github.com/garki-clinic/booking/pull/21", by: "kwame", at: now - 5 * HOUR }],
+        thread: [{ by: "kwame", text: "Built from your designs. Can you check it matches before Dr Ayo sees it?", at: now - 5 * HOUR, kind: "submitted" }] }),
+      dl({ id: "gc-d4", title: "SMS reminders in English and Hausa", owner: ME, approver: "ayo", due: "Week 4", share: 10, status: "doing",
+        steps: [{ id: "s1", title: "English copy", done: true }, { id: "s2", title: "Hausa copy, checked by a nurse", done: false }],
+        proof: [{ id: "gc-p6", kind: "note", title: "Reminder, day before", text: "Hello {name}, your appointment at Garki Family Clinic is tomorrow at {time}. Reply 1 to confirm or 2 to cancel.", by: ME, at: now - DAY }] }),
+      dl({ id: "gc-d5", title: "Launch at the clinic", owner: "kwame", approver: "ayo", due: "Week 5", share: 20, status: "todo" }),
+    ],
+    checkins: [{ id: "gc-c1", who: "kwame", at: now - 5 * HOUR, done: "Finished the admin screen and sent it for review.", next: "SMS gateway once the copy is final.", stuck: "Need the Hausa reminder text." }],
+    budget: { total: 1_200_000, currency: "₦", expenses: [{ id: "gc-e1", label: "SMS credits (first 2,000)", amount: 24_000, by: "kwame", status: "paid" }], paidOut: [] },
+    ledger: [
+      { at: now - 24 * DAY, who: "ayo", what: "Started the project and invited Kwame and Amara" },
+      { at: now - 22 * DAY, who: "akines", what: "Charter signed by all three. Work can start." },
+      { at: now - 14 * DAY, who: "ayo", what: "Approved \"Booking flow design\", delivered by Amara" },
+      { at: now - 6 * DAY, who: "ayo", what: "Approved \"Booking API and database\", delivered by Kwame" },
+      { at: now - 5 * HOUR, who: "kwame", what: "Sent \"Admin screen for the front desk\" to Amara for review" },
+    ],
+    convoId: "co-garki-clinic-booking",
+  };
+
+  /** Study: a final-year group project, with you as their industry mentor. Tunde's survey is waiting for you. */
+  const study: Project = {
+    ...base, id: "kubwa-ride-final-year", title: "Final-year project: a ride app for Kubwa students", summary: "Three engineering students design and test a shared-ride app for the Kubwa–campus route.", photo: "notebookWhite", host: "chidi", kind: "study", createdAt: now - 40 * DAY,
+    members: [
+      { id: "chidi", role: "Group lead", contribution: "Research question, report" },
+      { id: "tunde", role: "Student", contribution: "Survey and data" },
+      { id: "wanjiru", role: "Student", contribution: "Prototype" },
+      { id: ME, role: "Industry mentor", contribution: "Reviews each section" },
+      { id: "efua", role: "Supervisor", contribution: "Final sign-off and grading" },
+    ],
+    charter: {
+      credit: "All three students named on the report in alphabetical order; mentor and supervisor in the acknowledgements.", ownership: "The students own the work. The department keeps a copy.",
+      decisions: "The group agrees each section; the mentor reviews it; the supervisor signs off the final report.", expenses: "Survey printing split three ways.", uses: "The students can show it in their portfolios.", exit: "If someone stops contributing, the record shows it and the supervisor decides.",
+      split: { chidi: 34, tunde: 33, wanjiru: 33, amara: 0, efua: 0 }, signed: ["chidi", "tunde", "wanjiru", ME, "efua"], signedAt: now - 38 * DAY,
+    },
+    tools: [
+      { id: "st-t1", label: "Report draft", url: "https://docs.google.com/document/d/kubwa-ride-report", kind: "drive" },
+      { id: "st-t2", label: "Survey data", url: "https://docs.google.com/spreadsheets/d/kubwa-ride-survey", kind: "drive" },
+    ],
+    deliverables: [
+      dl({ id: "st-d1", title: "Research question and plan", owner: "chidi", approver: ME, due: "Week 2", share: 15, status: "approved", approvedAt: now - 30 * DAY,
+        proof: [{ id: "st-p1", kind: "file", title: "Proposal", file: { id: "f-prop", name: "Project-proposal.pdf", size: 310 * 1024, type: "pdf", kind: "sample" }, by: "chidi", at: now - 31 * DAY }],
+        thread: [{ by: "chidi", text: "Our question: can a shared-ride app cut the morning wait on the Kubwa route by half?", at: now - 31 * DAY, kind: "submitted" }, { by: ME, text: "Clear and testable. Approved.", at: now - 30 * DAY, kind: "approved" }] }),
+      dl({ id: "st-d2", title: "Survey of 60 students", owner: "tunde", approver: ME, due: "Week 5", share: 25, status: "review",
+        proof: [{ id: "st-p2", kind: "link", title: "Survey results", url: "https://docs.google.com/spreadsheets/d/kubwa-ride-survey", by: "tunde", at: now - 3 * HOUR }, { id: "st-p3", kind: "note", title: "Headline finding", text: "41 of 60 wait more than 40 minutes most mornings. 38 would share a ride for ₦300.", by: "tunde", at: now - 3 * HOUR }],
+        thread: [{ by: "tunde", text: "62 responses in the end. Summary is in the note.", at: now - 3 * HOUR, kind: "submitted" }] }),
+      dl({ id: "st-d3", title: "Clickable prototype", owner: "wanjiru", approver: ME, due: "Week 7", share: 25, status: "doing", steps: [{ id: "s1", title: "Sketches", done: true }, { id: "s2", title: "Figma screens", done: false }] }),
+      dl({ id: "st-d4", title: "Final report", owner: "chidi", approver: "efua", due: "Week 10", share: 35, status: "todo" }),
+    ],
+    checkins: [{ id: "st-c1", who: "wanjiru", at: now - DAY, done: "Paper sketches of five screens.", next: "Figma version by Friday." }],
+    budget: { total: 0, currency: "₦", expenses: [{ id: "st-e1", label: "Printing survey forms", amount: 4_500, by: "tunde", status: "paid" }], paidOut: [] },
+    ledger: [
+      { at: now - 40 * DAY, who: "chidi", what: "Started the project and invited the group, a mentor and the supervisor" },
+      { at: now - 38 * DAY, who: "akines", what: "Charter signed by all five. Work can start." },
+      { at: now - 30 * DAY, who: ME, what: "Approved \"Research question and plan\", delivered by Chidi" },
+      { at: now - 3 * HOUR, who: "tunde", what: "Sent \"Survey of 60 students\" to Amara for review" },
+    ],
+    convoId: "co-kubwa-ride-final-year",
+  };
+
+  /** Teach: a co-taught evening course. Paid per session taught. */
+  const course: Project = {
+    ...base, id: "product-design-evening-course", title: "Evening course: product design basics", summary: "Six Tuesday evenings at Abuja Tech Hub for 20 people starting out in design.", photo: "talkGroup", host: "thandi", kind: "teach", createdAt: now - 20 * DAY,
+    members: [
+      { id: "thandi", role: "Course lead", contribution: "Runs the course and the hub booking" },
+      { id: ME, role: "Lecturer", contribution: "Sessions on research and design" },
+      { id: "kwame", role: "Guest lecturer", contribution: "The session on building with code" },
+    ],
+    charter: {
+      credit: "Each lecturer named on the sessions they teach.", ownership: "Each lecturer keeps their own slides and may reuse them.", decisions: "Thandi confirms each session ran and sets the dates.",
+      expenses: "Snacks and printing come out of the course fee first.", uses: "Recordings shared only with the class.", exit: "A month's notice, or find a replacement lecturer.",
+      split: { thandi: 30, amara: 50, kwame: 20 }, signed: ["thandi", ME, "kwame"], signedAt: now - 18 * DAY,
+    },
+    tools: [
+      { id: "pc-t1", label: "Class page", url: "https://classroom.google.com/c/product-design-basics", kind: "site" },
+      { id: "pc-t2", label: "Slides folder", url: "https://drive.google.com/drive/folders/pd-basics-slides", kind: "drive" },
+    ],
+    deliverables: [
+      dl({ id: "pc-d1", title: "Course outline", owner: "thandi", approver: ME, due: "Week 1", share: 10, status: "approved", approvedAt: now - 17 * DAY }),
+      dl({ id: "pc-d2", title: "Session 1: What makes a good product?", owner: ME, approver: "thandi", due: "Tue 22 Oct", share: 15, status: "approved", approvedAt: now - 4 * DAY,
+        proof: [{ id: "pc-p1", kind: "file", title: "Slides", file: { id: "f-s1", name: "Session-1-good-products.pdf", size: 3100 * 1024, type: "pdf", kind: "sample" }, by: ME, at: now - 5 * DAY }, { id: "pc-p2", kind: "note", title: "Attendance", text: "18 of 20 came. Two asked for the recording.", by: "thandi", at: now - 4 * DAY }],
+        thread: [{ by: "thandi", text: "Ran beautifully. Approved.", at: now - 4 * DAY, kind: "approved" }] }),
+      dl({ id: "pc-d3", title: "Session 2: Talking to users", owner: ME, approver: "thandi", due: "Tue 29 Oct", share: 15, status: "doing", steps: [{ id: "s1", title: "Slides", done: true }, { id: "s2", title: "Interview practice cards", done: false }] }),
+      dl({ id: "pc-d4", title: "Session 3: Building with code", owner: "kwame", approver: ME, due: "Tue 5 Nov", share: 15, status: "review",
+        proof: [{ id: "pc-p3", kind: "file", title: "Draft slides", file: { id: "f-s3", name: "Session-3-building-with-code.pdf", size: 2400 * 1024, type: "pdf", kind: "sample" }, by: "kwame", at: now - 2 * HOUR }],
+        thread: [{ by: "kwame", text: "First time teaching beginners. Is this too much code?", at: now - 2 * HOUR, kind: "submitted" }] }),
+      dl({ id: "pc-d5", title: "Feedback from learners", owner: "thandi", approver: ME, due: "Week 6", share: 15, status: "todo" }),
+    ],
+    checkins: [],
+    budget: { total: 600_000, currency: "₦", expenses: [], paidOut: [] },
+    ledger: [
+      { at: now - 20 * DAY, who: "thandi", what: "Started the course and invited Amara and Kwame" },
+      { at: now - 18 * DAY, who: "akines", what: "Charter signed by all three. Work can start." },
+      { at: now - 4 * DAY, who: "thandi", what: "Approved \"Session 1: What makes a good product?\", taught by Amara" },
+      { at: now - 2 * HOUR, who: "kwame", what: "Sent \"Session 3: Building with code\" to Amara for review" },
+    ],
+    convoId: "co-product-design-evening-course",
+  };
+
+  return { v: 1, calls: SEED_CALLS, applications, projects: [bread, clinic, study, course, market], proposals: [], saved: [] };
 }

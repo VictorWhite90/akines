@@ -6,6 +6,8 @@ import { FileRow } from "@/components/collab/FileParts";
 import { PieceCard, PieceDetail, PieceForm } from "@/components/portfolio/Portfolio";
 import Icon, { type IconName } from "@/components/ui/Icon";
 import { linkLook } from "@/lib/collab/proof";
+import { ME, useCollab } from "@/lib/collab/useCollab";
+import { PEOPLE } from "@/lib/data/people";
 import { DEMO } from "@/lib/demo/mode";
 import { usePortfolio, type Piece } from "@/lib/portfolio";
 import { WORK_FIELDS, completeness, levelLabel, rateLabel, useWorkProfile, type WorkProfile } from "@/lib/workprofile";
@@ -33,6 +35,9 @@ function Sec({ title, step, children, empty }: { title: string; step: string; ch
 /** Everything in a work profile, laid out to read. `own` adds edit buttons and the project tools. */
 export function WorkProfileBody({ wp, projects, own = true, onOpenProject }: { wp: WorkProfile; projects: Piece[]; own?: boolean; onOpenProject?: (p: Piece) => void }) {
   const field = WORK_FIELDS.find((f) => f.id === wp.field);
+  const co = useCollab();
+  // Work other people approved on Akines: the part of a profile nobody can just claim.
+  const verified = co.projects.flatMap((p) => (p.deliverables ?? []).filter((d) => d.owner === ME && d.status === "approved").map((d) => ({ d, p }))).sort((a, b) => (b.d.approvedAt ?? 0) - (a.d.approvedAt ?? 0));
   const rate = rateLabel(wp.rate);
   return (
     <div className="wk-body">
@@ -50,6 +55,24 @@ export function WorkProfileBody({ wp, projects, own = true, onOpenProject }: { w
       {(wp.about || own) && <Sec title="About" step="cv" empty="Write a short intro">{wp.about ? <p className="wk-story">{wp.about}</p> : undefined}</Sec>}
 
       {(wp.skills.length > 0 || own) && <Sec title="Skills" step="skills" empty="Add your skills">{wp.skills.length ? <div className="wk-tags">{wp.skills.map((s) => <span key={s}>{s}</span>)}</div> : undefined}</Sec>}
+
+      {verified.length > 0 && (
+        <section className="wk-sec">
+          <header><h3><span className="wk-verified-ic"><Icon name="verified" size={15} /></span>Verified work · {verified.length}</h3></header>
+          <p className="co-muted" style={{ fontSize: 13, margin: "-4px 0 0" }}>Delivered in collaborations on Akines and approved by the person who checked it.</p>
+          <ul className="wk-verified">
+            {verified.map(({ d, p }) => (
+              <li key={d.id}>
+                <Link href={`/collaborate/projects/${p.id}?tab=work&d=${d.id}`}>
+                  <b>{d.title}</b>
+                  <span>{p.title}</span>
+                  <small><Icon name="verified" size={12} />Approved by {PEOPLE[d.approver].name}{d.approvedAt ? ` · ${new Date(d.approvedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : ""}</small>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <Sec title={`Projects${projects.length ? ` · ${projects.length}` : ""}`} step="projects" empty="Add a project">
         {projects.length ? <div className="wk-grid">{projects.map((p) => <PieceCard key={p.id} piece={p} onOpen={() => onOpenProject?.(p)} />)}</div> : undefined}

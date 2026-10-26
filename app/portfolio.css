@@ -274,3 +274,11 @@ html[data-theme="dark"] :is(.wk-page, .wk-tab, .cm-sheet) { --co: #7c95ff; }
 /* The profile is wider now: three projects a row where there's room. */
 .wk-tab .wk-grid, .wk-review .wk-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 @media (max-width: 560px) { .wk-tab .wk-grid, .wk-review .wk-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.wk-sec h3 { display: inline-flex; align-items: center; gap: 8px; }
+.wk-verified-ic { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: color-mix(in srgb, #1b9e55 15%, var(--k-surface)); color: #1b9e55; }
+.wk-verified { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.wk-verified a { display: grid; gap: 3px; height: 100%; padding: 12px 14px; border-radius: 14px; border: .5px solid color-mix(in srgb, #1b9e55 35%, var(--k-border)); background: color-mix(in srgb, #1b9e55 6%, var(--k-surface)); color: var(--k-ink); text-decoration: none; }
+.wk-verified b { font-size: 14.5px; line-height: 1.35; }
+.wk-verified span { font-size: 13px; color: var(--k-ink-2, var(--k-ink)); }
+.wk-verified small { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; font-weight: 600; color: #157a43; }
+html[data-theme="dark"] .wk-verified small { color: #6fdc9d; }

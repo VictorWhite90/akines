@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Project workspace · Akines" };
 
 /** The sample project is prebuilt; projects made in the browser render on first visit. ?tab= is read in the browser. */
 export function generateStaticParams() {
-  return [{ id: "kubwa-bread-shoot" }, { id: "market-light" }];
+  return ["kubwa-bread-shoot", "garki-clinic-booking", "kubwa-ride-final-year", "product-design-evening-course", "market-light"].map((id) => ({ id }));
 }
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {

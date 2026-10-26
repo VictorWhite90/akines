@@ -9,11 +9,12 @@ import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
 import { sampleProof } from "./proof";
 import { seedState } from "./seed";
-import type { AppStage, Application, CollabCall, CollabState, Charter, JourneyStage, Project, Proposal, StudioItem, Task } from "./types";
+import { KITS, kindForFields } from "./kits";
+import type { AppStage, Application, CollabCall, CollabState, Charter, Checkin, Deliverable, JourneyStage, ProofItem, Project, Proposal, StudioItem, Task, Tool, WorkKind } from "./types";
 
 export const ME: PersonId = "amara";
-// v2: the sample data gained a just-accepted project, so older saved demos start fresh.
-const KEY = "co:v2";
+// v3: projects gained deliverables, tools and check-ins, so older saved demos start fresh.
+const KEY = "co:v3";
 const SEC = 1000;
 const first = (id: PersonId) => PEOPLE[id].name.split(" ")[0];
 const clock = () => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -117,7 +118,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
             a.stage = "joined"; a.history.push({ stage: "joined", at: now, note: `${first(a.applicant)} accepted and joined the project.` });
             let p = s.projects.find((x) => x.callId === call.id);
             if (!p) {
-              p = makeProject({ title: call.title, summary: call.summary, photo: call.photo, host: ME, callId: call.id, members: [{ id: ME, role: "Host", contribution: "Runs the project" }], stage: 2 });
+              p = makeProject({ title: call.title, summary: call.summary, photo: call.photo, host: ME, callId: call.id, members: [{ id: ME, role: "Host", contribution: "Runs the project" }], stage: 2, kind: kindForFields(call.fields) });
               p.budget.total = feeTotal(call.fee, call.teamSize);
               s.projects.unshift(p);
               newProjects.push({ p, welcome: [{ from: a.applicant, text: `Thanks for having me! Excited to start on ${call.title}.` }] });
@@ -126,6 +127,8 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
               p.members.push({ id: a.applicant, role: a.role, contribution: a.role });
               p.charter = { ...newCharter(p.members.map((m) => m.id), p.members.map((m) => m.id).filter((m) => m !== ME)) };
               p.ledger.push({ at: now, who: a.applicant, what: `Joined as ${a.role}` });
+              // Nothing started yet: share the starter plan out again now there's someone to share it with.
+              if ((p.deliverables ?? []).every((d) => d.status === "todo")) p.deliverables = starterDeliverables(p.kind ?? "make", p);
             }
             a.projectId = p.id;
             bell("collab_update", `${first(a.applicant)} accepted your offer and joined ${call.title}. Agree the terms to start.`, `/collaborate/projects/${p.id}?tab=agree`);
@@ -145,7 +148,25 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
         pr.projectId = p.id;
         s.projects.unshift(p);
         newProjects.push({ p, welcome: [{ from: pr.to, text: `Yes! Let's make ${pr.title} happen. I've added a note to our studio.` }] });
-        bell("collab_update", `${PEOPLE[pr.to].name} said yes to ${pr.title}. Your idea canvas is open.`, `/collaborate/projects/${p.id}?tab=studio`);
+        bell("collab_update", `${PEOPLE[pr.to].name} said yes to ${pr.title}. Your idea canvas is open.`, `/collaborate/projects/${p.id}?tab=work`);
+      }
+
+      // Deliverables: the approver answers what the member sent for review; teammates send back what was asked.
+      for (const p of s.projects) {
+        for (const d of p.deliverables ?? []) {
+          if (!d.nextAt || d.nextAt > now) continue;
+          d.nextAt = undefined; changed = true;
+          if (d.status === "review" && d.approver !== ME) {
+            d.status = "approved"; d.approvedAt = now;
+            d.thread.push({ by: d.approver, text: "Checked it properly. This is exactly what we agreed. Approved.", at: now, kind: "approved" });
+            p.ledger.push({ at: now, who: d.approver, what: `Approved "${d.title}", delivered by ${first(d.owner)}` });
+            bell("collab_update", `${first(d.approver)} approved "${d.title}" on ${p.title}. It's on your work profile as verified work.`, `/collaborate/projects/${p.id}?tab=work&d=${d.id}`);
+          } else if (d.status === "changes" && d.owner !== ME) {
+            d.status = "review";
+            d.thread.push({ by: d.owner, text: "Fixed what you asked for. Have another look?", at: now, kind: "submitted" });
+            bell("collab_update", `${first(d.owner)} sent "${d.title}" back for your review.`, `/collaborate/projects/${p.id}?tab=work&d=${d.id}`);
+          }
+        }
       }
 
       for (const p of s.projects) {
@@ -155,7 +176,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
         if (p.charter.signed.length === p.members.length) {
           p.charter.signedAt = now; if (p.stage < 3) p.stage = 3;
           p.ledger.push({ at: now, who: "akines", what: "Charter signed by everyone. Work can start." });
-          bell("collab_update", `Everyone signed the charter for ${p.title}. Work can start.`, `/collaborate/projects/${p.id}?tab=plan`);
+          bell("collab_update", `Everyone signed the charter for ${p.title}. Work can start.`, `/collaborate/projects/${p.id}?tab=work`);
         }
       }
 
@@ -194,7 +215,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
       if (!p) {
         const team: PersonId[] = (["wanjiru", "kwame", "chidi", "tunde"] as PersonId[]).filter((x) => x !== call.host).slice(0, Math.max(0, Math.min(call.teamSize, 3) - 2));
         p = makeProject({
-          title: call.title, summary: call.summary, photo: call.photo, host: call.host, callId: call.id, stage: 2,
+          title: call.title, summary: call.summary, photo: call.photo, host: call.host, callId: call.id, stage: 2, kind: kindForFields(call.fields),
           members: [{ id: call.host, role: "Host", contribution: `For ${call.org}` }, ...team.map((id, i) => ({ id, role: call.roles[(i + 1) % call.roles.length] ?? "Teammate", contribution: call.roles[(i + 1) % call.roles.length] ?? "Teammate" })), { id: ME, role: a.role, contribution: a.role }],
         });
         p.charter.signed = p.members.map((m) => m.id).filter((m) => m !== ME);
@@ -259,6 +280,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
   // ── Project workspace ──
   const editProject = (id: string, fn: (p: Project) => void) => update((s) => { const p = s.projects.find((x) => x.id === id); if (p) fn(p); return s; });
   const log = (p: Project, who: Project["ledger"][number]["who"], what: string) => p.ledger.push({ at: Date.now(), who, what });
+  const editD = (id: string, dId: string, fn: (d: Deliverable, p: Project) => void) => editProject(id, (p) => { const d = (p.deliverables ?? []).find((x) => x.id === dId); if (d) fn(d, p); });
 
   const project = {
     sign: (id: string) => editProject(id, (p) => {
@@ -293,6 +315,45 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
       const it = p.studio.find((x) => x.id === itemId)!; it.tag = tag;
       if (tag === "Final") log(p, ME, `Marked "${it.title}" as final`);
     }),
+    // ── Deliverables (S6): owner, approver, proof, review ──
+    setKind: (id: string, kind: WorkKind, withStarter: boolean) => editProject(id, (p) => {
+      p.kind = kind;
+      if (withStarter && !(p.deliverables ?? []).length) { p.deliverables = starterDeliverables(kind, p); log(p, ME, `Set up the plan for ${KITS[kind].label.toLowerCase()} work`); }
+    }),
+    addDeliverable: (id: string, d: Pick<Deliverable, "title" | "owner" | "approver" | "due" | "share">) => editProject(id, (p) => {
+      (p.deliverables ??= []).push({ ...d, id: newId("d"), status: "todo", steps: [], proof: [], thread: [] });
+      log(p, ME, `Added "${d.title}" for ${d.owner === ME ? "you" : first(d.owner)}`);
+    }),
+    removeDeliverable: (id: string, dId: string) => editProject(id, (p) => { p.deliverables = (p.deliverables ?? []).filter((x) => x.id !== dId); }),
+    startDeliverable: (id: string, dId: string) => editD(id, dId, (d) => { d.status = "doing"; }),
+    submitDeliverable: (id: string, dId: string, note: string) => editD(id, dId, (d, p) => {
+      d.status = "review"; d.thread.push({ by: ME, text: note || "Ready for your review.", at: Date.now(), kind: "submitted" });
+      log(p, ME, `Sent "${d.title}" to ${first(d.approver)} for review`);
+      if (d.approver !== ME) d.nextAt = Date.now() + 7 * SEC;
+    }),
+    approveDeliverable: (id: string, dId: string, note: string) => editD(id, dId, (d, p) => {
+      d.status = "approved"; d.approvedAt = Date.now(); d.nextAt = undefined;
+      d.thread.push({ by: ME, text: note || "Approved. Thank you.", at: Date.now(), kind: "approved" });
+      log(p, ME, `Approved "${d.title}", delivered by ${first(d.owner)}`);
+    }),
+    askChanges: (id: string, dId: string, note: string) => editD(id, dId, (d, p) => {
+      d.status = "changes"; d.thread.push({ by: ME, text: note, at: Date.now(), kind: "changes" });
+      log(p, ME, `Asked for changes on "${d.title}"`);
+      if (d.owner !== ME) d.nextAt = Date.now() + 9 * SEC;
+    }),
+    commentDeliverable: (id: string, dId: string, text: string) => editD(id, dId, (d) => { d.thread.push({ by: ME, text, at: Date.now(), kind: "comment" }); }),
+    addProof: (id: string, dId: string, item: Omit<ProofItem, "id" | "by" | "at">) => editD(id, dId, (d, p) => {
+      d.proof.push({ ...item, id: newId("pf"), by: ME, at: Date.now() });
+      if (d.status === "todo") d.status = "doing";
+      log(p, ME, `Added ${item.kind === "link" ? "a link" : item.kind === "file" ? "a file" : item.kind === "image" ? "a photo" : "a note"} to "${d.title}"`);
+    }),
+    removeProof: (id: string, dId: string, proofId: string) => editD(id, dId, (d) => { d.proof = d.proof.filter((x) => x.id !== proofId); }),
+    addStep: (id: string, dId: string, title: string) => editD(id, dId, (d) => { d.steps.push({ id: newId("st"), title, done: false }); }),
+    toggleStep: (id: string, dId: string, stepId: string) => editD(id, dId, (d) => { const st = d.steps.find((x) => x.id === stepId); if (st) st.done = !st.done; }),
+    addTool: (id: string, tool: Omit<Tool, "id">) => editProject(id, (p) => { (p.tools ??= []).push({ ...tool, id: newId("tl") }); log(p, ME, `Pinned ${tool.label}`); }),
+    removeTool: (id: string, toolId: string) => editProject(id, (p) => { p.tools = (p.tools ?? []).filter((x) => x.id !== toolId); }),
+    checkin: (id: string, c: Pick<Checkin, "done" | "next" | "stuck">) => editProject(id, (p) => { (p.checkins ??= []).unshift({ ...c, id: newId("ci"), who: ME, at: Date.now() }); log(p, ME, "Posted a weekly check-in"); }),
+
     addExpense: (id: string, label: string, amount: number) => editProject(id, (p) => { p.budget.expenses.push({ id: newId("e"), label, amount, by: ME, status: "pending" }); log(p, ME, `Logged an expense: ${label}`); }),
     payExpense: (id: string, eId: string) => editProject(id, (p) => { const e = p.budget.expenses.find((x) => x.id === eId)!; e.status = "paid"; log(p, "akines", `Paid back: ${e.label}`); }),
     payOut: (id: string) => editProject(id, (p) => { p.budget.paidOut = p.members.map((m) => m.id); p.stage = Math.max(p.stage, 5) as JourneyStage; log(p, "akines", "Shares paid out to everyone, as agreed in the charter"); }),
@@ -300,13 +361,13 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
     setPresent: (id: string, present: Project["present"]) => editProject(id, (p) => { p.present = present; }),
     preserve: (id: string) => editProject(id, (p) => { p.stage = 6; log(p, "akines", "Project preserved: credits and history are now permanent"); }),
     /** A private live room for the team (reuses Presence Rooms). Returns the room's address. */
-    startRoom: (p: Project) => {
+    startRoom: (p: Project, ritual?: string) => {
       const room: Room = {
-        id: newId("room"), title: `${p.title} · working session`, host: ME, when: "Starting now", status: "soon",
+        id: newId("room"), title: `${p.title} · ${ritual ? ritual.toLowerCase() : "working session"}`, host: ME, when: "Starting now", status: "soon",
         blurb: `A private working session for the ${p.title} team.`, seated: [ME], photo: p.photo, tag: "Collaboration", mine: true, visibility: "private",
       };
       setRooms((cur) => [room, ...cur]);
-      editProject(p.id, (x) => { x.rooms.unshift(room.id); log(x, ME, "Started a live working session"); });
+      editProject(p.id, (x) => { x.rooms.unshift(room.id); log(x, ME, ritual ? `Started a ${ritual.toLowerCase()}` : "Started a live working session"); });
       return `/rooms/${room.id}?demo=start`;
     },
     /** A message in the project's chat (the same thread as in KinMessage); a teammate answers in the demo. */
@@ -347,7 +408,18 @@ function feeTotal(fee: string, team: number) {
   return nums.length > 1 ? nums[0] + nums[1] * Math.max(0, team - 2) : nums[0];
 }
 
-function makeProject(p: Pick<Project, "title" | "summary" | "photo" | "host" | "members" | "stage"> & { callId?: string; proposalId?: string }): Project {
+/** A kit's starter plan for this team: owners take turns, the host approves (or the next person, for the host's own). */
+function starterDeliverables(kind: WorkKind, p: Pick<Project, "members" | "host">): Deliverable[] {
+  const doers = p.members.filter((m) => m.id !== p.host).map((m) => m.id);
+  const pool = doers.length ? doers : p.members.map((m) => m.id);
+  return KITS[kind].starter.map((st, i) => {
+    const owner = pool[i % pool.length];
+    const approver = owner === p.host ? (p.members.find((m) => m.id !== owner)?.id ?? owner) : p.host;
+    return { id: newId("d"), title: st.title, due: st.due, share: st.share, owner, approver, status: "todo", steps: [], proof: [], thread: [] };
+  });
+}
+
+function makeProject(p: Pick<Project, "title" | "summary" | "photo" | "host" | "members" | "stage"> & { callId?: string; proposalId?: string; kind?: WorkKind }): Project {
   const id = `${p.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 32)}-${Date.now().toString(36)}`;
   const now = Date.now();
   return {
@@ -356,5 +428,6 @@ function makeProject(p: Pick<Project, "title" | "summary" | "photo" | "host" | "
     studio: [], present: { what: "", where: "", when: "", checklist: [{ label: "Agree where it will be shown", done: false }, { label: "Final version marked in the studio", done: false }, { label: "Invite people", done: false }] },
     budget: { total: 0, currency: "₦", expenses: [], paidOut: [] },
     ledger: [{ at: now, who: p.host, what: "Started the project" }], convoId: `co-${id}`, rooms: [],
+    tools: [], checkins: [], deliverables: p.kind ? starterDeliverables(p.kind, p) : [],
   };
 }

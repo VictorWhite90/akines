@@ -14,6 +14,8 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { shrinkImage } from "@/lib/imageShrink";
 import { DemoNote, ago, firstName, naira } from "./parts";
 import type { WsTab } from "./Workspace";
+import { kitOf } from "@/lib/collab/kits";
+import { Contributions, Released } from "./WorkTab";
 
 const COLORS = ["#2547d0", "#f4a63a", "#1b9e55", "#e5007e", "#7b2ff7", "#0f8b8d"];
 const TERMS: { key: keyof Omit<Charter, "split" | "signed" | "signedAt">; label: string; hint: string }[] = [
@@ -322,6 +324,18 @@ export function RoomTab({ p }: { p: Project }) {
         <button className="kh-btn amber" onClick={() => router.push(co.project.startRoom(p))}><Icon name="live" size={18} />Start a session now</button>
       </section>
       <section className="co-block">
+        <h2>Meetings for {kitOf(p.kind).label.toLowerCase()} work</h2>
+        <div className="co-rituals">
+          {kitOf(p.kind).rituals.map((r) => (
+            <button key={r.title} type="button" onClick={() => router.push(co.project.startRoom(p, r.title))}>
+              <span className="ic"><Icon name="live" size={18} /></span>
+              <span><b>{r.title}</b><small>{r.minutes} min · {r.blurb}</small></span>
+              <span className="kh-btn outline sm">Start</span>
+            </button>
+          ))}
+        </div>
+      </section>
+      <section className="co-block">
         <h2>Sessions</h2>
         {past.length ? (
           <ul className="co-milestones">{past.map((r) => <li key={r.id}><Icon name="live" size={18} /><span>{r.title}</span><Link href={`/rooms/${r.id}`} className="co-link" style={{ marginLeft: "auto" }}>Open</Link></li>)}</ul>
@@ -387,6 +401,8 @@ export function ValueTab({ p }: { p: Project }) {
         <div className="co-fact"><small>To share</small><b>{naira(left)}</b><span className="co-muted" style={{ fontSize: 12.5 }}>Split as agreed in the charter</span></div>
       </div>
 
+      <Released p={p} />
+
       <section className="co-block">
         <h2>Who gets what</h2>
         <div className="co-card" style={{ overflowX: "auto" }}>
@@ -433,6 +449,7 @@ export function PreserveTab({ p }: { p: Project }) {
         <p className="co-muted" style={{ fontSize: 12.5 }}>Started {new Date(p.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}{p.charter.signedAt ? ` · charter signed ${new Date(p.charter.signedAt).toLocaleDateString("en-GB", { day: "numeric", month: "long" })}` : ""}</p>
         {p.stage < 6 ? <button className="kh-btn blue" style={{ justifySelf: "center" }} onClick={() => co.project.preserve(p.id)}>Preserve the project</button> : <span className="co-chip ok" style={{ justifySelf: "center" }}>Preserved · credits are permanent</span>}
       </section>
+      <Contributions p={p} />
       <section className="co-block">
         <h2>The record</h2>
         <p className="co-muted" style={{ fontSize: 14 }}>Every decision, signature and delivery, dated. It stays with the project, so who made what is never in question.</p>

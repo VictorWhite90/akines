@@ -115,6 +115,46 @@ export type StudioItem = {
 };
 export type Expense = { id: string; label: string; amount: number; by: PersonId; status: "paid" | "pending" };
 
+/** The kind of work a project is. It shapes the words, the tools, the review and the meetings (lib/collab/kits). */
+export type WorkKind = "build" | "engineer" | "teach" | "study" | "make" | "event";
+
+/**
+ * A deliverable: something one person promised to the team (S6). It has an owner, an approver named in the
+ * charter, proof of the work, and a share of the value. Approval writes a dated receipt to the record (S8),
+ * releases its share (S7) and shows on the owner's work profile as verified work.
+ */
+export type DeliverableStatus = "todo" | "doing" | "review" | "changes" | "approved";
+export type ProofItem = {
+  id: string;
+  kind: "link" | "file" | "image" | "note";
+  title: string;
+  url?: string;
+  file?: ProofFile;
+  src?: string;
+  photo?: PhotoKey;
+  text?: string;
+  by: PersonId;
+  at: number;
+};
+export type Deliverable = {
+  id: string;
+  title: string;
+  owner: PersonId;
+  approver: PersonId;
+  due: string;
+  /** Percent of the project budget released when it's approved. */
+  share?: number;
+  status: DeliverableStatus;
+  steps: { id: string; title: string; done: boolean }[];
+  proof: ProofItem[];
+  thread: { by: PersonId; text: string; at: number; kind: "comment" | "submitted" | "changes" | "approved" }[];
+  approvedAt?: number;
+  /** Demo: when the other person acts next (approves, or sends it back fixed). */
+  nextAt?: number;
+};
+export type Tool = { id: string; label: string; url: string; kind: LinkKind };
+export type Checkin = { id: string; who: PersonId; at: number; done: string; next: string; stuck?: string };
+
 export type Project = {
   id: string;
   title: string;
@@ -134,6 +174,11 @@ export type Project = {
   budget: { total: number; currency: "₦"; expenses: Expense[]; paidOut: PersonId[] };
   /** Contribution ledger (S8): every decision, sign-off and delivery, dated. */
   ledger: { at: number; who: PersonId | "akines"; what: string }[];
+  /** The kind of work, the pinned tools, the deliverables and the weekly check-ins. Older saved projects have none. */
+  kind?: WorkKind;
+  tools?: Tool[];
+  deliverables?: Deliverable[];
+  checkins?: Checkin[];
   /** The project's KinMessage conversation. */
   convoId: string;
   rooms: string[];
