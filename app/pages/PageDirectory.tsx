@@ -17,14 +17,15 @@ export default function PageDirectory() {
   const copy = async (text: string, key: string) => {
     try { await navigator.clipboard.writeText(text); setCopied(key); setTimeout(() => setCopied(""), 1500); } catch { /* clipboard blocked */ }
   };
-  const all = PAGE_GROUPS.filter((g) => !g.old).map((g) => `${g.title}\n${g.pages.map((p) => `- ${p.title}: ${origin}${p.path}`).join("\n")}`).join("\n\n");
+  const fresh = PAGE_GROUPS.reduce((n, g) => n + g.pages.filter((p) => p.isNew).length, 0);
+  const all = PAGE_GROUPS.map((g) => `${g.title}\n${g.pages.map((p) => `- ${p.title}${p.isNew ? " (new)" : ""}: ${origin}${p.path}`).join("\n")}`).join("\n\n");
 
   return (
     <div className="kh pg">
       <header className="pg-head">
         <p className="pg-eyebrow">Preview</p>
         <h1>All pages</h1>
-        <p>{total} pages across every feature. Each link opens its page directly, signed in as the demo member. Nothing here reaches the real Akines; use <b>Reset demo</b> at the top to start over.</p>
+        <p>{total} pages, grouped the way the app&apos;s menu groups them. Each link opens its page directly, signed in as the demo member. Pages marked <span className="pg-new">New</span> are in this preview but not on the live site yet ({fresh} of them). Nothing here reaches the real Akines; use <b>Reset demo</b> at the top to start over.</p>
         <div className="pg-tools">
           <label className="pg-search"><Icon name="search" size={17} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a page" aria-label="Find a page" /></label>
           <button type="button" className="kh-btn outline sm" onClick={() => copy(all, "all")}><Icon name="share" size={15} />{copied === "all" ? "Copied" : "Copy every link"}</button>
@@ -33,13 +34,13 @@ export default function PageDirectory() {
       </header>
 
       {groups.map((g) => (
-        <section key={g.id} id={g.id} className={`pg-group${g.old ? " old" : ""}`}>
+        <section key={g.id} id={g.id} className="pg-group">
           <div className="pg-group-head"><h2>{g.title}</h2><p>{g.blurb}</p></div>
           <ul>
             {g.pages.map((p) => (
               <li key={p.path}>
                 <Link href={p.path} className="pg-row">
-                  <span className="t"><b>{p.title}</b><small>{p.what}</small></span>
+                  <span className="t"><b>{p.title}{p.isNew && <span className="pg-new">New</span>}</b><small>{p.what}</small></span>
                   <code>{p.path}</code>
                   <Icon name="more" size={16} />
                 </Link>
