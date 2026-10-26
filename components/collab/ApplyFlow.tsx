@@ -7,6 +7,7 @@ import BackLink from "@/components/ui/BackLink";
 import Icon from "@/components/ui/Icon";
 import { PieceImage } from "@/components/portfolio/Portfolio";
 import { usePortfolio } from "@/lib/portfolio";
+import { useWorkProfile } from "@/lib/workprofile";
 import { ME, useCollab } from "@/lib/collab/useCollab";
 import { PEOPLE } from "@/lib/data/people";
 import { linkLook } from "@/lib/collab/proof";
@@ -19,6 +20,7 @@ const STEPS = ["Your role", "Your work", "Why you", "Review"] as const;
 export default function ApplyFlow({ id }: { id: string }) {
   const co = useCollab({ engine: true });
   const pf = usePortfolio();
+  const w = useWorkProfile();
   const call = co.call(id);
   const [step, setStep] = useState(0);
   const [role, setRole] = useState("");
@@ -131,7 +133,7 @@ export default function ApplyFlow({ id }: { id: string }) {
         <aside className="co-preview" aria-label={`What ${host} will see`}>
           <span className="cap">What {host} will see</span>
           <div className="sheet">
-            <div className="co-host"><Avatar person={PEOPLE[ME]} size={40} /><div><b>{PEOPLE[ME].name}</b><small>{role || "Choose a role"} · {PEOPLE[ME].city}</small></div></div>
+            <div className="co-host"><Avatar person={PEOPLE[ME]} size={40} /><div><b>{PEOPLE[ME].name}</b><small>{role || "Choose a role"} · {PEOPLE[ME].city}</small>{w.wp.headline && <small className="co-headline">{w.wp.headline}</small>}</div></div>
             {(proof.links.length > 0 || proof.files.length > 0) && (
               <ul className="co-sent">
                 {proof.links.map((l) => { const k = linkLook(l); return <li key={l.url}><Icon name={k.icon} size={14} /><b>{k.label}</b><span>{k.short}</span></li>; })}

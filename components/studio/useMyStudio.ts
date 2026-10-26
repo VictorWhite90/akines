@@ -19,7 +19,7 @@ export type StudioState = {
 const apply = (s: Studio, patch: StudioPatch): Studio => (typeof patch === "function" ? patch(s) : { ...s, ...patch });
 
 /** A portfolio piece as a work on the studio wall, and back. */
-const toWork = (p: Piece): Work => ({ id: p.id, title: p.title, medium: p.kind, size: p.detail ?? "", year: p.year, photo: p.photo, image: p.image, story: p.story ?? "" });
+const toWork = (p: Piece): Work => ({ id: p.id, title: p.title, medium: p.kind, size: p.detail ?? "", year: p.year, photo: p.photo, image: p.image ?? p.images?.[0], story: p.story ?? "" });
 const toPiece = (w: Work, prev?: Piece): Piece => ({
   id: w.id, title: w.title, kind: w.medium, detail: w.size || undefined, year: w.year, photo: w.image ? undefined : w.photo, image: w.image,
   story: w.story || undefined, link: prev?.link, createdAt: prev?.createdAt ?? Date.now(),

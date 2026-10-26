@@ -1,15 +1,16 @@
 "use client";
 
-import { DEMO } from "@/lib/demo/mode";
+import type { ProofFile, ProofLink } from "@/lib/collab/types";
 import type { PhotoKey } from "@/lib/data/images";
 import { newId, useLocal } from "@/lib/useLocal";
 import { shrinkImage } from "@/lib/imageShrink";
 
 /**
- * A member's portfolio: the work they've made, in any line of work (an app, a mural, a menu, a supper club).
- * One place, used everywhere: the Work tab on their profile, the wall in My Studio, and applications to
- * open calls. Saved in the browser for now ("ak:portfolio"); the same shape goes to the API later, with the
- * photo uploaded to file storage instead of kept as a data URL.
+ * A member's projects: the work they've done, in any line of work (an app, a mural, a menu, a supper club),
+ * shown the way that suits it: links, files, a written case study, photos, or a mix. Part of their work
+ * profile (lib/workprofile), and used everywhere: the Work tab on their profile, the wall in My Studio and
+ * applications to open calls. Saved in the browser for now ("ak:portfolio"); the same shape goes to the API
+ * later, with photos and files uploaded to storage instead of kept on the device.
  */
 export type Piece = {
   id: string;
@@ -19,11 +20,20 @@ export type Piece = {
   year: string;
   /** A short detail: "12 screens", "20 m wall", "150 guests". */
   detail?: string;
-  /** Where people can see it: a live site, a repo, a video. */
+  /** What the member did on it: "Lead designer", "Head cook", "Organiser". */
+  role?: string;
+  /** Where people can see it: a live site, a repo, a video (the first of `links`, kept for older pieces). */
   link?: string;
+  links?: ProofLink[];
+  /** Documents, decks, audio, a menu: names and sizes in the demo, stored files with the API. */
+  files?: ProofFile[];
+  /** The write-up: the problem, what they did, what changed. */
   story?: string;
-  /** The member's own photo (a shrunk data URL in the demo). */
+  skills?: string[];
+  /** The member's own cover photo (a shrunk data URL in the demo). */
   image?: string;
+  /** More photos, after the cover. */
+  images?: string[];
   /** A catalogue photo, for sample pieces only. */
   photo?: PhotoKey;
   createdAt: number;
@@ -36,20 +46,41 @@ export const KIND_SUGGESTIONS = ["Product design", "Web app", "Mobile app", "Bra
 
 const DAY = 86_400_000;
 /** The demo member's work, so a preview has something to show. A real account starts empty. */
-const samplePieces = (): Piece[] => {
+export const samplePieces = (): Piece[] => {
   const t = Date.UTC(2026, 9, 1);
+  const file = (name: string, kb: number): ProofFile => ({ id: `sample-${name}`, name, size: kb * 1024, type: name.split(".").pop() ?? "", kind: "sample" });
   return [
-    { id: "w-clinic", title: "Clinic check-in, redesigned", kind: "Product design", year: "2026", detail: "8 screens", photo: "studioBusy", story: "Sat in a Garki waiting room for two mornings. Half the queue was people unsure if they'd been called.", link: "https://clinicqueue.ng", createdAt: t },
-    { id: "w-market", title: "Wuse market stall identities", kind: "Brand design", year: "2025", detail: "12 stalls", photo: "beadsHung", story: "Signs for twelve traders, painted by hand from my drawings.", createdAt: t - DAY },
-    { id: "w-journal", title: "Field notes app for nurses", kind: "Product design", year: "2025", detail: "Mobile app", photo: "journalOpen", story: "Designed with six nurses on night shift. They wanted fewer taps, not more features.", createdAt: t - 2 * DAY },
-    { id: "w-poster", title: "Youth hackathon posters", kind: "Graphic design", year: "2025", detail: "Series of 6", photo: "collabArt", createdAt: t - 3 * DAY },
-    { id: "w-cafe", title: "Café menu and signage", kind: "Brand design", year: "2024", photo: "talkCafe", createdAt: t - 4 * DAY },
-    { id: "w-gallery", title: "Exhibition wayfinding", kind: "Spatial design", year: "2024", photo: "frameWall", createdAt: t - 5 * DAY },
+    {
+      id: "w-clinic", title: "Clinic check-in, redesigned", kind: "Product design", role: "Lead designer", year: "2026", detail: "8 screens", photo: "studioBusy",
+      story: "Patients at a Garki clinic waited up to three hours, unsure whether they'd been called. I spent two mornings in the waiting room, then designed a check-in and queue screen with the nurses.\n\nWaiting complaints dropped by half in the first month.",
+      links: [{ url: "https://clinicqueue.ng", kind: "site", note: "Live app" }, { url: "https://figma.com/file/clinic-checkin", kind: "figma" }], link: "https://clinicqueue.ng",
+      files: [file("Clinic-checkin-case-study.pdf", 2300)], skills: ["User research", "Product design", "Prototyping"], createdAt: t,
+    },
+    {
+      id: "w-research", title: "What Wuse market traders need from a phone", kind: "Research", role: "Researcher", year: "2025", detail: "24 interviews",
+      story: "Interviewed 24 traders about how they take orders and payments. The report shaped a small ordering tool now used by 12 stalls.",
+      files: [file("Wuse-traders-research-report.pdf", 1800)], skills: ["User research", "Interviewing", "Report writing"], createdAt: t - DAY,
+    },
+    {
+      id: "w-journal", title: "Field notes app for nurses", kind: "Mobile app", role: "Product designer", year: "2025", photo: "journalOpen",
+      story: "Designed with six nurses on night shift. They wanted fewer taps, not more features, so the whole app is three screens.",
+      links: [{ url: "https://github.com/amara-okafor/field-notes", kind: "github" }], skills: ["Mobile design", "Accessibility"], createdAt: t - 2 * DAY,
+    },
+    {
+      id: "w-mentoring", title: "Design mentoring circle", kind: "Mentoring", role: "Mentor", year: "2024", detail: "4 mentees",
+      story: "Weekly calls with four junior designers in Abuja for a year. Two now work full time in product teams.", skills: ["Mentoring", "Design critique"], createdAt: t - 3 * DAY,
+    },
+    {
+      id: "w-poster", title: "Youth hackathon posters", kind: "Graphic design", role: "Designer", year: "2025", detail: "Series of 6", photo: "collabArt",
+      story: "Posters and social cards for a 300-person youth hackathon at the Abuja Tech Hub.", skills: ["Graphic design", "Branding"], createdAt: t - 4 * DAY,
+    },
   ];
 };
 
+
 export function usePortfolio() {
-  const [state, setState, ready] = useLocal<State>(PORTFOLIO_KEY, { pieces: DEMO ? samplePieces() : [] });
+  // Everyone, demo included, builds their own. The demo's "Fill with an example" adds the sample pieces.
+  const [state, setState, ready] = useLocal<State>(PORTFOLIO_KEY, { pieces: [] });
   const pieces = state.pieces;
   return {
     pieces,

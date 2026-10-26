@@ -7,7 +7,7 @@ import Avatar from "@/components/ui/Avatar";
 import { account, fullName, type MemberProfile, type MyProfile } from "@/lib/api/account";
 import { api } from "@/lib/api/client";
 import { canGoBack } from "@/lib/navHistory";
-import { WorkTab } from "@/components/portfolio/Portfolio";
+import WorkTab from "@/components/workprofile/WorkView";
 import EditProfileModal from "./EditProfileModal";
 
 type MyCommunity = { id: string; name: string; tagline: string; category_label: string; area: string; member_count: number; my_role: string | null; cover_photo: string | null };
@@ -134,7 +134,7 @@ export default function ProfilePage({ username }: { username?: string }) {
             <button role="tab" aria-selected={tab === "about"} className={tab === "about" ? "on" : undefined} onClick={() => setTab("about")}>About</button>
           </nav>
 
-          {tab === "work" && own && <section className="mp-panel"><WorkTab /></section>}
+          {tab === "work" && own && <section className="mp-panel wk-tab"><WorkTab /></section>}
 
           {tab === "communities" && own && (
             <section className="mp-panel">

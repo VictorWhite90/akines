@@ -101,13 +101,13 @@ export function seedState(): CollabState {
   const applications: Application[] = [
     // Mine: one in progress, one decided (so "every applicant hears back" is visible).
     {
-      id: "a-clinic", callId: "clinic-app", applicant: ME, role: "Product designer", works: ["w-clinic", "w-journal", "w-gallery"],
+      id: "a-clinic", callId: "clinic-app", applicant: ME, role: "Product designer", works: ["w-clinic", "w-journal", "w-research"],
       statement: "I redesigned a clinic check-in last year and spent two mornings in the queue first. I'd start the same way here.", availability: "Weekday afternoons and Saturdays",
       materials: { works: true, why: true, availability: true }, stage: "viewed",
       history: [{ stage: "submitted", at: now - 2 * DAY }, { stage: "viewed", at: now - DAY, note: "Ayo opened your application." }], notes: [], tags: [],
     },
     {
-      id: "a-indigo", callId: "indigo-futures", applicant: ME, role: "Resident", works: ["w-market", "w-cafe", "w-poster"],
+      id: "a-indigo", callId: "indigo-futures", applicant: ME, role: "Resident", works: ["w-poster", "w-mentoring"],
       statement: "I want to learn how pattern carries meaning in cloth, for my stall identity work.", availability: "All of January",
       materials: { works: true, why: true, availability: true }, stage: "not-selected",
       history: [{ stage: "submitted", at: now - 9 * DAY }, { stage: "viewed", at: now - 8 * DAY }, { stage: "not-selected", at: now - 3 * DAY }],

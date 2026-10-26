@@ -461,7 +461,7 @@ html[data-theme="dark"] .co-err { color: #ff8a7a; }
 .co-items { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .co-item, .co-cv { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; background: var(--k-subtle); border: .5px solid var(--k-border); min-width: 0; }
 .co-item .ic, .co-cv .ic { flex: none; width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--k-surface); color: var(--co); border: .5px solid var(--k-border); }
-.co-item .ic.doc, .co-cv .ic.doc { background: var(--co); color: #fff; border: 0; font: 700 10px/1 var(--font-manrope), sans-serif; letter-spacing: .04em; }
+.co-item .ic.doc, .co-cv .ic.doc { background: var(--co, #2547d0); color: #fff; border: 0; font: 700 10px/1 var(--font-manrope), sans-serif; letter-spacing: .04em; }
 .co-item .t, .co-cv .t { flex: 1; min-width: 0; display: grid; gap: 2px; }
 .co-item .t b, .co-cv .t b { font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .co-item .t :is(a, small), .co-cv .t small { font-size: 12.5px; color: var(--k-ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-decoration: none; }

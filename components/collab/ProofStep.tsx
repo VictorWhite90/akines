@@ -4,14 +4,15 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { PieceForm, PieceImage, pieceMeta } from "@/components/portfolio/Portfolio";
 import Icon, { type IconName } from "@/components/ui/Icon";
-import { cleanUrl, fileSize, linkKind, linkLook, proofFor, type ProofSection } from "@/lib/collab/proof";
+import { cleanUrl, linkKind, linkLook, proofFor, type ProofSection } from "@/lib/collab/proof";
 import type { ProofFile, ProofLink } from "@/lib/collab/types";
 import { usePortfolio } from "@/lib/portfolio";
+import { useWorkProfile } from "@/lib/workprofile";
+import { Drop, FileRow, MAX_BYTES, accepts, toProof } from "./FileParts";
 
 const MAX_LINKS = 6;
 const MAX_PIECES = 3;
 const MAX_SAMPLES = 3;
-const MAX_BYTES = 5 * 1024 * 1024;
 
 export type Proof = { works: string[]; links: ProofLink[]; files: ProofFile[] };
 export const proofCount = (p: Proof) => p.works.length + p.links.length + p.files.length;
@@ -33,7 +34,7 @@ const SECTION: Record<ProofSection, { title: string; icon: IconName }> = {
   links: { title: "Links", icon: "link" },
   cv: { title: "CV or résumé", icon: "cv" },
   samples: { title: "Files", icon: "document" },
-  pieces: { title: "Pieces from your work", icon: "photo" },
+  pieces: { title: "Projects from your work profile", icon: "creative" },
 };
 
 /**
@@ -103,6 +104,8 @@ function Links({ fit, value, onChange }: { fit: ReturnType<typeof proofFor>; val
   const clean = cleanUrl(url);
   const preview = clean ? linkLook({ url: clean, kind: linkKind(clean) }) : null;
   const full = value.links.length >= MAX_LINKS;
+  const { wp } = useWorkProfile();
+  const fromProfile = wp.links.filter((l) => !value.links.some((v) => v.url === l.url));
 
   const add = () => {
     if (!clean) return setErr("That doesn't look like a link. Try something like " + hint + ".");
@@ -113,6 +116,14 @@ function Links({ fit, value, onChange }: { fit: ReturnType<typeof proofFor>; val
 
   return (
     <>
+      {fromProfile.length > 0 && !full && (
+        <div className="co-from-profile">
+          <small>From your work profile</small>
+          <div className="co-row">
+            {fromProfile.map((l) => { const k = linkLook(l); return <button key={l.url} type="button" className="co-chip co-quick on" onClick={() => onChange({ ...value, links: [...value.links, l].slice(0, MAX_LINKS) })}><Icon name={k.icon} size={13} />+ {k.label}</button>; })}
+          </div>
+        </div>
+      )}
       <div className="co-row" role="group" aria-label="Quick add">
         {fit.suggest.map((sg) => (
           <button key={sg.label} type="button" className="co-chip co-quick" disabled={full} onClick={() => { setHint(sg.placeholder); setNote(sg.kind === "site" ? sg.label : ""); setErr(""); input.current?.focus(); }}>
@@ -145,52 +156,10 @@ function Links({ fit, value, onChange }: { fit: ReturnType<typeof proofFor>; val
   );
 }
 
-/** A file picker that also takes a drop. Files stay on the device in the demo; only the name and size are kept. */
-function Drop({ accept, multiple, label, sub, onFiles, disabled }: { accept: string; multiple?: boolean; label: string; sub: string; onFiles: (f: File[]) => void; disabled?: boolean }) {
-  const [over, setOver] = useState(false);
-  const ref = useRef<HTMLInputElement>(null);
-  return (
-    <label
-      className={`co-drop${over ? " over" : ""}${disabled ? " off" : ""}`}
-      onDragOver={(e) => { e.preventDefault(); if (!disabled) setOver(true); }}
-      onDragLeave={() => setOver(false)}
-      onDrop={(e) => { e.preventDefault(); setOver(false); if (!disabled) onFiles([...e.dataTransfer.files]); }}
-    >
-      <input ref={ref} type="file" accept={accept} multiple={multiple} disabled={disabled} className="sr-only" onChange={(e) => { onFiles([...(e.target.files ?? [])]); if (ref.current) ref.current.value = ""; }} />
-      <span className="ic"><Icon name="upload" size={22} /></span>
-      <b>{label}</b>
-      <small>{sub}</small>
-    </label>
-  );
-}
-
-function accepts(f: File, accept: string) {
-  return accept.split(",").some((a) => {
-    const t = a.trim().toLowerCase();
-    if (t.startsWith(".")) return f.name.toLowerCase().endsWith(t);
-    if (t.endsWith("/*")) return f.type.startsWith(t.slice(0, -1));
-    return f.type === t;
-  });
-}
-
-function toProof(f: File, kind: ProofFile["kind"]): ProofFile {
-  return { id: `${kind}-${f.name}-${f.size}`, name: f.name, size: f.size, type: f.type || f.name.split(".").pop() || "", kind };
-}
-
-function FileRow({ f, onRemove }: { f: ProofFile; onRemove: () => void }) {
-  const ext = f.name.includes(".") ? f.name.split(".").pop()!.toUpperCase() : "FILE";
-  return (
-    <li className="co-item">
-      <span className="ic doc">{ext.slice(0, 4)}</span>
-      <span className="t"><b>{f.name}</b><small>{fileSize(f.size)}</small></span>
-      <button type="button" className="x" aria-label={`Remove ${f.name}`} onClick={onRemove}><Icon name="close" size={18} /></button>
-    </li>
-  );
-}
-
 function Cv({ value, onChange }: { value: Proof; onChange: (p: Proof) => void }) {
   const [err, setErr] = useState("");
   const cv = value.files.find((f) => f.kind === "cv");
+  const { wp } = useWorkProfile();
   const ACCEPT = ".pdf,.doc,.docx";
   const pick = (fs: File[]) => {
     const f = fs[0];
@@ -202,11 +171,18 @@ function Cv({ value, onChange }: { value: Proof; onChange: (p: Proof) => void })
   };
   return (
     <>
+      {!cv && wp.cv && (
+        <button type="button" className="co-use-cv" onClick={() => onChange({ ...value, files: [...value.files, wp.cv!] })}>
+          <span className="ic doc">{(wp.cv.name.split(".").pop() ?? "CV").toUpperCase().slice(0, 4)}</span>
+          <span className="t"><b>Use the CV from your work profile</b><small>{wp.cv.name}</small></span>
+          <span className="kh-btn amber sm">Attach</span>
+        </button>
+      )}
       {cv
         ? <ul className="co-items"><FileRow f={cv} onRemove={() => onChange({ ...value, files: value.files.filter((x) => x.kind !== "cv") })} /></ul>
-        : <Drop accept={ACCEPT} label="Upload your CV" sub="PDF or Word, up to 5 MB. Drop it here or tap to choose." onFiles={pick} />}
+        : <Drop accept={ACCEPT} label={wp.cv ? "Or upload a different CV" : "Upload your CV"} sub="PDF or Word, up to 5 MB. Drop it here or tap to choose." onFiles={pick} />}
       {err && <p className="co-err" role="alert">{err}</p>}
-      {!cv && <p className="co-muted" style={{ fontSize: 12.5 }}>No CV? That&apos;s fine. Your Akines profile goes with every application.</p>}
+      {!cv && !wp.cv && <p className="co-muted" style={{ fontSize: 12.5 }}>No CV? That&apos;s fine. Your work profile goes with every application.</p>}
     </>
   );
 }
@@ -241,11 +217,11 @@ function Pieces({ value, onChange }: { value: Proof; onChange: (p: Proof) => voi
   return (
     <>
       <p className="co-muted" style={{ fontSize: 13, marginTop: -4 }}>
-        {pf.pieces.length ? <>From the Work tab on <Link href="/profile" className="co-link">your profile</Link>. Anything you upload here is saved there too.</> : "You haven't added any work to your profile yet. Upload a piece here and it's saved there for next time."}
+        {pf.pieces.length ? <>From the Work tab on <Link href="/profile" className="co-link">your profile</Link>. A project you add here is saved there too.</> : <>No projects in your work profile yet. Add one here (links, files, photos or a write-up) and it&apos;s saved to <Link href="/profile" className="co-link">your profile</Link> for next time.</>}
       </p>
       <div className="co-works">
         <button type="button" className="co-work co-work-add" onClick={() => setAdding(true)} disabled={full}>
-          <span className="ph"><span className="in"><Icon name="upload" size={22} /><b>Upload a new piece</b><small>{full ? `Up to ${MAX_PIECES}` : "Photo, title, story"}</small></span></span>
+          <span className="ph"><span className="in"><Icon name="upload" size={22} /><b>Add a project</b><small>{full ? `Up to ${MAX_PIECES}` : "Links, files, photos or a write-up"}</small></span></span>
         </button>
         {pf.pieces.map((w) => {
           const on = value.works.includes(w.id);
