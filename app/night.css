@@ -25,7 +25,7 @@
 .app.nx { grid-template-columns: 84px 1fr; background: var(--nx-parchment); }
 .app.nx .main { grid-column: 2; min-width: 0; }
 .guest-preview { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 9px 16px; background: #fff4d6; color: #3f3219; font: 13px var(--nx-sans); }
-.guest-preview button { border: 0; background: transparent; color: inherit; font: 600 13px var(--nx-sans); text-decoration: underline; cursor: pointer; }
+.guest-preview button, .guest-preview a { border: 0; background: transparent; color: inherit; font: 600 13px var(--nx-sans); text-decoration: underline; cursor: pointer; }
 .app.nx .content { max-width: 1440px; }
 .app.nx.is-night { background: var(--nx-night); }
 .app.nx.is-night .content { max-width: none; padding: 0; }

@@ -21,6 +21,11 @@ function load(): DemoState {
   } catch {
     state = seed();
   }
+  // A direct link signed the visitor in on the server (proxy.ts sets the cookie): sign the demo session in too.
+  if (!state!.session && typeof document !== "undefined" && document.cookie.split("; ").includes(`${DEMO_COOKIE}=1`)) {
+    state!.session = ME_ID;
+    save();
+  }
   return state!;
 }
 function save() {

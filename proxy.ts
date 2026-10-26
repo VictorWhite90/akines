@@ -5,6 +5,8 @@ import { DEMO } from "@/lib/demo/mode";
  * Who sees what, decided on the server before any page renders:
  * - Visitors without an account only reach the public pages (About, sign-up, log-in, invite links); everything else sends them to About.
  * - Signed-in members skip About, log-in and sign-up and go straight to Home.
+ * - Demo (preview) builds: a link straight to any page opens it, signed in as the demo guest, so reviewers can
+ *   share and open page links directly. The bare address still starts at About, and every page stays reachable.
  */
 const PUBLIC = ["/about", "/about/philosophy", "/login", "/signup"];
 const PUBLIC_PREFIX = ["/circles/join/"];
@@ -29,13 +31,18 @@ export function proxy(req: NextRequest) {
     url.search = "";
     return NextResponse.redirect(url);
   }
+  if (DEMO && !signedIn && !isPublic && pathname !== "/") {
+    const res = NextResponse.next();
+    res.cookies.set("ak_in", "1", { path: "/", maxAge: 864000, sameSite: "lax" });
+    return res;
+  }
   if (!signedIn && !isPublic) {
     const url = req.nextUrl.clone();
     url.pathname = "/about";
     url.search = "";
     return NextResponse.redirect(url);
   }
-  if (signedIn && (MEMBERS_SKIP.includes(pathname) || (pathname === "/login" && !searchParams.get("step") && !searchParams.get("signout") && !searchParams.get("ended")))) {
+  if (!DEMO && signedIn && (MEMBERS_SKIP.includes(pathname) || (pathname === "/login" && !searchParams.get("step") && !searchParams.get("signout") && !searchParams.get("ended")))) {
     const url = req.nextUrl.clone();
     url.pathname = "/";
     url.search = "";

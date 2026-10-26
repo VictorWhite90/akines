@@ -73,6 +73,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {DEMO && (
             <div className="guest-preview" role="status">
               <span><strong>Demo</strong> · Sample data in your browser. Nothing here reaches Akines.</span>
+              <Link href="/pages">All pages</Link>
               <button type="button" onClick={() => void import("@/lib/demo/backend").then((d) => { d.resetDemo(); window.location.assign("/login"); })}>Reset demo</button>
               <button type="button" onClick={() => void signOut().then(() => router.replace("/about"))}>Sign out</button>
             </div>
