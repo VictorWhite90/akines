@@ -325,3 +325,8 @@ html[data-theme="dark"] .dr { background: var(--dk-bg); border-right: 1px solid 
     padding-right: 24px;
   }
 }
+/* Drawer footer: three links share the row evenly and never wrap; the theme toggle keeps its place on the right. */
+.dr-row { gap: 2px; }
+.dr-row a { flex: 1 1 0; min-width: 0; justify-content: center; gap: 5px; padding: 0 6px; white-space: nowrap; font-size: 13px; }
+.dr-row a svg { flex: none; }
+.dr-theme { flex: none; margin-left: 4px; }
