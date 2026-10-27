@@ -15,7 +15,7 @@ import { AgreeTab, ChatTab, PreserveTab, RoomTab, StudioTab, ValueTab } from "./
 export type WsTab = "home" | "work" | "agree" | "chat" | "room" | "value" | "record";
 const VIEWS: { id: WsTab; label: string; icon: IconName }[] = [
   { id: "home", label: "Home", icon: "home" },
-  { id: "work", label: "Board", icon: "project" },
+  { id: "work", label: "Workspace", icon: "project" },
   { id: "chat", label: "Chat", icon: "message" },
   { id: "room", label: "Meet", icon: "live" },
   { id: "agree", label: "Agreement", icon: "verified" },
@@ -84,7 +84,7 @@ export default function Workspace({ id }: { id: string }) {
         </div>
       </header>
 
-      {joined && <DemoNote>Welcome to the team. Sign the agreement first: once everyone has signed, the board opens for work.</DemoNote>}
+      {joined && <DemoNote>Welcome to the team. Sign the agreement first: once everyone has signed, the workspace opens for work.</DemoNote>}
       {unsigned && <button className="ws-banner" onClick={() => go("agree")}><Icon name="verified" size={16} /><span><b>Sign the agreement to start.</b> {p.charter.signed.length} of {p.members.length} have signed.</span><span className="ws-banner-go">Open →</span></button>}
 
       <div className="ws-frame">
@@ -146,13 +146,13 @@ function Home({ p, go, open }: { p: Project; go: (t: WsTab) => void; open: (id: 
   const kit = kitOf(p.kind);
   const thread = co.thread(p);
   const last = thread[thread.length - 1];
-  const note = p.stage === 1 ? "You're shaping the idea together. Choose the kind of work to set up the board." : !p.charter.signedAt ? "Sign the agreement with your team so the work can start." : "";
+  const note = p.stage === 1 ? "You're shaping the idea together. Choose the kind of work to set up the workspace." : !p.charter.signedAt ? "Sign the agreement with your team so the work can start." : "";
 
   return (
     <div className="ws-home">
       {note && <p className="ws-note-line">{note}</p>}
 
-      {p.stage === 1 && <button className="ws-cta" onClick={() => go("work")}><Icon name="project" size={18} /><span><b>Set up the board</b><small>Pick the kind of work: {kit.label} and five others</small></span><Icon name="more" size={16} /></button>}
+      {p.stage === 1 && <button className="ws-cta" onClick={() => go("work")}><Icon name="project" size={18} /><span><b>Set up the workspace</b><small>Pick the kind of work: {kit.label} and five others</small></span><Icon name="more" size={16} /></button>}
       {p.stage >= 2 && !p.charter.signedAt && <button className="ws-cta" onClick={() => go("agree")}><Icon name="verified" size={18} /><span><b>Read and sign the agreement</b><small>{p.charter.signed.length} of {p.members.length} signed</small></span><Icon name="more" size={16} /></button>}
 
       {/* On phones the two columns become one list, in this order: review, your work, updates, team. */}
@@ -189,7 +189,7 @@ function ProjectAbout({ p, go }: { p: Project; go: (t: WsTab) => void }) {
   const steps: { label: string; done: boolean; tab: WsTab }[] = [
     { label: "Shape the idea together", done: p.stage > 1, tab: "work" },
     { label: "Agree credit, ownership and money", done: !!p.charter.signedAt, tab: "agree" },
-    { label: "Set up the board and start", done: (p.deliverables ?? []).length > 0 && !!p.charter.signedAt, tab: "work" },
+    { label: "Set up the workspace and start", done: (p.deliverables ?? []).length > 0 && !!p.charter.signedAt, tab: "work" },
   ];
   return (
     <section className="ws-box ws-about">

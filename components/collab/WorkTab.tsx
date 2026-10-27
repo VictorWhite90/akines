@@ -181,7 +181,7 @@ function KitPicker({ p }: { p: Project }) {
     <section className="ws-box">
       <div>
         <h2 className="ws-h2">What kind of work is this?</h2>
-        <p className="ws-faint">It shapes the board, the tools you pin, how work is reviewed and your meetings. You can change it later.</p>
+        <p className="ws-faint">It shapes the workspace, the tools you pin, how work is reviewed and your meetings. You can change it later.</p>
       </div>
       <div className="co-kits" role="radiogroup" aria-label="Kind of work">
         {KIT_ORDER.map((k) => (
@@ -191,12 +191,12 @@ function KitPicker({ p }: { p: Project }) {
         ))}
       </div>
       <div className="co-kit-preview">
-        <b>The {kit.label.toLowerCase()} board starts with</b>
+        <b>The {kit.label.toLowerCase()} workspace starts with</b>
         <ol>{kit.starter.map((s) => <li key={s.title}><span>{s.title}</span><small>{s.due} · {s.share}%</small></li>)}</ol>
         <p className="co-muted" style={{ fontSize: 13 }}>Proof looks like: {kit.proofHint.toLowerCase()}. Review: {kit.approver}.</p>
       </div>
       <div className="co-row">
-        <button className="kh-btn amber" onClick={() => co.project.setKind(p.id, pick, true)}>Use this board</button>
+        <button className="kh-btn amber" onClick={() => co.project.setKind(p.id, pick, true)}>Use this setup</button>
         <button className="kh-btn outline" onClick={() => { co.project.setKind(p.id, pick, false); co.project.addDeliverable(p.id, { title: `First ${KITS[pick].one.toLowerCase()}`, owner: ME, approver: p.host === ME ? p.members.find((m) => m.id !== ME)?.id ?? ME : p.host, due: "This week" }); }}>Start empty</button>
       </div>
     </section>
