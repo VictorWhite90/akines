@@ -151,3 +151,26 @@ export function sampleProof(who: string, role: string): { links: ProofLink[]; fi
   const name = who.charAt(0).toUpperCase() + who.slice(1);
   return { links, files: cv ? [{ id: `cv-${who}`, name: `${name}-CV.pdf`, size: 210 * 1024, type: "pdf", kind: "cv" }] : [] };
 }
+
+/** The work-profile fields, as the fields open calls use. */
+const FIELD_TO_CALL: Record<string, string> = {
+  Design: "Design", Tech: "Tech", Media: "Media", Writing: "Media", "Arts & crafts": "Arts", Food: "Food",
+  "Health & care": "Community", Teaching: "Community", Business: "Business", Trades: "Business", Events: "Community", Community: "Community",
+};
+
+/**
+ * How well an open call fits the member: a role that matches one of their skills counts most, then their field.
+ * Returns a score (0 = not for them) and the reason, in words, to show on the card.
+ */
+export function callFit(call: { fields: string[]; roles: string[] }, me: { field?: string; skills: string[]; role: string }) {
+  const words = (s: string) => s.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 3);
+  const mine = [...me.skills, me.role];
+  for (const r of call.roles) {
+    const rw = words(r);
+    const hit = mine.find((s) => words(s).some((w) => rw.some((x) => x.startsWith(w.slice(0, 5)) || w.startsWith(x.slice(0, 5)))));
+    if (hit) return { score: 2, reason: `Needs ${/^[aeiou]/i.test(r) ? "an" : "a"} ${r.toLowerCase()}: fits your ${hit.toLowerCase()} work` };
+  }
+  const field = me.field ? FIELD_TO_CALL[me.field] : undefined;
+  if (field && call.fields.includes(field)) return { score: 1, reason: `Matches your ${me.field!.toLowerCase()} work` };
+  return { score: 0, reason: "" };
+}

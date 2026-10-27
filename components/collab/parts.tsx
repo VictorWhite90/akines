@@ -58,7 +58,7 @@ export function feeParts(fee: string) {
   return { amount: m[0].replace(/\s/g, ""), note };
 }
 
-export function CallCard({ call, applied }: { call: CollabCall; applied?: Application }) {
+export function CallCard({ call, applied, why }: { call: CollabCall; applied?: Application; why?: string }) {
   const fee = feeParts(call.fee);
   const more = call.roles.length - 2;
   const tone = !applied ? "" : applied.stage === "joined" ? "ok" : applied.stage === "not-selected" || applied.stage === "withdrawn" ? "muted" : "info";
@@ -74,6 +74,7 @@ export function CallCard({ call, applied }: { call: CollabCall; applied?: Applic
         <span className="co-org"><Avatar person={PEOPLE[call.host]} size={22} /><b>{call.org}</b>{call.verified && <Icon name="verified" size={13} />}<span>· {call.city}</span></span>
         <h3>{call.title}</h3>
         <p>{call.summary}</p>
+        {why && <span className="co-call-why"><Icon name="spark" size={13} />{why}</span>}
         <span className="co-call-roles"><Icon name="team" size={13} /><span>{call.roles.slice(0, 2).join(" · ")}{more > 0 ? ` · +${more}` : ""}</span></span>
       </span>
       <span className="co-call-foot">

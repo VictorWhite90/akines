@@ -8,7 +8,7 @@ import { JOURNEY, type Project } from "@/lib/collab/types";
 import { kitOf } from "@/lib/collab/kits";
 import { ME, useCollab } from "@/lib/collab/useCollab";
 import { PEOPLE } from "@/lib/data/people";
-import { DemoNote, Thumb, firstName } from "./parts";
+import { DemoNote, Thumb, firstName, naira } from "./parts";
 import Board, { Face, ReviewInbox, TeamFeed, Tools, YourWork, isOnline, toReview } from "./WorkTab";
 import { AgreeTab, ChatTab, PreserveTab, RoomTab, StudioTab, ValueTab } from "./WorkspaceTabs";
 
@@ -162,6 +162,7 @@ function Home({ p, go, open }: { p: Project; go: (t: WsTab) => void; open: (id: 
           <div className="ws-o3"><TeamFeed p={p} /></div>
         </div>
         <div className="ws-stack">
+          <div className={`ws-oabout${p.stage <= 1 ? " first" : ""}`}><ProjectAbout p={p} go={go} /></div>
           <div className="ws-o2"><YourWork p={p} onOpen={open} /></div>
           <section className="ws-box ws-o4">
             <h3 className="ws-h3">Team</h3>
@@ -175,5 +176,49 @@ function Home({ p, go, open }: { p: Project; go: (t: WsTab) => void; open: (id: 
         </div>
       </div>
     </div>
+  );
+}
+
+/** What the project is, where it came from, the money, the team and where it stands. */
+function ProjectAbout({ p, go }: { p: Project; go: (t: WsTab) => void }) {
+  const co = useCollab();
+  const call = p.callId ? co.call(p.callId) : undefined;
+  const proposal = co.proposals.find((x) => x.projectId === p.id);
+  const origin = call ? `From ${call.org}'s open call` : proposal ? `Your idea, accepted by ${firstName(proposal.to)}` : "Project";
+  const money = p.budget.total ? naira(p.budget.total) : call ? call.fee.split(" · ")[0] : "";
+  const steps: { label: string; done: boolean; tab: WsTab }[] = [
+    { label: "Shape the idea together", done: p.stage > 1, tab: "work" },
+    { label: "Agree credit, ownership and money", done: !!p.charter.signedAt, tab: "agree" },
+    { label: "Set up the board and start", done: (p.deliverables ?? []).length > 0 && !!p.charter.signedAt, tab: "work" },
+  ];
+  return (
+    <section className="ws-box ws-about">
+      <h3 className="ws-h3">About this project</h3>
+      <p className="ws-about-origin">{origin}</p>
+      <p className="ws-about-text">{p.summary}</p>
+      <dl className="ws-about-facts">
+        <div><dt>Stage</dt><dd>{JOURNEY[p.stage]} <small>· {p.stage + 1} of 7</small></dd></div>
+        <div><dt>{call ? "Fee" : "Budget"}</dt><dd>{money || <button type="button" className="ws-linkbtn" onClick={() => go("agree")}>Agree it together</button>}</dd></div>
+        {call && <div><dt>Where</dt><dd>{call.where} · {call.city}</dd></div>}
+        {call?.timeline?.length ? <div><dt>Next date</dt><dd>{call.timeline[1]?.label ?? call.timeline[0].label}: {call.timeline[1]?.when ?? call.timeline[0].when}</dd></div> : null}
+      </dl>
+      <div className="ws-about-team">
+        <span className="lbl">Team · {p.members.length}</span>
+        <ul>
+          {p.members.map((m) => (
+            <li key={m.id}>
+              <Face id={m.id} size={32} />
+              <span className="t"><b>{m.id === ME ? "You" : PEOPLE[m.id].name}</b><small>{m.contribution && m.contribution !== m.role ? `${m.role} · ${m.contribution}` : m.role}</small></span>
+              {p.stage >= 2 && (p.charter.signed.includes(m.id) ? <span className="ws-signed">Signed</span> : <span className="ws-signed no">Not signed</span>)}
+            </li>
+          ))}
+        </ul>
+      </div>
+      {p.stage <= 2 && !p.charter.signedAt && (
+        <ol className="ws-steps-list">
+          {steps.map((st, i) => <li key={st.label} className={st.done ? "done" : undefined}><button type="button" onClick={() => go(st.tab)}><span className="n">{st.done ? "✓" : i + 1}</span>{st.label}<Icon name="more" size={14} /></button></li>)}
+        </ol>
+      )}
+    </section>
   );
 }

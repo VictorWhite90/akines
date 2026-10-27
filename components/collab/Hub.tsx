@@ -8,7 +8,9 @@ import Pic from "@/components/home/Pic";
 import Avatar from "@/components/ui/Avatar";
 import Icon from "@/components/ui/Icon";
 import { FIELDS, type Field } from "@/lib/collab/types";
+import { callFit } from "@/lib/collab/proof";
 import { ME, useCollab } from "@/lib/collab/useCollab";
+import { useWorkProfile } from "@/lib/workprofile";
 import { COLLABS } from "@/lib/data/community";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { CallCard, DemoNote, ProjectCard, firstName } from "./parts";
@@ -73,9 +75,14 @@ export default function Hub() {
   const [proposing, setProposing] = useState<(typeof SUGGESTED)[number] | null>(null);
   const [sent, setSent] = useState<string | null>(null);
 
-  const calls = useMemo(() => co.calls.filter((c) => !c.postedByMe)
-    .filter((c) => field === "All" || c.fields.includes(field))
-    .filter((c) => !q.trim() || `${c.title} ${c.org} ${c.roles.join(" ")} ${c.summary}`.toLowerCase().includes(q.trim().toLowerCase())), [co.calls, field, q]);
+  const { wp } = useWorkProfile();
+  const me = useMemo(() => ({ field: wp.field || "Design", skills: wp.skills.length ? wp.skills : ["Product design", "User research"], role: PEOPLE[ME].role }), [wp.field, wp.skills]);
+  const fits = useMemo(() => new Map(co.calls.map((c) => [c.id, callFit(c, me)])), [co.calls, me]);
+  const forYou = useMemo(() => co.calls.filter((c) => !c.postedByMe && (fits.get(c.id)?.score ?? 0) > 0).sort((a, b) => fits.get(b.id)!.score - fits.get(a.id)!.score), [co.calls, fits]);
+  const [scope, setScope] = useState<"you" | "all">("you");
+  const calls = useMemo(() => (scope === "you" ? forYou : co.calls.filter((c) => !c.postedByMe))
+    .filter((c) => scope === "you" || field === "All" || c.fields.includes(field))
+    .filter((c) => !q.trim() || `${c.title} ${c.org} ${c.roles.join(" ")} ${c.summary}`.toLowerCase().includes(q.trim().toLowerCase())), [co.calls, forYou, scope, field, q]);
 
   const activeApps = co.myApps.filter((a) => !["joined", "not-selected", "withdrawn"].includes(a.stage)).length;
   const waiting = co.apps.filter((a) => co.hostedCalls.some((c) => c.id === a.callId) && a.stage === "submitted").length;
@@ -125,14 +132,24 @@ export default function Hub() {
 
       <section className="co-sec" id="calls">
         <div className="co-sec-head">
-          <div><h2>Open calls</h2><p>Organisations, communities and people looking for collaborators, with the fee, rights and timeline up front.</p></div>
+          <div><h2>Open calls</h2><p>Teams and organisations looking for people, with the fee, rights and timeline up front.</p></div>
           <label className="co-search"><Icon name="search" size={16} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search calls, roles, organisations" aria-label="Search open calls" /></label>
         </div>
-        <div className="co-filters" role="group" aria-label="Filter by field">
-          {(["All", ...FIELDS] as const).map((f) => <button key={f} className={field === f ? "on" : undefined} aria-pressed={field === f} onClick={() => setField(f)}>{f}</button>)}
+        <div className="co-scope" role="tablist" aria-label="Which calls">
+          <button role="tab" aria-selected={scope === "you"} className={scope === "you" ? "on" : undefined} onClick={() => setScope("you")}>For you<span>{forYou.length}</span></button>
+          <button role="tab" aria-selected={scope === "all"} className={scope === "all" ? "on" : undefined} onClick={() => setScope("all")}>All calls<span>{co.calls.filter((c) => !c.postedByMe).length}</span></button>
         </div>
+        {scope === "you" ? (
+          <p className="co-basis"><Icon name="spark" size={14} />Based on your work profile: <b>{me.field}</b>{me.skills.length > 0 && <> · {me.skills.slice(0, 3).join(", ")}</>} <Link href="/profile/work" className="co-link">Edit</Link></p>
+        ) : (
+          <div className="co-filters" role="group" aria-label="Filter by field">
+            {(["All", ...FIELDS] as const).map((f) => <button key={f} className={field === f ? "on" : undefined} aria-pressed={field === f} onClick={() => setField(f)}>{f}</button>)}
+          </div>
+        )}
         {calls.length ? (
-          <Rail label="Open calls" count={calls.length}>{calls.map((c) => <CallCard key={c.id} call={c} applied={co.appFor(c.id)} />)}</Rail>
+          <Rail label="Open calls" count={calls.length}>{calls.map((c) => <CallCard key={c.id} call={c} applied={co.appFor(c.id)} why={fits.get(c.id)?.reason || undefined} />)}</Rail>
+        ) : scope === "you" ? (
+          <div className="co-empty"><h3>Nothing matches your work yet</h3><p>Add your field and skills to your work profile, or look through every call.</p><div className="co-row" style={{ justifyContent: "center" }}><Link href="/profile/work" className="kh-btn amber sm">Update my work profile</Link><button className="kh-btn outline sm" onClick={() => setScope("all")}>See all calls</button></div></div>
         ) : (
           <div className="co-empty"><h3>No calls match</h3><p>Try another field, or post a call of your own.</p><Link href="/collaborate/new" className="kh-btn amber sm">Post an open call</Link></div>
         )}
@@ -140,32 +157,37 @@ export default function Hub() {
 
       <section className="co-sec" id="people">
         <div className="co-sec-head">
-          <div><h2>People you could make something with</h2><p>Picked because your work complements theirs, and we say why.</p></div>
+          <div><h2>People to make something with</h2><p>Send one person an idea. If they say yes, you get a shared project to shape it together.</p></div>
         </div>
-        {sent && <DemoNote>Proposal sent to {sent}. In the demo they reply within a few seconds; their answer opens your shared idea canvas.</DemoNote>}
-        <div className="co-pairs">
+        {sent && <DemoNote>Proposal sent to {sent}. In the demo they reply within a few seconds.</DemoNote>}
+        <Rail label="People to make something with" count={SUGGESTED.length}>
           {SUGGESTED.map((s) => {
             const p = PEOPLE[s.who];
             const proposal = co.proposals.find((x) => x.to === s.who);
+            const started = proposal?.status === "accepted" && proposal.projectId;
+            const waiting = !started && proposed.has(s.who);
             return (
-              <div key={s.who} className="co-pair">
-                <div className="co-row">
-                  <span className="co-faces"><Avatar person={PEOPLE[ME]} size={40} /><Avatar person={p} size={40} /></span>
-                  <div><b style={{ fontSize: 15 }}>You &amp; {firstName(s.who)}</b><small className="co-muted" style={{ display: "block", fontSize: 12.5 }}>{p.role} · {p.city}</small></div>
-                </div>
-                <b style={{ fontSize: 16 }}>{s.title}</b>
-                <p>{s.why}</p>
-                {proposal?.status === "accepted" && proposal.projectId ? (
-                  <Link href={`/collaborate/projects/${proposal.projectId}`} className="kh-btn blue sm">Open the project →</Link>
-                ) : proposed.has(s.who) ? (
-                  <span className="co-chip">Waiting for {firstName(s.who)}…</span>
-                ) : (
-                  <button className="kh-btn amber sm" onClick={() => setProposing(s)}>Propose a project</button>
-                )}
-              </div>
+              <article key={s.who} className="co-pair">
+                <header>
+                  <span className="co-faces"><Avatar person={PEOPLE[ME]} size={36} /><Avatar person={p} size={36} /></span>
+                  <span className="who"><b>You &amp; {firstName(s.who)}</b><small>{p.role} · {p.city}</small></span>
+                </header>
+                <span className={`co-pair-state ${started ? "ok" : waiting ? "wait" : ""}`}>{started ? `${firstName(s.who)} said yes · project started` : waiting ? `Sent · waiting for ${firstName(s.who)}` : "Suggested for you"}</span>
+                <h3>{s.title}</h3>
+                <p className="why">{s.why}</p>
+                <dl>
+                  <div><dt>You</dt><dd>{s.mine}</dd></div>
+                  <div><dt>{firstName(s.who)}</dt><dd>{s.theirs}</dd></div>
+                </dl>
+                <footer>
+                  {started ? <Link href={`/collaborate/projects/${proposal!.projectId}`} className="co-call-go">Open the project<Icon name="more" size={14} /></Link>
+                    : waiting ? <span className="co-muted" style={{ fontSize: 13 }}>They&apos;ll get a notification and reply here.</span>
+                    : <button type="button" className="co-call-go" onClick={() => setProposing(s)}>Propose this<Icon name="more" size={14} /></button>}
+                </footer>
+              </article>
             );
           })}
-        </div>
+        </Rail>
       </section>
 
       <section className="co-sec">
