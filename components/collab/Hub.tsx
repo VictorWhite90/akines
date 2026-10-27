@@ -84,22 +84,24 @@ export default function Hub() {
   return (
     <div className="kh co">
       <section className="co-hero">
-        {/* A photo for now; a short film of people working together can replace it later. */}
-        <span className="co-hero-bg" aria-hidden><Pic name="teamWork" sizes="100vw" priority position="60% 8%" /></span>
-        <div className="co-hero-copy">
-          <p className="co-eyebrow">Collaborate</p>
-          <h1><Rotator words={HERO_WORDS} /><span className="tail">together.</span></h1>
-          <p className="lede">Answer an open call, or start something with someone you&apos;d like to work with. Every project gets a workspace, a group chat and a room to meet in, with fair terms agreed before anyone starts.</p>
-          <div className="co-hero-acts">
-            <Link href="/collaborate/new" className="kh-btn amber"><Icon name="spark" size={18} />Post an open call</Link>
-            <a href="#people" className="kh-btn glass">Propose a project</a>
+        <div className="co-hero-main">
+          <div className="co-hero-copy">
+            <p className="co-eyebrow">Collaborate</p>
+            <h1><Rotator words={HERO_WORDS} /><span className="tail">together.</span></h1>
+            <p className="lede">Answer an open call, or start something with someone you&apos;d like to work with. Every project gets a workspace, a group chat and a room to meet in, with fair terms agreed before anyone starts.</p>
+            <div className="co-hero-acts">
+              <Link href="/collaborate/new" className="kh-btn amber"><Icon name="spark" size={18} />Post an open call</Link>
+              <a href="#people" className="kh-btn glass">Propose a project</a>
+            </div>
+          </div>
+          <div className="co-stats">
+            <Link href="/collaborate/applications" className="co-stat"><b>{activeApps}</b><span>Applications in progress</span></Link>
+            <a href="#projects" className="co-stat"><b>{co.projects.length}</b><span>Projects you&apos;re in</span></a>
+            <Link href="/collaborate/review" className="co-stat"><b>{co.hostedCalls.length}</b><span>{waiting ? `Calls you host · ${waiting} new` : "Calls you host"}</span></Link>
           </div>
         </div>
-        <div className="co-stats">
-          <Link href="/collaborate/applications" className="co-stat"><b>{activeApps}</b><span>Applications in progress</span></Link>
-          <a href="#projects" className="co-stat"><b>{co.projects.length}</b><span>Projects you&apos;re in</span></a>
-          <Link href="/collaborate/review" className="co-stat"><b>{co.hostedCalls.length}</b><span>{waiting ? `Calls you host · ${waiting} new` : "Calls you host"}</span></Link>
-        </div>
+        {/* The photo on its own, with nothing over it. A short film of people working together can replace it later. */}
+        <figure className="co-hero-photo"><Pic name="teamWork" sizes="(max-width: 760px) 100vw, 50vw" priority position="50% 30%" /></figure>
       </section>
 
       <ol className="co-how" aria-label="How collaboration works" style={{ margin: 0, padding: 0 }}>

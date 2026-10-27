@@ -33,13 +33,11 @@ html[data-theme="dark"] .co .co-chip.warn { color: #f7c06d; }
 .co .co-faces > *:first-child { margin-left: 0; }
 
 /* Hub hero */
-.co-hero { position: relative; overflow: hidden; isolation: isolate; border-radius: 24px; padding: 44px 40px 36px; min-height: 440px; color: #fff; background: #1a1d2e; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: end; }
-/* The photo, slowly drifting, under a deep blue fade that keeps the words readable. */
-.co-hero-bg { position: absolute; inset: 0; z-index: -2; animation: co-drift 26s ease-in-out infinite alternate; }
-/* Shade only where the words sit (left and along the bottom), so the photo keeps its own colours elsewhere. */
-.co-hero::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(12,16,40,.78) 0%, rgba(12,16,40,.6) 30%, rgba(12,16,40,.18) 55%, rgba(12,16,40,0) 72%), linear-gradient(0deg, rgba(10,12,30,.55) 0%, rgba(10,12,30,0) 40%); }
-@keyframes co-drift { from { transform: scale(1.04) translate3d(0, 0, 0); } to { transform: scale(1.14) translate3d(-2%, -1.5%, 0); } }
-.co-hero-copy { position: relative; display: grid; align-content: end; }
+/* Split banner: the words on a solid panel, the photo beside them with nothing over it. */
+.co-hero { position: relative; overflow: hidden; border-radius: 24px; color: #fff; background: #161a2c; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); min-height: 440px; }
+.co-hero-main { display: flex; flex-direction: column; justify-content: space-between; gap: 28px; padding: 44px 40px 32px; }
+.co-hero-photo { position: relative; margin: 0; min-height: 300px; background: #222; }
+.co-hero-copy { position: relative; display: grid; align-content: start; }
 .co-hero-copy > * { opacity: 0; transform: translateY(16px); animation: co-rise .8s cubic-bezier(.2,.8,.2,1) forwards; }
 .co-hero-copy > :nth-child(1) { animation-delay: .05s; }
 .co-hero-copy > :nth-child(2) { animation-delay: .15s; }
@@ -55,11 +53,11 @@ html[data-theme="dark"] .co .co-chip.warn { color: #f7c06d; }
 @keyframes co-word-in { from { opacity: 0; transform: translateY(55%); filter: blur(8px); } to { opacity: 1; transform: none; filter: blur(0); } }
 @keyframes co-word-out { from { opacity: 1; transform: none; filter: blur(0); } to { opacity: 0; transform: translateY(-50%); filter: blur(6px); } }
 @media (prefers-reduced-motion: reduce) {
-  .co-hero-bg, .co-rotator .word { animation: none; }
+  .co-rotator .word { animation: none; }
   .co-hero-copy > *, .co-hero .co-stats { animation: none; opacity: 1; transform: none; }
 }
 .co-hero .co-eyebrow { color: #e3e8ff; }
-.co-hero h1, .co-hero p.lede, .co-hero .co-eyebrow { text-shadow: 0 2px 18px rgba(0,0,0,.35); }
+.co-hero p.lede { color: rgba(255,255,255,.82); }
 /* The site caps page headings at 2rem (.app .content h1, !important); this banner is the exception. */
 .co-hero h1 { margin-top: 10px; font: 800 clamp(32px, 4.6vw, 54px)/1.08 var(--font-manrope), sans-serif; letter-spacing: -.8px; }
 .app .content .co-hero h1 { font-size: clamp(32px, 4.6vw, 54px) !important; }
@@ -68,8 +66,8 @@ html[data-theme="dark"] .co .co-chip.warn { color: #f7c06d; }
 .co-hero .kh-btn.amber { height: 46px; padding: 0 22px; font-size: 15px; }
 .co-hero .kh-btn.glass { height: 46px; padding: 0 22px; font-size: 15px; border-color: rgba(255,255,255,.35); }
 .co-stats { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(3, minmax(112px, 1fr)); gap: 10px; }
-.co-stat { display: grid; gap: 4px; padding: 16px; border-radius: 16px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); color: #fff; text-decoration: none; backdrop-filter: blur(6px); transition: background .15s; }
-.co-stat:hover { background: rgba(255,255,255,.16); }
+.co-stat { display: grid; gap: 4px; padding: 14px; border-radius: 16px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); color: #fff; text-decoration: none; transition: background .15s; }
+.co-stat:hover { background: rgba(255,255,255,.13); }
 .co-stat b { font: 700 28px/1 var(--font-manrope), sans-serif; }
 .co-stat span { font-size: 12.5px; color: rgba(255,255,255,.78); }
 
@@ -417,7 +415,7 @@ html[data-theme="dark"] .co .co-chip.warn { color: #f7c06d; }
 }
 @media (max-width: 760px) {
   .co { gap: 28px; }
-  .co-hero { grid-template-columns: minmax(0, 1fr); padding: 24px; border-radius: 20px; }
+  .co-hero { grid-template-columns: minmax(0, 1fr); border-radius: 20px; }
   .co-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .co-stat { padding: 12px; }
   .co-stat b { font-size: 22px; }
@@ -939,8 +937,9 @@ html[data-theme="dark"] .ws em.stuck { color: #fca5a5; }
 /* The round Create button floats over the bottom-right on phones; keep it clear of workspace content. */
 @media (max-width: 860px) { .ws-main { padding-bottom: 84px; } }
 @media (max-width: 760px) {
-  .co-hero { min-height: 0; padding-top: 170px; }
-  .co-hero::before { background: linear-gradient(0deg, rgba(12,14,34,.9) 0%, rgba(12,14,34,.72) 50%, rgba(12,14,34,.25) 75%, rgba(12,14,34,0) 100%); }
+  .co-hero { min-height: 0; grid-template-columns: minmax(0, 1fr); }
+  .co-hero-photo { order: -1; min-height: 220px; }
+  .co-hero-main { padding: 24px 20px 22px; }
   .app .content .co-hero h1 { font-size: 34px !important; }
 }
 
@@ -964,3 +963,5 @@ html[data-theme="dark"] .ws em.stuck { color: #fca5a5; }
   .co-rail-track::-webkit-scrollbar { display: none; }
   .co-rail-arrows, .co-rail::before, .co-rail::after { display: none; }
 }
+/* Mid-size screens: keep the split, but give the words more room. */
+@media (min-width: 761px) and (max-width: 1100px) { .co-hero { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); } .co-hero-main { padding: 32px 28px 26px; } .co-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
