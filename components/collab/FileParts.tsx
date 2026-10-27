@@ -35,7 +35,12 @@ export function accepts(f: File, accept: string) {
   });
 }
 
+/** Files picked this session, by their proof id: a real build uploads them when the form is sent (lib/api/collab.ts). */
+const picked = new Map<string, File>();
+export const pickedFile = (id: string) => picked.get(id);
+
 export function toProof(f: File, kind: ProofFile["kind"]): ProofFile {
+  picked.set(`${kind}-${f.name}-${f.size}`, f);
   return { id: `${kind}-${f.name}-${f.size}`, name: f.name, size: f.size, type: f.type || f.name.split(".").pop() || "", kind };
 }
 

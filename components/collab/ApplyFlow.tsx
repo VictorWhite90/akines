@@ -29,6 +29,8 @@ export default function ApplyFlow({ id }: { id: string }) {
   const [statement, setStatement] = useState("");
   const [availability, setAvailability] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
   if (!co.ready) return <div className="kh co" aria-busy="true" />;
   if (!call) return <div className="kh co"><div className="co-empty"><h3>This call isn&apos;t available</h3><Link href="/collaborate#calls" className="kh-btn amber sm">See open calls</Link></div></div>;
@@ -61,8 +63,11 @@ export default function ApplyFlow({ id }: { id: string }) {
 
   const sentWork = proofCount(proof) > 0;
   const can = [!!role, !needsWork || sentWork, statement.trim().length >= 20 && availability.trim().length > 0, true];
-  const submit = () => {
-    co.apply({ callId: call.id, role, works, links: proof.links, files: proof.files, statement: statement.trim(), availability: availability.trim(), materials: Object.fromEntries(call.materials.map((m) => [m.id, m.id === "works" ? sentWork : m.id === "why" ? !!statement.trim() : m.id === "availability" ? !!availability.trim() : false])) });
+  const submit = async () => {
+    setSending(true); setError("");
+    const r = await co.apply({ callId: call.id, role, works, links: proof.links, files: proof.files, statement: statement.trim(), availability: availability.trim(), materials: Object.fromEntries(call.materials.map((m) => [m.id, m.id === "works" ? sentWork : m.id === "why" ? !!statement.trim() : m.id === "availability" ? !!availability.trim() : false])) });
+    setSending(false);
+    if (!r.ok) return setError(r.message);
     setSent(true);
     window.scrollTo({ top: 0 });
   };
@@ -125,8 +130,9 @@ export default function ApplyFlow({ id }: { id: string }) {
               {step > 0 ? <button className="kh-btn outline" onClick={() => setStep(step - 1)}>Back</button> : <span />}
               {step < STEPS.length - 1
                 ? <button className="kh-btn amber" disabled={!can[step]} onClick={() => setStep(step + 1)}>Continue</button>
-                : <button className="kh-btn amber" onClick={submit}><Icon name="send" size={16} />Send application</button>}
+                : <button className="kh-btn amber" disabled={sending} onClick={submit}><Icon name="send" size={16} />{sending ? "Sending…" : "Send application"}</button>}
             </div>
+            {error && <p className="co-err" role="alert">{error}</p>}
           </div>
         </div>
 

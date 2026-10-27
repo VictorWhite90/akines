@@ -11,6 +11,10 @@ import { FIELDS, type Field } from "@/lib/collab/types";
 import { callFit } from "@/lib/collab/proof";
 import { ME, useCollab } from "@/lib/collab/useCollab";
 import { useWorkProfile } from "@/lib/workprofile";
+import { account } from "@/lib/api/account";
+import { DEMO } from "@/lib/demo/mode";
+import { registerPerson } from "@/lib/data/people";
+import { useRouter } from "next/navigation";
 import { COLLABS } from "@/lib/data/community";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { CallCard, DemoNote, ProjectCard, firstName } from "./parts";
@@ -72,11 +76,12 @@ export default function Hub() {
   const co = useCollab({ engine: true });
   const [field, setField] = useState<Field | "All">("All");
   const [q, setQ] = useState("");
-  const [proposing, setProposing] = useState<(typeof SUGGESTED)[number] | null>(null);
+  const [proposing, setProposing] = useState<Suggestion | null>(null);
   const [sent, setSent] = useState<string | null>(null);
 
   const { wp } = useWorkProfile();
-  const me = useMemo(() => ({ field: wp.field || "Design", skills: wp.skills.length ? wp.skills : ["Product design", "User research"], role: PEOPLE[ME].role }), [wp.field, wp.skills]);
+  // The demo stands in for an empty profile; a real member's matches come from their own work profile only.
+  const me = useMemo(() => (DEMO ? { field: wp.field || "Design", skills: wp.skills.length ? wp.skills : ["Product design", "User research"], role: PEOPLE[ME].role } : { field: wp.field, skills: wp.skills, role: wp.headline }), [wp.field, wp.skills, wp.headline]);
   const fits = useMemo(() => new Map(co.calls.map((c) => [c.id, callFit(c, me)])), [co.calls, me]);
   const forYou = useMemo(() => co.calls.filter((c) => !c.postedByMe && (fits.get(c.id)?.score ?? 0) > 0).sort((a, b) => fits.get(b.id)!.score - fits.get(a.id)!.score), [co.calls, fits]);
   const [scope, setScope] = useState<"you" | "all">("you");
@@ -138,7 +143,7 @@ export default function Hub() {
           <button role="tab" aria-selected={scope === "all"} className={scope === "all" ? "on" : undefined} onClick={() => setScope("all")}>All calls<span>{co.calls.filter((c) => !c.postedByMe).length}</span></button>
         </div>
         {scope === "you" ? (
-          <p className="co-basis"><Icon name="spark" size={14} />Based on your work profile: <b>{me.field}</b>{me.skills.length > 0 && <> · {me.skills.slice(0, 3).join(", ")}</>} <Link href="/profile/work" className="co-link">Edit</Link></p>
+          me.field || me.skills.length ? <p className="co-basis"><Icon name="spark" size={14} />Based on your work profile: <b>{me.field}</b>{me.skills.length > 0 && <> · {me.skills.slice(0, 3).join(", ")}</>} <Link href="/profile/work" className="co-link">Edit</Link></p> : null
         ) : (
           <div className="co-filters" role="group" aria-label="Filter by field">
             {(["All", ...FIELDS] as const).map((f) => <button key={f} className={field === f ? "on" : undefined} aria-pressed={field === f} onClick={() => setField(f)}>{f}</button>)}
@@ -153,7 +158,10 @@ export default function Hub() {
         )}
       </section>
 
-      <section className="co-sec" id="people">
+      {!DEMO && sent && <p className="co-note-line" role="status">Your idea is on its way to {sent}. They&apos;ll see it in their chat and notifications.</p>}
+      {!DEMO && <ProjectIdeas onPropose={setProposing} />}
+
+      {DEMO && <section className="co-sec" id="people">
         <div className="co-sec-head">
           <div><h2>People to make something with</h2><p>Send one person an idea. If they say yes, you get a shared project to shape it together.</p></div>
         </div>
@@ -186,19 +194,92 @@ export default function Hub() {
             );
           })}
         </Rail>
-      </section>
+      </section>}
 
-      <section className="co-sec">
+      {DEMO && <section className="co-sec">
         <div className="co-sec-head"><div><h2>Being made right now</h2><p>Projects other people are working on in the open.</p></div></div>
         <div className="co-grid">{COLLABS.map((c) => <CollabCard key={c.id} c={c} />)}</div>
-      </section>
+      </section>}
 
-      {proposing && <ProposeSheet s={proposing} onClose={() => setProposing(null)} onSend={(input) => { co.propose(input); setSent(firstName(proposing.who)); setProposing(null); }} />}
+      {proposing && <ProposeSheet s={proposing} onClose={() => setProposing(null)} onSend={async (input) => { const who = firstName(proposing.who); if (await co.propose(input)) { setSent(who); setProposing(null); } }} />}
     </div>
   );
 }
 
-function ProposeSheet({ s, onClose, onSend }: { s: (typeof SUGGESTED)[number]; onClose: () => void; onSend: (input: { to: PersonId; title: string; idea: string; myRole: string; theirRole: string }) => void }) {
+type Suggestion = (typeof SUGGESTED)[number];
+
+/**
+ * Real builds: project ideas sent to you (say yes or pass) and the ones you sent, and proposing to anyone by
+ * their username. People suggestions come later, from work profiles.
+ */
+function ProjectIdeas({ onPropose }: { onPropose: (s: Suggestion) => void }) {
+  const co = useCollab();
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const find = async () => {
+    const name = username.trim().replace(/^@/, "");
+    if (!name) return;
+    setBusy(true); setErr("");
+    const r = await account.member(name);
+    setBusy(false);
+    if (!r.ok) return setErr(r.status === 404 ? `Nobody on Akines has the username @${name}.` : r.message);
+    if (r.data.user_id === ME) return setErr("That's you. Propose to someone else.");
+    registerPerson({ id: r.data.user_id, name: `${r.data.first_name} ${r.data.last_name}`.trim() || name, role: "", city: r.data.location, presence: "open", about: r.data.bio, photo: r.data.profile_photo });
+    setUsername("");
+    onPropose({ who: r.data.user_id as PersonId, title: "", why: "", idea: "", mine: "", theirs: "" });
+  };
+  const answer = async (id: string, a: "accept" | "decline" | "withdraw") => {
+    const ws = await co.answerProposal(id, a);
+    if (ws) router.push(`/collaborate/projects/${ws}?tab=work`);
+  };
+  const open = co.proposals.filter((p) => p.status === "sent" || p.status === "accepted");
+  return (
+    <section className="co-sec" id="people">
+      <div className="co-sec-head">
+        <div><h2>Project ideas</h2><p>Send one person an idea. If they say yes, you get a shared project to shape it together.</p></div>
+      </div>
+      <form className="co-inline-form" onSubmit={(e) => { e.preventDefault(); void find(); }}>
+        <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Their username, e.g. @amara" aria-label="Username" autoCapitalize="none" />
+        <button className="kh-btn amber sm" disabled={busy || !username.trim()}>{busy ? "Finding…" : "Propose a project"}</button>
+      </form>
+      {err && <p className="co-err" role="alert">{err}</p>}
+      {open.length > 0 ? (
+        <Rail label="Project ideas" count={open.length}>
+          {open.map((pr) => {
+            const other = pr.from ?? pr.to;
+            const incoming = !!pr.from;
+            return (
+              <article key={pr.id} className="co-pair">
+                <header>
+                  <span className="co-faces"><Avatar person={PEOPLE[ME]} size={36} /><Avatar person={PEOPLE[other]} size={36} /></span>
+                  <span className="who"><b>You &amp; {firstName(other)}</b><small>{incoming ? "Sent you an idea" : "You sent this idea"}</small></span>
+                </header>
+                <span className={`co-pair-state ${pr.status === "accepted" ? "ok" : "wait"}`}>{pr.status === "accepted" ? "Said yes · project started" : incoming ? "Waiting for your answer" : `Sent · waiting for ${firstName(other)}`}</span>
+                <h3>{pr.title}</h3>
+                <p className="why">{pr.idea}</p>
+                <dl>
+                  <div><dt>You</dt><dd>{pr.myRole}</dd></div>
+                  <div><dt>{firstName(other)}</dt><dd>{pr.theirRole}</dd></div>
+                </dl>
+                <footer>
+                  {pr.status === "accepted" && pr.projectId ? <Link href={`/collaborate/projects/${pr.projectId}`} className="co-call-go">Open the project<Icon name="more" size={14} /></Link>
+                    : incoming ? <span className="co-row"><button type="button" className="kh-btn amber sm" onClick={() => answer(pr.id, "accept")}>Say yes</button><button type="button" className="kh-btn outline sm" onClick={() => window.confirm(`Pass on ${pr.title}?`) && answer(pr.id, "decline")}>Pass</button></span>
+                    : <button type="button" className="co-link" onClick={() => window.confirm("Withdraw this idea?") && answer(pr.id, "withdraw")}>Withdraw</button>}
+                </footer>
+              </article>
+            );
+          })}
+        </Rail>
+      ) : (
+        <div className="co-empty"><h3>No project ideas yet</h3><p>Ideas people send you arrive here and in your chat with them.</p></div>
+      )}
+    </section>
+  );
+}
+
+function ProposeSheet({ s, onClose, onSend }: { s: Suggestion; onClose: () => void; onSend: (input: { to: PersonId; title: string; idea: string; myRole: string; theirRole: string }) => void }) {
   const [title, setTitle] = useState(s.title);
   const [idea, setIdea] = useState(s.idea);
   const [mine, setMine] = useState(s.mine);

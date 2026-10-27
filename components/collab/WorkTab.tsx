@@ -11,8 +11,8 @@ import { cleanUrl, linkKind, linkLook } from "@/lib/collab/proof";
 import type { Deliverable, DeliverableStatus, Project, ProofItem, WorkKind } from "@/lib/collab/types";
 import { ME, useCollab } from "@/lib/collab/useCollab";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
-import { photoToDataUrl } from "@/lib/portfolio";
-import { Drop, FileRow } from "./FileParts";
+import { storePhoto } from "@/lib/portfolio";
+import { Drop, FileRow, toProof } from "./FileParts";
 import { ago, firstName, naira } from "./parts";
 
 const nameOf = (id: PersonId) => (id === ME ? "You" : firstName(id));
@@ -300,7 +300,7 @@ function AddProof({ p, d }: { p: Project; d: Deliverable }) {
         <button type="button" className={mode === "file" ? "on" : undefined} onClick={() => setMode(mode === "file" ? null : "file")}><Icon name="document" size={15} />File</button>
         <button type="button" disabled={busy} onClick={() => photo.current?.click()}><Icon name="photo" size={15} />{busy ? "Adding…" : "Photo"}</button>
         <button type="button" className={mode === "note" ? "on" : undefined} onClick={() => setMode(mode === "note" ? null : "note")}><Icon name="edit" size={15} />Note</button>
-        <input ref={photo} type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; e.target.value = ""; if (!f) return; setBusy(true); try { add({ kind: "image", title: f.name.replace(/\.[^.]+$/, "").slice(0, 60) || "Photo", src: await photoToDataUrl(f) }); } finally { setBusy(false); } }} />
+        <input ref={photo} type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; e.target.value = ""; if (!f) return; setBusy(true); try { add({ kind: "image", title: f.name.replace(/\.[^.]+$/, "").slice(0, 60) || "Photo", src: await storePhoto(f) }); } finally { setBusy(false); } }} />
       </div>
       {mode === "link" && (
         <form className="co-proof-form" onSubmit={(e) => { e.preventDefault(); if (url) add({ kind: "link", title: title.trim() || linkLook({ url, kind: linkKind(url) }).label, url }); }}>
@@ -309,7 +309,7 @@ function AddProof({ p, d }: { p: Project; d: Deliverable }) {
           <button className="kh-btn amber sm" disabled={!url}>Add link</button>
         </form>
       )}
-      {mode === "file" && <Drop accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md,.zip,audio/*,video/mp4" label="Add a file" sub="A report, slides, a drawing, a recording. Up to 5 MB." onFiles={(fs) => { const f = fs[0]; if (f && f.size <= 5 * 1024 * 1024) add({ kind: "file", title: f.name, file: { id: `f-${f.name}-${f.size}`, name: f.name, size: f.size, type: f.type || f.name.split(".").pop() || "", kind: "sample" } }); }} />}
+      {mode === "file" && <Drop accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md,.zip,audio/*,video/mp4" label="Add a file" sub="A report, slides, a drawing, a recording. Up to 5 MB." onFiles={(fs) => { const f = fs[0]; if (f && f.size <= 5 * 1024 * 1024) add({ kind: "file", title: f.name, file: toProof(f, "sample") }); }} />}
       {mode === "note" && (
         <form className="co-proof-form" onSubmit={(e) => { e.preventDefault(); if (val.trim()) add({ kind: "note", title: title.trim() || "Note", text: val.trim() }); }}>
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title, e.g. What changed" aria-label="Note title" autoFocus />

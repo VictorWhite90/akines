@@ -1,5 +1,6 @@
 import type { PhotoKey } from "@/lib/data/images";
 import type { PersonId } from "@/lib/data/people";
+import type { Piece } from "@/lib/portfolio";
 
 /*
  * Collaboration: the journey from an open call (or a proposal to one person) to a shared workspace.
@@ -60,6 +61,8 @@ export type Application = {
   role: string;
   /** Portfolio piece ids (lib/portfolio). */
   works: string[];
+  /** The pieces themselves, as sent (real builds: the host can't look up someone else's portfolio by id). */
+  pieces?: Piece[];
   /** Links and files, for work that isn't a picture (code, writing, audio, a CV). Older saved applications have none. */
   links?: ProofLink[];
   files?: ProofFile[];
@@ -70,6 +73,8 @@ export type Application = {
   history: { stage: AppStage; at: number; note?: string }[];
   /** The conversation slot the applicant picked when shortlisted. */
   slot?: string;
+  /** The times the host offered when shortlisting (the backend keeps them; the demo uses fixed ones). */
+  slotsOffered?: string[];
   /** Host-only: private notes, tags and a quick rating. */
   notes: { at: number; text: string }[];
   tags: string[];
@@ -187,7 +192,14 @@ export type Project = {
 };
 
 /** "Propose a project" to one person, from matching (S4). Accepted, it becomes a project at Imagine. */
-export type Proposal = { id: string; to: PersonId; title: string; idea: string; myRole: string; theirRole: string; status: "sent" | "accepted" | "declined"; at: number; nextAt?: number; projectId?: string };
+export type Proposal = {
+  id: string; to: PersonId; title: string; idea: string; myRole: string; theirRole: string; status: "sent" | "accepted" | "declined" | "withdrawn"; at: number;
+  nextAt?: number; projectId?: string;
+  /** Someone else's idea for you (real builds): who sent it. Your own proposals have none. */
+  from?: PersonId;
+  /** The chat it was sent in. */
+  convoId?: string;
+};
 
 export type CollabState = {
   v: 1;

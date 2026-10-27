@@ -47,13 +47,18 @@ export default function PostCall() {
     level: f.level, fee: f.fee || "Fee", rights: f.rights, selection: f.selection, teamSize: f.teamSize, materials: MATERIALS.filter((m) => f.materials.includes(m.id)),
     timeline: f.timeline, closesInDays: 14, verified: false, postedByMe: true,
   };
-  const publish = () => {
-    const id = co.postCall({
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+  const publish = async () => {
+    setSending(true); setError("");
+    const r = await co.postCall({
       title: f.title.trim(), org: f.org.trim(), orgKind: f.orgKind, city: f.city.trim(), where: f.where, photo: f.photo, summary: f.summary.trim(),
       about: f.about.trim() || f.summary.trim(), roles: f.roles, fields: f.fields, level: f.level, fee: f.fee.trim(), rights: f.rights.trim(),
       selection: f.selection.trim(), teamSize: f.teamSize, materials: draft.materials, timeline: f.timeline, closesInDays: 14,
     });
-    router.push(`/collaborate/review/${id}?posted=1`);
+    setSending(false);
+    if (r.ok) router.push(`/collaborate/review/${r.id}?posted=1`);
+    else setError(r.message);
   };
 
   return (
@@ -154,8 +159,9 @@ export default function PostCall() {
               {step > 0 ? <button className="kh-btn outline" onClick={() => setStep(step - 1)}>Back</button> : <span />}
               {step < STEPS.length - 1
                 ? <button className="kh-btn amber" disabled={!can[step]} onClick={() => setStep(step + 1)}>Continue</button>
-                : <button className="kh-btn amber" onClick={publish}><Icon name="spark" size={16} />Publish the call</button>}
+                : <button className="kh-btn amber" disabled={sending} onClick={publish}><Icon name="spark" size={16} />{sending ? "Publishing…" : "Publish the call"}</button>}
             </div>
+            {error && <p className="co-err" role="alert">{error}</p>}
           </div>
         </div>
         <aside className="co-preview" aria-label="Preview">

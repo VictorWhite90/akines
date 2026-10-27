@@ -13,8 +13,8 @@ import type { Level, WorkProfile } from "@/lib/workprofile";
  * Demo builds keep using the in-browser stores in lib/workprofile.ts and lib/portfolio.ts instead.
  */
 
-type ApiMedia = { id: number; url: string; name: string; size: number | null; type: string | null };
-type ApiProject = {
+export type ApiMedia = { id: number; url: string; name: string; size: number | null; type: string | null };
+export type ApiProject = {
   id: string; title: string; kind: string; role: string; year: number; detail: string; story: string; skills: string[];
   links: ProofLink[]; position: number; created_at: string; photos: ApiMedia[]; files: ApiMedia[];
 };
@@ -32,7 +32,7 @@ const WHERE_FROM_API: Record<string, WorkProfile["where"]> = { in_person: "In pe
 /** Uploaded photos are shown by URL; saving a project needs their ids back. */
 const photoIds = new Map<string, number>();
 
-const fileOut = (m: ApiMedia, kind: ProofFile["kind"]): ProofFile => ({ id: String(m.id), name: m.name, size: m.size ?? 0, type: m.type ?? "", kind, url: m.url });
+export const fileOut = (m: ApiMedia, kind: ProofFile["kind"]): ProofFile => ({ id: String(m.id), name: m.name, size: m.size ?? 0, type: m.type ?? "", kind, url: m.url });
 
 function profileFromApi(a: ApiProfile): WorkProfile {
   return {
@@ -63,7 +63,7 @@ function profileToApi(p: Partial<WorkProfile>) {
   return out;
 }
 
-function pieceFromApi(a: ApiProject): Piece {
+export function pieceFromApi(a: ApiProject): Piece {
   const [cover, ...rest] = a.photos;
   for (const ph of a.photos) photoIds.set(ph.url, ph.id);
   return {
@@ -83,6 +83,9 @@ function pieceToApi(p: Partial<Piece>) {
   if ("files" in p) out.file_ids = (p.files ?? []).map((f) => Number(f.id)).filter((n) => Number.isFinite(n));
   return out;
 }
+
+/** The stored id of a photo uploaded this session (attaching it to something needs the id, the screens keep the URL). */
+export const mediaIdFor = (url: string) => photoIds.get(url);
 
 /** Uploads a photo from the device (shrunk first) and returns its URL. */
 export async function uploadWorkPhoto(file: File): Promise<string> {

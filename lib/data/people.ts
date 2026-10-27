@@ -19,9 +19,11 @@ export type Person = {
   presence: Presence;
   note?: string;
   about: string;
+  /** A real member's photo URL (members from the backend have no catalogue face). */
+  photo?: string | null;
 };
 
-export const PEOPLE = {
+const SAMPLE = {
   amara: { id: "amara", name: "Amara Okafor", role: "Product designer", city: "Lagos", face: "amaraFace", presence: "open", about: "I design apps by day and host a Sunday supper for people new to the city." },
   ayo: { id: "ayo", name: "Ayo Balogun", role: "Nurse", city: "Ibadan", face: "ayoFace", presence: "studio", note: "On shift till 8", about: "Night shifts, early mornings, and a soft spot for people who need someone to talk to." },
   kwame: { id: "kwame", name: "Kwame Mensah", role: "Software engineer", city: "Accra", face: "kwameFace", presence: "studio", note: "Shipping a release", about: "Building payments tools and learning to slow down." },
@@ -36,7 +38,20 @@ export const PEOPLE = {
   chidi: { id: "chidi", name: "Chidi Eze", role: "University student", city: "Enugu", presence: "open", about: "Final-year engineering student looking for mentors and good study groups." },
 } satisfies Record<string, Person>;
 
-export type PersonId = keyof typeof PEOPLE;
+/**
+ * Real members from the backend, keyed by user id. Collaboration screens look people up by id, so the API layer
+ * registers everyone it sees here and PEOPLE[id] then works for sample and real members alike.
+ */
+const REAL: Record<string, Person> = {};
+export function registerPerson(p: Person) { REAL[p.id] = { ...REAL[p.id], ...p }; }
+const unknown = (id: string): Person => ({ id, name: "A member", role: "", city: "", presence: "open", about: "" });
+
+export const PEOPLE = new Proxy(SAMPLE, {
+  get: (t, k) => (typeof k !== "string" || k in t ? t[k as keyof typeof t] : REAL[k] ?? unknown(k)),
+}) as typeof SAMPLE;
+
+/** Sample ids are typed; a real member's id is a string from the API, cast at that boundary. */
+export type PersonId = keyof typeof SAMPLE;
 export const ME = PEOPLE.amara;
 export const person = (id: PersonId): Person => PEOPLE[id];
-export const allPeople = Object.values(PEOPLE) as Person[];
+export const allPeople = Object.values(SAMPLE) as Person[];

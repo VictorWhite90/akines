@@ -81,7 +81,7 @@ function AppRow({ a }: { a: Application }) {
           <Avatar person={PEOPLE[call.host]} size={28} />
           <div style={{ display: "grid", gap: 10 }}>
             <span><b>{host} shortlisted you.</b> Pick a time for a 20-minute conversation.</span>
-            <div className="co-slots">{conversationSlots().map((s) => <button key={s} onClick={() => co.pickSlot(a.id, s)}>{s}</button>)}</div>
+            <div className="co-slots">{(a.slotsOffered?.length ? a.slotsOffered : conversationSlots()).map((s) => <button key={s} onClick={() => co.pickSlot(a.id, s)}>{s}</button>)}</div>
           </div>
         </div>
       ) : a.stage === "offer" && a.offer ? (
@@ -94,7 +94,7 @@ function AppRow({ a }: { a: Application }) {
           </dl>
           <p className="co-muted" style={{ fontSize: 13.5, lineHeight: 1.55 }}>Accepting opens the project workspace. The first step there is agreeing the terms together: credit, ownership and how money is shared.</p>
           <div className="co-row">
-            <button className="kh-btn amber" onClick={() => router.push(`/collaborate/projects/${co.acceptOffer(a.id)}?tab=agree&joined=1`)}>Accept and open the workspace</button>
+            <button className="kh-btn amber" onClick={async () => { const id = await co.acceptOffer(a.id); if (id) router.push(`/collaborate/projects/${id}?tab=agree&joined=1`); }}>Accept and open the workspace</button>
             <button className="kh-btn outline" onClick={() => window.confirm(`Turn down ${host}'s offer?`) && co.declineOffer(a.id)}>Decline</button>
           </div>
         </div>

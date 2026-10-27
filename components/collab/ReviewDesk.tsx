@@ -164,7 +164,7 @@ function ApplicantDrawer({ a, onClose }: { a: Application; onClose: () => void }
     return () => window.removeEventListener("keydown", k);
   }, [onClose]);
 
-  const works = a.applicant === ME ? a.works.map((w) => pf.get(w)).filter((w) => !!w) : [];
+  const works = a.pieces ?? (a.applicant === ME ? a.works.map((w) => pf.get(w)).filter((w) => !!w) : []);
   const links = a.links ?? [];
   const files = a.files ?? [];
   const cv = files.find((f) => f.kind === "cv");

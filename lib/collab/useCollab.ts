@@ -6,14 +6,16 @@ import type { Room } from "@/lib/data/community";
 import type { Convo, KMsg } from "@/lib/data/kinmessage";
 import { CONVOS } from "@/lib/data/kinmessage";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
+import { useRemoteCollab } from "@/lib/api/collab";
 import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
 import { sampleProof } from "./proof";
 import { seedState } from "./seed";
 import { KITS, kindForFields } from "./kits";
+import { ME } from "./me";
 import type { AppStage, Application, CollabCall, CollabState, Charter, Checkin, Deliverable, JourneyStage, ProofItem, Project, Proposal, StudioItem, Task, Tool, WorkKind } from "./types";
 
-export const ME: PersonId = "amara";
+export { ME } from "./me";
 // v4: the clinic sample gained a bigger team, so older saved demos start fresh.
 const KEY = "co:v4";
 const DIRECT_IDS = new Set(CONVOS.filter((c) => c.kind === "direct").map((c) => c.id));
@@ -60,7 +62,7 @@ function newCharter(members: PersonId[], signed: PersonId[] = []): Charter {
  * The collaboration store: calls, applications, offers, proposals and project workspaces, kept in the browser
  * (sample data). In the demo, the other people answer a few seconds after the member acts.
  */
-export function useCollab({ engine = false }: { engine?: boolean } = {}) {
+function useLocalCollab({ engine = false }: { engine?: boolean } = {}) {
   const [state, setState, ready] = useLocal<CollabState>(KEY, seedState());
   const [convos, setConvos] = useLocal<Convo[]>("km:convos", []);
   const [msgs, setMsgs] = useLocal<Record<string, KMsg[]>>("km:msgs", {});
@@ -205,10 +207,10 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
   }, [ready, engine, state, setState, ensureConvo, say]);
 
   // ── Applicant ──
-  const apply = (input: Pick<Application, "callId" | "role" | "works" | "links" | "files" | "statement" | "availability" | "materials">) => {
+  const apply = async (input: Pick<Application, "callId" | "role" | "works" | "links" | "files" | "statement" | "availability" | "materials">) => {
     const id = newId("a");
     update((s) => ({ ...s, applications: [{ ...input, id, applicant: ME, stage: "submitted", history: [{ stage: "submitted", at: Date.now() }], notes: [], tags: [], nextAt: Date.now() + 6 * SEC }, ...s.applications] }));
-    return id;
+    return { ok: true as const, id } as { ok: true; id: string } | { ok: false; message: string };
   };
   const pickSlot = (appId: string, slot: string) => update((s) => {
     const a = s.applications.find((x) => x.id === appId)!;
@@ -221,7 +223,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
     return s;
   });
   /** Accepting an offer opens the project workspace (S1: Agree comes first). */
-  const acceptOffer = (appId: string) => {
+  const acceptOffer = async (appId: string) => {
     let projectId = "";
     let created: Project | null = null;
     update((s) => {
@@ -257,7 +259,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
   });
 
   // ── Host ──
-  const postCall = (call: Omit<CollabCall, "id" | "host" | "postedByMe" | "verified">) => {
+  const postCall = async (call: Omit<CollabCall, "id" | "host" | "postedByMe" | "verified">) => {
     const id = `${call.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40)}-${Date.now().toString(36)}`;
     const now = Date.now();
     const arrivals: [PersonId, number, string][] = [["chidi", 8, "I'd love to help and learn on a real project."], ["wanjiru", 20, "This is close to my own work. I have ideas already."], ["kwame", 40, "I can give two evenings a week and the weekend."]];
@@ -269,7 +271,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
         materials: { works: true, why: true, availability: true }, stage: "submitted", history: [{ stage: "submitted", at: now + sec * SEC }], notes: [], tags: [], arrivesAt: now + sec * SEC,
       })), ...s.applications],
     }));
-    return id;
+    return { ok: true as const, id } as { ok: true; id: string } | { ok: false; message: string };
   };
   const setAppStage = (appId: string, stage: AppStage, extra: { feedback?: string; note?: string } = {}) => update((s) => {
     const a = s.applications.find((x) => x.id === appId)!;
@@ -292,10 +294,16 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
 
   // ── Proposals ──
   /** A proposal is sent as a project invitation in your chat with that person; their answer arrives there too. */
-  const propose = (input: Pick<Proposal, "to" | "title" | "idea" | "myRole" | "theirRole">) => {
+  const propose = async (input: Pick<Proposal, "to" | "title" | "idea" | "myRole" | "theirRole">) => {
     ensureDirect(input.to);
     say(input.to, { id: newId("m"), from: ME, at: clock(), kind: "invite", invite: "project", title: input.title, detail: `${input.idea} You as ${input.myRole.toLowerCase()}, ${firstNameOf(input.to)} as ${input.theirRole.toLowerCase()}.` });
     update((s) => ({ ...s, proposals: [{ ...input, id: newId("pr"), status: "sent", at: Date.now(), nextAt: Date.now() + 6 * SEC }, ...s.proposals] }));
+    return true;
+  };
+  /** In the demo nobody sends you ideas, so there's nothing to answer; withdrawing your own still works. */
+  const answerProposal = async (proposalId: string, answer: "accept" | "decline" | "withdraw") => {
+    if (answer === "withdraw") update((s) => ({ ...s, proposals: s.proposals.map((p) => (p.id === proposalId ? { ...p, status: "withdrawn", nextAt: undefined } : p)) }));
+    return "";
   };
 
   // ── Project workspace ──
@@ -419,10 +427,14 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
     call: (id: string) => state.calls.find((c) => c.id === id),
     appFor: (callId: string) => visibleApps.find((a) => a.callId === callId && a.applicant === ME && a.stage !== "withdrawn"),
     toggleSave: (callId: string) => update((s) => ({ ...s, saved: s.saved.includes(callId) ? s.saved.filter((x) => x !== callId) : [...s.saved, callId] })),
-    apply, pickSlot, withdraw, acceptOffer, declineOffer, postCall, setAppStage, addNote, toggleTag, rate, propose, project, thread, ensureConvo,
+    apply, pickSlot, withdraw, acceptOffer, declineOffer, postCall, setAppStage, addNote, toggleTag, rate, propose, answerProposal, project, thread, ensureConvo,
+    notice: undefined as string | undefined, clearNotice: () => {},
     reset: () => setState(seedState()),
   };
 }
+
+/** The demo keeps everything in the browser with sample people; a real build saves to the backend (lib/api/collab.ts). */
+export const useCollab: typeof useLocalCollab = DEMO ? useLocalCollab : useRemoteCollab;
 
 /** A rough project budget from a call's fee line, e.g. "₦600,000 lead · ₦250,000 per teammate" → 600k + 250k × the rest. */
 function feeTotal(fee: string, team: number) {
