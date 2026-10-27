@@ -49,23 +49,36 @@ export function AppTrack({ stage, side = "applicant" }: { stage: AppStage; side?
   );
 }
 
+/** "₦600,000 lead · ₦250,000 per teammate" → { amount: "₦600,000", note: "lead" }; text without a ₦ amount stays as it is. */
+export function feeParts(fee: string) {
+  const first = fee.split(" · ")[0];
+  const m = first.match(/₦\s?[\d.,]+\s?(m|k)?/i);
+  if (!m) return { amount: first, note: "" };
+  const note = first.replace(m[0], "").replace(/^[\s,:-]+|[\s,:-]+$/g, "");
+  return { amount: m[0].replace(/\s/g, ""), note };
+}
+
 export function CallCard({ call, applied }: { call: CollabCall; applied?: Application }) {
+  const fee = feeParts(call.fee);
+  const more = call.roles.length - 2;
+  const tone = !applied ? "" : applied.stage === "joined" ? "ok" : applied.stage === "not-selected" || applied.stage === "withdrawn" ? "muted" : "info";
   return (
     <Link href={`/collaborate/calls/${call.id}`} className="co-call">
       <span className="co-call-img">
-        <Pic name={call.photo} sizes="(max-width: 760px) 100vw, 380px" />
-        <span className="co-chip">{call.fields[0]}</span>
-        <span className="co-chip co-days"><Icon name="time" size={13} />{call.closesInDays} days left</span>
+        <Pic name={call.photo} sizes="(max-width: 760px) 85vw, 340px" />
+        <span className="co-call-tag">{call.fields[0]}</span>
+        <span className={`co-call-days${call.closesInDays <= 7 ? " soon" : ""}`}><Icon name="time" size={12} />{call.closesInDays} days left</span>
+        {applied ? <span className={`co-call-status ${tone}`}>{STAGE_LABEL[applied.stage].applicant}</span> : call.postedByMe ? <span className="co-call-status host">You host this</span> : null}
       </span>
       <span className="co-call-body">
-        <span className="co-org"><Avatar person={PEOPLE[call.host]} size={22} /><b>{call.org}</b>{call.verified && <Icon name="verified" size={14} />}<span>· {call.city}</span></span>
+        <span className="co-org"><Avatar person={PEOPLE[call.host]} size={22} /><b>{call.org}</b>{call.verified && <Icon name="verified" size={13} />}<span>· {call.city}</span></span>
         <h3>{call.title}</h3>
         <p>{call.summary}</p>
-        <span className="co-row">{call.roles.slice(0, 3).map((r) => <span key={r} className="co-chip blue">{r}</span>)}</span>
-        <span className="co-call-foot">
-          <b>{call.fee.split(" · ")[0]}</b>
-          {applied ? <span className="co-chip ok">{STAGE_LABEL[applied.stage].applicant}</span> : call.postedByMe ? <span className="co-chip warn">You host this</span> : <span className="co-muted">{call.where}</span>}
-        </span>
+        <span className="co-call-roles"><Icon name="team" size={13} /><span>{call.roles.slice(0, 2).join(" · ")}{more > 0 ? ` · +${more}` : ""}</span></span>
+      </span>
+      <span className="co-call-foot">
+        <span className="co-call-fee"><b>{fee.amount}</b>{fee.note && <small>{fee.note}</small>}</span>
+        <span className="co-call-go">{applied || call.postedByMe ? "View" : "Apply"}<Icon name="more" size={14} /></span>
       </span>
     </Link>
   );

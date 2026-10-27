@@ -88,18 +88,36 @@ html[data-theme="dark"] .co .co-chip.warn { color: #f7c06d; }
 
 /* Call cards */
 .co-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-.co-call { display: flex; flex-direction: column; overflow: hidden; border-radius: 18px; border: .5px solid var(--k-border); background: var(--k-subtle); color: var(--k-ink) !important; text-decoration: none; transition: transform .15s, border-color .15s; }
-.co-call:hover { transform: translateY(-2px); border-color: var(--co-line); }
-.co-call-img { position: relative; height: 168px; overflow: hidden; background: var(--k-muted); }
-.co-call-img .co-chip { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,.94); color: #181818; }
-.co-call-img .co-days { position: absolute; top: 12px; right: 12px; background: rgba(20,20,30,.72); color: #fff; backdrop-filter: blur(6px); }
-.co-call-body { display: flex; flex-direction: column; gap: 10px; padding: 16px; flex: 1; }
-.co-org { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--k-ink-3); }
-.co-org b { color: var(--k-ink); font-weight: 600; }
-.co-call-body h3 { font: 600 17px/1.35 var(--font-manrope), sans-serif; }
+.co-call { display: flex; flex-direction: column; height: 100%; padding: 8px; border-radius: 22px; border: .5px solid var(--k-border); background: var(--k-surface); color: var(--k-ink) !important; text-decoration: none; box-shadow: 0 1px 2px rgba(15,23,42,.04); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.co-call:hover { transform: translateY(-3px); border-color: var(--k-border-strong); box-shadow: 0 18px 40px -22px rgba(15,23,42,.35); }
+.co-call-img { position: relative; display: block; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden; background: var(--k-muted); }
+.co-call-img img { transition: transform .5s cubic-bezier(.2,.8,.2,1); }
+.co-call:hover .co-call-img img { transform: scale(1.04); }
+.co-call-tag, .co-call-days, .co-call-status { position: absolute; display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 10px; border-radius: 999px; font: 700 11.5px var(--font-manrope), sans-serif; white-space: nowrap; }
+.co-call-tag { top: 10px; left: 10px; background: rgba(255,255,255,.95); color: #1d1d1f; }
+.co-call-days { top: 10px; right: 10px; background: rgba(17,17,24,.78); color: #fff; }
+.co-call-days.soon { background: #f4a63a; color: #2a1800; }
+.co-call-status { left: 10px; bottom: 10px; background: rgba(255,255,255,.95); color: #1d1d1f; }
+.co-call-status.ok { background: #e7f7ee; color: #157a43; }
+.co-call-status.info { background: #e9eeff; color: #2547d0; }
+.co-call-status.muted { background: rgba(255,255,255,.92); color: #555; }
+.co-call-status.host { background: #fff1db; color: #8a5208; }
+.co-call-body { display: flex; flex-direction: column; gap: 8px; padding: 14px 10px 10px; flex: 1; }
+.co-org { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--k-ink-3); min-width: 0; }
+.co-org b { color: var(--k-ink-2); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.co-org svg { color: var(--co); flex: none; }
+.co-org > span:last-child { white-space: nowrap; }
+.co-call-body h3 { font: 700 17px/1.32 var(--font-manrope), sans-serif; letter-spacing: -.1px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .co-call-body p { font-size: 13.5px; line-height: 1.5; color: var(--k-ink-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.co-call-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-top: 12px; border-top: .5px solid var(--k-border); font-size: 13px; }
-.co-call-foot b { font-weight: 600; }
+.co-call-roles { display: flex; align-items: center; gap: 6px; margin-top: 2px; font-size: 12.5px; font-weight: 600; color: var(--k-ink-2); min-width: 0; }
+.co-call-roles svg { flex: none; color: var(--k-ink-3); }
+.co-call-roles span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.co-call-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 10px 6px; border-top: .5px solid var(--k-border); }
+.co-call-fee { display: grid; gap: 1px; min-width: 0; }
+.co-call-fee b { font: 800 17px/1.2 var(--font-manrope), sans-serif; letter-spacing: -.2px; }
+.co-call-fee small { font-size: 12px; color: var(--k-ink-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.co-call-go { flex: none; display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 14px; border-radius: 999px; background: var(--k-ink); color: var(--k-surface); font: 700 13px var(--font-manrope), sans-serif; transition: gap .2s ease; }
+.co-call:hover .co-call-go { gap: 8px; }
 
 /* Project cards */
 .co-projects { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
