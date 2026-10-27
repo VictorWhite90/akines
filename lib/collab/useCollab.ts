@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import { useMyRooms } from "@/components/rooms/MyRooms";
 import type { Room } from "@/lib/data/community";
 import type { Convo, KMsg } from "@/lib/data/kinmessage";
+import { CONVOS } from "@/lib/data/kinmessage";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
@@ -15,6 +16,8 @@ import type { AppStage, Application, CollabCall, CollabState, Charter, Checkin, 
 export const ME: PersonId = "amara";
 // v4: the clinic sample gained a bigger team, so older saved demos start fresh.
 const KEY = "co:v4";
+const DIRECT_IDS = new Set(CONVOS.filter((c) => c.kind === "direct").map((c) => c.id));
+const firstNameOf = (id: PersonId) => PEOPLE[id].name.split(" ")[0];
 const SEC = 1000;
 const first = (id: PersonId) => PEOPLE[id].name.split(" ")[0];
 const clock = () => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -76,6 +79,13 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
     }, ...cur]));
   }, [setConvos]);
 
+  /** The chat with one person in KinMessage, made if there isn't one yet. */
+  const ensureDirect = useCallback((who: PersonId) => setConvos((cur) => (cur.some((c) => c.id === who) || DIRECT_IDS.has(who) ? cur : [{
+    id: who, kind: "direct", name: PEOPLE[who].name, members: [who], intent: "create", last: clock(),
+    health: { label: "Growing", value: 10, exchanges: 0, shared: 0, reciprocity: "Just starting", lastMet: "Not yet" }, memories: [], msgs: [],
+  }, ...cur])), [setConvos]);
+  const say = useCallback((convo: string, m: KMsg) => setMsgs((cur) => ({ ...cur, [convo]: [...(cur[convo] ?? []), m] })), [setMsgs]);
+
   // ── The other side, in the demo: a few seconds after the member acts ──
   // Runs only in the page's top-level component (engine: true), so each reply happens once.
   useEffect(() => {
@@ -85,6 +95,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
       let changed = false;
       const s = structuredClone(state);
       const newProjects: { p: Project; welcome: { from: PersonId; text: string }[] }[] = [];
+      const replies: { to: PersonId; text: string; title: string; href: string }[] = [];
 
       for (const a of s.applications) {
         const call = s.calls.find((c) => c.id === a.callId);
@@ -149,6 +160,7 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
         s.projects.unshift(p);
         newProjects.push({ p, welcome: [{ from: pr.to, text: `Yes! Let's make ${pr.title} happen. I've added a note to our studio.` }] });
         bell("collab_update", `${PEOPLE[pr.to].name} said yes to ${pr.title}. Your idea canvas is open.`, `/collaborate/projects/${p.id}?tab=work`);
+        replies.push({ to: pr.to, text: `Yes! Let's make ${pr.title}. I've opened our project.`, title: pr.title, href: `/collaborate/projects/${p.id}` });
       }
 
       // Deliverables: the approver answers what the member sent for review; teammates send back what was asked.
@@ -183,10 +195,14 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
       if (changed) {
         setState(s);
         for (const n of newProjects) ensureConvo(n.p, n.welcome);
+        for (const r of replies) {
+          say(r.to, { id: newId("m"), from: r.to, at: clock(), kind: "text", text: r.text });
+          say(r.to, { id: newId("m"), from: r.to, at: clock(), kind: "invite", invite: "project", title: r.title, detail: "Our shared project is ready: shape the idea, then agree the terms.", href: r.href });
+        }
       }
     }, SEC);
     return () => clearInterval(t);
-  }, [ready, engine, state, setState, ensureConvo]);
+  }, [ready, engine, state, setState, ensureConvo, say]);
 
   // ── Applicant ──
   const apply = (input: Pick<Application, "callId" | "role" | "works" | "links" | "files" | "statement" | "availability" | "materials">) => {
@@ -275,7 +291,12 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
   const rate = (appId: string, rating: number) => update((s) => { s.applications.find((x) => x.id === appId)!.rating = rating; return s; });
 
   // ── Proposals ──
-  const propose = (input: Pick<Proposal, "to" | "title" | "idea" | "myRole" | "theirRole">) => update((s) => ({ ...s, proposals: [{ ...input, id: newId("pr"), status: "sent", at: Date.now(), nextAt: Date.now() + 6 * SEC }, ...s.proposals] }));
+  /** A proposal is sent as a project invitation in your chat with that person; their answer arrives there too. */
+  const propose = (input: Pick<Proposal, "to" | "title" | "idea" | "myRole" | "theirRole">) => {
+    ensureDirect(input.to);
+    say(input.to, { id: newId("m"), from: ME, at: clock(), kind: "invite", invite: "project", title: input.title, detail: `${input.idea} You as ${input.myRole.toLowerCase()}, ${firstNameOf(input.to)} as ${input.theirRole.toLowerCase()}.` });
+    update((s) => ({ ...s, proposals: [{ ...input, id: newId("pr"), status: "sent", at: Date.now(), nextAt: Date.now() + 6 * SEC }, ...s.proposals] }));
+  };
 
   // ── Project workspace ──
   const editProject = (id: string, fn: (p: Project) => void) => update((s) => { const p = s.projects.find((x) => x.id === id); if (p) fn(p); return s; });

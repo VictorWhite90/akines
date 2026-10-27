@@ -111,20 +111,19 @@ export default function Hub() {
         <figure className="co-hero-photo"><Pic name="teamWork" sizes="(max-width: 760px) 100vw, 50vw" priority position="50% 30%" /></figure>
       </section>
 
-      <ol className="co-how" aria-label="How collaboration works" style={{ margin: 0, padding: 0 }}>
-        <li><b>Apply or propose</b><span>Answer a call with your work and a few honest lines, or invite one person to make something with you.</span></li>
-        <li><b>Hear back, always</b><span>The host reviews, shortlists and talks to you. Every applicant hears back, whatever the outcome.</span></li>
-        <li><b>Agree first</b><span>Roles, credit, ownership and money are written down and signed before work starts.</span></li>
-        <li><b>Make it together</b><span>A shared workspace with a plan, a studio, a group chat and a live room, then present and share what it earns.</span></li>
+      <ol className="co-steps-line" aria-label="How collaboration works">
+        {([["Apply or propose", "Answer a call, or send one person an idea"], ["Hear back", "Every applicant gets an answer"], ["Agree first", "Credit, ownership and money, signed"], ["Make it together", "A shared workspace for the team"]] as const).map(([t, d], i) => (
+          <li key={t}><span className="n">{i + 1}</span><span className="t"><b>{t}</b><small>{d}</small></span></li>
+        ))}
       </ol>
 
       <section className="co-sec" id="projects">
         <div className="co-sec-head">
-          <div><h2>Your projects</h2><p>Workspaces you&apos;re part of.</p></div>
+          <div><h2>Your projects</h2><p>Workspaces you&apos;re part of, newest first.</p></div>
           <Link href="/collaborate/applications" className="co-link">My applications →</Link>
         </div>
         {co.projects.length ? (
-          <div className="co-projects">{co.projects.map((p) => <ProjectCard key={p.id} p={p} me={ME} />)}</div>
+          <Rail label="Your projects" count={co.projects.length}>{co.projects.map((p) => <ProjectCard key={p.id} p={p} me={ME} />)}</Rail>
         ) : (
           <div className="co-empty"><h3>No projects yet</h3><p>When a host accepts you, or someone says yes to your proposal, the project&apos;s workspace appears here.</p></div>
         )}

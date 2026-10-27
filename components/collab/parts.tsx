@@ -105,17 +105,17 @@ export function nextStep(p: Project, me: PersonId) {
 }
 
 export function ProjectCard({ p, me }: { p: Project; me: PersonId }) {
+  const ds = p.deliverables ?? [];
+  const done = ds.filter((d) => d.status === "approved").length;
+  const waiting = ds.filter((d) => d.approver === me && d.status === "review").length;
   return (
     <Link href={`/collaborate/projects/${p.id}`} className="co-proj">
-      <Thumb photo={p.photo} className="co-proj-img" sizes="90px" />
-      <span style={{ display: "grid", gap: 8, minWidth: 0 }}>
-        <span className="co-row" style={{ justifyContent: "space-between" }}>
-          <span className="co-chip blue">{JOURNEY[p.stage]}</span>
-          <Faces ids={p.members.map((m) => m.id)} size={24} />
-        </span>
+      <span className="co-proj-img"><Pic name={p.photo} sizes="(max-width: 760px) 80vw, 320px" />{waiting > 0 && <span className="co-proj-badge">{waiting} waiting for you</span>}</span>
+      <span className="co-proj-body">
+        <span className="co-proj-top"><span className="co-proj-stage">{JOURNEY[p.stage]}</span><Faces ids={p.members.map((m) => m.id)} size={22} max={4} /></span>
         <h3>{p.title}</h3>
-        <JourneyBar stage={p.stage} labels={false} />
         <span className="co-next">{nextStep(p, me)}</span>
+        {ds.length > 0 && <span className="co-proj-progress"><span><i style={{ width: `${(done / ds.length) * 100}%` }} /></span><small>{done} of {ds.length} done</small></span>}
       </span>
     </Link>
   );

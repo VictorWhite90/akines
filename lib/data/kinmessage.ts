@@ -22,7 +22,7 @@ export type KMsg =
   | { id: string; from: PersonId; at: string; kind: "voice"; length: string; text?: string }
   | { id: string; from: PersonId; at: string; kind: "photo"; photo: PhotoKey; text?: string }
   | { id: string; from: PersonId; at: string; kind: "poll"; question: string; options: string[]; votes: number[] }
-  | { id: string; from: PersonId; at: string; kind: "invite"; invite: "meetup" | "banter" | "game"; title: string; detail: string; href?: string }
+  | { id: string; from: PersonId; at: string; kind: "invite"; invite: "meetup" | "banter" | "game" | "project"; title: string; detail: string; href?: string }
   | { id: string; from: "ai"; at: string; kind: "spark"; title: string; body: string; action: "collab" | "circle" };
 
 export type Convo = {

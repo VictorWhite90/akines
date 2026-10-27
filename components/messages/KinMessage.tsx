@@ -317,12 +317,14 @@ export default function KinMessage({ initial }: { initial?: string }) {
                   )}
                   {m.kind === "invite" && (
                     <div className={`km-invite i-${m.invite}`}>
-                      <span className="km-invite-ic"><Icon name={m.invite === "meetup" ? "event" : m.invite === "banter" ? "banter" : "play"} size={16} /></span>
+                      <span className="km-invite-ic"><Icon name={m.invite === "meetup" ? "event" : m.invite === "banter" ? "banter" : m.invite === "project" ? "collaborate" : "play"} size={16} /></span>
                       <div>
-                        <small>{m.invite === "meetup" ? "Meetup" : m.invite === "banter" ? "Banter" : "Play Together"} invitation</small>
+                        <small>{m.invite === "meetup" ? "Meetup invitation" : m.invite === "banter" ? "Banter invitation" : m.invite === "project" ? "Project idea" : "Play Together invitation"}</small>
                         <b>{m.title}</b>
                         <p>{m.detail}</p>
-                        {mine ? (
+                        {m.invite === "project" && m.href ? (
+                          <em className="yes"><Link href={m.href}>Open the project →</Link></em>
+                        ) : mine ? (
                           <em>Waiting for a reply</em>
                         ) : accepted.includes(m.id) ? (
                           <em className="yes">✓ You&apos;re in{m.href && <> · <Link href={m.href}>Open</Link></>}</em>

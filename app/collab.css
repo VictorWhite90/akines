@@ -1192,3 +1192,57 @@ html[data-theme="dark"] .co-pair-state.ok { background: color-mix(in srgb, #22c5
 .co-pair footer .co-call-go { border: 0; cursor: pointer; text-decoration: none; }
 .co-pair footer .co-muted { margin-right: auto; }
 @media (max-width: 760px) { .co .co-sec-head h2 { font-size: 20px; } }
+
+/* =========================================================
+   Collaborate hub, refreshed: one type family, lighter weights,
+   rows that scroll sideways, no grid of boxes
+   ========================================================= */
+.co { --font-manrope: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; letter-spacing: 0; gap: 36px; }
+.co .co-sec-head h2 { font-weight: 650; font-size: 21px; letter-spacing: -.2px; }
+.co .co-sec-head p { font-size: 14px; color: var(--k-ink-3); }
+.co-call-body h3, .co-pair h3 { font-weight: 600; }
+.co-call-fee b { font-weight: 700; }
+.app .content .co-hero h1 { font-weight: 700; }
+
+/* How it works: one quiet line of four steps */
+.co-steps-line { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: -8px 0 0; padding: 0; list-style: none; position: relative; }
+.co-steps-line li { position: relative; display: flex; gap: 10px; align-items: flex-start; padding-right: 14px; }
+.co-steps-line li:not(:last-child)::after { content: ""; position: absolute; left: 32px; right: 8px; top: 12px; height: 1px; background: var(--k-border-strong); }
+.co-steps-line .n { position: relative; z-index: 1; flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--k-surface); border: 1px solid var(--k-border-strong); color: var(--k-ink-2); font-size: 12px; font-weight: 600; box-shadow: 0 0 0 4px var(--ak-surface-default, #fff); }
+.co-steps-line .t { display: grid; gap: 2px; padding-top: 30px; margin-left: -34px; min-width: 0; }
+.co-steps-line b { font-size: 14px; font-weight: 600; }
+.co-steps-line small { font-size: 12.5px; line-height: 1.4; color: var(--k-ink-3); }
+
+/* Project cards in a row */
+.co-rail .co-proj { display: flex; flex-direction: column; gap: 0; height: 100%; padding: 8px; border-radius: 22px; background: var(--k-surface); }
+.co-proj-img { position: relative; display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: var(--k-muted); }
+.co-proj-badge { position: absolute; left: 10px; bottom: 10px; height: 24px; padding: 0 9px; border-radius: 999px; background: #2547d0; color: #fff; font-size: 11.5px; font-weight: 600; display: inline-flex; align-items: center; }
+.co-proj-body { display: flex; flex-direction: column; gap: 6px; padding: 12px 8px 6px; flex: 1; }
+.co-proj-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.co-proj-stage { font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--co); }
+.co-rail .co-proj h3 { font-size: 16px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.co-rail .co-proj .co-next { font-size: 13px; line-height: 1.45; color: var(--k-ink-3); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.co-proj-progress { margin-top: auto; padding-top: 8px; display: flex; align-items: center; gap: 8px; }
+.co-proj-progress > span { flex: 1; height: 4px; border-radius: 4px; background: var(--k-muted); overflow: hidden; }
+.co-proj-progress i { display: block; height: 100%; background: #22c55e; border-radius: inherit; }
+.co-proj-progress small { flex: none; font-size: 11.5px; color: var(--k-ink-3); }
+
+@media (max-width: 760px) {
+  .co { gap: 28px; }
+  /* Steps: a horizontal strip of short chips */
+  .co-steps-line { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin: -6px -16px 0; padding: 0 16px; }
+  .co-steps-line::-webkit-scrollbar { display: none; }
+  .co-steps-line li { flex: none; align-items: center; gap: 8px; padding: 8px 12px 8px 8px; border-radius: 999px; background: var(--k-subtle); border: .5px solid var(--k-border); }
+  .co-steps-line li:not(:last-child)::after { display: none; }
+  .co-steps-line .n { width: 22px; height: 22px; box-shadow: none; }
+  .co-steps-line .t { padding: 0; margin: 0; }
+  .co-steps-line b { font-size: 13px; white-space: nowrap; }
+  .co-steps-line small { display: none; }
+  /* Stats in the banner: one line of numbers */
+  .co-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid rgba(255,255,255,.14); padding-top: 14px; }
+  .co-stat { padding: 0 8px; border: 0; border-radius: 0; background: none; }
+  .co-stat + .co-stat { border-left: 1px solid rgba(255,255,255,.14); }
+  .co-stat b { font-size: 22px; }
+  .co-stat span { font-size: 11.5px; line-height: 1.3; }
+  .co-hero-acts .kh-btn { flex: 1; justify-content: center; }
+}
