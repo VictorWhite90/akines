@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Sheet from "@/components/circles/community/Sheet";
 import { CollabCard } from "@/components/home/cards";
 import Pic from "@/components/home/Pic";
@@ -37,6 +37,32 @@ function Rotator({ words }: { words: string[] }) {
       {prev !== null && <span key={`o${prev}-${i}`} className="word out" aria-hidden>{words[prev]}</span>}
       <span key={`i${i}`} className="word in" aria-hidden>{words[i]}</span>
     </span>
+  );
+}
+
+/** A row that scrolls sideways, with arrows on wider screens and edge fades that show there's more. */
+function Rail({ label, count, children }: { label: string; count: number; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [edge, setEdge] = useState({ start: true, end: false });
+  const measure = useCallback(() => {
+    const el = ref.current;
+    if (!el) return;
+    setEdge({ start: el.scrollLeft < 8, end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 8 });
+  }, []);
+  useEffect(() => {
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [measure, count]);
+  const step = (dir: 1 | -1) => ref.current?.scrollBy({ left: dir * ref.current.clientWidth * 0.85, behavior: "smooth" });
+  return (
+    <div className={`co-rail${edge.start ? " at-start" : ""}${edge.end ? " at-end" : ""}`}>
+      <div className="co-rail-arrows">
+        <button type="button" onClick={() => step(-1)} disabled={edge.start} aria-label={`Scroll ${label} back`}><Icon name="more" size={18} /></button>
+        <button type="button" onClick={() => step(1)} disabled={edge.end} aria-label={`Scroll ${label} forward`}><Icon name="more" size={18} /></button>
+      </div>
+      <div ref={ref} className="co-rail-track" onScroll={measure} role="region" aria-label={`${label}, ${count}, scrolls sideways`} tabIndex={0}>{children}</div>
+    </div>
   );
 }
 
@@ -104,7 +130,7 @@ export default function Hub() {
           {(["All", ...FIELDS] as const).map((f) => <button key={f} className={field === f ? "on" : undefined} aria-pressed={field === f} onClick={() => setField(f)}>{f}</button>)}
         </div>
         {calls.length ? (
-          <div className="co-grid">{calls.map((c) => <CallCard key={c.id} call={c} applied={co.appFor(c.id)} />)}</div>
+          <Rail label="Open calls" count={calls.length}>{calls.map((c) => <CallCard key={c.id} call={c} applied={co.appFor(c.id)} />)}</Rail>
         ) : (
           <div className="co-empty"><h3>No calls match</h3><p>Try another field, or post a call of your own.</p><Link href="/collaborate/new" className="kh-btn amber sm">Post an open call</Link></div>
         )}
