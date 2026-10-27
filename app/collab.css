@@ -1246,3 +1246,10 @@ html[data-theme="dark"] .co-pair-state.ok { background: color-mix(in srgb, #22c5
   .co-stat span { font-size: 11.5px; line-height: 1.3; }
   .co-hero-acts .kh-btn { flex: 1; justify-content: center; }
 }
+/* Phones: the banner runs edge to edge, and its two buttons share one line */
+@media (max-width: 640px) {
+  .co-hero { margin: -14px -14px 0; border-radius: 0; }
+  .co-hero .co-hero-acts { flex-wrap: nowrap; gap: 8px; margin-top: 18px; }
+  .co-hero .co-hero-acts .kh-btn { flex: 1 1 0; min-width: 0; height: 42px; padding: 0 10px; font-size: 14px; gap: 6px; white-space: nowrap; }
+  .co-hero .co-hero-acts .kh-btn svg { width: 16px; height: 16px; }
+}
