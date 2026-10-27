@@ -59,7 +59,7 @@ export default function Hub() {
     <div className="kh co">
       <section className="co-hero">
         {/* A photo for now; a short film of people working together can replace it later. */}
-        <span className="co-hero-bg" aria-hidden><Pic name="teamWork" sizes="100vw" priority position="70% 40%" /></span>
+        <span className="co-hero-bg" aria-hidden><Pic name="teamWork" sizes="100vw" priority position="60% 8%" /></span>
         <div className="co-hero-copy">
           <p className="co-eyebrow">Collaborate</p>
           <h1><Rotator words={HERO_WORDS} /><span className="tail">together.</span></h1>
