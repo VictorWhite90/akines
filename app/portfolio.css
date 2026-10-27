@@ -282,3 +282,5 @@ html[data-theme="dark"] :is(.wk-page, .wk-tab, .cm-sheet) { --co: #7c95ff; }
 .wk-verified span { font-size: 13px; color: var(--k-ink-2, var(--k-ink)); }
 .wk-verified small { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; font-weight: 600; color: #157a43; }
 html[data-theme="dark"] .wk-verified small { color: #6fdc9d; }
+.wk-saving.error { color: #c0392b; font-weight: 600; }
+html[data-theme="dark"] .wk-saving.error { color: #ff8a7a; }

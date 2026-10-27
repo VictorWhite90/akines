@@ -3,6 +3,8 @@
 import type { IconName } from "@/components/ui/Icon";
 import type { ProofFile, ProofLink } from "@/lib/collab/types";
 import { newId, useLocal } from "@/lib/useLocal";
+import { DEMO } from "@/lib/demo/mode";
+import { useRemoteWork } from "@/lib/api/work";
 import { samplePieces, usePortfolio } from "@/lib/portfolio";
 
 /**
@@ -10,8 +12,8 @@ import { samplePieces, usePortfolio } from "@/lib/portfolio";
  * built in a few skippable steps like a freelance profile. The CV carries the detail (jobs, schools), so the
  * profile doesn't ask for it again. (`experience`, `education` and `certificates` stay in the shape for the
  * API and older saved profiles, but the setup no longer asks for them.) It shows on the Work tab of their profile and goes
- * with every application. Projects live in lib/portfolio (shared with My Studio). Saved in the browser for now
- * ("ak:workprofile"); the same shape goes to the API later.
+ * with every application. Projects live in lib/portfolio (shared with My Studio). Saved to the backend
+ * (lib/api/work.ts); demo builds keep it in the browser ("ak:workprofile").
  */
 export type ExperienceKind = "Job" | "Freelance" | "Own business" | "Volunteer" | "Community" | "Internship";
 export type Experience = { id: string; title: string; org: string; kind: ExperienceKind; from: string; to?: string; current?: boolean; place?: string; summary?: string };
@@ -112,7 +114,7 @@ const example = (): WorkProfile => ({
   cv: { id: "cv-amara", name: "Amara-Okafor-CV.pdf", size: 214 * 1024, type: "pdf", kind: "cv" },
 });
 
-export function useWorkProfile() {
+function useLocalWorkProfile() {
   const [wp, setWp, ready] = useLocal<WorkProfile>(WORK_KEY, empty());
   const pf = usePortfolio();
   const patch = (p: Partial<WorkProfile>) => setWp((w) => ({ ...w, ...p, updatedAt: Date.now() }));
@@ -156,3 +158,19 @@ export const rateLabel = (r?: WorkProfile["rate"]) => {
   if (r.unit === "unpaid") return "Happy to work unpaid";
   return r.amount ? `₦${r.amount.toLocaleString("en-NG")} per ${r.unit}` : "";
 };
+
+/** The real app: the profile loads from and saves to the backend; the setup's optional lists stay on screen only. */
+function useRemoteWorkProfile(): ReturnType<typeof useLocalWorkProfile> & { save: "idle" | "saving" | "error"; message?: string } {
+  const w = useRemoteWork();
+  const none = { add: () => {}, edit: () => {}, remove: () => {} };
+  return {
+    wp: w.wp, ready: w.ready, patch: w.patch, save: w.save, message: w.message,
+    experience: none, education: none, certificates: none,
+    publish: () => { void w.publish(); },
+    fillExample: () => {},
+    reset: () => {},
+  };
+}
+
+/** Demo builds keep the work profile in the browser; the real app saves it to the backend. */
+export const useWorkProfile: () => ReturnType<typeof useLocalWorkProfile> & { save?: "idle" | "saving" | "error"; message?: string } = DEMO ? useLocalWorkProfile : useRemoteWorkProfile;

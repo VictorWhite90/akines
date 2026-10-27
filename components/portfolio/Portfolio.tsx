@@ -2,12 +2,12 @@
 
 import { useRef, useState } from "react";
 import Sheet from "@/components/circles/community/Sheet";
-import { Drop, FileRow, MAX_BYTES, accepts, toProof } from "@/components/collab/FileParts";
+import { Drop, FileRow, MAX_BYTES, accepts } from "@/components/collab/FileParts";
 import Pic from "@/components/home/Pic";
 import Icon, { type IconName } from "@/components/ui/Icon";
 import { cleanUrl, linkKind, linkLook } from "@/lib/collab/proof";
 import type { ProofLink } from "@/lib/collab/types";
-import { KIND_SUGGESTIONS, photoToDataUrl, usePortfolio, type Piece } from "@/lib/portfolio";
+import { KIND_SUGGESTIONS, storeFile, storePhoto, usePortfolio, type Piece } from "@/lib/portfolio";
 import { SKILLS, WORK_KEY, type WorkProfile } from "@/lib/workprofile";
 
 const MAX_PHOTOS = 6;
@@ -145,19 +145,28 @@ export function PieceForm({ piece, onClose, onSaved }: { piece?: Piece; onClose:
     if (!ok.length) return;
     setBusy(true);
     try {
-      const urls = await Promise.all(ok.map(photoToDataUrl));
+      const urls = await Promise.all(ok.map(storePhoto));
       setF((x) => ({ ...x, images: [...(x.images ?? []), ...urls], photo: undefined }));
-    } catch {
-      setErr("We couldn't read one of those photos.");
+    } catch (e) {
+      setErr(e instanceof Error && e.message ? e.message : "We couldn't read one of those photos.");
     } finally {
       setBusy(false);
     }
   };
-  const addFiles = (fs: File[]) => {
+  const addFiles = async (fs: File[]) => {
     const have = f.files ?? [];
-    const ok = fs.filter((x) => accepts(x, FILE_TYPES) && x.size <= MAX_BYTES).map((x) => toProof(x, "sample")).filter((x) => !have.some((h) => h.id === x.id)).slice(0, MAX_FILES - have.length);
+    const ok = fs.filter((x) => accepts(x, FILE_TYPES) && x.size <= MAX_BYTES && !have.some((h) => h.name === x.name && h.size === x.size)).slice(0, MAX_FILES - have.length);
     setErr(ok.length < fs.length ? "Some files were skipped: documents, decks, sheets or audio, each under 5 MB." : "");
-    if (ok.length) set({ files: [...have, ...ok] });
+    if (!ok.length) return;
+    setBusy(true);
+    try {
+      const stored = await Promise.all(ok.map((x) => storeFile(x, "sample")));
+      setF((x) => ({ ...x, files: [...(x.files ?? []), ...stored] }));
+    } catch (e) {
+      setErr(e instanceof Error && e.message ? e.message : "That file didn't upload. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const save = () => {
@@ -212,7 +221,7 @@ export function PieceForm({ piece, onClose, onSaved }: { piece?: Piece; onClose:
             <section className="wk-block">
               <h4><Icon name="document" size={16} />Files <small>a case study, report, deck, menu or audio · up to {MAX_FILES}, 5 MB each</small></h4>
               {(f.files?.length ?? 0) > 0 && <ul className="co-items">{f.files!.map((x) => <FileRow key={x.id} f={x} onRemove={() => set({ files: f.files!.filter((y) => y.id !== x.id) })} />)}</ul>}
-              {(f.files?.length ?? 0) < MAX_FILES && <Drop accept={FILE_TYPES} multiple label="Add a file" sub="PDF, Word, PowerPoint, Excel or audio. Drop it here or tap to choose." onFiles={addFiles} />}
+              {(f.files?.length ?? 0) < MAX_FILES && <Drop accept={FILE_TYPES} multiple label="Add a file" sub="PDF, Word, PowerPoint, Excel or audio. Drop it here or tap to choose." onFiles={(fs) => void addFiles(fs)} />}
             </section>
             <section className="wk-block">
               <h4><Icon name="photo" size={16} />Photos <small>optional · the first is the cover · up to {MAX_PHOTOS}</small></h4>

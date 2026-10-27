@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { Drop, FileRow, MAX_BYTES, accepts, toProof } from "@/components/collab/FileParts";
+import { Drop, FileRow, MAX_BYTES, accepts } from "@/components/collab/FileParts";
 import { LinkAdder, PieceCard, PieceDetail, PieceForm, SkillPicker } from "@/components/portfolio/Portfolio";
 import Icon from "@/components/ui/Icon";
 import { DEMO } from "@/lib/demo/mode";
-import { usePortfolio, type Piece } from "@/lib/portfolio";
+import { storeFile, usePortfolio, type Piece } from "@/lib/portfolio";
 import { LEVELS, OPEN_TO, SKILLS, WORK_FIELDS, completeness, levelLabel, rateLabel, useWorkProfile, type RateUnit, type WorkProfile } from "@/lib/workprofile";
 import { SETUP_STEPS, WorkProfileBody } from "./WorkView";
 
@@ -84,7 +84,7 @@ export default function Setup() {
     <div className="kh wk-page">
       <div className="wk-bar">
         <Link href="/profile" className="co-link">← Save and exit</Link>
-        <span className="co-muted" style={{ fontSize: 12.5 }}><Icon name="verified" size={13} /> Saved as you go</span>
+        <span className={`co-muted wk-saving ${w.save ?? ""}`} style={{ fontSize: 12.5 }} role="status">{w.save === "error" ? <>Not saved: {w.message ?? "check your connection"}</> : w.save === "saving" ? "Saving…" : <><Icon name="verified" size={13} /> Saved as you go</>}</span>
       </div>
       <div className="wk-progress">
         <div className="wk-progress-top"><b>Step {step + 1} of {SETUP_STEPS.length}</b><span>{SETUP_STEPS[step].label}</span></div>
@@ -262,12 +262,20 @@ function StepAvailability({ wp, patch }: { wp: WorkProfile; patch: Patch }) {
 
 function StepCv({ wp, patch }: { wp: WorkProfile; patch: Patch }) {
   const [err, setErr] = useState("");
-  const pickCv = (fs: File[]) => {
+  const [busy, setBusy] = useState(false);
+  const pickCv = async (fs: File[]) => {
     const f = fs[0];
     if (!f) return;
     if (!accepts(f, ".pdf,.doc,.docx")) return setErr("Send your CV as a PDF or a Word document.");
     if (f.size > MAX_BYTES) return setErr("That file is over 5 MB. A PDF export is usually much smaller.");
-    setErr(""); patch({ cv: toProof(f, "cv") });
+    setErr(""); setBusy(true);
+    try {
+      patch({ cv: await storeFile(f, "cv") });
+    } catch (e) {
+      setErr(e instanceof Error && e.message ? e.message : "Your CV didn't upload. Please try again.");
+    } finally {
+      setBusy(false);
+    }
   };
   return (
     <>
@@ -275,7 +283,7 @@ function StepCv({ wp, patch }: { wp: WorkProfile; patch: Patch }) {
       <p className="hint">Your CV holds the detail: jobs, schools, certificates. It&apos;s attached for you when you apply. No CV? Your links and a short intro work too.</p>
       <div className="wk-field">
         <span className="l">CV or résumé <small>optional</small></span>
-        {wp.cv ? <ul className="co-items"><FileRow f={wp.cv} onRemove={() => patch({ cv: undefined })} /></ul> : <Drop accept=".pdf,.doc,.docx" label="Upload your CV" sub="PDF or Word, up to 5 MB. Drop it here or tap to choose." onFiles={pickCv} />}
+        {wp.cv ? <ul className="co-items"><FileRow f={wp.cv} onRemove={() => patch({ cv: undefined })} /></ul> : <Drop accept=".pdf,.doc,.docx" label={busy ? "Uploading…" : "Upload your CV"} sub="PDF or Word, up to 5 MB. Drop it here or tap to choose." onFiles={(fs) => void pickCv(fs)} disabled={busy} />}
         {err && <p className="co-err" role="alert">{err}</p>}
       </div>
       <div className="wk-field"><span className="l">Links <small>optional · LinkedIn, GitHub, Behance, Instagram, your website</small></span><LinkAdder links={wp.links} onChange={(links) => patch({ links })} placeholder="Paste a link to your profile or website" /></div>

@@ -37,7 +37,8 @@ export function WorkProfileBody({ wp, projects, own = true, onOpenProject }: { w
   const field = WORK_FIELDS.find((f) => f.id === wp.field);
   const co = useCollab();
   // Work other people approved on Akines: the part of a profile nobody can just claim.
-  const verified = co.projects.flatMap((p) => (p.deliverables ?? []).filter((d) => d.owner === ME && d.status === "approved").map((d) => ({ d, p }))).sort((a, b) => (b.d.approvedAt ?? 0) - (a.d.approvedAt ?? 0));
+  // Collaboration still runs on sample data in the browser, so only the demo shows approvals from it.
+  const verified = !DEMO ? [] : co.projects.flatMap((p) => (p.deliverables ?? []).filter((d) => d.owner === ME && d.status === "approved").map((d) => ({ d, p }))).sort((a, b) => (b.d.approvedAt ?? 0) - (a.d.approvedAt ?? 0));
   const rate = rateLabel(wp.rate);
   return (
     <div className="wk-body">

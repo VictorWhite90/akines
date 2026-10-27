@@ -4,13 +4,15 @@ import type { ProofFile, ProofLink } from "@/lib/collab/types";
 import type { PhotoKey } from "@/lib/data/images";
 import { newId, useLocal } from "@/lib/useLocal";
 import { shrinkImage } from "@/lib/imageShrink";
+import { DEMO } from "@/lib/demo/mode";
+import { uploadWorkFile, uploadWorkPhoto, useRemoteWork } from "@/lib/api/work";
 
 /**
  * A member's projects: the work they've done, in any line of work (an app, a mural, a menu, a supper club),
  * shown the way that suits it: links, files, a written case study, photos, or a mix. Part of their work
  * profile (lib/workprofile), and used everywhere: the Work tab on their profile, the wall in My Studio and
- * applications to open calls. Saved in the browser for now ("ak:portfolio"); the same shape goes to the API
- * later, with photos and files uploaded to storage instead of kept on the device.
+ * applications to open calls. Saved to the backend (lib/api/work.ts); demo builds keep it in the browser
+ * ("ak:portfolio").
  */
 export type Piece = {
   id: string;
@@ -78,7 +80,7 @@ export const samplePieces = (): Piece[] => {
 };
 
 
-export function usePortfolio() {
+function useLocalPortfolio() {
   // Everyone, demo included, builds their own. The demo's "Fill with an example" adds the sample pieces.
   const [state, setState, ready] = useLocal<State>(PORTFOLIO_KEY, { pieces: [] });
   const pieces = state.pieces;
@@ -100,6 +102,40 @@ export function usePortfolio() {
     importOnce: (fromStudio: Piece[]) => setState((s) => (s.importedStudio ? s : { importedStudio: true, pieces: [...s.pieces, ...fromStudio.filter((w) => !s.pieces.some((p) => p.id === w.id))] })),
   };
 }
+
+/** The same store, saved to the backend: projects are created, edited and removed through /api/v1/work. */
+function useRemotePortfolio() {
+  const w = useRemoteWork();
+  return {
+    pieces: w.pieces,
+    ready: w.ready,
+    importedStudio: true,
+    get: w.get,
+    add: w.add,
+    edit: w.edit,
+    remove: w.remove,
+    /** My Studio's wall saves through this: new pieces are created, missing ones removed, changed ones saved. */
+    replace: (next: Piece[]) => {
+      for (const p of w.pieces) if (!next.some((n) => n.id === p.id)) w.remove(p.id);
+      for (const n of next) {
+        const was = w.pieces.find((p) => p.id === n.id);
+        if (!was) w.add(n);
+        else if (JSON.stringify(was) !== JSON.stringify(n)) w.edit(n.id, n);
+      }
+    },
+    importOnce: () => {},
+  };
+}
+
+/** Demo builds keep projects in the browser; the real app saves them to the backend. */
+export const usePortfolio: () => ReturnType<typeof useLocalPortfolio> = DEMO ? useLocalPortfolio : useRemotePortfolio;
+
+/** A project photo from the member's device: uploaded (and shrunk) in the real app, a data URL in the demo. */
+export const storePhoto = (file: File): Promise<string> => (DEMO ? photoToDataUrl(file) : uploadWorkPhoto(file));
+
+/** A CV or project file: uploaded and checked by the server in the real app; just its name and size in the demo. */
+export const storeFile = async (file: File, kind: ProofFile["kind"]): Promise<ProofFile> =>
+  DEMO ? { id: `${kind}-${file.name}-${file.size}`, name: file.name, size: file.size, type: file.type || file.name.split(".").pop() || "", kind } : uploadWorkFile(file, kind === "cv" ? "cv" : "file");
 
 /** A photo from the member's device, shrunk so it costs a few hundred KB at most. */
 export async function photoToDataUrl(file: File): Promise<string> {
