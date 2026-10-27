@@ -3,35 +3,33 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Avatar from "@/components/ui/Avatar";
-import BackLink from "@/components/ui/BackLink";
 import Icon, { type IconName } from "@/components/ui/Icon";
-import type { Project } from "@/lib/collab/types";
+import { JOURNEY, type Project } from "@/lib/collab/types";
+import { kitOf } from "@/lib/collab/kits";
 import { ME, useCollab } from "@/lib/collab/useCollab";
 import { PEOPLE } from "@/lib/data/people";
-import { DemoNote, Faces, JourneyBar, Thumb, ago, firstName, nextStep } from "./parts";
-import { kitOf } from "@/lib/collab/kits";
-import WorkTab, { Checkins, MyDeliverables, ReviewQueue, toReview } from "./WorkTab";
+import { DemoNote, Thumb, firstName } from "./parts";
+import Board, { Face, ReviewInbox, TeamFeed, Tools, YourWork, isOnline, toReview } from "./WorkTab";
 import { AgreeTab, ChatTab, PreserveTab, RoomTab, StudioTab, ValueTab } from "./WorkspaceTabs";
 
-export type WsTab = "home" | "agree" | "work" | "chat" | "room" | "value" | "record";
-const TABS: { id: WsTab; label: string; icon: IconName }[] = [
+export type WsTab = "home" | "work" | "agree" | "chat" | "room" | "value" | "record";
+const VIEWS: { id: WsTab; label: string; icon: IconName }[] = [
   { id: "home", label: "Home", icon: "home" },
-  { id: "agree", label: "Agree", icon: "verified" },
-  { id: "work", label: "Work", icon: "project" },
+  { id: "work", label: "Board", icon: "project" },
   { id: "chat", label: "Chat", icon: "message" },
-  { id: "room", label: "Room", icon: "live" },
-  { id: "value", label: "Share value", icon: "chart" },
+  { id: "room", label: "Meet", icon: "live" },
+  { id: "agree", label: "Agreement", icon: "verified" },
+  { id: "value", label: "Money", icon: "chart" },
   { id: "record", label: "Record", icon: "save" },
 ];
-/** Older links (and bell notices) used the tab names from before the Work tab. */
+/** Older links (and bell notices) used the tab names from before the board. */
 const OLD_TABS: Record<string, WsTab> = { overview: "home", plan: "work", studio: "work", present: "work", preserve: "record" };
 
 /**
- * A collaboration's workspace (S1, S5–S8), the same for any kind of work and shaped by it (lib/collab/kits):
- * agree the terms, then deliver what each person promised, with proof, review and approval; talk in the group
- * chat (also in KinMessage), meet in a room, share what it earned, and keep the record. The work itself
- * happens in the team's own tools, pinned in the Work tab.
+ * A collaboration's workspace (S1, S5–S8): a team space with a sidebar, like a work tool, for any kind of work
+ * (lib/collab/kits). Home shows who's waiting for you and what the team is up to; the board holds what each
+ * person promised, with proof, review and approval; chat, meetings, the agreement, money and the record sit
+ * one click away. The work itself happens in the team's own tools, pinned in the sidebar.
  */
 export default function Workspace({ id }: { id: string }) {
   const co = useCollab({ engine: true });
@@ -40,7 +38,7 @@ export default function Workspace({ id }: { id: string }) {
   const raw = q.get("tab") ?? "";
   const startTab = OLD_TABS[raw] ?? raw;
   const [joined] = useState(q.get("joined") === "1");
-  const [tab, setTab] = useState<WsTab>(TABS.some((t) => t.id === startTab) ? (startTab as WsTab) : "home");
+  const [tab, setTab] = useState<WsTab>(VIEWS.some((t) => t.id === startTab) ? (startTab as WsTab) : "home");
   const [openD, setOpenD] = useState<string | null>(q.get("d"));
   const p = co.projects.find((x) => x.id === id);
 
@@ -50,133 +48,146 @@ export default function Workspace({ id }: { id: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per project
   }, [p?.id]);
 
-  if (!co.ready) return <div className="kh co" aria-busy="true" />;
+  if (!co.ready) return <div className="kh co ws" aria-busy="true" />;
   if (!p) return <div className="kh co"><div className="co-empty"><h3>This project isn&apos;t available</h3><p>You may not be on this team yet.</p><Link href="/collaborate#projects" className="kh-btn amber sm">Your projects</Link></div></div>;
 
-  const go = (t: WsTab) => { setTab(t); if (t !== "work") setOpenD(null); router.replace(`/collaborate/projects/${p.id}?tab=${t}`, { scroll: false }); };
-  const openDeliverable = (id: string) => { setOpenD(id); setTab("work"); router.replace(`/collaborate/projects/${p.id}?tab=work&d=${id}`, { scroll: false }); };
+  const url = (t: WsTab, d?: string | null) => `/collaborate/projects/${p.id}?tab=${t}${d ? `&d=${d}` : ""}`;
+  const go = (t: WsTab) => { setTab(t); setOpenD(null); router.replace(url(t), { scroll: false }); };
+  const open = (d: string | null) => { setOpenD(d); if (d) setTab("work"); router.replace(url(d ? "work" : tab, d), { scroll: false }); };
   const reviews = toReview(p).length;
-  const unsigned = !p.charter.signedAt;
+  const unsigned = !p.charter.signedAt && p.stage >= 2;
+  const kit = kitOf(p.kind);
+  const online = p.members.filter((m) => isOnline(m.id)).length;
+  const list = p.deliverables ?? [];
+  const doneN = list.filter((d) => d.status === "approved").length;
 
   return (
-    <div className="kh co" style={{ gap: 24 }}>
-      <BackLink fallback="/collaborate#projects" className="co-link">← Collaborate</BackLink>
-      <header className="co-ws-head">
-        <div className="co-ws-top">
-          <Thumb photo={p.photo} sizes="90px" />
-          <div style={{ minWidth: 0 }}>
-            <p className="co-eyebrow">{p.kind && <span className="co-kind-tag"><Icon name={kitOf(p.kind).icon} size={12} />{kitOf(p.kind).label}</span>}{p.callId ? `From an open call · ${co.call(p.callId)?.org ?? ""}` : "Project"}</p>
-            <h1>{p.title}</h1>
-            <p>{p.summary}</p>
-          </div>
-          <div className="co-ws-acts">
-            <Link href={`/messages/${p.convoId}`} className="kh-btn outline"><Icon name="message" size={16} />Team chat</Link>
-            <button className="kh-btn outline" onClick={() => router.push(co.project.startRoom(p))}><Icon name="live" size={16} />Meet live</button>
-            <button className="kh-btn amber" onClick={() => go("work")}><Icon name="project" size={16} />Work</button>
-          </div>
+    <div className="kh co ws">
+      <header className="ws-head">
+        <Link href="/collaborate#projects" className="ws-back" aria-label="Back to Collaborate"><Icon name="more" size={18} /></Link>
+        <Thumb photo={p.photo} className="ws-thumb" sizes="56px" />
+        <div className="ws-title">
+          <h1>{p.title}</h1>
+          <span className="ws-sub">
+            {p.kind && <span className="ws-kind"><Icon name={kit.icon} size={12} />{kit.label}</span>}
+            <span>{JOURNEY[p.stage]} · stage {p.stage + 1} of 7</span>
+            {list.length > 0 && <span>{doneN} of {list.length} done</span>}
+          </span>
         </div>
-        <JourneyBar stage={p.stage} />
-        <div className="co-row" style={{ justifyContent: "space-between" }}>
-          <span className="co-row"><Faces ids={p.members.map((m) => m.id)} size={30} /><span className="co-muted" style={{ fontSize: 13.5 }}>{p.members.map((m) => (m.id === ME ? "You" : firstName(m.id))).join(", ")}</span></span>
-          {unsigned && p.stage >= 2 && <button className="co-chip warn" style={{ border: 0 }} onClick={() => go("agree")}><Icon name="verified" size={13} />Charter not signed yet</button>}
+        <div className="ws-people" title={`${online} online`}>
+          <span className="ws-stackfaces">{p.members.slice(0, 5).map((m) => <Face key={m.id} id={m.id} size={32} />)}</span>
+          {p.members.length > 5 && <span className="ws-more">+{p.members.length - 5}</span>}
+        </div>
+        <div className="ws-head-acts">
+          <button className="kh-btn outline sm" onClick={() => go("chat")}><Icon name="message" size={15} />Chat</button>
+          <button className="kh-btn amber sm" onClick={() => router.push(co.project.startRoom(p))}><Icon name="live" size={15} />Meet now</button>
         </div>
       </header>
 
-      {joined && <DemoNote>Welcome to the team. Agree the terms first: once everyone has signed, the plan and the studio open up for work.</DemoNote>}
+      {joined && <DemoNote>Welcome to the team. Sign the agreement first: once everyone has signed, the board opens for work.</DemoNote>}
+      {unsigned && <button className="ws-banner" onClick={() => go("agree")}><Icon name="verified" size={16} /><span><b>Sign the agreement to start.</b> {p.charter.signed.length} of {p.members.length} have signed.</span><span className="ws-banner-go">Open →</span></button>}
 
-      <nav className="co-tabs" aria-label="Workspace">
-        {TABS.map((t) => <button key={t.id} className={tab === t.id ? "on" : undefined} onClick={() => go(t.id)} aria-current={tab === t.id ? "page" : undefined}><Icon name={t.icon} size={16} />{t.label}{t.id === "agree" && unsigned && p.stage >= 2 && <span className="co-new-dot" aria-label="Needs signing" />}{t.id === "work" && reviews > 0 && <span className="co-count" aria-label={`${reviews} to review`}>{reviews}</span>}</button>)}
-      </nav>
+      <div className="ws-frame">
+        <aside className="ws-side">
+          <nav aria-label="Workspace">
+            {VIEWS.map((v) => (
+              <button key={v.id} className={tab === v.id ? "on" : undefined} onClick={() => go(v.id)} aria-current={tab === v.id ? "page" : undefined}>
+                <Icon name={v.icon} size={17} /><span>{v.label}</span>
+                {v.id === "work" && reviews > 0 && <em className="ws-badge">{reviews}</em>}
+                {v.id === "agree" && unsigned && <em className="ws-dot" aria-label="Needs signing" />}
+              </button>
+            ))}
+          </nav>
+          <div className="ws-side-sec">
+            <h4>Pinned tools</h4>
+            {(p.tools ?? []).length ? (
+              <ul className="ws-side-tools">{(p.tools ?? []).map((t) => <li key={t.id}><a href={t.url} target="_blank" rel="noopener noreferrer"><Icon name="link" size={14} />{t.label}</a></li>)}</ul>
+            ) : <p className="ws-faint">The repo, the design file, the shared folder.</p>}
+            <button className="ws-side-link" onClick={() => go("work")}>Manage tools</button>
+          </div>
+          <div className="ws-side-sec">
+            <h4>Team · {online} online</h4>
+            <ul className="ws-side-team">
+              {p.members.map((m) => (
+                <li key={m.id}>
+                  <Face id={m.id} size={28} />
+                  <span><b>{m.id === ME ? "You" : PEOPLE[m.id].name}</b><small>{m.role}</small></span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </aside>
 
-      {tab === "home" && <Overview p={p} go={go} open={openDeliverable} />}
-      {tab === "agree" && <AgreeTab p={p} />}
-      {tab === "work" && <WorkTab key={openD ?? "board"} p={p} openId={openD} idea={p.stage === 1 ? <StudioTab p={p} /> : undefined} />}
-      {tab === "chat" && <ChatTab p={p} />}
-      {tab === "room" && <RoomTab p={p} />}
-      {tab === "value" && <ValueTab p={p} />}
-      {tab === "record" && <PreserveTab p={p} />}
+        <main className="ws-main">
+          {tab === "home" && <Home p={p} go={go} open={open} />}
+          {tab === "work" && (
+            <>
+              <div className="ws-viewhead"><h2>{kit.many}</h2><Tools p={p} /></div>
+              <Board p={p} openId={openD} onOpen={open} idea={p.stage === 1 ? <StudioTab p={p} /> : undefined} />
+            </>
+          )}
+          {tab === "agree" && <View title="Agreement" sub="Credit, ownership, decisions, money and how to leave, agreed before anyone starts."><AgreeTab p={p} /></View>}
+          {tab === "chat" && <View title="Team chat" sub="The same conversation as in KinMessage."><ChatTab p={p} /></View>}
+          {tab === "room" && <View title="Meet" sub={`Live sessions for ${kit.label.toLowerCase()} work, just for the team.`}><RoomTab p={p} /></View>}
+          {tab === "value" && <View title="Money" sub="The budget, what approvals have released, and who gets what."><ValueTab p={p} /></View>}
+          {tab === "record" && <View title="Record" sub="Who delivered what, approved by whom, and every decision, dated."><PreserveTab p={p} /></View>}
+        </main>
+      </div>
     </div>
   );
 }
 
-function Overview({ p, go, open }: { p: Project; go: (t: WsTab) => void; open: (id: string) => void }) {
+function View({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
+  return <div className="ws-stack"><div className="ws-viewhead"><div><h2>{title}</h2><p className="ws-faint">{sub}</p></div></div>{children}</div>;
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+}
+
+function Home({ p, go, open }: { p: Project; go: (t: WsTab) => void; open: (id: string) => void }) {
   const co = useCollab();
-  const list = p.deliverables ?? [];
-  const approved = list.filter((d) => d.status === "approved").length;
-  const review = toReview(p);
-  const mine = list.find((d) => d.owner === ME && d.status !== "approved" && d.status !== "review");
-  const action: { label: string; run: () => void } =
-    p.stage === 1 ? { label: "Open the idea canvas", run: () => go("work") }
-    : !p.charter.signedAt ? { label: "Read and sign the charter", run: () => go("agree") }
-    : review.length ? { label: `Review ${review[0].title}`, run: () => open(review[0].id) }
-    : mine ? { label: `Open ${mine.title}`, run: () => open(mine.id) }
-    : { label: "Open the work", run: () => go("work") };
+  const kit = kitOf(p.kind);
+  const reviews = toReview(p);
+  const mine = (p.deliverables ?? []).filter((d) => d.owner === ME && d.status !== "approved");
+  const summary = [
+    reviews.length ? `${reviews.length} ${reviews.length === 1 ? "thing needs" : "things need"} your review` : "",
+    mine.length ? `${mine.length} of yours in progress` : "",
+  ].filter(Boolean).join(" · ");
   const thread = co.thread(p);
-  const lastMsg = thread[thread.length - 1];
+  const last = thread[thread.length - 1];
 
   return (
-    <div className="co-ws-grid">
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <section className="co-next-card">
-          <p className="co-eyebrow">Next up</p>
-          <h3>{nextStep(p, ME)}</h3>
-          {p.stage === 1 && <p>You&apos;re at the idea stage. Add references and sketches together, then move on to agreeing the terms.</p>}
-          {p.stage === 2 && !p.charter.signedAt && <p>Before anyone starts, the team agrees credit, ownership, decisions, money and how to leave. Work opens when everyone has signed.</p>}
-          <div className="co-row">
-            <button className="kh-btn amber" onClick={action.run}>{action.label}</button>
-            {p.stage === 1 && <button className="kh-btn outline" onClick={() => { co.project.toAgree(p.id); go("agree"); }}>Ready to agree terms</button>}
-          </div>
-        </section>
-
-        <ReviewQueue p={p} onOpen={open} />
-        <MyDeliverables p={p} onOpen={open} />
-
-        <div className="co-facts">
-          <button className="co-fact" style={{ textAlign: "left", cursor: "pointer" }} onClick={() => go("work")}>
-            <small>{kitOf(p.kind).many}</small><span><b style={{ fontSize: 22 }}>{approved}/{list.length}</b> approved</span>
-            <span className="co-progress"><i style={{ width: `${list.length ? (approved / list.length) * 100 : 0}%` }} /></span>
-          </button>
-          <button className="co-fact" style={{ textAlign: "left", cursor: "pointer" }} onClick={() => go("chat")}>
-            <small>Group chat</small><span>{lastMsg ? <>{lastMsg.from === ME ? "You" : lastMsg.from === "ai" ? "Akines" : firstName(lastMsg.from)}: {"text" in lastMsg ? lastMsg.text?.slice(0, 60) : "…"}</> : "Say hello to the team"}</span>
-          </button>
-        </div>
-
-        <Checkins p={p} />
-
-        <section className="co-card co-pad" style={{ display: "grid", gap: 14 }}>
-          <div className="co-sec-head"><h2 style={{ fontSize: 17 }}>Recent activity</h2><button className="co-link" style={{ border: 0, background: "none" }} onClick={() => go("record")}>Full record →</button></div>
-          <ul className="co-activity">
-            {[...p.ledger].reverse().slice(0, 6).map((l, i) => (
-              <li key={i}>
-                {l.who === "akines" ? <span className="co-ak"><Icon name="verified" size={14} /></span> : <Avatar person={PEOPLE[l.who]} size={28} />}
-                <span>{l.who === "akines" ? "" : <b>{l.who === ME ? "You" : firstName(l.who)} </b>}{l.what}<time>{ago(l.at)}</time></span>
-              </li>
-            ))}
-          </ul>
-        </section>
+    <div className="ws-home">
+      <div className="ws-hello">
+        <h2>{greeting()}, {firstName(ME)}</h2>
+        <p>{p.stage === 1 ? "You're shaping the idea together. Choose the kind of work to set up the board." : !p.charter.signedAt ? "Sign the agreement with your team so the work can start." : summary || "Everything's moving. Nothing needs you right now."}</p>
       </div>
 
-      <aside style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <section className="co-card co-pad" style={{ display: "grid", gap: 14 }}>
-          <h2 style={{ font: "600 16px var(--font-manrope)" }}>The team</h2>
-          <ul className="co-team">
-            {p.members.map((m) => (
-              <li key={m.id}>
-                <Avatar person={PEOPLE[m.id]} size={38} />
-                <div style={{ minWidth: 0 }}><b>{m.id === ME ? `${PEOPLE[m.id].name} (you)` : PEOPLE[m.id].name}</b><small>{m.contribution && m.contribution !== m.role ? `${m.role} · ${m.contribution}` : m.role}</small></div>
-                {p.charter.signed.includes(m.id) ? <span className="co-chip ok">Signed</span> : p.stage >= 2 ? <span className="co-chip">Not signed</span> : null}
-              </li>
-            ))}
-          </ul>
-        </section>
-        <section className="co-card co-pad" style={{ display: "grid", gap: 10 }}>
-          <h2 style={{ font: "600 16px var(--font-manrope)" }}>Everything in one place</h2>
-          {(p.tools ?? []).length > 0 && <div className="co-tools mini">{(p.tools ?? []).map((t) => <a key={t.id} href={t.url} target="_blank" rel="noopener noreferrer" className="co-tool-link"><Icon name="link" size={13} />{t.label}</a>)}</div>}
-          {([["agree", "Charter: credit, ownership, money"], ["work", `Work: ${kitOf(p.kind).many.toLowerCase()}`], ["room", "Room: meet live, together"], ["value", "Share value: budget and what's released"], ["record", "Record: who delivered what"]] as [WsTab, string][]).map(([t, l]) => (
-            <button key={t} className="co-link" style={{ border: 0, background: "none", padding: 0, textAlign: "left" }} onClick={() => go(t)}>{l} →</button>
-          ))}
-        </section>
-      </aside>
+      {p.stage === 1 && <button className="ws-cta" onClick={() => go("work")}><Icon name="project" size={18} /><span><b>Set up the board</b><small>Pick the kind of work: {kit.label} and five others</small></span><Icon name="more" size={16} /></button>}
+      {p.stage >= 2 && !p.charter.signedAt && <button className="ws-cta" onClick={() => go("agree")}><Icon name="verified" size={18} /><span><b>Read and sign the agreement</b><small>{p.charter.signed.length} of {p.members.length} signed</small></span><Icon name="more" size={16} /></button>}
+
+      <div className="ws-home-grid">
+        <div className="ws-stack">
+          {p.charter.signedAt && <ReviewInbox p={p} onOpen={open} />}
+          <TeamFeed p={p} />
+        </div>
+        <div className="ws-stack">
+          <YourWork p={p} onOpen={open} />
+          <section className="ws-box">
+            <h3 className="ws-h3">Latest in chat</h3>
+            <button type="button" className="ws-lastmsg" onClick={() => go("chat")}>
+              {last && last.from !== "ai" ? <Face id={last.from} size={30} /> : <span className="co-ak"><Icon name="message" size={14} /></span>}
+              <span><b>{last ? (last.from === ME ? "You" : last.from === "ai" ? "Akines" : firstName(last.from)) : "No messages yet"}</b><small>{last && "text" in last ? last.text : "Say hello to the team"}</small></span>
+            </button>
+          </section>
+          <section className="ws-box">
+            <h3 className="ws-h3">Meet</h3>
+            <div className="ws-rituals">{kit.rituals.slice(0, 2).map((r) => <button key={r.title} type="button" onClick={() => go("room")}><Icon name="live" size={15} /><span><b>{r.title}</b><small>{r.minutes} min</small></span></button>)}</div>
+          </section>
+        </div>
+      </div>
     </div>
   );
 }

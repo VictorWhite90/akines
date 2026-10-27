@@ -1,13 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Sheet from "@/components/circles/community/Sheet";
 import Pic from "@/components/home/Pic";
 import Avatar from "@/components/ui/Avatar";
 import Icon from "@/components/ui/Icon";
 import { KITS, KIT_ORDER, STATUS_LABEL, kitOf } from "@/lib/collab/kits";
 import { cleanUrl, linkKind, linkLook } from "@/lib/collab/proof";
-import type { Deliverable, Project, ProofItem, WorkKind } from "@/lib/collab/types";
+import type { Deliverable, DeliverableStatus, Project, ProofItem, WorkKind } from "@/lib/collab/types";
 import { ME, useCollab } from "@/lib/collab/useCollab";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { photoToDataUrl } from "@/lib/portfolio";
@@ -15,92 +16,146 @@ import { Drop, FileRow } from "./FileParts";
 import { ago, firstName, naira } from "./parts";
 
 const nameOf = (id: PersonId) => (id === ME ? "You" : firstName(id));
-const COLS: { id: string; label: string; match: Deliverable["status"][] }[] = [
-  { id: "todo", label: "To do", match: ["todo"] },
-  { id: "doing", label: "In progress", match: ["doing", "changes"] },
-  { id: "review", label: "Ready for review", match: ["review"] },
-  { id: "approved", label: "Approved", match: ["approved"] },
+const ONLINE = new Set(["open", "studio", "room"]);
+export const isOnline = (id: PersonId) => id === ME || ONLINE.has(PEOPLE[id].presence);
+
+/** Deliverables waiting for the member's review, newest first. */
+export const toReview = (p: Project) => (p.deliverables ?? []).filter((d) => d.approver === ME && d.status === "review").sort((a, b) => sentAt(b) - sentAt(a));
+const sentAt = (d: Deliverable) => [...d.thread].reverse().find((t) => t.kind === "submitted")?.at ?? 0;
+
+/** A face with a presence dot. */
+export function Face({ id, size = 32 }: { id: PersonId; size?: number }) {
+  return <span className="ws-face" style={{ ["--s" as string]: `${size}px` } as React.CSSProperties}><Avatar person={PEOPLE[id]} size={size} />{isOnline(id) && <i aria-label="Online" />}</span>;
+}
+
+const COLS: { id: string; label: string; match: DeliverableStatus[]; tone: string }[] = [
+  { id: "todo", label: "To do", match: ["todo"], tone: "grey" },
+  { id: "doing", label: "In progress", match: ["doing", "changes"], tone: "blue" },
+  { id: "review", label: "In review", match: ["review"], tone: "amber" },
+  { id: "approved", label: "Done", match: ["approved"], tone: "green" },
 ];
 
-/** Deliverables waiting for the member's review, across a project. */
-export const toReview = (p: Project) => (p.deliverables ?? []).filter((d) => d.approver === ME && d.status === "review");
+/* ═══════════════════════ Board ═══════════════════════ */
 
 /**
- * The Work tab (S6): what each person promised, with proof and approval. People do the work in their own
- * tools (pinned at the top); here it's agreed, shown, reviewed and approved. Approval writes to the record,
- * releases the deliverable's share and shows on the owner's work profile as verified work.
+ * The board (S6): what each person promised, as cards that move from To do to Done. Drag a card to start it,
+ * send it for review, or (as the approver) approve it. Open a card for its proof and conversation.
  */
-export default function WorkTab({ p, openId, idea }: { p: Project; openId?: string | null; idea?: React.ReactNode }) {
+export default function Board({ p, openId, onOpen, idea }: { p: Project; openId: string | null; onOpen: (id: string | null) => void; idea?: React.ReactNode }) {
   const co = useCollab();
   const kit = kitOf(p.kind);
   const list = p.deliverables ?? [];
-  const [open, setOpen] = useState<string | null>(openId ?? null);
+  const [filter, setFilter] = useState<"all" | "mine" | "review">("all");
   const [adding, setAdding] = useState(false);
+  const [title, setTitle] = useState("");
+  const [drag, setDrag] = useState<string | null>(null);
+  const [over, setOver] = useState<string | null>(null);
+  const [toast, setToast] = useState("");
+  const [full, setFull] = useState(false);
   const locked = p.stage >= 2 && !p.charter.signedAt;
-  const current = list.find((d) => d.id === open);
+  const current = list.find((d) => d.id === openId);
+  const say = (t: string) => { setToast(t); setTimeout(() => setToast(""), 2600); };
 
-  if (!list.length) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-        {idea}
-        <KitPicker p={p} />
-      </div>
-    );
-  }
+  if (!list.length) return <div className="ws-stack">{idea}<KitPicker p={p} /></div>;
+
+  const shown = list.filter((d) => filter === "all" || (filter === "mine" ? d.owner === ME : d.approver === ME && d.status === "review"));
+  const drop = (col: string) => {
+    const d = list.find((x) => x.id === drag);
+    setDrag(null); setOver(null);
+    if (!d) return;
+    const from = COLS.find((c) => c.match.includes(d.status))!.id;
+    if (from === col) return;
+    if (locked) return say("Work opens once everyone has signed the charter.");
+    if (col === "doing" && d.status === "todo" && d.owner === ME) return co.project.startDeliverable(p.id, d.id);
+    if (col === "todo" && d.status === "doing" && d.owner === ME) return co.project.backToTodo(p.id, d.id);
+    if (col === "review" && (d.status === "doing" || d.status === "changes") && d.owner === ME) { co.project.submitDeliverable(p.id, d.id, ""); return say(`Sent to ${nameOf(d.approver)} for review.`); }
+    if (col === "approved" && d.status === "review" && d.approver === ME) { co.project.approveDeliverable(p.id, d.id, ""); return say(`Approved. It's on ${firstName(d.owner)}'s profile as verified work.`); }
+    if (col === "approved" && d.approver !== ME) return say(`Only ${nameOf(d.approver)} can approve this one.`);
+    if (d.owner !== ME) return say(`This is ${firstName(d.owner)}'s card; only they can move it.`);
+    onOpen(d.id);
+  };
+  const addQuick = () => {
+    if (title.trim()) co.project.addDeliverable(p.id, { title: title.trim(), owner: ME, approver: p.host === ME ? p.members.find((m) => m.id !== ME)?.id ?? ME : p.host, due: "No date" });
+    setTitle(""); setAdding(false);
+  };
+  const waiting = toReview(p).length;
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-      <div className="co-sec-head">
-        <div>
-          <h2>{kit.many}</h2>
-          <p>What each person promised, the proof, and who approves it. {kit.value}.</p>
+    <div className="ws-stack">
+      <div className="ws-toolbar">
+        <div className="ws-seg" role="tablist" aria-label="Show">
+          {([["all", "All", list.length], ["mine", "Mine", list.filter((d) => d.owner === ME).length], ["review", "Waiting for me", waiting]] as const).map(([k, l, n]) => <button key={k} role="tab" aria-selected={filter === k} className={filter === k ? "on" : undefined} onClick={() => setFilter(k)}>{l}<span>{n}</span></button>)}
         </div>
-        <div className="co-row">
-          <KindSwitch p={p} />
-          <button className="kh-btn amber" onClick={() => setAdding(true)}><Icon name="upload" size={16} />Add a {kit.one.toLowerCase()}</button>
-        </div>
+        <span className="ws-grow" />
+        <KindSwitch p={p} />
+        <button className="kh-btn amber sm" onClick={() => setFull(true)}><Icon name="upload" size={15} />New {kit.one.toLowerCase()}</button>
       </div>
 
-      <Tools p={p} />
+      {locked && <div className="ws-note"><Icon name="private" size={16} />Work opens once everyone has signed the charter. You can plan now.</div>}
 
-      {locked && <div className="co-lock"><Icon name="private" size={20} /><span><b>Work opens once everyone has signed the charter.</b> You can plan now; sending for review and approving start after signing.</span></div>}
-
-      <div className="co-wboard">
+      <div className="ws-board">
         {COLS.map((c) => {
-          const items = list.filter((d) => c.match.includes(d.status));
+          const items = shown.filter((d) => c.match.includes(d.status));
           return (
-            <section key={c.id} className={`co-col ${c.id}`}>
-              <div className="co-col-head">{c.label}<span>{items.length}</span></div>
-              {items.map((d) => <DCard key={d.id} d={d} onOpen={() => setOpen(d.id)} />)}
-              {!items.length && <p className="co-col-empty">{c.id === "review" ? "Nothing waiting" : c.id === "approved" ? "Approved work lands here" : "—"}</p>}
+            <section key={c.id} className={`ws-col ${c.tone}${over === c.id ? " over" : ""}`} onDragOver={(e) => { e.preventDefault(); setOver(c.id); }} onDragLeave={() => setOver(null)} onDrop={() => drop(c.id)}>
+              <header><i />{c.label}<span>{items.length}</span></header>
+              <div className="ws-cards">
+                {items.map((d) => <Card key={d.id} p={p} d={d} onOpen={() => onOpen(d.id)} onDrag={setDrag} dragging={drag === d.id} />)}
+                {!items.length && <p className="ws-empty-col">{c.id === "review" ? "Nothing waiting" : c.id === "approved" ? "Approved work lands here" : "Drop a card here"}</p>}
+              </div>
+              {c.id === "todo" && (adding ? (
+                <form className="ws-quick" onSubmit={(e) => { e.preventDefault(); addQuick(); }}>
+                  <textarea autoFocus value={title} onChange={(e) => setTitle(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); addQuick(); } if (e.key === "Escape") setAdding(false); }} placeholder={`What will you deliver? e.g. ${kit.starter[1]?.title ?? "First draft"}`} rows={2} />
+                  <div><button className="kh-btn amber sm">Add card</button><button type="button" className="ws-x" onClick={() => setAdding(false)} aria-label="Cancel">×</button></div>
+                </form>
+              ) : <button className="ws-addcard" onClick={() => { setAdding(true); setTitle(""); }}>+ Add a card</button>)}
             </section>
           );
         })}
       </div>
 
-      {adding && <AddDeliverable p={p} onClose={() => setAdding(false)} />}
-      {current && <DeliverableSheet p={p} d={current} locked={locked} onClose={() => setOpen(null)} onRemove={() => { co.project.removeDeliverable(p.id, current.id); setOpen(null); }} />}
+      {toast && <div className="ws-toast" role="status">{toast}</div>}
+      {full && <AddDeliverable p={p} onClose={() => setFull(false)} />}
+      {current && <CardPanel p={p} d={current} locked={locked} onClose={() => onOpen(null)} onRemove={() => { co.project.removeDeliverable(p.id, current.id); onOpen(null); }} />}
     </div>
   );
 }
 
-function DCard({ d, onOpen }: { d: Deliverable; onOpen: () => void }) {
-  const mineToReview = d.approver === ME && d.status === "review";
-  const counts = { link: d.proof.filter((x) => x.kind === "link").length, file: d.proof.filter((x) => x.kind === "file").length, image: d.proof.filter((x) => x.kind === "image").length };
-  const steps = d.steps.length ? `${d.steps.filter((s) => s.done).length}/${d.steps.length}` : "";
+const cover = (d: Deliverable) => d.proof.find((x) => x.kind === "image");
+
+/** A proof photo: a sample photo or the member's own upload. */
+function Shot({ x, sizes }: { x: ProofItem; sizes: string }) {
+  if (x.photo) return <Pic name={x.photo} sizes={sizes} />;
+  // eslint-disable-next-line @next/next/no-img-element -- the member's own upload (a data URL until the API stores it)
+  return x.src ? <img src={x.src} alt="" /> : null;
+}
+
+function Card({ p, d, onOpen, onDrag, dragging }: { p: Project; d: Deliverable; onOpen: () => void; onDrag: (id: string | null) => void; dragging: boolean }) {
+  const img = cover(d);
+  const forMe = d.approver === ME && d.status === "review";
+  const steps = d.steps.length;
+  const done = d.steps.filter((s) => s.done).length;
+  const comments = d.thread.length;
+  const money = d.share && p.budget.total ? naira(Math.round((p.budget.total * d.share) / 100)) : "";
   return (
-    <button type="button" className={`co-dcard${mineToReview ? " ask" : ""}`} onClick={onOpen}>
-      {mineToReview && <span className="co-chip blue" style={{ height: 22, fontSize: 11 }}>Needs your review</span>}
-      {d.status === "changes" && <span className="co-chip warn" style={{ height: 22, fontSize: 11 }}>Changes asked</span>}
+    <button type="button" draggable onDragStart={() => onDrag(d.id)} onDragEnd={() => onDrag(null)} className={`ws-card${forMe ? " ask" : ""}${dragging ? " dragging" : ""}`} onClick={onOpen}>
+      {img && <span className="ws-cover"><Shot x={img} sizes="280px" /></span>}
+      <span className="ws-labels">
+        {forMe && <span className="ws-label blue">Waiting for you</span>}
+        {d.status === "changes" && <span className="ws-label amber">Changes asked</span>}
+        {d.status === "approved" && <span className="ws-label green"><Icon name="verified" size={11} />Approved</span>}
+        {d.owner === ME && d.status !== "approved" && !forMe && <span className="ws-label grey">Yours</span>}
+        {money && d.status !== "approved" && <span className="ws-label plain">{money}</span>}
+      </span>
       <b>{d.title}</b>
-      <span className="who"><Avatar person={PEOPLE[d.owner]} size={22} />{nameOf(d.owner)}<em>→</em>{d.approver === ME ? "you approve" : `${nameOf(d.approver)} approves`}</span>
-      <span className="meta">
-        <span><Icon name="event" size={12} />{d.due}</span>
-        {steps && <span><Icon name="poll" size={12} />{steps}</span>}
-        {counts.link > 0 && <span><Icon name="link" size={12} />{counts.link}</span>}
-        {counts.file > 0 && <span><Icon name="document" size={12} />{counts.file}</span>}
-        {counts.image > 0 && <span><Icon name="photo" size={12} />{counts.image}</span>}
-        {d.share ? <span className="share">{d.share}%</span> : null}
+      {steps > 0 && <span className="ws-steps"><i style={{ width: `${(done / steps) * 100}%` }} /></span>}
+      <span className="ws-card-foot">
+        <span className="ws-meta">
+          <span title="Due"><Icon name="event" size={12} />{d.due}</span>
+          {comments > 0 && <span title="Messages"><Icon name="message" size={12} />{comments}</span>}
+          {d.proof.length > 0 && <span title="Proof"><Icon name="link" size={12} />{d.proof.length}</span>}
+        </span>
+        <span className="ws-who" title={`${PEOPLE[d.owner].name} delivers · ${PEOPLE[d.approver].name} approves`}><Avatar person={PEOPLE[d.owner]} size={26} /></span>
       </span>
     </button>
   );
@@ -123,10 +178,10 @@ function KitPicker({ p }: { p: Project }) {
   const [pick, setPick] = useState<WorkKind>(p.kind ?? "make");
   const kit = KITS[pick];
   return (
-    <section className="co-panel" style={{ gap: 16 }}>
+    <section className="ws-box">
       <div>
-        <h2>What kind of work is this?</h2>
-        <p className="hint" style={{ marginTop: 6 }}>It shapes the plan, the tools you pin, how work is reviewed and what your meetings look like. You can change it later.</p>
+        <h2 className="ws-h2">What kind of work is this?</h2>
+        <p className="ws-faint">It shapes the board, the tools you pin, how work is reviewed and your meetings. You can change it later.</p>
       </div>
       <div className="co-kits" role="radiogroup" aria-label="Kind of work">
         {KIT_ORDER.map((k) => (
@@ -136,51 +191,46 @@ function KitPicker({ p }: { p: Project }) {
         ))}
       </div>
       <div className="co-kit-preview">
-        <b>The {kit.label.toLowerCase()} plan</b>
+        <b>The {kit.label.toLowerCase()} board starts with</b>
         <ol>{kit.starter.map((s) => <li key={s.title}><span>{s.title}</span><small>{s.due} · {s.share}%</small></li>)}</ol>
         <p className="co-muted" style={{ fontSize: 13 }}>Proof looks like: {kit.proofHint.toLowerCase()}. Review: {kit.approver}.</p>
       </div>
       <div className="co-row">
-        <button className="kh-btn amber" onClick={() => co.project.setKind(p.id, pick, true)}>Use this plan</button>
-        <button className="kh-btn outline" onClick={() => { co.project.setKind(p.id, pick, false); co.project.addDeliverable(p.id, { title: `First ${KITS[pick].one.toLowerCase()}`, owner: ME, approver: p.host === ME ? p.members.find((m) => m.id !== ME)?.id ?? ME : p.host, due: "This week" }); }}>Start from scratch</button>
+        <button className="kh-btn amber" onClick={() => co.project.setKind(p.id, pick, true)}>Use this board</button>
+        <button className="kh-btn outline" onClick={() => { co.project.setKind(p.id, pick, false); co.project.addDeliverable(p.id, { title: `First ${KITS[pick].one.toLowerCase()}`, owner: ME, approver: p.host === ME ? p.members.find((m) => m.id !== ME)?.id ?? ME : p.host, due: "This week" }); }}>Start empty</button>
       </div>
     </section>
   );
 }
 
-/** The team's own tools, pinned: the repo, the design file, the drive, the class page. */
-function Tools({ p }: { p: Project }) {
+/** Pin the team's own tools: the repo, the design file, the drive, the class page. */
+export function Tools({ p }: { p: Project }) {
   const co = useCollab();
   const kit = kitOf(p.kind);
   const tools = p.tools ?? [];
   const [form, setForm] = useState<{ label: string; url: string } | null>(null);
   const clean = form ? cleanUrl(form.url) : null;
   return (
-    <section className="co-tools" aria-label="Tools">
-      <span className="lbl">Where the work lives</span>
+    <div className="ws-tools">
       {tools.map((t) => {
         const k = linkLook({ url: t.url, kind: t.kind });
         return (
-          <span key={t.id} className="co-tool">
-            <a href={t.url} target="_blank" rel="noopener noreferrer"><Icon name={k.icon} size={15} /><b>{t.label}</b><small>{k.short}</small></a>
+          <span key={t.id} className="ws-tool">
+            <a href={t.url} target="_blank" rel="noopener noreferrer" title={k.short}><Icon name={k.icon} size={15} /><span>{t.label}</span></a>
             <button type="button" aria-label={`Unpin ${t.label}`} onClick={() => co.project.removeTool(p.id, t.id)}>×</button>
           </span>
         );
       })}
       {form ? (
-        <form className="co-tool-form" onSubmit={(e) => { e.preventDefault(); if (clean && form.label.trim()) { co.project.addTool(p.id, { label: form.label.trim(), url: clean, kind: linkKind(clean) }); setForm(null); } }}>
-          <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Name, e.g. Code repository" aria-label="Tool name" autoFocus />
-          <input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="Paste the link" aria-label="Tool link" inputMode="url" />
-          <button className="kh-btn amber sm" disabled={!clean || !form.label.trim()}>Pin</button>
-          <button type="button" className="kh-btn outline sm" onClick={() => setForm(null)}>Cancel</button>
+        <form className="ws-tool-form" onSubmit={(e) => { e.preventDefault(); if (clean && form.label.trim()) { co.project.addTool(p.id, { label: form.label.trim(), url: clean, kind: linkKind(clean) }); setForm(null); } }}>
+          <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} placeholder="Name" aria-label="Tool name" />
+          <input value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="Paste the link" aria-label="Tool link" inputMode="url" autoFocus />
+          <div className="co-row"><button className="kh-btn amber sm" disabled={!clean || !form.label.trim()}>Pin</button><button type="button" className="kh-btn outline sm" onClick={() => setForm(null)}>Cancel</button></div>
         </form>
       ) : (
-        <>
-          {kit.tools.filter((t) => !tools.some((x) => x.label === t.label)).slice(0, 3).map((t) => <button key={t.label} type="button" className="co-tool add" onClick={() => setForm({ label: t.label, url: "" })}>+ {t.label}</button>)}
-          <button type="button" className="co-tool add" onClick={() => setForm({ label: "", url: "" })}>+ Pin a tool</button>
-        </>
+        <button type="button" className="ws-tool add" onClick={() => setForm({ label: kit.tools.find((t) => !tools.some((x) => x.label === t.label))?.label ?? "", url: "" })}>+ Pin a tool</button>
       )}
-    </section>
+    </div>
   );
 }
 
@@ -190,7 +240,7 @@ function AddDeliverable({ p, onClose }: { p: Project; onClose: () => void }) {
   const others = p.members.filter((m) => m.id !== ME);
   const [f, setF] = useState({ title: "", owner: ME as PersonId, approver: (p.host === ME ? others[0]?.id ?? ME : p.host) as PersonId, due: "", share: "" });
   return (
-    <Sheet title={`Add a ${kit.one.toLowerCase()}`} sub="Something one person promises to the team, and who approves it." onClose={onClose}>
+    <Sheet title={`New ${kit.one.toLowerCase()}`} sub="Something one person promises to the team, and who checks it." onClose={onClose}>
       <form className="co-dform" onSubmit={(e) => { e.preventDefault(); if (!f.title.trim()) return; co.project.addDeliverable(p.id, { title: f.title.trim(), owner: f.owner, approver: f.approver, due: f.due.trim() || "No date", share: Number(f.share) || undefined }); onClose(); }}>
         <div className="co-field"><label htmlFor="dl-t">What will be delivered?</label><input id="dl-t" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder={kit.starter[1]?.title ?? "e.g. First draft"} autoFocus /></div>
         <div className="co-two-fields">
@@ -201,65 +251,57 @@ function AddDeliverable({ p, onClose }: { p: Project; onClose: () => void }) {
           <div className="co-field"><label htmlFor="dl-d">Due</label><input id="dl-d" value={f.due} onChange={(e) => setF({ ...f, due: e.target.value })} placeholder="e.g. Fri 22 Nov" /></div>
           <div className="co-field"><label htmlFor="dl-s">Share of the budget <small>optional</small></label><input id="dl-s" value={f.share} inputMode="numeric" onChange={(e) => setF({ ...f, share: e.target.value.replace(/\D/g, "").slice(0, 3) })} placeholder="%" /></div>
         </div>
-        {f.owner === f.approver && <p className="co-muted" style={{ fontSize: 12.5 }}>Usually someone else approves, so the work is checked by a second pair of eyes.</p>}
         <div className="co-flow-foot"><button type="button" className="kh-btn outline" onClick={onClose}>Cancel</button><button className="kh-btn amber" disabled={!f.title.trim()}>Add</button></div>
       </form>
     </Sheet>
   );
 }
 
+/* ═══════════════════════ Card panel ═══════════════════════ */
+
 function ProofView({ x, onRemove }: { x: ProofItem; onRemove?: () => void }) {
   if (x.kind === "file" && x.file) return <FileRow f={x.file} onRemove={onRemove} />;
   if (x.kind === "link" && x.url) {
     const k = linkLook({ url: x.url, kind: linkKind(x.url) });
     return (
-      <li className="co-item">
+      <li className="co-item ws-linkcard">
         <span className="ic"><Icon name={k.icon} size={18} /></span>
-        <span className="t"><b>{x.title}</b><a href={x.url} target="_blank" rel="noopener noreferrer">{k.short}</a></span>
+        <a className="t" href={x.url} target="_blank" rel="noopener noreferrer"><b>{x.title}</b><small>{k.short}</small></a>
+        <a className="open" href={x.url} target="_blank" rel="noopener noreferrer">Open</a>
         {onRemove && <button type="button" className="x" aria-label="Remove" onClick={onRemove}><Icon name="close" size={18} /></button>}
       </li>
     );
   }
-  if (x.kind === "image") {
+  if (x.kind === "note") {
     return (
-      <li className="co-item img">
-        {/* eslint-disable-next-line @next/next/no-img-element -- the member's own upload */}
-        <span className="ph">{x.photo ? <Pic name={x.photo} sizes="120px" /> : x.src ? <img src={x.src} alt="" /> : null}</span>
-        <span className="t"><b>{x.title}</b><small>Photo · {nameOf(x.by)}</small></span>
+      <li className="co-item note">
+        <span className="ic"><Icon name="edit" size={17} /></span>
+        <span className="t"><b>{x.title}</b><p>{x.text}</p></span>
         {onRemove && <button type="button" className="x" aria-label="Remove" onClick={onRemove}><Icon name="close" size={18} /></button>}
       </li>
     );
   }
-  return (
-    <li className="co-item note">
-      <span className="ic"><Icon name="edit" size={17} /></span>
-      <span className="t"><b>{x.title}</b><p>{x.text}</p></span>
-      {onRemove && <button type="button" className="x" aria-label="Remove" onClick={onRemove}><Icon name="close" size={18} /></button>}
-    </li>
-  );
+  return null;
 }
 
 function AddProof({ p, d }: { p: Project; d: Deliverable }) {
   const co = useCollab();
-  const [mode, setMode] = useState<"link" | "file" | "image" | "note" | null>(null);
+  const [mode, setMode] = useState<"link" | "file" | "note" | null>(null);
   const [title, setTitle] = useState("");
   const [val, setVal] = useState("");
   const [busy, setBusy] = useState(false);
   const photo = useRef<HTMLInputElement>(null);
-  const kit = kitOf(p.kind);
   const add = (item: Omit<ProofItem, "id" | "by" | "at">) => { co.project.addProof(p.id, d.id, item); setMode(null); setTitle(""); setVal(""); };
   const url = mode === "link" ? cleanUrl(val) : null;
   return (
-    <div className="co-addproof">
-      <div className="co-row">
-        <span className="co-muted" style={{ fontSize: 13 }}>Add proof:</span>
-        <button type="button" className={`co-chip co-quick${mode === "link" ? " on" : ""}`} onClick={() => setMode("link")}><Icon name="link" size={13} />Link</button>
-        <button type="button" className={`co-chip co-quick${mode === "file" ? " on" : ""}`} onClick={() => setMode("file")}><Icon name="document" size={13} />File</button>
-        <button type="button" className="co-chip co-quick" disabled={busy} onClick={() => photo.current?.click()}><Icon name="photo" size={13} />{busy ? "Adding…" : "Photo"}</button>
-        <button type="button" className={`co-chip co-quick${mode === "note" ? " on" : ""}`} onClick={() => setMode("note")}><Icon name="edit" size={13} />Note</button>
+    <div className="ws-addproof">
+      <div className="ws-addproof-btns">
+        <button type="button" className={mode === "link" ? "on" : undefined} onClick={() => setMode(mode === "link" ? null : "link")}><Icon name="link" size={15} />Link</button>
+        <button type="button" className={mode === "file" ? "on" : undefined} onClick={() => setMode(mode === "file" ? null : "file")}><Icon name="document" size={15} />File</button>
+        <button type="button" disabled={busy} onClick={() => photo.current?.click()}><Icon name="photo" size={15} />{busy ? "Adding…" : "Photo"}</button>
+        <button type="button" className={mode === "note" ? "on" : undefined} onClick={() => setMode(mode === "note" ? null : "note")}><Icon name="edit" size={15} />Note</button>
         <input ref={photo} type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; e.target.value = ""; if (!f) return; setBusy(true); try { add({ kind: "image", title: f.name.replace(/\.[^.]+$/, "").slice(0, 60) || "Photo", src: await photoToDataUrl(f) }); } finally { setBusy(false); } }} />
       </div>
-      {!mode && <p className="co-muted" style={{ fontSize: 12.5, margin: 0 }}>For a {kit.one.toLowerCase()}: {kit.proofHint.toLowerCase()}.</p>}
       {mode === "link" && (
         <form className="co-proof-form" onSubmit={(e) => { e.preventDefault(); if (url) add({ kind: "link", title: title.trim() || linkLook({ url, kind: linkKind(url) }).label, url }); }}>
           <input value={val} onChange={(e) => setVal(e.target.value)} placeholder="Paste the link: a pull request, a preview, a doc" inputMode="url" aria-label="Link" autoFocus />
@@ -279,162 +321,245 @@ function AddProof({ p, d }: { p: Project; d: Deliverable }) {
   );
 }
 
-function DeliverableSheet({ p, d, locked, onClose, onRemove }: { p: Project; d: Deliverable; locked: boolean; onClose: () => void; onRemove: () => void }) {
+/** A card opened: slides in from the right, like a task in Trello or Linear. */
+function CardPanel({ p, d, locked, onClose, onRemove }: { p: Project; d: Deliverable; locked: boolean; onClose: () => void; onRemove: () => void }) {
   const co = useCollab();
   const kit = kitOf(p.kind);
   const [note, setNote] = useState("");
   const [changing, setChanging] = useState(false);
   const [step, setStep] = useState("");
+  const [mounted, setMounted] = useState(false);
   const owner = d.owner === ME;
   const approver = d.approver === ME;
   const value = d.share && p.budget.total ? Math.round((p.budget.total * d.share) / 100) : 0;
   const canEdit = owner && d.status !== "approved" && d.status !== "review";
+  const images = d.proof.filter((x) => x.kind === "image");
+  const others = d.proof.filter((x) => x.kind !== "image");
 
-  return (
-    <Sheet title={d.title} sub={`${STATUS_LABEL[d.status]} · due ${d.due}`} onClose={onClose} wide>
-      <div className="co-dsheet">
-        <div className="co-droles">
-          <span><Avatar person={PEOPLE[d.owner]} size={30} /><span><small>Delivers</small><b>{d.owner === ME ? "You" : PEOPLE[d.owner].name}</b></span></span>
-          <Icon name="more" size={16} />
-          <span><Avatar person={PEOPLE[d.approver]} size={30} /><span><small>Approves</small><b>{d.approver === ME ? "You" : PEOPLE[d.approver].name}</b></span></span>
-          {d.share ? <span className="val"><small>Releases</small><b>{value ? naira(value) : `${d.share}%`}</b></span> : null}
-        </div>
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- the portal target exists only after mount
+  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", k);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { window.removeEventListener("keydown", k); document.body.style.overflow = prev; };
+  }, [onClose]);
+  if (!mounted) return null;
 
-        {d.status === "approved" && (
-          <div className="co-approved"><Icon name="verified" size={20} /><span><b>Approved by {nameOf(d.approver)}{d.approvedAt ? ` ${ago(d.approvedAt)}` : ""}.</b> It&apos;s in the project record{value ? `, ${naira(value)} is released in Share value,` : ""} and on {d.owner === ME ? "your" : `${firstName(d.owner)}'s`} work profile as verified work.</span></div>
-        )}
-        {approver && d.status === "review" && <div className="co-update ask"><Icon name="verified" size={18} /><span><b>{nameOf(d.owner)} sent this for your review.</b> {kit.reviewHint}</span></div>}
+  return createPortal(
+    <div className="ws-scrim" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <aside className="ws-panel kh co" role="dialog" aria-modal="true" aria-label={d.title}>
+        <header className="ws-panel-head">
+          <span className={`ws-status ${d.status}`}>{STATUS_LABEL[d.status]}</span>
+          <span className="ws-crumb">{kit.one} · {p.title}</span>
+          <span className="ws-grow" />
+          {owner && d.status === "todo" && <button className="ws-iconbtn" aria-label="Delete card" onClick={() => { if (window.confirm(`Remove “${d.title}”?`)) onRemove(); }}><Icon name="remove" size={17} /></button>}
+          <button className="ws-iconbtn" onClick={onClose} aria-label="Close"><Icon name="close" size={20} /></button>
+        </header>
 
-        <section className="co-block">
-          <h2 style={{ fontSize: 15 }}>Steps</h2>
-          {d.steps.length > 0 && (
-            <ul className="co-milestones">{d.steps.map((s) => <li key={s.id} className={s.done ? "done" : undefined}><button className="box" disabled={!owner} onClick={() => co.project.toggleStep(p.id, d.id, s.id)} aria-pressed={s.done} aria-label={s.title}>{s.done ? "✓" : ""}</button><span>{s.title}</span></li>)}</ul>
+        <div className="ws-panel-body">
+          <h2>{d.title}</h2>
+          <dl className="ws-props">
+            <div><dt>Delivers</dt><dd><Face id={d.owner} size={24} />{d.owner === ME ? "You" : PEOPLE[d.owner].name}</dd></div>
+            <div><dt>Approves</dt><dd><Face id={d.approver} size={24} />{d.approver === ME ? "You" : PEOPLE[d.approver].name}</dd></div>
+            <div><dt>Due</dt><dd><Icon name="event" size={15} />{d.due}</dd></div>
+            {d.share ? <div><dt>Releases</dt><dd><Icon name="chart" size={15} />{value ? naira(value) : `${d.share}%`}</dd></div> : null}
+          </dl>
+
+          {d.status === "approved" && <div className="co-approved"><Icon name="verified" size={20} /><span><b>Approved by {nameOf(d.approver)}{d.approvedAt ? ` ${ago(d.approvedAt)}` : ""}.</b> It&apos;s in the record{value ? `, ${naira(value)} is released,` : ""} and on {d.owner === ME ? "your" : `${firstName(d.owner)}'s`} profile as verified work.</span></div>}
+          {approver && d.status === "review" && <div className="ws-askbox"><Face id={d.owner} size={36} /><span><b>{PEOPLE[d.owner].name} is waiting for you</b>{kit.reviewHint}</span></div>}
+
+          {images.length > 0 && <div className={`ws-gallery n${Math.min(images.length, 3)}`}>{images.map((x) => <figure key={x.id}><Shot x={x} sizes="260px" /><figcaption>{x.title}</figcaption></figure>)}</div>}
+
+          <section className="ws-sec">
+            <h3>Proof of the work <span>{d.proof.length}</span></h3>
+            {others.length > 0 && <ul className="co-items">{others.map((x) => <ProofView key={x.id} x={x} onRemove={canEdit && x.by === ME ? () => co.project.removeProof(p.id, d.id, x.id) : undefined} />)}</ul>}
+            {!d.proof.length && <p className="ws-faint">Nothing attached yet. For a {kit.one.toLowerCase()}: {kit.proofHint.toLowerCase()}.</p>}
+            {canEdit && <AddProof p={p} d={d} />}
+          </section>
+
+          {(d.steps.length > 0 || canEdit) && (
+            <section className="ws-sec">
+              <h3>Checklist {d.steps.length > 0 && <span>{d.steps.filter((s) => s.done).length}/{d.steps.length}</span>}</h3>
+              {d.steps.length > 0 && <ul className="ws-check">{d.steps.map((s) => <li key={s.id}><button className={s.done ? "on" : undefined} disabled={!owner} onClick={() => co.project.toggleStep(p.id, d.id, s.id)} aria-pressed={s.done} aria-label={s.title}>{s.done && "✓"}</button><span className={s.done ? "done" : undefined}>{s.title}</span></li>)}</ul>}
+              {canEdit && <form className="ws-addstep" onSubmit={(e) => { e.preventDefault(); if (step.trim()) { co.project.addStep(p.id, d.id, step.trim()); setStep(""); } }}><input value={step} onChange={(e) => setStep(e.target.value)} placeholder="+ Add an item" aria-label="Add a checklist item" /></form>}
+            </section>
           )}
-          {owner && d.status !== "approved" ? (
-            <form className="co-inline-form" onSubmit={(e) => { e.preventDefault(); if (step.trim()) { co.project.addStep(p.id, d.id, step.trim()); setStep(""); } }}>
-              <input value={step} onChange={(e) => setStep(e.target.value)} placeholder="Add a step" aria-label="Add a step" />
-              <button className="kh-btn outline sm" disabled={!step.trim()}>Add</button>
-            </form>
-          ) : !d.steps.length && <p className="co-muted" style={{ fontSize: 13 }}>No steps listed.</p>}
-        </section>
 
-        <section className="co-block">
-          <h2 style={{ fontSize: 15 }}>Proof of the work</h2>
-          {d.proof.length ? <ul className="co-items">{d.proof.map((x) => <ProofView key={x.id} x={x} onRemove={canEdit && x.by === ME ? () => co.project.removeProof(p.id, d.id, x.id) : undefined} />)}</ul> : <p className="co-muted" style={{ fontSize: 13 }}>Nothing attached yet. {kit.proofHint}.</p>}
-          {canEdit && <AddProof p={p} d={d} />}
-        </section>
-
-        <section className="co-block">
-          <h2 style={{ fontSize: 15 }}>Conversation</h2>
-          {d.thread.length > 0 && (
-            <ul className="co-dthread">
+          <section className="ws-sec">
+            <h3>Conversation <span>{d.thread.length}</span></h3>
+            <ul className="ws-chat">
               {d.thread.map((t, i) => (
-                <li key={i} className={t.kind}>
-                  <Avatar person={PEOPLE[t.by]} size={26} />
-                  <div><b>{nameOf(t.by)}</b>{t.kind !== "comment" && <span className="tag">{t.kind === "submitted" ? "Sent for review" : t.kind === "changes" ? "Asked for changes" : "Approved"}</span>}<time>{ago(t.at)}</time><p>{t.text}</p></div>
+                <li key={i} className={`${t.by === ME ? "me" : ""} ${t.kind}`}>
+                  {t.by !== ME && <Avatar person={PEOPLE[t.by]} size={28} />}
+                  <div>
+                    <small>{nameOf(t.by)}{t.kind !== "comment" && <em>{t.kind === "submitted" ? " · sent for review" : t.kind === "changes" ? " · asked for changes" : " · approved"}</em>} · {ago(t.at)}</small>
+                    <p>{t.text}</p>
+                  </div>
                 </li>
               ))}
+              {!d.thread.length && <p className="ws-faint">No messages yet.</p>}
             </ul>
-          )}
-          <textarea className="co-dnote" value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder={approver && d.status === "review" ? (changing ? "What needs to change? Be specific." : "A note with your approval (optional)") : owner && (d.status === "doing" || d.status === "changes") ? "A note for the reviewer (optional)" : "Add a comment"} aria-label="Note" />
-        </section>
-
-        <div className="co-dactions">
-          {owner && d.status === "todo" && <button className="kh-btn amber" disabled={locked} onClick={() => co.project.startDeliverable(p.id, d.id)}>Start</button>}
-          {owner && (d.status === "doing" || d.status === "changes") && <button className="kh-btn amber" disabled={locked} onClick={() => { co.project.submitDeliverable(p.id, d.id, note.trim()); setNote(""); }}><Icon name="send" size={16} />Send to {nameOf(d.approver)} for review</button>}
-          {owner && d.status === "review" && !approver && <span className="co-muted" style={{ fontSize: 13.5 }}>Waiting for {nameOf(d.approver)} to review.</span>}
-          {approver && d.status === "review" && !changing && (
-            <>
-              <button className="kh-btn outline" onClick={() => setChanging(true)}>Ask for changes</button>
-              <button className="kh-btn amber" disabled={locked} onClick={() => { co.project.approveDeliverable(p.id, d.id, note.trim()); setNote(""); }}><Icon name="verified" size={16} />Approve</button>
-            </>
-          )}
-          {approver && d.status === "review" && changing && (
-            <>
-              <button className="kh-btn outline" onClick={() => setChanging(false)}>Back</button>
-              <button className="kh-btn amber" disabled={!note.trim()} onClick={() => { co.project.askChanges(p.id, d.id, note.trim()); setNote(""); setChanging(false); }}>Send back with notes</button>
-            </>
-          )}
-          {note.trim() && !(approver && d.status === "review") && !(owner && (d.status === "doing" || d.status === "changes")) && <button className="kh-btn outline" onClick={() => { co.project.commentDeliverable(p.id, d.id, note.trim()); setNote(""); }}>Comment</button>}
-          {owner && d.status === "todo" && <button className="kh-btn outline" style={{ marginRight: "auto" }} onClick={() => { if (window.confirm(`Remove “${d.title}”?`)) onRemove(); }}><Icon name="remove" size={16} />Remove</button>}
+          </section>
         </div>
-      </div>
-    </Sheet>
+
+        <footer className="ws-panel-foot">
+          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2} placeholder={approver && d.status === "review" ? (changing ? `What should ${firstName(d.owner)} change? Be specific.` : `Say something to ${firstName(d.owner)} (optional)`) : "Write a comment…"} aria-label="Message" />
+          <div className="ws-foot-acts">
+            {approver && d.status === "review" && !changing && (
+              <>
+                <button className="kh-btn outline" onClick={() => setChanging(true)}>Ask for changes</button>
+                <button className="kh-btn amber" disabled={locked} onClick={() => { co.project.approveDeliverable(p.id, d.id, note.trim()); setNote(""); }}><Icon name="verified" size={16} />Approve</button>
+              </>
+            )}
+            {approver && d.status === "review" && changing && (
+              <>
+                <button className="kh-btn outline" onClick={() => setChanging(false)}>Back</button>
+                <button className="kh-btn amber" disabled={!note.trim()} onClick={() => { co.project.askChanges(p.id, d.id, note.trim()); setNote(""); setChanging(false); }}>Send back</button>
+              </>
+            )}
+            {!(approver && d.status === "review") && <button className="kh-btn outline" disabled={!note.trim()} onClick={() => { co.project.commentDeliverable(p.id, d.id, note.trim()); setNote(""); }}>Comment</button>}
+            {owner && d.status === "todo" && <button className="kh-btn amber" disabled={locked} onClick={() => co.project.startDeliverable(p.id, d.id)}>Start working on it</button>}
+            {owner && (d.status === "doing" || d.status === "changes") && <button className="kh-btn amber" disabled={locked} onClick={() => { co.project.submitDeliverable(p.id, d.id, note.trim()); setNote(""); }}><Icon name="send" size={16} />Send to {nameOf(d.approver)} for review</button>}
+            {owner && d.status === "review" && !approver && <span className="ws-faint">Waiting for {nameOf(d.approver)}</span>}
+          </div>
+        </footer>
+      </aside>
+    </div>,
+    document.body,
   );
 }
 
-/** Home: what needs the member's review, across this project. */
-export function ReviewQueue({ p, onOpen }: { p: Project; onOpen: (id: string) => void }) {
+/* ═══════════════════════ Home pieces ═══════════════════════ */
+
+/** Everyone waiting for the member's review: faces, names, what they sent and when. */
+export function ReviewInbox({ p, onOpen }: { p: Project; onOpen: (id: string) => void }) {
   const items = toReview(p);
-  if (!items.length) return null;
+  if (!items.length) {
+    return (
+      <section className="ws-inbox empty">
+        <span className="ic"><Icon name="verified" size={22} /></span>
+        <div><b>You&apos;re all caught up</b><small>Nobody is waiting for your review.</small></div>
+      </section>
+    );
+  }
+  const count = (d: Deliverable, k: ProofItem["kind"]) => d.proof.filter((x) => x.kind === k).length;
   return (
-    <section className="co-card co-pad co-queue">
-      <h2 style={{ fontSize: 16 }}><Icon name="verified" size={17} />Needs your review · {items.length}</h2>
-      {items.map((d) => (
-        <button key={d.id} type="button" onClick={() => onOpen(d.id)}>
-          <Avatar person={PEOPLE[d.owner]} size={30} />
-          <span><b>{d.title}</b><small>From {nameOf(d.owner)} · {d.proof.length} {d.proof.length === 1 ? "piece" : "pieces"} of proof</small></span>
-          <span className="kh-btn amber sm">Review</span>
-        </button>
-      ))}
+    <section className="ws-inbox">
+      <header>
+        <span className="ws-stackfaces">{items.slice(0, 4).map((d) => <Avatar key={d.id} person={PEOPLE[d.owner]} size={28} />)}</span>
+        <h3>{items.length === 1 ? `${firstName(items[0].owner)} is` : `${items.length} people are`} waiting for your review</h3>
+      </header>
+      <ul>
+        {items.map((d) => {
+          const last = [...d.thread].reverse().find((t) => t.kind === "submitted");
+          const img = cover(d);
+          return (
+            <li key={d.id}>
+              <button type="button" onClick={() => onOpen(d.id)}>
+                <Face id={d.owner} size={44} />
+                <span className="t">
+                  <span className="who"><b>{PEOPLE[d.owner].name}</b><small>{p.members.find((m) => m.id === d.owner)?.role}</small><time>{last ? ago(last.at) : ""}</time></span>
+                  <span className="what">{d.title}</span>
+                  {last?.text && <span className="quote">{last.text}</span>}
+                  <span className="chips">
+                    {count(d, "link") > 0 && <span><Icon name="link" size={12} />{count(d, "link")} {count(d, "link") > 1 ? "links" : "link"}</span>}
+                    {count(d, "file") > 0 && <span><Icon name="document" size={12} />{count(d, "file")} {count(d, "file") > 1 ? "files" : "file"}</span>}
+                    {count(d, "image") > 0 && <span><Icon name="photo" size={12} />{count(d, "image")} photos</span>}
+                    {count(d, "note") > 0 && <span><Icon name="edit" size={12} />note</span>}
+                  </span>
+                </span>
+                {img && <span className="thumb"><Shot x={img} sizes="80px" /></span>}
+                <span className="kh-btn amber sm go">Review</span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }
 
-/** Home: the member's own deliverables that aren't approved yet. */
-export function MyDeliverables({ p, onOpen }: { p: Project; onOpen: (id: string) => void }) {
+/** The member's own cards that aren't done yet. */
+export function YourWork({ p, onOpen }: { p: Project; onOpen: (id: string) => void }) {
   const mine = (p.deliverables ?? []).filter((d) => d.owner === ME && d.status !== "approved");
-  if (!mine.length) return null;
   return (
-    <section className="co-card co-pad co-queue">
-      <h2 style={{ fontSize: 16 }}><Icon name="project" size={17} />What you promised · {mine.length}</h2>
-      {mine.map((d) => (
-        <button key={d.id} type="button" onClick={() => onOpen(d.id)}>
-          <span className={`co-status ${d.status}`} aria-hidden />
-          <span><b>{d.title}</b><small>{STATUS_LABEL[d.status]} · due {d.due} · {d.approver === ME ? "you approve" : `${nameOf(d.approver)} approves`}</small></span>
-          <Icon name="more" size={16} />
-        </button>
-      ))}
+    <section className="ws-box">
+      <h3 className="ws-h3">Your work <span>{mine.length}</span></h3>
+      {mine.length ? (
+        <ul className="ws-rows">
+          {mine.map((d) => (
+            <li key={d.id}>
+              <button type="button" onClick={() => onOpen(d.id)}>
+                <span className={`ws-status ${d.status}`}>{STATUS_LABEL[d.status]}</span>
+                <b>{d.title}</b>
+                <small><Icon name="event" size={12} />{d.due}</small>
+                <Face id={d.approver} size={22} />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : <p className="ws-faint">Nothing on your plate.</p>}
     </section>
   );
 }
 
-/** Home: a one-minute weekly check-in, and the team's latest. */
-export function Checkins({ p }: { p: Project }) {
+/** The team feed: updates read like posts, with events in between. Post your own at the top. */
+export function TeamFeed({ p }: { p: Project }) {
   const co = useCollab();
   const kit = kitOf(p.kind);
   const [f, setF] = useState({ done: "", next: "", stuck: "" });
   const [open, setOpen] = useState(false);
-  const list = p.checkins ?? [];
+  const [cheers, setCheers] = useState<Record<string, boolean>>({});
+  const items = [
+    ...(p.checkins ?? []).map((c) => ({
+      at: c.at, key: c.id, node: (
+        <article className="ws-post">
+          <Face id={c.who} size={38} />
+          <div>
+            <header><b>{c.who === ME ? "You" : PEOPLE[c.who].name}</b><small>{p.members.find((m) => m.id === c.who)?.role} · {ago(c.at)}</small></header>
+            {c.done && <p><em className="done">Done</em>{c.done}</p>}
+            {c.next && <p><em className="next">Next</em>{c.next}</p>}
+            {c.stuck && <p><em className="stuck">Stuck</em>{c.stuck}</p>}
+            <footer><button type="button" className={cheers[c.id] ? "on" : undefined} onClick={() => setCheers((x) => ({ ...x, [c.id]: !x[c.id] }))}>👏 {cheers[c.id] ? "Cheered" : "Cheer"}</button></footer>
+          </div>
+        </article>
+      ),
+    })),
+    ...p.ledger.slice(-8).map((l, i) => ({
+      at: l.at, key: `l${i}`, node: (
+        <div className="ws-event">
+          {l.who === "akines" ? <span className="co-ak"><Icon name="verified" size={13} /></span> : <Avatar person={PEOPLE[l.who]} size={22} />}
+          <span className="tx">{l.who === "akines" ? l.what : <><b>{l.who === ME ? "You" : firstName(l.who)} </b>{l.what.charAt(0).toLowerCase() + l.what.slice(1)}</>}</span>
+          <time>{ago(l.at)}</time>
+        </div>
+      ),
+    })),
+  ].sort((a, b) => b.at - a.at);
+
   return (
-    <section className="co-card co-pad" style={{ display: "grid", gap: 12 }}>
-      <div className="co-sec-head"><h2 style={{ fontSize: 16 }}>Weekly check-ins</h2>{!open && <button className="kh-btn outline sm" onClick={() => setOpen(true)}>Post yours</button>}</div>
-      {open && (
-        <form className="co-checkin" onSubmit={(e) => { e.preventDefault(); if (!f.done.trim() && !f.next.trim()) return; co.project.checkin(p.id, { done: f.done.trim(), next: f.next.trim(), stuck: f.stuck.trim() || undefined }); setF({ done: "", next: "", stuck: "" }); setOpen(false); }}>
-          <label><span>Done</span><input value={f.done} onChange={(e) => setF({ ...f, done: e.target.value })} placeholder={kit.checkin.done} autoFocus /></label>
-          <label><span>Next</span><input value={f.next} onChange={(e) => setF({ ...f, next: e.target.value })} placeholder={kit.checkin.next} /></label>
-          <label><span>Stuck</span><input value={f.stuck} onChange={(e) => setF({ ...f, stuck: e.target.value })} placeholder="Anything in your way? (optional)" /></label>
-          <div className="co-row" style={{ justifyContent: "flex-end" }}><button type="button" className="kh-btn outline sm" onClick={() => setOpen(false)}>Cancel</button><button className="kh-btn amber sm" disabled={!f.done.trim() && !f.next.trim()}>Post</button></div>
+    <section className="ws-box">
+      <h3 className="ws-h3">Team updates</h3>
+      {open ? (
+        <form className="ws-compose open" onSubmit={(e) => { e.preventDefault(); if (!f.done.trim() && !f.next.trim()) return; co.project.checkin(p.id, { done: f.done.trim(), next: f.next.trim(), stuck: f.stuck.trim() || undefined }); setF({ done: "", next: "", stuck: "" }); setOpen(false); }}>
+          <Face id={ME} size={36} />
+          <div>
+            <label><em className="done">Done</em><input value={f.done} onChange={(e) => setF({ ...f, done: e.target.value })} placeholder={kit.checkin.done} autoFocus /></label>
+            <label><em className="next">Next</em><input value={f.next} onChange={(e) => setF({ ...f, next: e.target.value })} placeholder={kit.checkin.next} /></label>
+            <label><em className="stuck">Stuck</em><input value={f.stuck} onChange={(e) => setF({ ...f, stuck: e.target.value })} placeholder="Anything in your way? (optional)" /></label>
+            <div className="co-row" style={{ justifyContent: "flex-end" }}><button type="button" className="kh-btn outline sm" onClick={() => setOpen(false)}>Cancel</button><button className="kh-btn amber sm" disabled={!f.done.trim() && !f.next.trim()}>Post update</button></div>
+          </div>
         </form>
+      ) : (
+        <button type="button" className="ws-compose" onClick={() => setOpen(true)}><Face id={ME} size={36} /><span className="tx">Share an update with the team…</span><span className="kh-btn outline sm">Post</span></button>
       )}
-      {list.length ? (
-        <ul className="co-checkins">
-          {list.slice(0, 4).map((c) => (
-            <li key={c.id}>
-              <Avatar person={PEOPLE[c.who]} size={28} />
-              <div>
-                <b>{nameOf(c.who)}</b><time>{ago(c.at)}</time>
-                {c.done && <p><em>Done</em>{c.done}</p>}
-                {c.next && <p><em>Next</em>{c.next}</p>}
-                {c.stuck && <p className="stuck"><em>Stuck</em>{c.stuck}</p>}
-              </div>
-            </li>
-          ))}
-        </ul>
-      ) : !open && <p className="co-muted" style={{ fontSize: 13.5 }}>Once a week, everyone says what they did, what&apos;s next and what&apos;s in the way. One minute each.</p>}
+      <div className="ws-feed">{items.map((it) => <div key={it.key}>{it.node}</div>)}</div>
     </section>
   );
 }
+
+/* ═══════════════════════ Value and record ═══════════════════════ */
 
 /** Share value: what's been released by approvals so far. */
 export function Released({ p }: { p: Project }) {
@@ -450,20 +575,20 @@ export function Released({ p }: { p: Project }) {
         <div className="co-row" style={{ justifyContent: "space-between" }}><b style={{ fontSize: 20 }}>{naira(Math.round((p.budget.total * pct) / 100))}</b><span className="co-muted" style={{ fontSize: 13 }}>{pct}% of {naira(p.budget.total)} · {approved.length} of {list.length} approved</span></div>
         <span className="co-progress"><i style={{ width: `${Math.min(100, pct)}%` }} /></span>
         {byOwner.length > 0 && <ul className="co-released">{byOwner.map(({ m, amount }) => <li key={m.id}><Avatar person={PEOPLE[m.id]} size={24} /><span>{nameOf(m.id)}</span><b>{naira(amount)}</b></li>)}</ul>}
-        <p className="co-muted" style={{ fontSize: 12.5, margin: 0 }}>Each deliverable&apos;s share is released when it&apos;s approved. In the live app the money is held by Paystack until then.</p>
+        <p className="co-muted" style={{ fontSize: 12.5, margin: 0 }}>Each card&apos;s share is released when it&apos;s approved. In the live app the money is held by Paystack until then.</p>
       </div>
     </section>
   );
 }
 
-/** Record: who delivered what, approved by whom. The contribution record a supervisor or client can rely on. */
+/** Record: who delivered what, approved by whom. */
 export function Contributions({ p }: { p: Project }) {
   const list = p.deliverables ?? [];
   if (!list.length) return null;
   return (
     <section className="co-block">
       <h2>Who delivered what</h2>
-      <p className="co-muted" style={{ fontSize: 14 }}>Every approved deliverable, with who approved it and when. Each one also shows on the person&apos;s work profile as verified work.</p>
+      <p className="co-muted" style={{ fontSize: 14 }}>Every approved card, with who approved it and when. Each one also shows on the person&apos;s work profile as verified work.</p>
       <div className="co-contrib">
         {p.members.map((m) => {
           const mine = list.filter((d) => d.owner === m.id);

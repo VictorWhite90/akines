@@ -13,8 +13,8 @@ import { KITS, kindForFields } from "./kits";
 import type { AppStage, Application, CollabCall, CollabState, Charter, Checkin, Deliverable, JourneyStage, ProofItem, Project, Proposal, StudioItem, Task, Tool, WorkKind } from "./types";
 
 export const ME: PersonId = "amara";
-// v3: projects gained deliverables, tools and check-ins, so older saved demos start fresh.
-const KEY = "co:v3";
+// v4: the clinic sample gained a bigger team, so older saved demos start fresh.
+const KEY = "co:v4";
 const SEC = 1000;
 const first = (id: PersonId) => PEOPLE[id].name.split(" ")[0];
 const clock = () => new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -326,6 +326,8 @@ export function useCollab({ engine = false }: { engine?: boolean } = {}) {
     }),
     removeDeliverable: (id: string, dId: string) => editProject(id, (p) => { p.deliverables = (p.deliverables ?? []).filter((x) => x.id !== dId); }),
     startDeliverable: (id: string, dId: string) => editD(id, dId, (d) => { d.status = "doing"; }),
+    /** Moving a card back to To do (dragging on the board). */
+    backToTodo: (id: string, dId: string) => editD(id, dId, (d) => { if (d.status === "doing") d.status = "todo"; }),
     submitDeliverable: (id: string, dId: string, note: string) => editD(id, dId, (d, p) => {
       d.status = "review"; d.thread.push({ by: ME, text: note || "Ready for your review.", at: Date.now(), kind: "submitted" });
       log(p, ME, `Sent "${d.title}" to ${first(d.approver)} for review`);
