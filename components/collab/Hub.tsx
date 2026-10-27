@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Sheet from "@/components/circles/community/Sheet";
 import { CollabCard } from "@/components/home/cards";
+import Pic from "@/components/home/Pic";
 import Avatar from "@/components/ui/Avatar";
 import Icon from "@/components/ui/Icon";
 import { FIELDS, type Field } from "@/lib/collab/types";
@@ -18,6 +19,26 @@ const SUGGESTED: { who: PersonId; title: string; why: string; idea: string; mine
   { who: "kwame", title: "A queue screen for small clinics", why: "Your clinic check-in redesign and Kwame's work on offline apps meet in the same problem: patients waiting outside from 6am.", idea: "A simple screen any clinic can put on a TV, showing the queue and the next three names.", mine: "Product designer", theirs: "Developer" },
   { who: "fatou", title: "Menus that tell the cook's story", why: "Fatou cooks food with a story behind every dish; you design menus and signage. Together: a menu people keep.", idea: "Design a menu for Fatou's stall where every dish has one line about where it comes from.", mine: "Designer", theirs: "Chef" },
 ];
+
+const HERO_WORDS = ["Build an app", "Paint a mural", "Teach a course", "Shoot a film", "Host an event", "Start a business"];
+
+/** The headline's changing phrase: the next one rises out of a soft blur as the last one lifts away. */
+function Rotator({ words }: { words: string[] }) {
+  const [i, setI] = useState(0);
+  const [prev, setPrev] = useState<number | null>(null);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => setI((n) => { setPrev(n); return (n + 1) % words.length; }), 2800);
+    return () => clearInterval(t);
+  }, [words.length]);
+  return (
+    <span className="co-rotator">
+      <span className="sr-only">{words.join(", ")}</span>
+      {prev !== null && <span key={`o${prev}-${i}`} className="word out" aria-hidden>{words[prev]}</span>}
+      <span key={`i${i}`} className="word in" aria-hidden>{words[i]}</span>
+    </span>
+  );
+}
 
 export default function Hub() {
   const co = useCollab({ engine: true });
@@ -37,10 +58,12 @@ export default function Hub() {
   return (
     <div className="kh co">
       <section className="co-hero">
-        <div style={{ position: "relative", zIndex: 1 }}>
+        {/* A photo for now; a short film of people working together can replace it later. */}
+        <span className="co-hero-bg" aria-hidden><Pic name="teamWork" sizes="100vw" priority position="70% 40%" /></span>
+        <div className="co-hero-copy">
           <p className="co-eyebrow">Collaborate</p>
-          <h1>Make something you couldn&apos;t make alone.</h1>
-          <p className="lede">Answer an open call, or start something with someone you&apos;d like to work with. Every project gets a workspace, a group chat, a room to meet in and a studio for the work, with fair terms agreed before anyone starts.</p>
+          <h1><Rotator words={HERO_WORDS} /><span className="tail">together.</span></h1>
+          <p className="lede">Answer an open call, or start something with someone you&apos;d like to work with. Every project gets a workspace, a group chat and a room to meet in, with fair terms agreed before anyone starts.</p>
           <div className="co-hero-acts">
             <Link href="/collaborate/new" className="kh-btn amber"><Icon name="spark" size={18} />Post an open call</Link>
             <a href="#people" className="kh-btn glass">Propose a project</a>
