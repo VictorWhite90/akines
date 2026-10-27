@@ -1058,3 +1058,61 @@ html[data-theme="dark"] .ws em.stuck { color: #fca5a5; }
   .ws-meetchips::-webkit-scrollbar { display: none; }
   .ws-meetchips button { flex: none; }
 }
+
+/* ── Workspace type: the phone's own system font (as X and most native apps use), set once for the whole space ── */
+.ws, .ws-scrim, .ws-panel { --font-manrope: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; letter-spacing: 0; }
+.ws-note-line { margin: 0; font-size: 14px; color: var(--k-ink-2); }
+
+/* Header actions: labelled pills on desktop, plain icons on phones */
+.ws-hbtn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 999px; border: .5px solid var(--k-border-strong); background: var(--k-surface); color: var(--k-ink); font: 600 13.5px var(--font-manrope), sans-serif; cursor: pointer; }
+.ws-hbtn.meet { border-color: transparent; background: #f4a63a; color: #1d1300; }
+.ws-hbtn:hover { filter: brightness(.97); }
+
+@media (max-width: 860px) {
+  .ws-title h1 { font-size: 16px; font-weight: 700; }
+  .ws-sub { font-size: 12px; }
+  .ws-head-acts { gap: 2px; }
+  .ws-hbtn, .ws-hbtn.meet { width: 38px; height: 38px; padding: 0; justify-content: center; border: 0; border-radius: 50%; background: none; color: var(--k-ink); }
+  .ws-hbtn:active { background: var(--k-subtle); }
+  .ws-hbtn .lbl { display: none; }
+
+  /* Views as plain text tabs with an underline, like X's For you / Following */
+  .ws-side { padding: 0 14px; }
+  .ws-side nav { gap: 0; }
+  .ws-side nav button, .ws-side nav button.on { position: relative; height: 46px; padding: 0 14px; gap: 6px; border-radius: 0; background: none; box-shadow: none; color: var(--k-ink-3); font: 500 15px var(--font-manrope), sans-serif; }
+  .ws-side nav button:hover { background: none; }
+  .ws-side nav button svg { display: none; }
+  .ws-side nav button.on { color: var(--k-ink); font-weight: 700; }
+  .ws-side nav button.on::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: 0; height: 3px; border-radius: 3px; background: var(--co); }
+  .ws-side nav button .ws-badge { min-width: 17px; height: 17px; padding: 0 5px; font-size: 10.5px; }
+
+  /* Smaller, calmer type */
+  .ws-inbox > header h3 { font-size: 15px; }
+  .ws-h3 { font-size: 15px; }
+  .ws-inbox .who b { font-size: 14px; }
+  .ws-inbox .what { font-size: 14px; font-weight: 600; }
+  .ws-inbox .quote { font-size: 13px; }
+  .ws-post header b { font-size: 14px; }
+  .ws-post p { font-size: 13.5px; }
+  .ws-rows b { font-size: 14px; }
+
+  /* Each view is already named by its tab */
+  .ws-viewhead h2, .ws-viewhead .ws-faint { display: none; }
+  .ws-viewhead { justify-content: flex-start; }
+  .ws-tools { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-right: -14px; padding-right: 14px; }
+  .ws-tools::-webkit-scrollbar { display: none; }
+  .ws-tool { flex: none; }
+  .ws-toolbar .co-kind { display: none; }
+  .ws-main { padding-bottom: 96px; }
+}
+/* The site caps page headings with !important; the workspace title sets its own size. */
+.app .content .ws-title h1 { font-size: 19px !important; }
+@media (max-width: 860px) {
+  .app .content .ws-title h1 { font-size: 17px !important; }
+  .ws-toolbar { flex-wrap: nowrap; }
+  .ws-toolbar .ws-grow { display: none; }
+  .ws-seg { flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+  .ws-seg::-webkit-scrollbar { display: none; }
+  .ws-seg button { flex: none; }
+  .ws-toolbar > .kh-btn { flex: none; }
+}

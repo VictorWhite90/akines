@@ -79,8 +79,8 @@ export default function Workspace({ id }: { id: string }) {
           {p.members.length > 5 && <span className="ws-more">+{p.members.length - 5}</span>}
         </div>
         <div className="ws-head-acts">
-          <button className="kh-btn outline sm" onClick={() => go("chat")} aria-label="Team chat"><Icon name="message" size={15} /><span className="lbl">Chat</span></button>
-          <button className="kh-btn amber sm" onClick={() => router.push(co.project.startRoom(p))} aria-label="Meet now"><Icon name="live" size={15} /><span className="lbl">Meet now</span></button>
+          <button className="ws-hbtn" onClick={() => go("chat")} aria-label="Team chat" title="Team chat"><Icon name="message" size={20} /><span className="lbl">Chat</span></button>
+          <button className="ws-hbtn meet" onClick={() => router.push(co.project.startRoom(p))} aria-label="Start a meeting" title="Start a meeting"><Icon name="video" size={20} /><span className="lbl">Meet now</span></button>
         </div>
       </header>
 
@@ -141,11 +141,6 @@ function View({ title, sub, children }: { title: string; sub: string; children: 
   return <div className="ws-stack"><div className="ws-viewhead"><div><h2>{title}</h2><p className="ws-faint">{sub}</p></div></div>{children}</div>;
 }
 
-function greeting() {
-  const h = new Date().getHours();
-  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
-}
-
 function Home({ p, go, open }: { p: Project; go: (t: WsTab) => void; open: (id: string) => void }) {
   const co = useCollab();
   const kit = kitOf(p.kind);
@@ -155,10 +150,7 @@ function Home({ p, go, open }: { p: Project; go: (t: WsTab) => void; open: (id: 
 
   return (
     <div className="ws-home">
-      <div className="ws-hello">
-        <h2>{greeting()}, {firstName(ME)}</h2>
-        {note && <p>{note}</p>}
-      </div>
+      {note && <p className="ws-note-line">{note}</p>}
 
       {p.stage === 1 && <button className="ws-cta" onClick={() => go("work")}><Icon name="project" size={18} /><span><b>Set up the board</b><small>Pick the kind of work: {kit.label} and five others</small></span><Icon name="more" size={16} /></button>}
       {p.stage >= 2 && !p.charter.signedAt && <button className="ws-cta" onClick={() => go("agree")}><Icon name="verified" size={18} /><span><b>Read and sign the agreement</b><small>{p.charter.signed.length} of {p.members.length} signed</small></span><Icon name="more" size={16} /></button>}
