@@ -70,7 +70,7 @@ export default function Workspace({ id }: { id: string }) {
           <h1>{p.title}</h1>
           <span className="ws-sub">
             {p.kind && <span className="ws-kind"><Icon name={kit.icon} size={12} />{kit.label}</span>}
-            <span>{JOURNEY[p.stage]} · stage {p.stage + 1} of 7</span>
+            <span className="ws-stage">{JOURNEY[p.stage]} · stage {p.stage + 1} of 7</span>
             {list.length > 0 && <span>{doneN} of {list.length} done</span>}
           </span>
         </div>
@@ -79,8 +79,8 @@ export default function Workspace({ id }: { id: string }) {
           {p.members.length > 5 && <span className="ws-more">+{p.members.length - 5}</span>}
         </div>
         <div className="ws-head-acts">
-          <button className="kh-btn outline sm" onClick={() => go("chat")}><Icon name="message" size={15} />Chat</button>
-          <button className="kh-btn amber sm" onClick={() => router.push(co.project.startRoom(p))}><Icon name="live" size={15} />Meet now</button>
+          <button className="kh-btn outline sm" onClick={() => go("chat")} aria-label="Team chat"><Icon name="message" size={15} /><span className="lbl">Chat</span></button>
+          <button className="kh-btn amber sm" onClick={() => router.push(co.project.startRoom(p))} aria-label="Meet now"><Icon name="live" size={15} /><span className="lbl">Meet now</span></button>
         </div>
       </header>
 
@@ -149,42 +149,36 @@ function greeting() {
 function Home({ p, go, open }: { p: Project; go: (t: WsTab) => void; open: (id: string) => void }) {
   const co = useCollab();
   const kit = kitOf(p.kind);
-  const reviews = toReview(p);
-  const mine = (p.deliverables ?? []).filter((d) => d.owner === ME && d.status !== "approved");
-  const summary = [
-    reviews.length ? `${reviews.length} ${reviews.length === 1 ? "thing needs" : "things need"} your review` : "",
-    mine.length ? `${mine.length} of yours in progress` : "",
-  ].filter(Boolean).join(" · ");
   const thread = co.thread(p);
   const last = thread[thread.length - 1];
+  const note = p.stage === 1 ? "You're shaping the idea together. Choose the kind of work to set up the board." : !p.charter.signedAt ? "Sign the agreement with your team so the work can start." : "";
 
   return (
     <div className="ws-home">
       <div className="ws-hello">
         <h2>{greeting()}, {firstName(ME)}</h2>
-        <p>{p.stage === 1 ? "You're shaping the idea together. Choose the kind of work to set up the board." : !p.charter.signedAt ? "Sign the agreement with your team so the work can start." : summary || "Everything's moving. Nothing needs you right now."}</p>
+        {note && <p>{note}</p>}
       </div>
 
       {p.stage === 1 && <button className="ws-cta" onClick={() => go("work")}><Icon name="project" size={18} /><span><b>Set up the board</b><small>Pick the kind of work: {kit.label} and five others</small></span><Icon name="more" size={16} /></button>}
       {p.stage >= 2 && !p.charter.signedAt && <button className="ws-cta" onClick={() => go("agree")}><Icon name="verified" size={18} /><span><b>Read and sign the agreement</b><small>{p.charter.signed.length} of {p.members.length} signed</small></span><Icon name="more" size={16} /></button>}
 
+      {/* On phones the two columns become one list, in this order: review, your work, updates, team. */}
       <div className="ws-home-grid">
         <div className="ws-stack">
-          {p.charter.signedAt && <ReviewInbox p={p} onOpen={open} />}
-          <TeamFeed p={p} />
+          {p.charter.signedAt && <div className="ws-o1"><ReviewInbox p={p} onOpen={open} /></div>}
+          <div className="ws-o3"><TeamFeed p={p} /></div>
         </div>
         <div className="ws-stack">
-          <YourWork p={p} onOpen={open} />
-          <section className="ws-box">
-            <h3 className="ws-h3">Latest in chat</h3>
+          <div className="ws-o2"><YourWork p={p} onOpen={open} /></div>
+          <section className="ws-box ws-o4">
+            <h3 className="ws-h3">Team</h3>
             <button type="button" className="ws-lastmsg" onClick={() => go("chat")}>
               {last && last.from !== "ai" ? <Face id={last.from} size={30} /> : <span className="co-ak"><Icon name="message" size={14} /></span>}
               <span><b>{last ? (last.from === ME ? "You" : last.from === "ai" ? "Akines" : firstName(last.from)) : "No messages yet"}</b><small>{last && "text" in last ? last.text : "Say hello to the team"}</small></span>
+              <Icon name="more" size={15} />
             </button>
-          </section>
-          <section className="ws-box">
-            <h3 className="ws-h3">Meet</h3>
-            <div className="ws-rituals">{kit.rituals.slice(0, 2).map((r) => <button key={r.title} type="button" onClick={() => go("room")}><Icon name="live" size={15} /><span><b>{r.title}</b><small>{r.minutes} min</small></span></button>)}</div>
+            <div className="ws-meetchips">{kit.rituals.map((r) => <button key={r.title} type="button" onClick={() => go("room")}><Icon name="live" size={14} />{r.title}<small>{r.minutes}m</small></button>)}</div>
           </section>
         </div>
       </div>

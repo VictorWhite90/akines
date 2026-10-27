@@ -72,7 +72,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <main className="main">
           {DEMO && (
             <div className="guest-preview" role="status">
-              <span><strong>Demo</strong> · Sample data in your browser. Nothing here reaches Akines.</span>
+              <span><strong>Demo</strong><span className="gp-long"> · Sample data in your browser. Nothing here reaches Akines.</span></span>
               <Link href="/pages">All pages</Link>
               <button type="button" onClick={() => void import("@/lib/demo/backend").then((d) => { d.resetDemo(); window.location.assign("/login"); })}>Reset demo</button>
               <button type="button" onClick={() => void signOut().then(() => router.replace("/about"))}>Sign out</button>
@@ -100,7 +100,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
         {/* Hidden in KinMessage, where it would sit on top of the Send button. */}
         {/* Hidden where the page has its own composer, so it never covers a Send button. */}
-        {!isActive(pathname, "/messages") && !pathname.includes("/events/") && !pathname.includes("/check-in/") && !pathname.startsWith("/circles/community/") && <button className="nx-fab" onClick={() => setBegin(true)} aria-label="Create" aria-haspopup="dialog"><Add size={26} color="currentColor" /></button>}
+        {!isActive(pathname, "/messages") && !pathname.includes("/events/") && !pathname.includes("/check-in/") && !pathname.startsWith("/circles/community/") && !pathname.startsWith("/collaborate/projects/") && <button className="nx-fab" onClick={() => setBegin(true)} aria-label="Create" aria-haspopup="dialog"><Add size={26} color="currentColor" /></button>}
 
         <Drawer open={more} onClose={() => setMore(false)} onCompanion={() => setCompanion(true)} />
         <CreateChooser open={begin} onClose={() => setBegin(false)} onIntent={() => setIntent(true)} />

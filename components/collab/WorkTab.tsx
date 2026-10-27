@@ -433,8 +433,9 @@ function CardPanel({ p, d, locked, onClose, onRemove }: { p: Project; d: Deliver
 
 /* ═══════════════════════ Home pieces ═══════════════════════ */
 
-/** Everyone waiting for the member's review: faces, names, what they sent and when. */
+/** Everyone waiting for the member's review, as a compact inbox: tap a row to open the card. */
 export function ReviewInbox({ p, onOpen }: { p: Project; onOpen: (id: string) => void }) {
+  const [all, setAll] = useState(false);
   const items = toReview(p);
   if (!items.length) {
     return (
@@ -444,39 +445,43 @@ export function ReviewInbox({ p, onOpen }: { p: Project; onOpen: (id: string) =>
       </section>
     );
   }
+  const shown = all ? items : items.slice(0, 3);
   const count = (d: Deliverable, k: ProofItem["kind"]) => d.proof.filter((x) => x.kind === k).length;
   return (
     <section className="ws-inbox">
       <header>
-        <span className="ws-stackfaces">{items.slice(0, 4).map((d) => <Avatar key={d.id} person={PEOPLE[d.owner]} size={28} />)}</span>
-        <h3>{items.length === 1 ? `${firstName(items[0].owner)} is` : `${items.length} people are`} waiting for your review</h3>
+        <span className="ws-stackfaces">{items.slice(0, 4).map((d) => <Avatar key={d.id} person={PEOPLE[d.owner]} size={26} />)}</span>
+        <h3>Waiting for your review</h3>
+        <span className="ws-pill">{items.length}</span>
       </header>
       <ul>
-        {items.map((d) => {
+        {shown.map((d) => {
           const last = [...d.thread].reverse().find((t) => t.kind === "submitted");
           const img = cover(d);
           return (
             <li key={d.id}>
               <button type="button" onClick={() => onOpen(d.id)}>
-                <Face id={d.owner} size={44} />
+                <Face id={d.owner} size={40} />
                 <span className="t">
-                  <span className="who"><b>{PEOPLE[d.owner].name}</b><small>{p.members.find((m) => m.id === d.owner)?.role}</small><time>{last ? ago(last.at) : ""}</time></span>
+                  <span className="who"><b>{PEOPLE[d.owner].name}</b><time>{last ? ago(last.at) : ""}</time></span>
                   <span className="what">{d.title}</span>
                   {last?.text && <span className="quote">{last.text}</span>}
                   <span className="chips">
-                    {count(d, "link") > 0 && <span><Icon name="link" size={12} />{count(d, "link")} {count(d, "link") > 1 ? "links" : "link"}</span>}
-                    {count(d, "file") > 0 && <span><Icon name="document" size={12} />{count(d, "file")} {count(d, "file") > 1 ? "files" : "file"}</span>}
-                    {count(d, "image") > 0 && <span><Icon name="photo" size={12} />{count(d, "image")} photos</span>}
+                    {count(d, "link") > 0 && <span><Icon name="link" size={12} />{count(d, "link")}</span>}
+                    {count(d, "file") > 0 && <span><Icon name="document" size={12} />{count(d, "file")}</span>}
+                    {count(d, "image") > 0 && <span><Icon name="photo" size={12} />{count(d, "image")}</span>}
                     {count(d, "note") > 0 && <span><Icon name="edit" size={12} />note</span>}
                   </span>
                 </span>
                 {img && <span className="thumb"><Shot x={img} sizes="80px" /></span>}
                 <span className="kh-btn amber sm go">Review</span>
+                <Icon name="more" size={16} className="chev" />
               </button>
             </li>
           );
         })}
       </ul>
+      {items.length > 3 && <button type="button" className="ws-seeall" onClick={() => setAll(!all)}>{all ? "Show fewer" : `See all ${items.length}`}</button>}
     </section>
   );
 }
@@ -492,10 +497,12 @@ export function YourWork({ p, onOpen }: { p: Project; onOpen: (id: string) => vo
           {mine.map((d) => (
             <li key={d.id}>
               <button type="button" onClick={() => onOpen(d.id)}>
-                <span className={`ws-status ${d.status}`}>{STATUS_LABEL[d.status]}</span>
-                <b>{d.title}</b>
-                <small><Icon name="event" size={12} />{d.due}</small>
-                <Face id={d.approver} size={22} />
+                <span className={`ws-dot-s ${d.status}`} aria-hidden />
+                <span className="t">
+                  <b>{d.title}</b>
+                  <small>{STATUS_LABEL[d.status]} · due {d.due} · {d.approver === ME ? "you approve" : `${firstName(d.approver)} approves`}</small>
+                </span>
+                <Icon name="more" size={15} />
               </button>
             </li>
           ))}
@@ -505,38 +512,18 @@ export function YourWork({ p, onOpen }: { p: Project; onOpen: (id: string) => vo
   );
 }
 
-/** The team feed: updates read like posts, with events in between. Post your own at the top. */
+/** Team updates: the latest check-ins as short posts, and the activity log folded away below. */
 export function TeamFeed({ p }: { p: Project }) {
   const co = useCollab();
   const kit = kitOf(p.kind);
   const [f, setF] = useState({ done: "", next: "", stuck: "" });
   const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(false);
+  const [log, setLog] = useState(false);
   const [cheers, setCheers] = useState<Record<string, boolean>>({});
-  const items = [
-    ...(p.checkins ?? []).map((c) => ({
-      at: c.at, key: c.id, node: (
-        <article className="ws-post">
-          <Face id={c.who} size={38} />
-          <div>
-            <header><b>{c.who === ME ? "You" : PEOPLE[c.who].name}</b><small>{p.members.find((m) => m.id === c.who)?.role} · {ago(c.at)}</small></header>
-            {c.done && <p><em className="done">Done</em>{c.done}</p>}
-            {c.next && <p><em className="next">Next</em>{c.next}</p>}
-            {c.stuck && <p><em className="stuck">Stuck</em>{c.stuck}</p>}
-            <footer><button type="button" className={cheers[c.id] ? "on" : undefined} onClick={() => setCheers((x) => ({ ...x, [c.id]: !x[c.id] }))}>👏 {cheers[c.id] ? "Cheered" : "Cheer"}</button></footer>
-          </div>
-        </article>
-      ),
-    })),
-    ...p.ledger.slice(-8).map((l, i) => ({
-      at: l.at, key: `l${i}`, node: (
-        <div className="ws-event">
-          {l.who === "akines" ? <span className="co-ak"><Icon name="verified" size={13} /></span> : <Avatar person={PEOPLE[l.who]} size={22} />}
-          <span className="tx">{l.who === "akines" ? l.what : <><b>{l.who === ME ? "You" : firstName(l.who)} </b>{l.what.charAt(0).toLowerCase() + l.what.slice(1)}</>}</span>
-          <time>{ago(l.at)}</time>
-        </div>
-      ),
-    })),
-  ].sort((a, b) => b.at - a.at);
+  const posts = [...(p.checkins ?? [])].sort((a, b) => b.at - a.at);
+  const shown = more ? posts : posts.slice(0, 3);
+  const events = [...p.ledger].reverse().slice(0, 10);
 
   return (
     <section className="ws-box">
@@ -552,9 +539,35 @@ export function TeamFeed({ p }: { p: Project }) {
           </div>
         </form>
       ) : (
-        <button type="button" className="ws-compose" onClick={() => setOpen(true)}><Face id={ME} size={36} /><span className="tx">Share an update with the team…</span><span className="kh-btn outline sm">Post</span></button>
+        <button type="button" className="ws-compose" onClick={() => setOpen(true)}><Face id={ME} size={34} /><span className="tx">Share an update with the team…</span></button>
       )}
-      <div className="ws-feed">{items.map((it) => <div key={it.key}>{it.node}</div>)}</div>
+      <div className="ws-feed">
+        {shown.map((c) => (
+          <article key={c.id} className="ws-post">
+            <Face id={c.who} size={36} />
+            <div>
+              <header><b>{c.who === ME ? "You" : PEOPLE[c.who].name}</b><small>{ago(c.at)}</small></header>
+              {c.done && <p><em className="done">Done</em><span>{c.done}</span></p>}
+              {c.next && <p><em className="next">Next</em><span>{c.next}</span></p>}
+              {c.stuck && <p><em className="stuck">Stuck</em><span>{c.stuck}</span></p>}
+              <footer><button type="button" className={cheers[c.id] ? "on" : undefined} onClick={() => setCheers((x) => ({ ...x, [c.id]: !x[c.id] }))} aria-label={cheers[c.id] ? "Remove cheer" : "Cheer"}>👏{cheers[c.id] ? " 1" : ""}</button></footer>
+            </div>
+          </article>
+        ))}
+        {!posts.length && <p className="ws-faint">No updates yet. One line on what you did and what&apos;s next is plenty.</p>}
+      </div>
+      {posts.length > 3 && <button type="button" className="ws-seeall" onClick={() => setMore(!more)}>{more ? "Show fewer" : `See all ${posts.length} updates`}</button>}
+      <button type="button" className="ws-logtoggle" aria-expanded={log} onClick={() => setLog(!log)}><Icon name="time" size={14} />Activity<span>{p.ledger.length}</span><Icon name="expand" size={14} className={log ? "up" : undefined} /></button>
+      {log && (
+        <ul className="ws-log">
+          {events.map((l, i) => (
+            <li key={i}>
+              {l.who === "akines" ? <span className="co-ak"><Icon name="verified" size={12} /></span> : <Avatar person={PEOPLE[l.who]} size={20} />}
+              <span><span className="tx">{l.who === "akines" ? l.what : <><b>{l.who === ME ? "You" : firstName(l.who)} </b>{l.what.charAt(0).toLowerCase() + l.what.slice(1)}</>}</span><time>{ago(l.at)}</time></span>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

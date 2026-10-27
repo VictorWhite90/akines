@@ -288,3 +288,9 @@
 .app.nx .main { overflow-x: clip; }
 html, body { overflow-x: clip; }
 html[data-theme="dark"] .guest-preview { background: #3a2f12; color: #f3e3b5; }
+/* Phones: the demo bar is one short line. */
+@media (max-width: 760px) {
+  .guest-preview { gap: 14px; padding: 7px 12px; font-size: 12.5px; }
+  .guest-preview .gp-long { display: none; }
+  .guest-preview button, .guest-preview a { font-size: 12.5px; }
+}
