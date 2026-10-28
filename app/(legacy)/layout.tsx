@@ -11,6 +11,7 @@ import "@fontsource/dm-mono/500.css";
 import AppShell from "@/components/shell/AppShell";
 import Splash from "@/components/onboarding/Splash";
 import NavProgress from "@/components/shell/NavProgress";
+import { BOOT_SCRIPT } from "@/lib/boot";
 import "./fonts.css";
 import "./tokens.css";
 import "./welcome.css";
@@ -57,7 +58,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://a.storyblok.com" crossOrigin="" />
         {/* Before first paint: the saved theme (so dark mode never flashes light), and the splash on a device that hasn't seen it. */}
-        <script dangerouslySetInnerHTML={{ __html: `try{var q=new URLSearchParams(location.search).get("theme");if(q==="dark"||q==="light"||q==="system")localStorage.setItem("ak:theme",q);var m=localStorage.getItem("ak:theme")||"light";var d=m==="dark"||(m==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.dataset.theme=d?"dark":"light";if(!localStorage.getItem("ak:splashed"))document.documentElement.dataset.splash="1"}catch(e){}` }} />
+        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       </head>
       <body>
         <Splash />

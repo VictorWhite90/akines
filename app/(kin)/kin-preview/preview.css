@@ -1,0 +1,58 @@
+/* The /kin-preview page: a specimen of the kin system. Not a product page. */
+.pv { max-width: 1120px; margin: 0 auto; padding: 24px var(--gutter) 96px; display: grid; gap: 56px; }
+.pv-head { display: grid; gap: 12px; }
+.pv-sec { display: grid; gap: 20px; }
+.pv-sec > h2 { padding-bottom: 12px; border-bottom: 1px solid var(--hairline); }
+.pv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; align-items: start; }
+.pv-swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+.pv-sw { display: grid; gap: 6px; }
+.pv-sw i { display: block; height: 56px; border-radius: var(--r-md); border: 1px solid var(--hairline); }
+.pv-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.pv-prose { max-width: 560px; }
+.pv-prose a { color: var(--brand-text); font-weight: 600; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color var(--d-state); }
+.pv-prose a:hover { text-decoration-color: currentColor; }
+.pv-type { display: grid; gap: 14px; }
+.pv-type > div { display: flex; align-items: baseline; gap: 16px; }
+.pv-type > div > small { flex: none; width: 88px; color: var(--ink-3); font-size: 12px; }
+.pv-ties { display: grid; gap: 24px; }
+.pv-tie { display: flex; align-items: center; gap: 16px; }
+.pv-tie p { margin: 0; }
+
+/* Feed item: no card, hairline between items, photo edge to edge on phones. */
+.pv-feed { max-width: 600px; display: grid; }
+.k-post { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 0 12px; padding: 16px 0; border-bottom: 1px solid var(--hairline); }
+.k-post-head { display: flex; align-items: baseline; gap: 6px; min-width: 0; line-height: 1.3; }
+.k-post-head b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.k-post-head span { color: var(--ink-3); font-size: 13px; white-space: nowrap; }
+.k-post-body { margin-top: 4px; }
+.k-post-media { margin-top: 12px; border-radius: var(--r-md); aspect-ratio: 4 / 3; }
+.k-post-acts { display: flex; gap: 4px; margin: 8px 0 0 -10px; }
+.k-post-acts button { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 10px; border-radius: var(--r-full); color: var(--ink-3); font: 500 13px var(--font-text); transition: color var(--d-state), background var(--d-state); }
+.k-post-acts button:hover { color: var(--ink); background: var(--surface); }
+@media (max-width: 639px) {
+  .k-post { grid-template-columns: 36px minmax(0, 1fr); }
+  .k-post-media { margin-left: -48px; margin-right: calc(-1 * var(--gutter)); border-radius: 0; }
+}
+
+/* Call card: a standalone object. One radius, hairline, photo, host, title, line, roles, fee and the action. */
+.k-call { display: grid; }
+.k-call .k-media { border-radius: 0; }
+.k-call-body { display: grid; gap: 6px; padding: 14px 16px 16px; }
+.k-call-host { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
+.k-call-host b { color: var(--ink); font-weight: 600; }
+.k-call-roles { font-size: 13px; color: var(--ink-3); }
+.k-call-fit { font-size: 13px; color: var(--ink-2); }
+.k-call-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 8px; }
+.k-call-fee b { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+.k-call-fee small { display: block; font-size: 12px; color: var(--ink-3); }
+.k-call-foot .k-btn { pointer-events: none; }
+
+/* Call detail (prototype): the card's photo becomes the hero. */
+.pv-detail { max-width: 760px; margin: 0 auto; padding: 0 0 96px; display: grid; gap: 20px; }
+.pv-detail-top { display: flex; align-items: center; gap: 8px; padding: 8px var(--gutter) 0; }
+.pv-detail .hero { aspect-ratio: 16 / 9; }
+.pv-detail-body { display: grid; gap: 16px; padding: 0 var(--gutter); }
+.pv-detail dl { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pv-detail dt { font-size: 13px; color: var(--ink-3); }
+.pv-detail dd { font-weight: 600; }
+@media (min-width: 640px) { .pv-detail { padding-top: 16px; } .pv-detail .hero { border-radius: var(--r-lg); } .pv-detail-top, .pv-detail-body { padding: 0; } }

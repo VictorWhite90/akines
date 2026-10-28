@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import "./splash.css";
 
 const KIN = ["#ffb000", "#e5007e", "#00a86b", "#2547d0", "#ff6b1a"];
 const KEY = "ak:splashed";
