@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { Add, Game, Heart, InfoCircle, Hierarchy, Home2, Message, Messages2, Notification, People, Profile, SearchNormal1, Setting2, Shop, Key } from "iconsax-reactjs";
+import { Add, ArrowDown2, Game, Heart, InfoCircle, Hierarchy, Home2, Message, Messages2, Notification, People, Profile, SearchNormal1, Setting2, Shop, Key } from "iconsax-reactjs";
 import { DEMO } from "@/lib/demo/mode";
 import { isSignedIn, signOut } from "@/lib/session";
 import { recordRoute } from "@/lib/navHistory";
@@ -33,6 +33,8 @@ const NAV: Item[] = [
   { href: "/profile", label: "Profile", Icon: Profile },
   { href: "/settings", label: "Settings", Icon: Setting2 },
 ];
+const MAIN = NAV.slice(0, 7);
+const MORE = [...NAV.slice(7), { href: "/about", label: "About Akines", Icon: InfoCircle }];
 const DOCK = NAV.filter((i) => ["/", "/banter", "/collaborate", "/messages", "/profile"].includes(i.href));
 const PUBLIC = ["/login", "/signup", "/about", "/about/philosophy", "/welcome"];
 
@@ -65,6 +67,15 @@ function Frame({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { me } = useMe();
   const [menu, setMenu] = useState(false);
+  const [more, setMore] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!more) return;
+    const down = (e: MouseEvent) => { if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMore(false); };
+    const key = (e: KeyboardEvent) => e.key === "Escape" && setMore(false);
+    document.addEventListener("mousedown", down); document.addEventListener("keydown", key);
+    return () => { document.removeEventListener("mousedown", down); document.removeEventListener("keydown", key); };
+  }, [more]);
   const meAvatar = { name: me?.name ?? "You", photo: me?.photo };
   const on = (href: string) => (href === "/" ? pathname === "/" : isActive(pathname, href));
 
@@ -72,7 +83,7 @@ function Frame({ children }: { children: React.ReactNode }) {
     <div className="k-shell">
       {DEMO && (
         <div className="k-demo" role="status">
-          <span><b>Demo</b> · sample data in your browser</span>
+          <span><b>Demo</b><span className="long"> · sample data in your browser</span></span>
           <Link href="/pages">All pages</Link>
           <button type="button" onClick={() => void import("@/lib/demo/backend").then((d) => { d.resetDemo(); window.location.assign("/login"); })}>Reset</button>
           <button type="button" onClick={() => void signOut().then(() => router.replace("/about"))}>Sign out</button>
@@ -98,11 +109,23 @@ function Frame({ children }: { children: React.ReactNode }) {
           Akines
         </Link>
         <nav aria-label="Main">
-          {NAV.map(({ href, label, Icon }) => (
+          {MAIN.map(({ href, label, Icon }) => (
             <Link key={href} href={href} className={on(href) ? "on" : undefined} aria-current={on(href) ? "page" : undefined}>
               <Icon size={24} color="currentColor" />{label}
             </Link>
           ))}
+          <div className="k-more" ref={moreRef}>
+            <button type="button" aria-expanded={more} aria-haspopup="menu" onClick={() => setMore((m) => !m)}>
+              <ArrowDown2 size={24} color="currentColor" style={{ transform: more ? "rotate(180deg)" : undefined, transition: "transform 200ms" }} />More
+            </button>
+            {more && (
+              <div className="k-menu" role="menu">
+                {MORE.map(({ href, label, Icon }) => (
+                  <Link key={href} href={href} role="menuitem" className={on(href) ? "on" : undefined} onClick={() => setMore(false)}><Icon size={20} color="currentColor" />{label}</Link>
+                ))}
+              </div>
+            )}
+          </div>
         </nav>
         <Button variant="primary" className="k-side-create" href="/collaborate/new"><Add size={20} color="currentColor" />Create</Button>
         <div className="k-side-foot">

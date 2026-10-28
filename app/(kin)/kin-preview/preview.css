@@ -11,6 +11,10 @@
 .pv-prose { max-width: 560px; }
 .pv-prose a { color: var(--brand-text); font-weight: 600; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; transition: text-decoration-color var(--d-state); }
 .pv-prose a:hover { text-decoration-color: currentColor; }
+.pv-prose.alt a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+.pv-prose.alt a:hover { text-decoration-color: var(--ink); }
+.pv-opt { display: grid; gap: 8px; }
+.pv-head .pv-row { margin-left: -12px; }
 .pv-type { display: grid; gap: 14px; }
 .pv-type > div { display: flex; align-items: baseline; gap: 16px; }
 .pv-type > div > small { flex: none; width: 88px; color: var(--ink-3); font-size: 12px; }

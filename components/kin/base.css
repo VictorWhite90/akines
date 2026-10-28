@@ -5,7 +5,7 @@
 .k-btn.primary { background: var(--brand); color: var(--on-brand); }
 .k-btn.primary:hover { background: color-mix(in srgb, var(--brand) 88%, var(--ink)); }
 .k-btn.secondary:hover { background: color-mix(in srgb, var(--ink) 8%, var(--surface)); }
-.k-btn.ghost { background: transparent; }
+.k-btn.ghost { background: transparent; padding: 0 12px; }
 .k-btn.ghost:hover { background: var(--surface); }
 .k-btn.danger { background: transparent; color: var(--danger); }
 .k-btn.danger:hover { background: color-mix(in srgb, var(--danger) 8%, transparent); }
@@ -79,7 +79,8 @@ html[data-theme="dark"] .k-sheet { border: 1px solid var(--hairline); }
 
 /* ---- Shell ---- */
 .k-shell { min-height: 100dvh; }
-.k-demo { display: flex; justify-content: center; gap: 14px; padding: 6px var(--gutter); font: 600 12px/1.3 var(--font-text); background: var(--surface); color: var(--ink-2); }
+.k-demo { display: flex; justify-content: center; align-items: center; gap: 14px; height: 30px; padding: 0 var(--gutter); font: 600 12px/1 var(--font-text); background: var(--surface); color: var(--ink-2); white-space: nowrap; overflow: hidden; }
+@media (max-width: 639px) { .k-demo .long { display: none; } }
 .k-demo a, .k-demo button { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
 .k-top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 4px; height: var(--nav-h); padding: 0 calc(var(--gutter) - 8px); background: var(--canvas); border-bottom: 1px solid var(--hairline); }
 .k-top .mark { flex: 1; display: flex; justify-content: center; }
@@ -101,6 +102,11 @@ html[data-theme="dark"] .k-sheet { border: 1px solid var(--hairline); }
   .k-side nav a:hover { background: var(--surface); }
   .k-side nav a.on { font-weight: 600; }
   .k-side nav a.on svg { color: var(--brand-text); }
+  .k-side .k-more { position: relative; }
+  .k-side .k-more > button { width: 100%; display: flex; align-items: center; gap: 14px; height: 48px; padding: 0 14px; border-radius: var(--r-full); font: 400 17px/1 var(--font-text); color: var(--ink); }
+  .k-side .k-more > button:hover, .k-side .k-more > button[aria-expanded="true"] { background: var(--surface); }
+  .k-side .k-more .k-menu { position: absolute; left: 0; bottom: calc(100% + 4px); width: 100%; z-index: 2; }
+  .k-side .k-more .k-menu a { font-size: 15px; }
   .k-side .k-side-create { margin: 12px 0 0; }
   .k-side .k-side-foot { margin-top: auto; display: flex; align-items: center; gap: 10px; padding: 8px 6px 0; }
   .k-side .k-side-me { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: var(--r-full); }

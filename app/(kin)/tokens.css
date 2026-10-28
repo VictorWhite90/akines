@@ -83,6 +83,7 @@ a { color: inherit; text-decoration: none; }
 @media (hover: none) and (pointer: coarse) { input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), textarea, select { font-size: max(16px, 1em); } }
 
 /* ---- Type scale ---- */
+.t-display, .t-display2, .t-page, .t-title { text-wrap: balance; }
 .t-display { font: 700 56px/1.05 var(--font-display); letter-spacing: -0.02em; }
 .t-display2 { font: 700 40px/1.1 var(--font-display); letter-spacing: -0.02em; }
 .t-page { font: 700 32px/1.15 var(--font-display); letter-spacing: -0.02em; }

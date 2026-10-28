@@ -52,7 +52,7 @@ export default function KinPreview() {
           <div><small>display-2 40</small><span className="t-display2">Every gathering has a purpose.</span></div>
           <div><small>page 32</small><span className="t-page">Collaborate</span></div>
           <div><small>title 22</small><span className="t-title">Open calls</span></div>
-          <div><small>heading 17</small><span className="t-heading">Jabi Lake Arts Week: a 20-metre mural</span></div>
+          <div><small>heading 17</small><span className="t-heading">Jabi Lake Arts Week: a 20‑metre mural</span></div>
           <div><small>body 15</small><span className="t-body">Twelve-hour shift done, and a patient&apos;s daughter brought the whole ward jollof. Ẹ ṣeun, Ìbàdàn.</span></div>
           <div><small>small 13</small><span className="t-small c-3">Nurse · Ibadan · 2h</span></div>
           <div><small>micro 12</small><span className="t-micro">4 WAITING</span></div>
@@ -71,7 +71,10 @@ export default function KinPreview() {
           <Button variant="ghost" icon aria-label="Notifications"><Notification size={20} color="currentColor" /></Button>
           <Button variant="primary" disabled>Sending…</Button>
         </div>
-        <p className="t-body pv-prose">Links in running text use the deeper amber: <a href="#pv-btn">edit your work profile</a>, or <a href="#pv-btn">see all calls</a>. The same tone marks the active place in the navigation. Fills use the mark&apos;s amber with ink text on it.</p>
+        <div className="pv-grid">
+          <div className="pv-opt"><b className="t-micro c-3">OPTION A · AMBER LINKS</b><p className="t-body pv-prose">Links in running text use the deeper amber: <a href="#pv-btn">edit your work profile</a>, or <a href="#pv-btn">see all calls</a>. The same tone marks the active icon and the tie.</p></div>
+          <div className="pv-opt"><b className="t-micro c-3">OPTION B · INK LINKS</b><p className="t-body pv-prose alt">Links in running text are ink with an underline: <a href="#pv-btn">edit your work profile</a>, or <a href="#pv-btn">see all calls</a>. Amber is kept for the active icon and the tie only.</p></div>
+        </div>
         <label className="k-search" style={{ maxWidth: 420 }}><SearchNormal1 size={18} color="currentColor" /><input placeholder="Search calls, roles, organisations" aria-label="Search" /></label>
       </section>
 
