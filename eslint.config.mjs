@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // The landing handoff is reference material; its port lives in components/landing and app/(landing).
+    "akines-landing/**",
   ]),
 ]);
 

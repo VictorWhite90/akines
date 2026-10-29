@@ -34,6 +34,7 @@
   "exclude": [
     "node_modules",
     "_legacy",
+    "akines-landing",
     "jest.config.ts",
     "jest.setup.ts",
     "test",

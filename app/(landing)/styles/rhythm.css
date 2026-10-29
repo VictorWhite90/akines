@@ -1,0 +1,497 @@
+/* 03 See how it works: immersive photo + five-step stepper */
+.immersive {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 640px;
+  padding-bottom: 48px;
+  color: var(--inverse);
+  overflow: hidden;
+  isolation: isolate;
+  background: #2a2a2a;
+}
+.immersive > img {
+  z-index: -2;
+}
+.immersive__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 30%,
+    rgba(0, 0, 0, 0.45) 50%,
+    rgba(0, 0, 0, 0.66) 66%,
+    rgba(0, 0, 0, 0.78) 82%,
+    rgba(0, 0, 0, 0.88) 100%
+  );
+}
+.immersive__content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.immersive__left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.immersive__right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .immersive {
+    height: auto;
+    aspect-ratio: 1194 / 679;
+    padding-bottom: 64px;
+  }
+  .immersive__scrim {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 38%,
+      rgba(0, 0, 0, 0.5) 62%,
+      rgba(0, 0, 0, 0.68) 80%,
+      rgba(0, 0, 0, 0.86) 100%
+    );
+  }
+  .immersive__content {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 48px;
+  }
+  .immersive__left {
+    flex: 0 1 553px;
+  }
+  .immersive__right {
+    flex: 0 0 347px;
+  }
+}
+@media (min-width: 1280px) {
+  .immersive {
+    /* width stated so the height cap crops the photo instead of narrowing the section on wide screens */
+    width: 100%;
+    aspect-ratio: 1512 / 860;
+    max-height: 1080px;
+    padding-bottom: 80px;
+  }
+  .immersive__left {
+    flex-basis: 700px;
+    gap: 24px;
+  }
+  .immersive__right {
+    flex-basis: 440px;
+    gap: 20px;
+  }
+}
+
+/* Stepper */
+.rhythm {
+  background: var(--ivory);
+  padding-block: 56px 72px;
+}
+.rhythm__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.rhythm__stage {
+  position: relative;
+  aspect-ratio: 354 / 440;
+  overflow: hidden;
+  background: #d8d3c8;
+}
+.rhythm__image {
+  opacity: 0;
+  transition: opacity 0.5s var(--ease);
+}
+.rhythm__image.is-active {
+  opacity: 1;
+}
+.rhythm__controls {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+}
+
+.rhythm__column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 36px;
+  min-width: 0;
+}
+.steps {
+  width: 100%;
+  border-top: 1px solid var(--border-subtle);
+}
+/* Used while measuring the tallest state: no transitions so heights settle immediately */
+.steps.is-measuring,
+.steps.is-measuring * {
+  transition: none !important;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: padding 0.3s var(--ease);
+}
+.step.is-active {
+  align-items: start;
+  padding-block: 28px;
+}
+
+.step__num {
+  font-family: var(--font-serif);
+  font-size: var(--fs-step-num);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--muted);
+  transition:
+    font-size 0.3s var(--ease),
+    color 0.3s var(--ease);
+}
+.step.is-active .step__num {
+  font-size: var(--fs-step-num-active);
+  color: var(--ink);
+}
+
+.step__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.step.is-active .step__content {
+  gap: 12px;
+}
+
+.step__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-step-title);
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+  transition: font-size 0.3s var(--ease);
+}
+.step.is-active .step__title {
+  font-size: var(--fs-step-title-active);
+}
+.step__trigger {
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  color: var(--ink);
+}
+/* The whole row is the click target */
+.step__trigger::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.step.is-active .step__trigger {
+  cursor: default;
+}
+
+.step__line {
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.018em;
+  color: var(--muted);
+  transition: color 0.3s var(--ease);
+}
+.step.is-active .step__line {
+  font-size: 16px;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+/* Description collapses with a grid-rows transition */
+.step__more {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 0.3s var(--ease),
+    visibility 0s linear 0.3s;
+}
+.step.is-active .step__more {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows 0.3s var(--ease),
+    visibility 0s;
+}
+.step__more-inner {
+  overflow: hidden;
+}
+.step__desc {
+  color: var(--muted);
+}
+
+.step__aside {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.step__thumb {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 60px;
+  overflow: hidden;
+}
+.step__badge {
+  display: none;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--ink);
+}
+.step__badge svg {
+  width: 20px;
+  height: 20px;
+}
+.step.is-active .step__thumb {
+  display: none;
+}
+.step.is-active .step__badge {
+  display: grid;
+}
+.step.is-active .step__aside {
+  align-self: start;
+}
+
+@media (min-width: 768px) {
+  .rhythm {
+    padding-block: 112px;
+  }
+  .rhythm__grid {
+    display: grid;
+    grid-template-columns: 668fr 620fr;
+    column-gap: 72px;
+    align-items: start;
+  }
+  .rhythm__stage {
+    aspect-ratio: 668 / 900;
+  }
+  .rhythm__controls {
+    right: 20px;
+    bottom: 20px;
+  }
+  .step {
+    grid-template-columns: 95px minmax(0, 1fr) auto;
+    column-gap: 20px;
+  }
+  .step__thumb {
+    width: 63px;
+    height: 79px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .rhythm {
+    padding-block: 144px;
+  }
+  .rhythm__grid {
+    column-gap: 96px;
+  }
+  .rhythm__controls {
+    right: 24px;
+    bottom: 24px;
+    gap: 12px;
+  }
+  .rhythm__column {
+    gap: 48px;
+  }
+  .step {
+    grid-template-columns: 120px minmax(0, 1fr) auto;
+    column-gap: 24px;
+    padding-block: 20px;
+  }
+  .step.is-active {
+    padding-block: 36px;
+  }
+  .step.is-active .step__content {
+    gap: 14px;
+  }
+  .step__line {
+    font-size: 14px;
+  }
+  .step.is-active .step__line {
+    font-size: 18px;
+  }
+  .step__thumb {
+    width: 80px;
+    height: 100px;
+  }
+  .step__badge {
+    width: 48px;
+    height: 48px;
+  }
+  .step__badge svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Philosophy link is a taller pill on desktop */
+@media (min-width: 1280px) {
+  .rhythm__cta {
+    min-height: 56px;
+  }
+}
+
+/*
+ * Mobile (under 768): one step at a time as a card. The photograph is above, then the step's icon and title,
+ * its line and description, the previous and next buttons around the step counter, and the call to action.
+ * The five-row list and the buttons laid over the photograph are for tablet and up. The text swipes in the
+ * direction of the button that is tapped (animations in motion.css).
+ */
+.rhythm__card {
+  display: flex;
+  flex-direction: column;
+  gap: 16.5px;
+  min-width: 0;
+}
+.card__viewport {
+  position: relative;
+  overflow: hidden;
+  container-type: inline-size;
+  transition: height 0.6s var(--ease-out);
+}
+.card__slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  visibility: hidden;
+  pointer-events: none;
+}
+.card__slide.is-active {
+  position: relative;
+  visibility: visible;
+  pointer-events: auto;
+}
+.card__slide.is-leaving {
+  visibility: visible;
+}
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.card__badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  color: var(--ink);
+}
+.card__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+}
+.card__line {
+  margin-top: 1px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.card__desc {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.card__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.round-btn--outline {
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--border-card);
+  background: transparent;
+}
+.round-btn--outline:hover {
+  background: transparent;
+}
+.round-btn--outline svg {
+  stroke-width: 2; /* a little heavier than the 1.5 icons elsewhere, as drawn */
+}
+.card__count {
+  min-width: 71px;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 1.2;
+}
+.card__num {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+.card__num-now {
+  display: inline-block;
+  color: var(--ink);
+}
+.card__num-sep,
+.card__num-all {
+  color: #c0c0c0;
+}
+
+@media (max-width: 767px) {
+  .rhythm__stage {
+    aspect-ratio: 354 / 350;
+  }
+  .rhythm__controls,
+  .steps {
+    display: none;
+  }
+  .rhythm__column {
+    align-items: stretch;
+  }
+  /* The call to action as drawn for mobile: arrow closer to the label and a little heavier */
+  .rhythm__cta {
+    gap: 8px;
+    padding: 12px 20px 12px 24px;
+  }
+  .rhythm__cta .btn__icon {
+    stroke-width: 2.6;
+  }
+}
+@media (min-width: 768px) {
+  .rhythm__card {
+    display: none;
+  }
+}

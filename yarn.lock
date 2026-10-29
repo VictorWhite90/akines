@@ -288,6 +288,11 @@
   resolved "https://registry.yarnpkg.com/@fontsource-variable/playfair-display/-/playfair-display-5.3.0.tgz#999c3ff0683d6eb2bd5a09e2db4d07e08f255093"
   integrity sha512-IHdzTvE8eGIXHteZql7KXoqdc3Gfm+Zs1u4XlSC3MeplkwviT3sx/P6gI0tLwg/xIYLF4ZJYveZ5V+bl9cnDwA==
 
+"@fontsource/alice@^5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@fontsource/alice/-/alice-5.3.0.tgz#6e09b397ce5b29cdf2e98673dfa7d7ef4c16659e"
+  integrity sha512-R9J/EiE8T4U8fDIjiXlvgaInqOw/gqeDO60x0+wIEg8i74BHKxC/1qO/SQuhcVI6gb9lTccFBUaMvHRxfc3deg==
+
 "@fontsource/dm-mono@5.3.0":
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/@fontsource/dm-mono/-/dm-mono-5.3.0.tgz#031cc45595b96c85582c7e2faf01518f6c1e3666"
@@ -2689,6 +2694,11 @@ lru-cache@^5.1.1:
   integrity sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==
   dependencies:
     yallist "^3.0.2"
+
+lucide-react@^1.64.0:
+  version "1.64.0"
+  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-1.64.0.tgz#d83b6ce19b780f332acbfa73331b07cbc0bf9c17"
+  integrity sha512-v626F/bcLNvFom6vzztHILtG9tUgXXbgA5AGkd82YkV401+Ko/NHyrWafbPwGofa+6p/EgDJcvEkIwsMH9098w==
 
 magic-string@^0.30.21:
   version "0.30.21"
