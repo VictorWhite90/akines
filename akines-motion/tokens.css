@@ -1,0 +1,6 @@
+/* Akines motion tokens. The whole timing language is three curves; durations live beside each use. */
+:root {
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);      /* state changes: colour, size, opacity */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* long, soft landing: reveals, sweeps, hover, the header returning */
+  --ease-io: cubic-bezier(0.76, 0, 0.24, 1); /* masks that open and close, the header leaving */
+}

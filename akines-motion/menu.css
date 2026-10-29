@@ -1,0 +1,29 @@
+/* Menu entrance: the backdrop fades (0.2 s) and the panel slides in 12 px (0.24 s). The exit
+   (menu-fade-out, menu-panel-out, 280 ms) and the one-by-one link reveal are in motion.css under [data-closing]
+   and .menu selectors. Pattern in React: set data-closing, wait EXIT_MS, then unmount; see README. */
+
+.menu__backdrop { animation: menu-fade 0.2s var(--ease); }
+.menu__panel { animation: menu-panel-in 0.24s var(--ease); }
+.menu__sheet { animation: menu-fade 0.2s var(--ease); }
+.menu__link { transition: background-color 0.2s var(--ease); }
+.menu__chevron { transition: transform 0.2s var(--ease); }
+.menu__link:hover .menu__chevron { transform: translateX(4px); }
+
+@keyframes menu-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes menu-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

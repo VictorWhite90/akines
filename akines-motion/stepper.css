@@ -1,0 +1,141 @@
+/* Stepper: rows expand with font-size, padding and grid-rows transitions (0.3 s); the photo crossfades
+   (0.5 s); the list reserves its tallest height so nothing below it jumps. Mobile card: the viewport eases
+   its height (0.6 s, --ease-out) and the text swipes with the button tapped (keyframes in motion.css). */
+
+.rhythm__image {
+  opacity: 0;
+  transition: opacity 0.5s var(--ease);
+}
+.rhythm__image.is-active {
+  opacity: 1;
+}
+/* Used while measuring the tallest state: no transitions so heights settle immediately */
+.steps.is-measuring,
+.steps.is-measuring * {
+  transition: none !important;
+}
+
+.step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: padding 0.3s var(--ease);
+}
+.step.is-active {
+  align-items: start;
+  padding-block: 28px;
+}
+
+.step__num {
+  font-family: var(--font-serif);
+  font-size: var(--fs-step-num);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--muted);
+  transition:
+    font-size 0.3s var(--ease),
+    color 0.3s var(--ease);
+}
+.step.is-active .step__num {
+  font-size: var(--fs-step-num-active);
+  color: var(--ink);
+}
+
+.step__content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.step.is-active .step__content {
+  gap: 12px;
+}
+
+.step__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-step-title);
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+  transition: font-size 0.3s var(--ease);
+}
+.step.is-active .step__title {
+  font-size: var(--fs-step-title-active);
+}
+.step__trigger {
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  color: var(--ink);
+}
+/* The whole row is the click target */
+.step__trigger::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.step.is-active .step__trigger {
+  cursor: default;
+}
+
+.step__line {
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.018em;
+  color: var(--muted);
+  transition: color 0.3s var(--ease);
+}
+.step.is-active .step__line {
+  font-size: 16px;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+/* Description collapses with a grid-rows transition */
+.step__more {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows 0.3s var(--ease),
+    visibility 0s linear 0.3s;
+}
+.step.is-active .step__more {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows 0.3s var(--ease),
+    visibility 0s;
+}
+.step__more-inner {
+  overflow: hidden;
+}
+.card__viewport {
+  position: relative;
+  overflow: hidden;
+  container-type: inline-size;
+  transition: height 0.6s var(--ease-out);
+}
+.card__slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  visibility: hidden;
+  pointer-events: none;
+}
+.card__slide.is-active {
+  position: relative;
+  visibility: visible;
+  pointer-events: auto;
+}
+.card__slide.is-leaving {
+  visibility: visible;
+}
