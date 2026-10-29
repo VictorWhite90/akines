@@ -1,0 +1,373 @@
+/* 06 Community proof */
+.community__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+.community__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+}
+.community__intro .lead {
+  max-width: 560px;
+}
+.community__photo {
+  position: relative;
+  aspect-ratio: 354 / 340;
+  overflow: hidden;
+  background: #d8d3c8;
+}
+
+.moments {
+  display: flex;
+  flex-direction: column;
+  padding-block: 8px;
+  border-top: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.moment {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding-block: 24px;
+}
+.moment + .moment {
+  border-top: 1px solid var(--border-subtle);
+}
+.moment__icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+}
+.moment__text {
+  font-family: var(--font-serif);
+  font-size: var(--fs-quote);
+  line-height: 1.4;
+}
+
+.invitation {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 40px 24px;
+  background: var(--surface-subtle);
+}
+.invitation__headline {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-h2);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+.invitation__right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.invitation .btn {
+  align-self: stretch;
+}
+
+@media (min-width: 768px) {
+  .community__stack {
+    gap: 64px;
+  }
+  .community__intro .lead {
+    max-width: 442px;
+  }
+  .community__photo {
+    aspect-ratio: 2.24 / 1;
+  }
+  .moments {
+    flex-direction: row;
+    padding-block: 36px;
+  }
+  .moment {
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 20px;
+    padding-block: 0;
+    padding-inline: 32px;
+  }
+  .moment:first-child {
+    padding-left: 0;
+  }
+  .moment:last-child {
+    padding-right: 0;
+  }
+  .moment + .moment {
+    border-top: 0;
+    border-left: 1px solid var(--border-subtle);
+  }
+  .moment__icon {
+    width: 20px;
+    height: 20px;
+    margin-top: 0;
+  }
+  .invitation {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+    padding: 56px 48px;
+  }
+  .invitation__headline {
+    font-size: 36px;
+    max-width: 600px;
+  }
+  .invitation__right {
+    flex: 0 0 347px;
+  }
+  .invitation .btn {
+    align-self: flex-start;
+  }
+}
+@media (min-width: 1280px) {
+  .community__stack {
+    gap: 80px;
+  }
+  .community__intro {
+    gap: 28px;
+  }
+  .community__intro .lead {
+    max-width: 560px;
+  }
+  .moments {
+    padding-block: 48px;
+  }
+  .moment {
+    gap: 24px;
+    padding-inline: 40px;
+  }
+  .moment__icon {
+    width: 24px;
+    height: 24px;
+  }
+  .invitation {
+    padding: 72px 64px;
+  }
+  .invitation__headline {
+    font-size: 48px;
+    max-width: 760px;
+  }
+  .invitation__right {
+    flex-basis: 440px;
+    gap: 32px;
+  }
+}
+
+/* 07 Final CTA */
+.closing {
+  background: var(--ivory);
+}
+.closing__photo {
+  position: relative;
+  height: 420px;
+  overflow: hidden;
+  background: #d8d3c8;
+}
+.closing__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: var(--max-w);
+  margin-inline: auto;
+  padding: 56px var(--pad-x) 72px;
+  text-align: center;
+}
+.closing__headline {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-display);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  text-wrap: pretty;
+}
+.closing__body {
+  max-width: 560px;
+}
+.closing__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding-top: 8px;
+}
+
+@media (min-width: 768px) {
+  .closing__photo {
+    height: auto;
+    aspect-ratio: 1.89 / 1;
+  }
+  .closing__content {
+    gap: 24px;
+    padding-top: 104px;
+    padding-bottom: 112px;
+  }
+  .closing__headline {
+    letter-spacing: -0.0165em;
+  }
+  .closing__body {
+    max-width: 442px;
+  }
+  .closing__actions {
+    flex-direction: row;
+    justify-content: center;
+    width: auto;
+  }
+}
+@media (min-width: 1280px) {
+  .closing__photo {
+    /* width stated so the height cap crops the photo instead of narrowing it on wide screens */
+    width: 100%;
+    max-height: 900px;
+  }
+  .closing__content {
+    gap: 32px;
+    padding-top: 128px;
+    padding-bottom: 144px;
+  }
+  .closing__body {
+    max-width: 560px;
+  }
+  .closing__actions {
+    gap: 16px;
+  }
+}
+
+/* Footer */
+.footer {
+  background: var(--ivory);
+  padding-bottom: 32px;
+}
+.footer__rule {
+  height: 1px;
+  background: var(--border-subtle);
+}
+.footer__main {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-block: 48px;
+}
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.footer__tagline {
+  font-family: var(--font-serif);
+  font-size: var(--fs-tagline);
+  line-height: 1.4;
+  color: var(--muted);
+}
+.footer__columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 24px;
+  row-gap: 36px;
+}
+.footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.footer__links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.footer__link {
+  display: block;
+  width: fit-content;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.018em;
+  /* underline draws in from the left on hover */
+  background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+  transition: background-size 0.5s var(--ease-out);
+}
+.footer__link:hover {
+  background-size: 100% 1px;
+}
+.footer__legal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 24px;
+  font-size: 14px;
+  letter-spacing: 0.018em;
+}
+.footer__legal-links {
+  display: flex;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .footer__main {
+    padding-block: 56px;
+  }
+  .footer__columns {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: 24px;
+  }
+  .footer__legal {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+/* Brand and columns sit side by side once there is room for both (tablet design is 1194) */
+@media (min-width: 1140px) {
+  .footer__main {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .footer__brand {
+    flex: 0 0 336px;
+  }
+  .footer__columns {
+    flex: 0 1 720px;
+    column-gap: 40px;
+  }
+}
+@media (min-width: 1280px) {
+  .footer {
+    padding-bottom: 40px;
+  }
+  .footer__main {
+    padding-block: 72px;
+  }
+  .footer__brand {
+    gap: 20px;
+  }
+  .footer__col {
+    gap: 20px;
+  }
+  .footer__links {
+    gap: 14px;
+  }
+  .footer__legal {
+    padding-top: 28px;
+  }
+  .footer__legal-links {
+    gap: 32px;
+  }
+}
+/* Wide desktop design (1512): 4 x 180 columns with 72 gaps */
+@media (min-width: 1440px) {
+  .footer__brand {
+    flex-basis: 360px;
+  }
+  .footer__columns {
+    flex-basis: 936px;
+    column-gap: 72px;
+  }
+}

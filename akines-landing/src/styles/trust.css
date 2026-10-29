@@ -1,0 +1,307 @@
+/* 05 Matching and trust */
+.trust {
+  background: var(--ivory);
+}
+.intro--trust {
+  padding-top: 72px;
+  padding-bottom: 40px;
+  gap: 28px;
+}
+.intro--trust .intro__right {
+  gap: 24px;
+}
+@media (min-width: 768px) {
+  .intro--trust {
+    padding-top: 88px;
+    padding-bottom: 64px;
+  }
+  .intro--trust .intro__left {
+    max-width: 664px;
+    flex: 1 1 auto;
+  }
+}
+@media (min-width: 1280px) {
+  .intro--trust {
+    padding-top: 112px;
+    padding-bottom: 80px;
+  }
+  .intro--trust .intro__left {
+    max-width: 840px;
+  }
+  .intro--trust .intro__right {
+    gap: 28px;
+  }
+}
+
+.stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 740px;
+  padding-bottom: 40px;
+  color: var(--inverse);
+  overflow: hidden;
+  isolation: isolate;
+  background: #2a2a2a;
+}
+.stage__image {
+  z-index: -2;
+  opacity: 0;
+  transition: opacity 0.6s var(--ease);
+}
+.stage__image.is-active {
+  opacity: 1;
+}
+.stage__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 25%,
+    rgba(0, 0, 0, 0.5) 45%,
+    rgba(0, 0, 0, 0.64) 60%,
+    rgba(0, 0, 0, 0.78) 78%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+}
+
+.stage__body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* All four slides share one grid cell so the stage keeps its height while they crossfade */
+.stage__copy {
+  display: grid;
+  justify-items: center;
+}
+.stage__slide {
+  grid-area: 1 / 1;
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.5s var(--ease),
+    visibility 0s linear 0.5s;
+}
+.stage__slide.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity 0.5s var(--ease),
+    visibility 0s;
+}
+.stage__eyebrow {
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.018em;
+}
+.stage__headline {
+  max-width: 1040px;
+  font-family: var(--font-serif);
+  font-size: var(--fs-stage);
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+  text-wrap: pretty;
+}
+
+.chips {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+.chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  padding: 0 20px;
+  border: 1px solid rgba(254, 254, 254, 0.45);
+  border-radius: 999px;
+  background: rgba(254, 254, 254, 0.08);
+  color: rgba(254, 254, 254, 0.72);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: 0.018em;
+  overflow: hidden;
+  transition:
+    color 0.3s var(--ease),
+    border-color 0.3s var(--ease);
+}
+.chip:hover {
+  color: var(--inverse);
+  border-color: rgba(254, 254, 254, 0.8);
+}
+.chip.is-active {
+  color: var(--inverse);
+  border-color: rgba(254, 254, 254, 0.9);
+}
+.chip__icon,
+.chip__label {
+  position: relative;
+}
+.chip__icon {
+  flex: none;
+  width: 16px;
+  height: 16px;
+}
+.chip__label {
+  white-space: nowrap;
+}
+.chip__loader {
+  position: absolute;
+  inset: 0;
+  background: rgba(254, 254, 254, 0.26);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation-name: chip-load;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes chip-load {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/*
+ * Auto-advance keeps running while the pointer is over the section (hovering does not pause it).
+ * It pauses only for keyboard focus and when the visitor presses the pause button.
+ */
+.stage:has(:focus-visible) .chip__loader,
+.stage.is-paused .chip__loader {
+  animation-play-state: paused;
+}
+/* Reduced motion: no loader and no automatic advance */
+@media (prefers-reduced-motion: reduce) {
+  .chip__loader {
+    display: none;
+    animation: none !important;
+  }
+}
+
+/* Pause control: visible to keyboard and screen reader users */
+.stage__pause {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.stage__pause:focus-visible {
+  top: auto;
+  bottom: calc(100% + 16px);
+  right: var(--pad-x);
+  left: auto;
+  width: auto;
+  height: auto;
+  clip: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--ivory);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .stage {
+    height: auto;
+    aspect-ratio: 1194 / 775;
+    padding-bottom: 56px;
+  }
+  .stage__scrim {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 35%,
+      rgba(0, 0, 0, 0.45) 58%,
+      rgba(0, 0, 0, 0.7) 78%,
+      rgba(0, 0, 0, 0.88) 100%
+    );
+  }
+  .stage__body {
+    gap: 24px;
+  }
+  /*
+   * Two lines from tablet up. The copy's own width is the container; the type shrinks just enough that the
+   * longest line (26.8 em in the longest headline, with a little room for the fallback font) fits on one
+   * line, and stays at its designed size whenever there is room.
+   */
+  .stage__copy {
+    container-type: inline-size;
+  }
+  .stage__headline {
+    max-width: none;
+    font-size: min(var(--fs-stage), calc(100cqw / 27.6));
+  }
+  .chips {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 20px;
+  }
+}
+/* Four across from the tablet design width (1194) up; label plus icon needs about 250px per chip */
+@media (min-width: 1180px) {
+  .chips {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .chip {
+    padding: 0 8px;
+  }
+}
+@media (min-width: 1280px) {
+  .stage {
+    /* width stated so the height cap crops the photo instead of narrowing the section on wide screens */
+    width: 100%;
+    aspect-ratio: 1512 / 982;
+    max-height: 1100px;
+    padding-bottom: 72px;
+  }
+  .stage__body {
+    gap: 32px;
+  }
+  .stage__slide {
+    gap: 20px;
+  }
+  .chips {
+    gap: 16px;
+  }
+  .chip {
+    height: 50px;
+    gap: 10px;
+    padding: 0 12px;
+  }
+  .chip__icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+@media (min-width: 1440px) {
+  .chips {
+    gap: 24px;
+  }
+  .chip {
+    padding: 0 24px;
+  }
+}

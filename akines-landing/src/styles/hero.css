@@ -1,0 +1,113 @@
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100svh;
+  min-height: 620px;
+  max-height: 1200px;
+  padding: 0 var(--pad-x) 40px;
+  color: var(--inverse);
+  overflow: hidden;
+  isolation: isolate;
+  background: #2a2a2a;
+}
+
+.hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+.hero__img {
+  object-fit: cover;
+  object-position: 55% 50%;
+}
+
+/* Darkens the top (header legibility) and the bottom (copy and buttons). Stops are from the Figma scrim. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.62) 0%,
+    rgba(0, 0, 0, 0.6) 9%,
+    rgba(0, 0, 0, 0.3) 18%,
+    rgba(0, 0, 0, 0) 32%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.32) 60%,
+    rgba(0, 0, 0, 0.52) 74%,
+    rgba(0, 0, 0, 0.84) 100%
+  );
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 640px;
+  text-align: center;
+}
+.hero__eyebrow {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.hero__headline {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-hero);
+  line-height: 1.2;
+  letter-spacing: -0.014em;
+  text-wrap: balance;
+}
+.hero__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+  padding-top: 12px;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding-bottom: 56px;
+  }
+  .hero__img {
+    object-position: 50% 50%;
+  }
+  .hero__scrim {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(0, 0, 0, 0.28) 18%,
+      rgba(0, 0, 0, 0) 32%,
+      rgba(0, 0, 0, 0) 55%,
+      rgba(0, 0, 0, 0.4) 74%,
+      rgba(0, 0, 0, 0.82) 100%
+    );
+  }
+  .hero__actions {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: auto;
+    gap: 8px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .hero {
+    padding-bottom: 72px;
+  }
+  .hero__content {
+    gap: 20px;
+  }
+  .hero__actions {
+    gap: 12px;
+    padding-top: 16px;
+  }
+}

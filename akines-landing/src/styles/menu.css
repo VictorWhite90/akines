@@ -1,0 +1,187 @@
+/* Navigation menu: frosted side panel (tablet and up), full-screen modal (mobile) */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  color: var(--ink);
+}
+
+.menu__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  animation: menu-fade 0.2s var(--ease);
+}
+
+.menu__panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: min(420px, calc(100% - 32px));
+  padding: 24px;
+  border-radius: 8px;
+  background: rgba(244, 241, 235, 0.9);
+  -webkit-backdrop-filter: blur(40px);
+  backdrop-filter: blur(40px);
+  animation: menu-panel-in 0.24s var(--ease);
+}
+
+.menu__rule {
+  flex: none;
+  height: 1px;
+  background: var(--border-subtle);
+}
+
+.menu__close {
+  display: flex;
+  align-items: center;
+  color: inherit;
+}
+.menu__close--labelled {
+  gap: 10px;
+  height: 36px;
+  /* The design has the glyph flush with the panel padding; the extra inline padding is hit area only */
+  padding-inline: 8px;
+  margin-left: -8px;
+  align-self: flex-start;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+.menu__close:hover {
+  opacity: 0.65;
+}
+
+.menu__links {
+  display: flex;
+  flex-direction: column;
+}
+.menu__link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.35;
+  transition: background-color 0.2s var(--ease);
+}
+.menu__chevron {
+  flex: none;
+  margin: -1px;
+  transition: transform 0.2s var(--ease);
+}
+.menu__panel .menu__link:hover {
+  background: rgba(24, 24, 24, 0.04);
+}
+.menu__panel .menu__link:hover .menu__chevron {
+  transform: translateX(4px);
+}
+
+.menu__brand {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.menu__tagline {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  line-height: 27px;
+  color: var(--muted);
+}
+/* A hairline above the brand block */
+.menu__panel .menu__links + .menu__rule {
+  margin-bottom: 0;
+}
+
+@media (min-width: 1280px) {
+  .menu__panel {
+    width: 460px;
+  }
+  .menu__panel .logo {
+    font-size: 20px;
+    gap: 12px;
+  }
+}
+
+/* Mobile modal */
+.menu[data-variant='modal'] .menu__backdrop {
+  background: var(--ivory);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.menu__sheet {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--ivory);
+  animation: menu-fade 0.2s var(--ease);
+}
+.menu__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  height: 64px;
+  padding-inline: 14px;
+}
+.menu__bar .menu__close {
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+.menu__bar-spacer {
+  width: 44px;
+  height: 44px;
+}
+.menu__sheet .menu__links {
+  padding: 8px 24px 0;
+}
+.menu__sheet .menu__link {
+  height: 72px;
+  padding: 0;
+  border-bottom: 1px solid var(--border-subtle);
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.15;
+}
+.menu__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  padding: 24px 24px 40px;
+}
+.menu__action {
+  width: 100%;
+  min-height: 48px;
+}
+
+@keyframes menu-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes menu-panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

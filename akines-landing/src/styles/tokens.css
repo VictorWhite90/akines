@@ -1,0 +1,95 @@
+/*
+ * Design tokens. Values come from the Akines Figma file (variables in the file are named in the comments).
+ * Breakpoints: mobile < 768, tablet 768 to 1279 (designed at 1194), desktop 1280 and up (designed at 1512).
+ */
+:root {
+  /* Colour */
+  --ivory: #f4f1eb; /* Surface/Akines/Primary/Strong */
+  --surface-subtle: #fdfdfc; /* Surface/Akines/Primary/Subtle */
+  --ink: #181818; /* Text/Primary, Icon/Primary */
+  /* Text/Secondary is #6F6F6F in Figma (4.46:1 on ivory). One step darker clears WCAG AA (4.52:1) and is visually identical. */
+  --muted: #6e6e6e;
+  --inverse: #fefefe; /* Text/Inverse */
+  --amber: #f4a63a; /* Action/Akines/Secondary/Default, logo mark */
+  --border-subtle: #e5e5e5; /* Border/Subtle */
+  --border-strong: #c0c0c0; /* Border/Strong */
+  --border-card: #dadada; /* hairline on the mobile step card (badge and round buttons) */
+
+  /* Type families */
+  --font-serif: 'Alice', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Layout */
+  --max-w: 1512px;
+  --pad-x: 24px;
+  --sec-y: 72px;
+  --header-h: 64px;
+  --header-h-solid: 64px;
+  --anchor-offset: 64px;
+
+  /* Type scale (mobile defaults) */
+  --fs-hero: 28px;
+  --fs-h2: 28px; /* section headlines */
+  --fs-h3: 32px; /* large experience names */
+  --fs-h4: 24px; /* small experience names, intention headings */
+  --fs-display: 32px; /* closing headline */
+  --fs-lead: 16px;
+  --fs-stage: 22px; /* trust stage headline */
+  --fs-quote: 20px;
+  --fs-tagline: 20px;
+  --fs-step-num: 24px;
+  --fs-step-num-active: 40px;
+  --fs-step-title: 24px;
+  --fs-step-title-active: 32px;
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* long, soft landing: reveals, sweeps, hover */
+  --ease-io: cubic-bezier(0.76, 0, 0.24, 1); /* masks that open and close */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --pad-x: 48px;
+    --sec-y: 112px;
+    --header-h: 76px;
+    --header-h-solid: 76px;
+    --anchor-offset: 76px;
+
+    --fs-hero: 28px;
+    --fs-h2: 40px;
+    --fs-h3: 40px;
+    --fs-h4: 28px;
+    --fs-display: 48px;
+    --fs-stage: 28px;
+    --fs-quote: 22px;
+    --fs-tagline: 22px;
+    --fs-step-num: 28px;
+    --fs-step-num-active: 56px;
+    --fs-step-title: 28px;
+    --fs-step-title-active: 40px;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --pad-x: 64px;
+    --sec-y: 144px;
+    --header-h: 96px;
+    --header-h-solid: 80px;
+    --anchor-offset: 80px;
+
+    --fs-hero: 32px;
+    --fs-h2: 48px;
+    --fs-h3: 48px;
+    --fs-h4: 32px;
+    --fs-display: 60px;
+    --fs-lead: 18px;
+    --fs-stage: 32px;
+    --fs-quote: 24px;
+    --fs-tagline: 24px;
+    --fs-step-num: 32px;
+    --fs-step-num-active: 72px;
+    --fs-step-title: 32px;
+    --fs-step-title-active: 48px;
+  }
+}

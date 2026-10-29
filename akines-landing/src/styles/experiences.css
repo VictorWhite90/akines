@@ -1,0 +1,214 @@
+/* 04 Explore Akines experiences */
+.experiences {
+  background: var(--ivory);
+}
+.intro--tight {
+  padding-top: 56px;
+  padding-bottom: 48px;
+}
+@media (min-width: 768px) {
+  .intro--tight {
+    padding-top: 36px;
+    padding-bottom: 88px;
+  }
+}
+@media (min-width: 1280px) {
+  .intro--tight {
+    padding-top: 48px;
+    padding-bottom: 112px;
+  }
+}
+
+/* Shared caption block (label, name, tagline, body, link) */
+.caption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+.caption__name {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-h3);
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+}
+.caption--small .caption__name {
+  font-size: var(--fs-h4);
+}
+.caption__tagline {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.caption__body {
+  color: var(--muted);
+}
+.caption--light,
+.caption--light .label-row,
+.caption--light .eyebrow,
+.caption--light .caption__tagline,
+.caption--light .caption__body {
+  color: var(--inverse);
+}
+
+.tag {
+  padding: 2px 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+/* Full-bleed feature cards (KinCircle, My Store) */
+.fullcard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 640px;
+  padding-bottom: 48px;
+  color: var(--inverse);
+  overflow: hidden;
+  isolation: isolate;
+  background: #2a2a2a;
+}
+.fullcard > img {
+  z-index: -2;
+}
+.fullcard__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 22%,
+    rgba(0, 0, 0, 0.5) 50%,
+    rgba(0, 0, 0, 0.72) 68%,
+    rgba(0, 0, 0, 0.86) 100%
+  );
+}
+.fullcard__inner {
+  display: flex;
+}
+.fullcard--right .fullcard__inner {
+  justify-content: flex-end;
+}
+.fullcard .caption {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .fullcard {
+    height: auto;
+    aspect-ratio: 1194 / 679;
+    padding-bottom: 64px;
+  }
+  .fullcard .caption {
+    max-width: 411px;
+  }
+}
+@media (min-width: 1280px) {
+  .fullcard__scrim {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0) 38%,
+      rgba(0, 0, 0, 0.5) 62%,
+      rgba(0, 0, 0, 0.68) 80%,
+      rgba(0, 0, 0, 0.86) 100%
+    );
+  }
+  .fullcard {
+    /* width stated so the height cap crops the photo instead of narrowing the card on wide screens */
+    width: 100%;
+    aspect-ratio: 1512 / 860;
+    max-height: 1080px;
+    padding-bottom: 80px;
+  }
+  .fullcard .caption {
+    max-width: 520px;
+    gap: 16px;
+  }
+  .caption__tagline {
+    font-size: 18px;
+  }
+}
+
+/* Story rows (two experiences side by side) */
+.story-row {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+  padding-block: var(--sec-y);
+}
+.story {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+.story--big .caption {
+  gap: 16px;
+}
+.story__media {
+  position: relative;
+  overflow: hidden;
+  background: #d8d3c8;
+}
+.story__media--portrait {
+  aspect-ratio: 3 / 4;
+}
+.story__media--landscape {
+  aspect-ratio: 4 / 3;
+}
+.story__media--wide {
+  aspect-ratio: 880 / 580;
+}
+.story--big .caption__body {
+  max-width: 560px;
+}
+
+@media (min-width: 768px) {
+  .story-row {
+    display: grid;
+    column-gap: 36px;
+    align-items: start;
+  }
+  .story-row--a {
+    grid-template-columns: 456fr 880fr;
+  }
+  .story-row--b {
+    grid-template-columns: 880fr 456fr;
+  }
+  .story--offset {
+    padding-top: 96px;
+  }
+  .story--big .caption__body {
+    max-width: 442px;
+  }
+}
+@media (min-width: 1280px) {
+  .story-row {
+    column-gap: 48px;
+  }
+  .story {
+    gap: 28px;
+  }
+  .story--offset {
+    padding-top: 120px;
+  }
+  .story--big .caption {
+    gap: 20px;
+  }
+  .story--big .caption__body {
+    max-width: 560px;
+  }
+  .story .caption--small {
+    gap: 16px;
+  }
+}

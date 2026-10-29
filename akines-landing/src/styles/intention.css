@@ -1,0 +1,107 @@
+/* 02 Choose your intention */
+.intention .intro {
+  margin-bottom: 48px;
+}
+@media (min-width: 768px) {
+  .intention .intro {
+    margin-bottom: 88px;
+  }
+}
+@media (min-width: 1280px) {
+  .intention .intro {
+    margin-bottom: 112px;
+  }
+}
+
+/* Mobile: one column in order 01 to 04 (the two columns dissolve and panels use --order).
+   Tablet and up: two staggered columns. */
+.intention__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+.intention__col {
+  display: contents;
+}
+.panel {
+  order: var(--order);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+
+.panel__media {
+  position: relative;
+  overflow: hidden;
+  background: #d8d3c8;
+}
+.panel--portrait .panel__media {
+  aspect-ratio: 4 / 5;
+}
+.panel--landscape .panel__media {
+  aspect-ratio: 4 / 3;
+}
+
+.panel__caption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.panel__heading {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--fs-h4);
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+}
+.panel__body {
+  max-width: 520px;
+  color: var(--muted);
+}
+
+@media (min-width: 768px) {
+  .intention__grid {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 36px;
+  }
+  .intention__col {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 72px;
+    min-width: 0;
+  }
+  .intention__col--offset {
+    padding-top: 96px;
+  }
+  .panel {
+    order: 0;
+  }
+  .panel__body {
+    max-width: 411px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .intention__grid {
+    gap: 48px;
+  }
+  .intention__col {
+    gap: 96px;
+  }
+  .intention__col--offset {
+    padding-top: 120px;
+  }
+  .panel {
+    gap: 28px;
+  }
+  .panel__body {
+    max-width: 520px;
+  }
+  .panel__caption {
+    gap: 16px;
+  }
+}
