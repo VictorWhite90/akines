@@ -1,6 +1,6 @@
 # Akines motion kit
 
-Everything that makes the About page feel the way it does, pulled out of the page so it can be reused
+Everything that makes the landing page feel the way it does, pulled out of the page so it can be reused
 anywhere. It is plain CSS and plain DOM code with two tiny React helpers; nothing depends on a page's
 layout. The live copies these files were taken from are in `app/(landing)/styles`, `lib/landing` and
 `components/landing`.

@@ -6,9 +6,9 @@ import { DEMO } from "@/lib/demo/mode";
  * - Visitors without an account only reach the public pages (About, sign-up, log-in, invite links); everything else sends them to About.
  * - Signed-in members skip About, log-in and sign-up and go straight to Home.
  * - Demo (preview) builds: a link straight to any page opens it, signed in as the demo guest, so reviewers can
- *   share and open page links directly. The bare address still starts at About, and every page stays reachable.
+ *   share and open page links directly, the bare address included. The landing page is at /landing.
  */
-const PUBLIC = ["/about", "/about/philosophy", "/login", "/signup"];
+const PUBLIC = ["/landing", "/about", "/about/philosophy", "/login", "/signup"];
 const PUBLIC_PREFIX = ["/circles/join/"];
 // Pages a signed-in member has no reason to see. /login stays reachable for its post-sign-in steps (?step=…).
 const MEMBERS_SKIP = ["/about", "/signup"];
@@ -31,7 +31,7 @@ export function proxy(req: NextRequest) {
     url.search = "";
     return NextResponse.redirect(url);
   }
-  if (DEMO && !signedIn && !isPublic && pathname !== "/") {
+  if (DEMO && !signedIn && !isPublic) {
     const res = NextResponse.next();
     res.cookies.set("ak_in", "1", { path: "/", maxAge: 864000, sameSite: "lax" });
     return res;

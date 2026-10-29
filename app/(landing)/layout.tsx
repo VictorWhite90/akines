@@ -14,7 +14,7 @@ import "./styles/menu.css";
 import "./styles/motion.css";
 
 /**
- * Root layout for the public About page: the editorial landing page ported from akines-landing
+ * Root layout for the public landing page (/landing): the editorial landing page ported from akines-landing
  * (see akines-landing-handoff.md). It loads only the landing's own stylesheets, so neither the legacy
  * CSS nor the kin tokens reach it. Light only, by design.
  */

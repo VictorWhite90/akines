@@ -1,5 +1,5 @@
 /**
- * Every destination used by a button or link on the About page lives here, so product can change
+ * Every destination used by a button or link on the landing page lives here, so product can change
  * them without touching components. The landing build pointed every call to action at a 404 page
  * until its destination existed; inside the app the destinations exist, so they are wired here.
  * Items marked TODO still need a confirmed destination.

@@ -36,7 +36,7 @@ const NAV: Item[] = [
 const MAIN = NAV.slice(0, 7);
 const MORE = [...NAV.slice(7), { href: "/about", label: "About Akines", Icon: InfoCircle }];
 const DOCK = NAV.filter((i) => ["/", "/banter", "/collaborate", "/messages", "/profile"].includes(i.href));
-const PUBLIC = ["/login", "/signup", "/about", "/about/philosophy", "/welcome"];
+const PUBLIC = ["/landing", "/login", "/signup", "/about", "/about/philosophy", "/welcome"];
 
 export default function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

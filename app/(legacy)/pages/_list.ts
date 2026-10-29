@@ -11,7 +11,8 @@ export const PAGE_GROUPS: PageGroup[] = [
   {
     id: "start", title: "Start: before signing in", blurb: "What a new visitor sees first.",
     pages: [
-      { path: "/about", title: "About Akines", what: "The landing page with the hero video" },
+      { path: "/landing", title: "Landing page", what: "The editorial landing page", isNew: true },
+      { path: "/about", title: "About Akines", what: "About Akines, with the hero video" },
       { path: "/about/philosophy", title: "Core philosophy", what: "Why Akines exists" },
       { path: "/login", title: "Log in", what: "Includes “Preview as guest”" },
       { path: "/signup", title: "Sign up", what: "Create an account, step by step" },
@@ -20,7 +21,7 @@ export const PAGE_GROUPS: PageGroup[] = [
   {
     id: "home", title: "Home", blurb: "The first page after signing in, and what's new.",
     pages: [
-      { path: "/", title: "Community home", what: "Your day on Akines (opens About when signed out)" },
+      { path: "/", title: "Community home", what: "Your day on Akines, feed first", isNew: true },
       { path: "/notifications", title: "Notifications", what: "Everything in the bell" },
     ],
   },

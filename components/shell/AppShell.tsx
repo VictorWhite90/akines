@@ -29,7 +29,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [intent, setIntent] = useState(false);
 
   const router = useRouter();
-  const open = ["/login", "/signup", "/about", "/about/philosophy", "/welcome"].includes(pathname) || pathname.startsWith("/circles/join/");
+  const open = ["/landing", "/login", "/signup", "/about", "/about/philosophy", "/welcome"].includes(pathname) || pathname.startsWith("/circles/join/");
   const [gate, setGate] = useState<"checking" | "in" | "out">("checking");
 
   // Check the live cookie on every route change; signup can authenticate without changing its pathname.
