@@ -2,7 +2,8 @@
 .h { display: grid; grid-template-columns: minmax(0, 1fr); }
 .h-wrap { width: 100%; max-width: var(--content); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); }
 @media (min-width: 1024px) {
-  .h-wrap { grid-template-columns: minmax(0, var(--feed)) var(--rail); gap: 40px; justify-content: center; padding: 0 var(--gutter); }
+  /* Anchored to the sidebar, not centred: on wide screens the spare room goes to the right, never between the sidebar and the feed. */
+  .h-wrap { grid-template-columns: minmax(0, var(--feed)) var(--rail); gap: 40px; justify-content: start; margin: 0; padding: 0 var(--gutter); }
 }
 
 /* ---- Live row ---- */
