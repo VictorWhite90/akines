@@ -30,6 +30,8 @@
   --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s7: 32px; --s8: 48px; --s9: 64px; --s10: 96px;
   --gutter: 16px;
   --feed: 600px; --rail: 320px; --content: 1120px; --side: 240px;
+  /* Sidebar + feed + right column as one centred frame, like X: spare room splits evenly on both outer edges. */
+  --frame: 1440px; --side-x: max(0px, (100vw - var(--frame)) / 2);
   --nav-h: 56px; --dock-h: 56px;
   /* Radius */
   --r-md: 12px; --r-lg: 20px; --r-full: 999px;
