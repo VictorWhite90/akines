@@ -21,7 +21,7 @@ export const PAGE_GROUPS: PageGroup[] = [
   {
     id: "home", title: "Home", blurb: "The first page after signing in, and what's new.",
     pages: [
-      { path: "/", title: "Community home", what: "Your day on Akines, feed first", isNew: true },
+      { path: "/", title: "Community Home", what: "Welcome, journals, your circles' posts, rooms, projects and more", isNew: true },
       { path: "/notifications", title: "Notifications", what: "Everything in the bell" },
     ],
   },
