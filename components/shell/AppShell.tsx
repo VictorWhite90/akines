@@ -8,6 +8,7 @@ import Header from "@/components/kin/Header";
 import Companion from "./Companion";
 import { isActive } from "./nav";
 import { MemberProvider } from "./MemberContext";
+import { useReveal } from "@/components/kin/useReveal";
 
 /**
  * The frame for pages not yet rebuilt in the kin system. Same header and Create AI as the kin pages
@@ -19,6 +20,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const open = ["/landing", "/login", "/signup", "/about", "/about/philosophy", "/welcome"].includes(pathname) || pathname.startsWith("/circles/join/");
   const [gate, setGate] = useState<"checking" | "in" | "out">("checking");
+  useReveal();
 
   // Check the live cookie on every route change; signup can authenticate without changing its pathname.
   useEffect(() => {

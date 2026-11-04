@@ -46,7 +46,8 @@ export default function Settings({ section }: { section?: SectionId }) {
           {ACCOUNT.map(item)}
         </nav>
         <div className="ch-set__main">
-          <h1 className="ch-set__title">{current.title}</h1>
+          {/* Keyed by title: the reveal splits it into words, so a new section gets a fresh heading. */}
+          <h1 className="ch-set__title" data-m="words" key={current.title}>{current.title}</h1>
           <p className="ch-set__desc">{current.desc}</p>
           <current.View />
         </div>

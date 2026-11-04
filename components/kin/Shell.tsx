@@ -9,6 +9,7 @@ import Companion from "@/components/shell/Companion";
 import Header, { useLayout } from "./Header";
 import Toaster from "./Toast";
 import { ViewTransitions } from "./ViewTransitions";
+import { useReveal } from "./useReveal";
 
 const PUBLIC = ["/landing", "/login", "/signup", "/about", "/about/philosophy", "/welcome"];
 
@@ -39,6 +40,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
 function Frame({ pathname, children }: { pathname: string; children: React.ReactNode }) {
   const layout = useLayout();
+  useReveal();
   return (
     <div className="app" data-layout={layout} data-ready="true">
       <a className="skip-link" href="#main">Skip to content</a>
