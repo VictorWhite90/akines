@@ -1,7 +1,7 @@
 /* Community Home, kin system. Prefix h-. Layout from the product design: a main column and, on desktop,
    a sticky right column; on phones the right column comes straight after the welcome. */
 .h { padding: 24px var(--gutter) 64px; }
-.h-wrap { width: 100%; max-width: var(--content); display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; }
+.h-wrap { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr); gap: 32px; }
 .h-main { display: grid; gap: 64px; min-width: 0; }
 .h-desk-rail { display: none; }
 @media (min-width: 1024px) {
