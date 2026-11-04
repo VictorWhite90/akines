@@ -6,6 +6,7 @@ import "@/components/kin/akines/tokens.css";
 import "@/components/kin/akines/base.css";
 import "@/components/kin/akines/library.css";
 import "@/components/kin/base.css";
+import "@/components/kin/community.css";
 import Splash from "@/components/onboarding/Splash";
 import Shell from "@/components/kin/Shell";
 import { BOOT_SCRIPT } from "@/lib/boot";

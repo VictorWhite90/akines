@@ -99,3 +99,10 @@ a.pp-row:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--surface-inv
 .bbar__item[data-active=true] .bbar__ind{transform:scaleX(1)}
 .bbar__press{position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:var(--surface-muted);opacity:0;scale:.7;transition:opacity .25s ease-out,scale .4s var(--ease-out)}
 .bbar__item:active .bbar__press{opacity:1;scale:1}
+
+/* ---- Ours, not in the design: the demo strip (demo builds only), and room for the phone bar on older pages. ---- */
+.ak-demo { display: flex; justify-content: center; align-items: center; gap: 14px; height: 30px; padding: 0 16px; font: 600 12px/1 var(--font-sans); background: var(--surface-muted); color: var(--text-secondary); white-space: nowrap; overflow: hidden; }
+.ak-demo b { color: var(--text-primary); }
+.ak-demo a, .ak-demo button { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; font: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+@media (max-width: 639px) { .ak-demo .long { display: none; } }
+@media (max-width: 1279px) { .app.nx.ak-framed .main { padding-bottom: calc(57px + max(28px, env(safe-area-inset-bottom, 0px))) !important; } }

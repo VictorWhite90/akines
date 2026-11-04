@@ -15,6 +15,7 @@ import NavProgress from "@/components/shell/NavProgress";
 import { BOOT_SCRIPT } from "@/lib/boot";
 import "@/components/kin/akines/tokens.css";
 import "@/components/kin/akines/library.css";
+import "@/components/kin/community.css";
 import "./fonts.css";
 import "./tokens.css";
 import "./welcome.css";

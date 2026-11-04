@@ -6,7 +6,7 @@ import { isSignedIn } from "@/lib/session";
 import { recordRoute } from "@/lib/navHistory";
 import { MemberProvider } from "@/components/shell/MemberContext";
 import Companion from "@/components/shell/Companion";
-import Header from "./Header";
+import Header, { useLayout } from "./Header";
 import { ViewTransitions } from "./ViewTransitions";
 
 const PUBLIC = ["/landing", "/login", "/signup", "/about", "/about/philosophy", "/welcome"];
@@ -30,12 +30,22 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   return (
     <MemberProvider>
       <ViewTransitions>
-        <div className="k-shell">
-          <Header />
-          <main className="k-main" id="main">{children}</main>
-          <Companion />
-        </div>
+        <Frame pathname={pathname}>{children}</Frame>
       </ViewTransitions>
     </MemberProvider>
+  );
+}
+
+function Frame({ pathname, children }: { pathname: string; children: React.ReactNode }) {
+  const layout = useLayout();
+  return (
+    <div className="app" data-layout={layout} data-ready="true">
+      <a className="skip-link" href="#main">Skip to content</a>
+      <Header />
+      <main id="main" className="app__main" tabIndex={-1}>
+        <div className="route-stage" key={pathname}>{children}</div>
+      </main>
+      <Companion />
+    </div>
   );
 }

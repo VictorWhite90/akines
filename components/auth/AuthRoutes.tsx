@@ -19,5 +19,5 @@ export function LoginRoute() {
 }
 
 export function SignupRoute() {
-  return <AuthFlow mode="signup" startAt={useSearchParams().get("step") ?? undefined} />;
+  return <><AuthFlow mode="signup" startAt={useSearchParams().get("step") ?? undefined} /><Companion guest /></>;
 }

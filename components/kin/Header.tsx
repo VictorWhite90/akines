@@ -2,30 +2,46 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
-import * as Dialog from "@radix-ui/react-dialog";
-import { Bell, BriefcaseBusiness, Check, ChevronDown, ChevronRight, ChevronUp, Compass, Heart, House, Info, LogOut, MessageSquare, Monitor, Moon, Palette, Settings, Sun, User, Users, X } from "lucide-react";
+import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { Bell, BriefcaseBusiness, Camera, Check, ChevronDown, ChevronRight, ChevronUp, Compass, Heart, CircleHelp, House, Link2, LogOut, MessageSquare, Palette, PenLine, Settings, Sparkles, User, UserCheck, Users } from "lucide-react";
 import { chat } from "@/lib/api/chat";
-import { notifications } from "@/lib/api/notifications";
+import { notifications as noticesApi, type Notice } from "@/lib/api/notifications";
 import { DEMO } from "@/lib/demo/mode";
 import { signOut } from "@/lib/session";
 import { usePortfolio } from "@/lib/portfolio";
 import { completeness, useWorkProfile } from "@/lib/workprofile";
 import { useMe } from "@/components/shell/MemberContext";
 import { PAGE_TITLES, SECTIONS, sectionOf, type Section, type SectionKey } from "@/components/shell/nav";
+import Avatar from "./Avatar";
+import { IconButton } from "./Button";
+import Logo from "./Logo";
+import { Modal } from "./Overlay";
 import "./header.css";
+import "./community.css";
+
+/*
+ * The app header, mirrored from the product design (classes in header.css, sheets in akines/library.css):
+ * desktop (1280 and up) shows the six sections and the open section's tabs; tablet shows the page title;
+ * phones show the title on top, the sections in a bottom bar, and a sheet for a section's pages.
+ */
+
+type Layout = "desktop" | "tablet" | "mobile";
+const MQ = { mobile: "(max-width: 767px)", tablet: "(min-width: 768px) and (max-width: 1279px)" };
+function subscribe(cb: () => void) {
+  const a = window.matchMedia(MQ.mobile), t = window.matchMedia(MQ.tablet);
+  a.addEventListener("change", cb); t.addEventListener("change", cb);
+  return () => { a.removeEventListener("change", cb); t.removeEventListener("change", cb); };
+}
+const current = (): Layout => (window.matchMedia(MQ.mobile).matches ? "mobile" : window.matchMedia(MQ.tablet).matches ? "tablet" : "desktop");
+export function useLayout(): Layout {
+  return useSyncExternalStore(subscribe, current, () => "desktop");
+}
 
 /** Two overlapping circles: Collaborate. */
 function Pair({ size = 24 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
-      <circle cx="9" cy="12" r="5.5" />
-      <circle cx="15" cy="12" r="5.5" />
-    </svg>
-  );
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden focusable="false"><circle cx="9" cy="12" r="5.5" /><circle cx="15" cy="12" r="5.5" /></svg>;
 }
-
-const ICON: Record<SectionKey, (p: { size?: number }) => React.ReactNode> = {
+const SECTION_ICON: Record<SectionKey, (p: { size?: number }) => React.ReactNode> = {
   home: ({ size = 24 }) => <House size={size} strokeWidth={1.5} aria-hidden />,
   connect: ({ size = 24 }) => <Users size={size} strokeWidth={1.5} aria-hidden />,
   collaborate: Pair,
@@ -33,111 +49,111 @@ const ICON: Record<SectionKey, (p: { size?: number }) => React.ReactNode> = {
   explore: ({ size = 24 }) => <Compass size={size} strokeWidth={1.5} aria-hidden />,
   care: ({ size = 24 }) => <Heart size={size} strokeWidth={1.5} aria-hidden />,
 };
-
-type Mode = "light" | "dark" | "system";
-const THEME_KEY = "ak:theme";
-const NEXT_MODE: Record<Mode, Mode> = { light: "dark", dark: "system", system: "light" };
-const MODE_LABEL: Record<Mode, string> = { light: "Light", dark: "Dark", system: "Match device" };
-function applyTheme(mode: Mode) {
-  const dark = mode === "dark" || (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.dataset.theme = dark ? "dark" : "light";
-}
-
+const count = (n: number) => (n > 99 ? "99+" : String(n));
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((s) => s[0]!.toUpperCase()).join("") || "A";
 }
 
-const POLL_MS = 60_000;
+/** Closes a popover on an outside click or Escape. */
+function useDismiss(open: boolean, ref: React.RefObject<HTMLElement | null>, close: () => void) {
+  const fn = useRef(close);
+  useEffect(() => { fn.current = close; }, [close]);
+  useEffect(() => {
+    if (!open) return;
+    const down = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) fn.current(); };
+    const key = (e: KeyboardEvent) => { if (e.key === "Escape") fn.current(); };
+    document.addEventListener("mousedown", down);
+    document.addEventListener("keydown", key);
+    return () => { document.removeEventListener("mousedown", down); document.removeEventListener("keydown", key); };
+  }, [open, ref]);
+}
 
-/** Unread messages and notifications, checked on mount, every minute and when the tab comes back. */
+const POLL_MS = 60_000;
 function useUnread() {
-  const [counts, setCounts] = useState({ messages: 0, notices: 0 });
+  const [n, setN] = useState({ messages: 0, notices: 0 });
   const refresh = useCallback(async () => {
-    const [m, n] = await Promise.all([chat.unread(), notifications.unread()]);
-    setCounts({ messages: m.ok ? m.data.unread : 0, notices: n.ok ? n.data.unread : 0 });
+    const [m, x] = await Promise.all([chat.unread(), noticesApi.unread()]);
+    setN({ messages: m.ok ? m.data.unread : 0, notices: x.ok ? x.data.unread : 0 });
   }, []);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- first count, then poll
     void refresh();
-    const timer = setInterval(() => document.visibilityState === "visible" && refresh(), POLL_MS);
-    const onShow = () => document.visibilityState === "visible" && refresh();
-    document.addEventListener("visibilitychange", onShow);
-    return () => { clearInterval(timer); document.removeEventListener("visibilitychange", onShow); };
+    const t = setInterval(() => document.visibilityState === "visible" && refresh(), POLL_MS);
+    const show = () => document.visibilityState === "visible" && refresh();
+    document.addEventListener("visibilitychange", show);
+    return () => { clearInterval(t); document.removeEventListener("visibilitychange", show); };
   }, [refresh]);
-  return counts;
+  return { ...n, refresh };
 }
 
-/** Closes a popover on an outside click or Escape. */
-function useDismiss(open: boolean, close: () => void, ref: React.RefObject<HTMLElement | null>) {
-  useEffect(() => {
-    if (!open) return;
-    const down = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) close(); };
-    const key = (e: KeyboardEvent) => e.key === "Escape" && close();
-    document.addEventListener("mousedown", down);
-    document.addEventListener("keydown", key);
-    return () => { document.removeEventListener("mousedown", down); document.removeEventListener("keydown", key); };
-  }, [open, close, ref]);
-}
-
-function Ring({ pct }: { pct: number }) {
-  const c = 2 * Math.PI * 15;
+/* ---- Profile progress (pp) ---- */
+const PART_TEXT: Record<string, { text: string; Icon: typeof Sparkles }> = {
+  work: { text: "Say what you do in a few lines", Icon: PenLine },
+  skills: { text: "Choose at least three skills", Icon: Sparkles },
+  projects: { text: "Show what you are working on", Icon: Camera },
+  cv: { text: "Add your CV or a link to your work", Icon: Link2 },
+  availability: { text: "Say what you are open to", Icon: BriefcaseBusiness },
+};
+function Ring({ percent }: { percent: number }) {
+  const r = 15, c = 2 * Math.PI * r;
   return (
-    <span className="ak-ring" aria-hidden>
+    <span className="pp-ring" aria-hidden>
       <svg viewBox="0 0 36 36" width="36" height="36">
-        <circle className="track" cx="18" cy="18" r="15" />
-        <circle className="bar" cx="18" cy="18" r="15" transform="rotate(-90 18 18)" style={{ strokeDasharray: c, strokeDashoffset: c * (1 - pct / 100) }} />
+        <circle className="pp-ring__track" cx="18" cy="18" r={r} />
+        <circle className="pp-ring__bar" cx="18" cy="18" r={r} style={{ strokeDasharray: c, strokeDashoffset: c * (1 - percent / 100) }} transform="rotate(-90 18 18)" />
       </svg>
-      <span className="n">{pct}%</span>
+      <span className="pp-ring__n">{percent}%</span>
     </span>
   );
 }
-
-/** "Complete profile": a ring with the share done, and a panel of what is left. Hidden once it is complete. */
 function ProfileProgress({ compact = false }: { compact?: boolean }) {
   const w = useWorkProfile();
   const pf = usePortfolio();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const close = useCallback(() => setOpen(false), []);
-  useDismiss(open, close, ref);
+  const id = useId();
+  useDismiss(open, ref, () => setOpen(false));
   if (!w.ready) return null;
   const { parts, pct } = completeness(w.wp, pf.pieces.length);
   if (pct >= 100) return null;
-  const left = parts.filter((p) => !p.done);
-  const done = parts.filter((p) => p.done);
+  const todo = parts.filter((p) => !p.done), done = parts.filter((p) => p.done);
   return (
-    <div className="ak-pp" ref={ref} data-open={open} data-compact={compact}>
-      <button type="button" className="ak-pp-pill" aria-haspopup="dialog" aria-expanded={open} aria-label={`Complete profile, ${pct}% done`} onClick={() => setOpen((o) => !o)}>
-        <Ring pct={pct} />
-        <span className="lbl">Complete profile</span>
-        <ChevronUp size={16} strokeWidth={1.5} className="chev" aria-hidden />
+    <div className="pp" ref={ref} data-open={open ? "true" : "false"} data-compact={compact ? "true" : "false"}>
+      <button type="button" className="pp-pill" aria-haspopup="dialog" aria-expanded={open} aria-controls={open ? id : undefined} aria-label={`Complete profile, ${pct}% done`} onClick={() => setOpen((o) => !o)}>
+        <Ring percent={pct} />
+        <span className="pp-pill__label">Complete profile</span>
+        <ChevronUp size={16} strokeWidth={1.5} className="pp-pill__chev" aria-hidden />
       </button>
       {open && (
-        <div className="ak-pp-panel" role="dialog" aria-label="Complete your profile">
-          <div className="head">
-            <p className="title">Complete your profile</p>
-            <p className="text">{left.length} {left.length === 1 ? "step" : "steps"} left. A fuller profile means better matches.</p>
+        <div className="pp-panel" id={id} role="dialog" aria-label="Profile progress">
+          <div className="pp-panel__head">
+            <h2 className="pp-panel__title">Finish your profile</h2>
+            <p className="pp-panel__text">{todo.length === 1 ? "1 step left. A fuller profile means better matches." : `${todo.length} steps left. A fuller profile means better matches.`}</p>
           </div>
-          <p className="label">Left to do</p>
-          <ul>
-            {left.map((p) => (
-              <li key={p.id}>
-                <Link href="/profile/work" className="row" onClick={close}>
-                  <span className="ico"><BriefcaseBusiness size={20} strokeWidth={1.5} aria-hidden /></span>
-                  <span className="txt"><span className="t">{p.label}</span></span>
-                  <ChevronRight size={18} strokeWidth={1.5} className="go" aria-hidden />
-                </Link>
-              </li>
-            ))}
+          <p className="pp-label">Left to do</p>
+          <ul className="pp-list">
+            {todo.map((p) => {
+              const t = PART_TEXT[p.id] ?? { text: "", Icon: Sparkles };
+              return (
+                <li key={p.id}>
+                  <Link href="/profile/work" className="pp-row" onClick={() => setOpen(false)}>
+                    <span className="pp-ico"><t.Icon size={20} strokeWidth={1.5} /></span>
+                    <span className="pp-txt"><span className="pp-t">{p.label}</span><span className="pp-s">{t.text}</span></span>
+                    <ChevronRight size={16} strokeWidth={1.5} className="pp-go" aria-hidden />
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
           {done.length > 0 && (
             <>
-              <p className="label">Completed</p>
-              <ul>
+              <p className="pp-label pp-label--done">Completed</p>
+              <ul className="pp-list pp-list--done">
                 {done.map((p) => (
-                  <li key={p.id} className="row done">
-                    <span className="ico done"><Check size={16} strokeWidth={2} aria-hidden /></span>
-                    <span className="txt"><span className="t">{p.label}</span></span>
+                  <li key={p.id} className="pp-row pp-row--done">
+                    <span className="pp-ico pp-ico--done"><Check size={18} strokeWidth={1.75} /></span>
+                    <span className="pp-txt"><span className="pp-t">{p.label}</span></span>
+                    <span className="pp-note">Completed</span>
                   </li>
                 ))}
               </ul>
@@ -149,62 +165,119 @@ function ProfileProgress({ compact = false }: { compact?: boolean }) {
   );
 }
 
-function useTheme() {
-  const [mode, setMode] = useState<Mode>("light");
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- read the saved choice once on mount
-    try { setMode((localStorage.getItem(THEME_KEY) as Mode) || "light"); } catch {}
-  }, []);
-  const cycle = () => {
-    const next = NEXT_MODE[mode];
-    setMode(next);
-    try { localStorage.setItem(THEME_KEY, next); } catch {}
-    applyTheme(next);
-  };
-  return { mode, cycle };
+/* ---- Account menu ---- */
+const ACCOUNT = [
+  { label: "View profile", href: "/profile", Icon: User },
+  { label: "Complete your profile", href: "/profile/work", Icon: UserCheck },
+  { label: "Settings", href: "/settings", Icon: Settings },
+  { label: "Help", href: "/about", Icon: CircleHelp },
+];
+function AvatarCircle({ name, photo, lg }: { name: string; photo?: string | null; lg?: boolean }) {
+  return (
+    <span className={`hdr-avatar__circle${lg ? " hdr-avatar__circle--lg" : ""}`}>
+      {photo ? <Avatar person={{ name, photo }} size={lg ? 44 : 36} /> : initials(name)}
+    </span>
+  );
+}
+function AccountMenu({ name, handle, photo, onLogout }: { name: string; handle: string; photo?: string | null; onLogout: () => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  useDismiss(open, ref, () => setOpen(false));
+  return (
+    <div className="hdr-avatar" ref={ref} data-open={open ? "true" : "false"}>
+      <button type="button" className="hdr-avatar__btn" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
+        <AvatarCircle name={name} photo={photo} />
+        <span className="hdr-avatar__name">{handle}</span>
+        <ChevronDown size={16} strokeWidth={1.5} className="hdr-avatar__chev" aria-hidden />
+      </button>
+      {open && (
+        <div className="hdr-menu" role="menu">
+          {ACCOUNT.map((a) => <Link key={a.label} href={a.href} role="menuitem" className="hdr-menu__item" onClick={() => setOpen(false)}>{a.label}</Link>)}
+          <div className="hdr-menu__rule" role="separator" />
+          <button type="button" role="menuitem" className="hdr-menu__item" onClick={() => { setOpen(false); onLogout(); }}>Log out</button>
+        </div>
+      )}
+    </div>
+  );
 }
 
-/**
- * The app header, shared by both layouts (it brings its own stylesheet). Desktop: the six sections as icons,
- * the open section's pages as tabs beneath, profile progress, messages, notifications and the account menu.
- * Phones: the page title on top and the six sections in a bar at the bottom; a section with several pages
- * opens them in a sheet.
- */
+function Count({ n }: { n: number }) {
+  return n <= 0 ? null : <span className="hdr-count" aria-hidden>{count(n)}</span>;
+}
+
+/* ---- Notifications panel (the design opens a modal from the bell) ---- */
+function when(iso: string) {
+  const d = new Date(iso), mins = Math.round((Date.now() - d.getTime()) / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins} minutes ago`;
+  if (mins < 24 * 60) return "Today";
+  if (mins < 48 * 60) return "Yesterday";
+  return d.toLocaleDateString([], { day: "numeric", month: "short" });
+}
+function NotificationsPanel({ open, onClose, onRead }: { open: boolean; onClose: () => void; onRead: () => void }) {
+  const router = useRouter();
+  const [items, setItems] = useState<Notice[] | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    void noticesApi.list().then((r) => { if (live) setItems(r.ok ? r.data : []); });
+    void noticesApi.markRead().then(() => onRead());
+    return () => { live = false; };
+  }, [open, onRead]);
+  const go = (href: string) => { onClose(); router.push(href); };
+  return (
+    <Modal open={open} onClose={onClose} title="Notifications" hideClose flush width={400} className="ch-notif">
+      <div className="ch-notif__list">
+        {items === null ? <p className="ch-row__desc" style={{ padding: "16px 24px" }}>Loading…</p> : items.length === 0 ? <p className="ch-row__desc" style={{ padding: "16px 24px" }}>Nothing new. Notifications appear here.</p> : items.slice(0, 8).map((n) => (
+          <button key={n.id} type="button" className="ch-row" onClick={() => go(n.link || "/notifications")}>
+            {n.actor ? <Avatar person={{ name: [n.actor.first_name, n.actor.last_name].filter(Boolean).join(" ") || n.actor.username || "Member", photo: n.actor.profile_photo }} size={44} /> : null}
+            <span className="ch-row__text"><span className="ch-row__title">{n.text}</span><span className="ch-row__desc">{when(n.created_at)}</span></span>
+            <span className="ch-row__chev"><ChevronRight size={16} strokeWidth={1.5} aria-hidden /></span>
+          </button>
+        ))}
+      </div>
+      <button type="button" className="k-btn k-btn--link k-btn--md k-btn--live ch-notif__pref" onClick={() => go("/notifications")}><span className="k-btn__label">See all notifications</span></button>
+    </Modal>
+  );
+}
+
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const layout = useLayout();
   const { me } = useMe();
   const unread = useUnread();
-  const { mode, cycle } = useTheme();
   const { section, tab } = sectionOf(pathname);
-  const [menu, setMenu] = useState(false);
-  const [sheet, setSheet] = useState<Section | null>(null);
-  const [account, setAccount] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const closeMenu = useCallback(() => setMenu(false), []);
-  useDismiss(menu, closeMenu, menuRef);
-  // A new page closes whatever was open (state adjusted during render, not in an effect).
+  const [sheet, setSheet] = useState<SectionKey | null>(null);
+  const [profileSheet, setProfileSheet] = useState(false);
+  const [notices, setNotices] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
-  if (lastPath !== pathname) {
-    setLastPath(pathname);
-    setMenu(false);
-    setSheet(null);
-    setAccount(false);
-  }
+  if (lastPath !== pathname) { setLastPath(pathname); setSheet(null); setProfileSheet(false); }
 
   const name = me?.name ?? "You";
   const handle = me?.username ?? me?.firstName ?? "";
-  const title = tab?.label && section && section.tabs.length > 1 ? tab.label : section?.label ?? PAGE_TITLES.find(([p]) => pathname.startsWith(p))?.[1] ?? "Akines";
-  const ModeIcon = mode === "dark" ? Moon : mode === "system" ? Monitor : Sun;
-  const out = () => void signOut().then(() => router.replace("/about"));
+  const tabs = section?.tabs.length && section.tabs.length > 1 ? section.tabs : [];
+  const activeTab = tab?.label ?? tabs[0]?.label;
+  const title = section ? (section.key === "home" ? { eyebrow: "", title: section.label } : { eyebrow: section.label, title: activeTab ?? section.label }) : { eyebrow: "", title: PAGE_TITLES.find(([p]) => pathname.startsWith(p))?.[1] ?? "Akines" };
+  const logout = () => void signOut().then(() => router.replace("/landing"));
   const resetDemo = () => void import("@/lib/demo/backend").then((d) => { d.resetDemo(); window.location.assign("/login"); });
+  const onRead = useCallback(() => void unread.refresh(), [unread]);
 
-  const accountLinks = [
-    { href: "/profile", label: "View profile", Icon: User },
-    { href: "/profile/work", label: "Your work profile", Icon: BriefcaseBusiness },
-    { href: "/settings", label: "Settings", Icon: Settings },
-    { href: "/about", label: "About Akines", Icon: Info },
-  ];
+  useEffect(() => {
+    if (!section) return;
+    document.documentElement.dataset.page = section.key === "home" ? "community" : section.key;
+    return () => { delete document.documentElement.dataset.page; };
+  }, [section]);
+
+  const actions = (compact: boolean) => (
+    <>
+      <ProfileProgress compact={compact} />
+      <IconButton className="hdr-iconbtn" label={unread.messages > 0 ? `Messages, ${unread.messages} unread` : "Messages"} href="/messages"><MessageSquare size={24} strokeWidth={1.5} aria-hidden /><Count n={unread.messages} /></IconButton>
+      <IconButton className="hdr-iconbtn" label={unread.notices > 0 ? `Notifications, ${unread.notices} unread` : "Notifications"} onClick={() => setNotices(true)}><Bell size={24} strokeWidth={1.5} aria-hidden /><Count n={unread.notices} /></IconButton>
+      <span className="hdr__divider" aria-hidden />
+      <AccountMenu name={name} handle={handle} photo={me?.photo} onLogout={logout} />
+    </>
+  );
 
   return (
     <>
@@ -213,152 +286,180 @@ export default function Header() {
           <span><b>Demo</b><span className="long"> · sample data in your browser</span></span>
           <Link href="/pages">All pages</Link>
           <button type="button" onClick={resetDemo}>Reset</button>
-          <button type="button" onClick={out}>Sign out</button>
+          <button type="button" onClick={logout}>Sign out</button>
         </div>
       )}
-      <header className="ak-hdr">
-        <div className="ak-hdr__row">
-          <div className="ak-hdr__left">
-            <Link href="/" className="ak-logo" aria-label="Akines, Community Home">
-              {/* eslint-disable-next-line @next/next/no-img-element -- brand mark */}
-              <img src="/akines/mark.svg" alt="" width={31} height={32} />
-              <span className="word">AKINES</span>
-            </Link>
-            <span className="ak-hdr__title" aria-hidden>{title}</span>
-            <nav className="ak-hdr-nav" aria-label="Main">
-              {SECTIONS.map((s) => {
-                const Icon = ICON[s.key];
-                const on = section?.key === s.key;
-                return (
-                  <Link key={s.key} href={s.href} className="item" aria-label={s.label} aria-current={on ? "page" : undefined} data-active={on}>
-                    <Icon />
-                    <span className="bar" aria-hidden />
-                    <span className="tip" role="presentation">{s.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-
-          <div className="ak-hdr__actions">
-            <span className="ak-hdr__wide"><ProfileProgress /></span>
-            <span className="ak-hdr__mid"><ProfileProgress compact /></span>
-            <Link href="/messages" className="ak-ibtn ak-hdr__desk" aria-label={unread.messages ? `Messages, ${unread.messages} unread` : "Messages"} aria-current={pathname.startsWith("/messages") ? "page" : undefined}>
-              <MessageSquare size={24} strokeWidth={1.5} aria-hidden />
-              {unread.messages > 0 && <span className="count" aria-hidden>{unread.messages > 99 ? "99+" : unread.messages}</span>}
-              <span className="tip" role="presentation">{unread.messages ? `Messages, ${unread.messages} unread` : "Messages"}</span>
-            </Link>
-            <Link href="/notifications" className="ak-ibtn ak-hdr__desk" aria-label={unread.notices ? `Notifications, ${unread.notices} unread` : "Notifications"} aria-current={pathname.startsWith("/notifications") ? "page" : undefined}>
-              <Bell size={24} strokeWidth={1.5} aria-hidden />
-              {unread.notices > 0 && <span className="count" aria-hidden>{unread.notices > 99 ? "99+" : unread.notices}</span>}
-              <span className="tip" role="presentation">{unread.notices ? `Notifications, ${unread.notices} unread` : "Notifications"}</span>
-            </Link>
-            <span className="ak-hdr__divider ak-hdr__desk" aria-hidden />
-            <div className="ak-acct ak-hdr__desk" ref={menuRef} data-open={menu}>
-              <button type="button" className="btn" aria-haspopup="menu" aria-expanded={menu} onClick={() => setMenu((m) => !m)}>
-                <span className="circle">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- member photo from any host */}
-                  {me?.photo ? <img src={me.photo} alt="" /> : initials(name)}
-                </span>
-                <span className="name">{handle || name}</span>
-                <ChevronDown size={16} strokeWidth={1.5} className="chev" aria-hidden />
-                <span className="sr-only">Account menu</span>
-              </button>
-              {menu && (
-                <div className="ak-menu" role="menu">
-                  <div className="who"><b>{name}</b>{me?.username && <small>@{me.username}</small>}</div>
-                  <span className="rule" />
-                  {accountLinks.map(({ href, label, Icon }) => (
-                    <Link key={href} href={href} role="menuitem" className="item"><Icon size={18} strokeWidth={1.5} aria-hidden />{label}</Link>
-                  ))}
-                  <button type="button" role="menuitem" className="item" onClick={cycle}><ModeIcon size={18} strokeWidth={1.5} aria-hidden />Theme: {MODE_LABEL[mode]}</button>
-                  <span className="rule" />
-                  <button type="button" role="menuitem" className="item" onClick={out}><LogOut size={18} strokeWidth={1.5} aria-hidden />Log out</button>
-                </div>
-              )}
+      {layout === "desktop" && (
+        <header className="hdr" data-layout="desktop">
+          <div className="hdr__row">
+            <div className="hdr__left">
+              <Link href="/" className="hdr__logo" aria-label="Akines, Community Home"><Logo /></Link>
+              <nav className="hdr-nav" aria-label="Main">
+                {SECTIONS.map((s) => {
+                  const on = section?.key === s.key;
+                  const Icon = SECTION_ICON[s.key];
+                  return (
+                    <Link key={s.key} href={s.href} className="hdr-nav__item" aria-label={s.label} aria-current={on ? "page" : undefined} data-active={on ? "true" : "false"}>
+                      <Icon />
+                      <span className="hdr-nav__bar" aria-hidden />
+                      <span className="hdr-tip" role="presentation">{s.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
             </div>
-            <button type="button" className="ak-ibtn ak-hdr__phone ak-me" aria-label={`Account${unread.messages + unread.notices ? `, ${unread.messages + unread.notices} unread` : ""}`} aria-haspopup="dialog" onClick={() => setAccount(true)}>
-              <span className="circle">
-                {/* eslint-disable-next-line @next/next/no-img-element -- member photo from any host */}
-                {me?.photo ? <img src={me.photo} alt="" /> : initials(name)}
-              </span>
-              {unread.messages + unread.notices > 0 && <span className="dot" aria-hidden />}
-            </button>
+            <div className="hdr__actions">{actions(false)}</div>
           </div>
-        </div>
-
-        {section && section.tabs.length > 1 && (
-          <nav className="ak-hdr-tabs" aria-label={section.label}>
-            {section.tabs.map((t) => (
-              <Link key={t.href} href={t.href} className="tab" data-active={tab?.href === t.href} aria-current={tab?.href === t.href ? "page" : undefined}>{t.label}</Link>
-            ))}
-          </nav>
-        )}
-      </header>
-
-      {/* Phones: the six sections. A section with several pages opens them in a sheet. */}
-      <nav className="ak-bbar" aria-label="Main">
-        <div className="items">
-          {SECTIONS.map((s) => {
-            const Icon = ICON[s.key];
-            const on = section?.key === s.key;
-            const many = s.tabs.length > 1;
-            return many ? (
-              <button key={s.key} type="button" className="item" aria-label={s.label} aria-haspopup="dialog" aria-current={on ? "page" : undefined} data-active={on} onClick={() => setSheet(s)}>
-                <span className="press" aria-hidden /><span className="ind" aria-hidden /><Icon />
+          {tabs.length > 0 && (
+            <nav className="hdr-tabs" aria-label={section?.label}>
+              {tabs.map((t) => <Link key={t.href} href={t.href} className="hdr-tab" aria-current={t.label === activeTab ? "page" : undefined} data-active={t.label === activeTab ? "true" : "false"}>{t.label}</Link>)}
+            </nav>
+          )}
+        </header>
+      )}
+      {layout === "tablet" && (
+        <header className="hdr hdr--tablet" data-layout="tablet">
+          <div className="hdr__row">
+            <div className="hdr__left">
+              <Link href="/" className="hdr__logo" aria-label="Akines, Community Home"><Logo /></Link>
+              <span className="hdr__divider hdr__divider--tall" aria-hidden />
+              <div className="hdr__title">{title.eyebrow ? <span className="hdr__eyebrow">{title.eyebrow}</span> : null}<span className="hdr__h">{title.title}</span></div>
+            </div>
+            <div className="hdr__actions">{actions(true)}</div>
+          </div>
+        </header>
+      )}
+      {layout === "mobile" && (
+        <header className="hdr hdr--mobile" data-layout="mobile">
+          <div className="hdr__row">
+            <div className="hdr__left">
+              <Link href="/" className="hdr__logo" aria-label="Akines, Community Home"><Logo word={false} /></Link>
+              <div className="hdr__title">{title.eyebrow ? <span className="hdr__eyebrow">{title.eyebrow}</span> : null}<span className="hdr__h">{title.title}</span></div>
+            </div>
+            <div className="hdr__actions">
+              <ProfileProgress compact />
+              <button type="button" className="hdr-avatar__btn hdr-avatar__btn--solo" aria-label="Profile, messages and notifications" aria-haspopup="dialog" onClick={() => setProfileSheet(true)}>
+                <AvatarCircle name={name} photo={me?.photo} />
+                {unread.messages + unread.notices > 0 ? <span className="hdr-dot" aria-hidden /> : null}
               </button>
-            ) : (
-              <Link key={s.key} href={s.href} className="item" aria-label={s.label} aria-current={on ? "page" : undefined} data-active={on}>
-                <span className="press" aria-hidden /><span className="ind" aria-hidden /><Icon />
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+            </div>
+          </div>
+        </header>
+      )}
 
-      <PhoneSheet open={!!sheet} onClose={() => setSheet(null)} title={sheet?.label ?? ""}>
-        {sheet?.tabs.map((t) => {
-          const on = tab?.href === t.href;
-          return (
-            <Link key={t.href} href={t.href} className="ak-srow" aria-current={on ? "page" : undefined}>
-              <span className="lbl">{t.label}</span>
-              {on ? <span className="dot" aria-hidden /> : <ChevronRight size={18} strokeWidth={1.5} aria-hidden />}
-            </Link>
-          );
-        })}
-      </PhoneSheet>
-
-      <PhoneSheet open={account} onClose={() => setAccount(false)} title={name} sub={me?.username ? `@${me.username}` : undefined}>
-        <ProfileProgress />
-        <Link href="/messages" className="ak-srow"><MessageSquare size={20} strokeWidth={1.5} aria-hidden /><span className="lbl">Messages</span>{unread.messages > 0 && <span className="num">{unread.messages}</span>}</Link>
-        <Link href="/notifications" className="ak-srow"><Bell size={20} strokeWidth={1.5} aria-hidden /><span className="lbl">Notifications</span>{unread.notices > 0 && <span className="num">{unread.notices}</span>}</Link>
-        {accountLinks.map(({ href, label, Icon }) => (
-          <Link key={href} href={href} className="ak-srow"><Icon size={20} strokeWidth={1.5} aria-hidden /><span className="lbl">{label}</span></Link>
-        ))}
-        <button type="button" className="ak-srow" onClick={cycle}><ModeIcon size={20} strokeWidth={1.5} aria-hidden /><span className="lbl">Theme: {MODE_LABEL[mode]}</span></button>
-        <button type="button" className="ak-srow" onClick={out}><LogOut size={20} strokeWidth={1.5} aria-hidden /><span className="lbl">Log out</span></button>
-      </PhoneSheet>
+      {layout !== "desktop" && (
+        <nav className="bbar" aria-label="Main">
+          <div className="bbar__items">
+            {SECTIONS.map((s) => {
+              const on = section?.key === s.key;
+              const Icon = SECTION_ICON[s.key];
+              return (
+                <button key={s.key} type="button" className="bbar__item" aria-label={s.label} aria-current={on ? "page" : undefined} data-active={on ? "true" : "false"} onClick={() => (s.tabs.length > 1 ? setSheet(s.key) : router.push(s.href))}>
+                  <span className="bbar__press" aria-hidden />
+                  <span className="bbar__ind" aria-hidden />
+                  <Icon />
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      )}
+      {layout !== "desktop" && <SectionSheet sectionKey={sheet} active={section?.key === sheet ? activeTab : undefined} onClose={() => setSheet(null)} />}
+      {layout === "mobile" && (
+        <ProfileSheet open={profileSheet} onClose={() => setProfileSheet(false)} name={name} handle={handle} photo={me?.photo} messages={unread.messages} notices={unread.notices} onNotifications={() => { setProfileSheet(false); setNotices(true); }} onLogout={logout} />
+      )}
+      <NotificationsPanel open={notices} onClose={() => setNotices(false)} onRead={onRead} />
     </>
   );
 }
 
-/** A bottom sheet for phones, with its own styles so it works in either layout. */
-function PhoneSheet({ open, onClose, title, sub, children }: { open: boolean; onClose: () => void; title: string; sub?: string; children: React.ReactNode }) {
+/** Focus into a sheet while open, Escape closes, focus returns. */
+function useSheet(open: boolean, onClose: () => void) {
+  const ref = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
+  useEffect(() => { close.current = onClose; }, [onClose]);
+  useEffect(() => {
+    if (!open) return;
+    const before = document.activeElement as HTMLElement | null;
+    ref.current?.focus();
+    const html = document.documentElement, prev = html.style.overflow;
+    html.style.overflow = "hidden";
+    const key = (e: KeyboardEvent) => e.key === "Escape" && close.current();
+    document.addEventListener("keydown", key);
+    return () => { document.removeEventListener("keydown", key); html.style.overflow = prev; before?.focus?.(); };
+  }, [open]);
+  return ref;
+}
+
+function SectionSheet({ sectionKey, active, onClose }: { sectionKey: SectionKey | null; active?: string; onClose: () => void }) {
+  const ref = useSheet(sectionKey !== null, onClose);
+  const [shown, setShown] = useState<Section | null>(null);
+  const s = SECTIONS.find((x) => x.key === sectionKey) ?? null;
+  if (s && s !== shown) setShown(s);
+  const sec = s ?? shown;
+  const Icon = sec ? SECTION_ICON[sec.key] : null;
   return (
-    <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="ak-sheet-scrim" />
-        <Dialog.Content className="ak-sheet">
-          <div className="ak-sheet__head">
-            <div>
-              <Dialog.Title className="ak-sheet__title">{title}</Dialog.Title>
-              {sub ? <Dialog.Description className="ak-sheet__sub">{sub}</Dialog.Description> : <Dialog.Description className="sr-only">{title}</Dialog.Description>}
-            </div>
-            <Dialog.Close className="ak-ibtn" aria-label="Close"><X size={22} strokeWidth={1.5} aria-hidden /></Dialog.Close>
-          </div>
-          <div className="ak-sheet__body">{children}</div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    <div className="sheet-layer" data-open={sectionKey ? "true" : "false"} aria-hidden={sectionKey ? undefined : true}>
+      <div className="sheet-backdrop" onClick={onClose} aria-hidden />
+      {sec && Icon && (
+        <div ref={ref} className="sheet" role="dialog" aria-modal="true" aria-label={sec.label} tabIndex={-1}>
+          <button type="button" className="sheet__handle" aria-label="Close" onClick={onClose}><span /></button>
+          <div className="sheet__title"><Icon /><span>{sec.label}</span></div>
+          <ul className="sheet__rows">
+            {sec.tabs.map((t) => (
+              <li key={t.href}>
+                <Link href={t.href} className="sheet-row" data-selected={t.label === active ? "true" : "false"} onClick={onClose}>
+                  <span className="sheet-row__label">{t.label}</span>
+                  {t.label === active ? <span className="sheet-row__dot" aria-hidden /> : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProfileSheet({ open, onClose, name, handle, photo, messages, notices, onNotifications, onLogout }: { open: boolean; onClose: () => void; name: string; handle: string; photo?: string | null; messages: number; notices: number; onNotifications: () => void; onLogout: () => void }) {
+  const ref = useSheet(open, onClose);
+  const row = (Icon: typeof User, label: string, href: string, n?: number) => (
+    <Link href={href} className="sheet-row" data-selected="false" onClick={onClose}>
+      <Icon size={24} strokeWidth={1.5} aria-hidden />
+      <span className="sheet-row__label">{label}</span>
+      {n ? <span className="sheet-row__count">{count(n)}</span> : null}
+    </Link>
+  );
+  return (
+    <div className="sheet-layer" data-open={open ? "true" : "false"} aria-hidden={open ? undefined : true}>
+      <div className="sheet-backdrop" onClick={onClose} aria-hidden />
+      <div ref={ref} className="sheet" role="dialog" aria-modal="true" aria-label="Profile" tabIndex={-1} hidden={!open}>
+        <button type="button" className="sheet__handle" aria-label="Close" onClick={onClose}><span /></button>
+        <div className="sheet__profile"><AvatarCircle name={name} photo={photo} lg /><span className="sheet__username">{handle || name}</span></div>
+        <ul className="sheet__rows">
+          <li>{row(MessageSquare, "Messages", "/messages", messages)}</li>
+          <li>
+            <button type="button" className="sheet-row" data-selected="false" onClick={onNotifications}>
+              <Bell size={24} strokeWidth={1.5} aria-hidden />
+              <span className="sheet-row__label">Notifications</span>
+              <span className="sheet-row__count">{count(notices)}</span>
+            </button>
+          </li>
+        </ul>
+        <div className="sheet__rule" />
+        <ul className="sheet__rows">
+          {ACCOUNT.map((a) => <li key={a.label}>{row(a.Icon, a.label, a.href)}</li>)}
+        </ul>
+        <div className="sheet__rule" />
+        <ul className="sheet__rows">
+          <li>
+            <button type="button" className="sheet-row" data-selected="false" onClick={() => { onClose(); onLogout(); }}>
+              <LogOut size={24} strokeWidth={1.5} aria-hidden />
+              <span className="sheet-row__label">Log out</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
   );
 }
