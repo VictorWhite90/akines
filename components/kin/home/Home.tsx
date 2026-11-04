@@ -132,7 +132,7 @@ function Wellbeing({ id }: { id?: string }) {
           {WELL.map((w) => <Chip key={w.id} selected={mood === w.id} onClick={() => setMood(mood === w.id ? null : w.id)}>{w.label}</Chip>)}
         </div>
         <p className="fd-well__reply" aria-live="polite">{reply ? <span key={mood}>{reply}</span> : null}</p>
-        <FdLink href="/wellbeing">Reflect privately</FdLink>
+        <FdLink href="/wellbeing/reflect">Reflect privately</FdLink>
       </div>
       <FdPhoto src="/kin/home/quiet.jpg" className="fd-well__photo" />
     </section>

@@ -47,7 +47,7 @@ const INTENTIONS: Intention[] = [
   ] },
   { label: "I need encouragement.", headline: "A little encouragement.", items: [
     { title: "Message someone I trust", text: "Send a note to someone who knows you well.", meta: "Private", href: "/messages" },
-    { title: "Wellbeing", text: "A private check-in and a breathing room.", meta: "Only you", href: "/wellbeing" },
+    { title: "Reflect privately", text: "Write down how things are, just for you.", meta: "Only you", href: "/wellbeing/reflect" },
     { title: "Stories", text: "From members, in their own words.", meta: "Read", href: "/stories" },
   ] },
   { label: "I want to offer help.", headline: "A way to be useful.", items: [
@@ -55,8 +55,8 @@ const INTENTIONS: Intention[] = [
     { title: "Start a KinCircle", text: "Gather people around a shared purpose.", meta: "KinCircle", href: "/circles/new" },
   ] },
   { label: "I want quiet company.", headline: "Quiet company, close by.", items: [
-    { title: "Presence rooms", text: "Be in a calm room with others. No talking needed.", meta: "Anytime", href: "/rooms" },
-    { title: "My journal", text: "Write down how things are, just for you.", meta: "Only you", href: "/journal" },
+    { title: "Quiet company", text: "Be in a calm room with others. No talking needed.", meta: "Anytime", href: "/wellbeing/quiet" },
+    { title: "Reflect privately", text: "Write down how things are, just for you.", meta: "Only you", href: "/wellbeing/reflect" },
   ] },
 ];
 

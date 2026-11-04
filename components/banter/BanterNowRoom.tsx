@@ -8,6 +8,7 @@ import { BANTER_NOW, type BanterNow } from "@/lib/data/banter";
 import { ME, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 import LiveStage from "./LiveStage";
+import BanterIntro from "./BanterIntro";
 import Icon from "@/components/ui/Icon";
 
 export default function BanterNowRoom({ id }: { id: string }) {
@@ -19,6 +20,7 @@ export default function BanterNowRoom({ id }: { id: string }) {
   const [endedEarly, setEnded] = useState(false);
   const [insight, setInsight] = useState("");
   const [saved, setSaved] = useState(false);
+  const [entered, setEntered] = useState(false);
 
   const people: PersonId[] = session ? (session.people.includes(ME.id as PersonId) ? session.people : [...session.people, ME.id as PersonId]) : [];
 
@@ -27,10 +29,10 @@ export default function BanterNowRoom({ id }: { id: string }) {
   const ended = endedEarly || (total > 0 && left === 0);
 
   useEffect(() => {
-    if (ended) return;
+    if (ended || !entered) return;
     const t = setTimeout(() => setElapsed((e) => e + 1), 1000);
     return () => clearTimeout(t);
-  }, [elapsed, ended]);
+  }, [elapsed, ended, entered]);
 
 
   if (!session) {
@@ -41,6 +43,8 @@ export default function BanterNowRoom({ id }: { id: string }) {
       </div>
     );
   }
+
+  if (!entered) return <BanterIntro session={session} onJoin={() => setEntered(true)} />;
 
   const mm = Math.floor(left / 60);
   const ss = left % 60;
