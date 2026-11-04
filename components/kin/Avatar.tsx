@@ -58,6 +58,15 @@ export function Tie({ a, b, size = 36, dotted = false, draw = false, live }: { a
   );
 }
 
+/** Faces overlapping in a row, as in "Hosted by Folake, with Amara and Chuka". */
+export function Stack({ people, size = 36, max = 3 }: { people: AvatarPerson[]; size?: number; max?: number }) {
+  return (
+    <span className="k-stack" aria-label={people.map((p) => p.name).join(", ")}>
+      {people.slice(0, max).map((p, i) => <Avatar key={p.name + i} person={p} size={size} />)}
+    </span>
+  );
+}
+
 /** A team: faces in a row, each tied to the next. */
 export function Faces({ people, size = 28, max = 4 }: { people: AvatarPerson[]; size?: number; max?: number }) {
   const shown = people.slice(0, max);

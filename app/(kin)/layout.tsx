@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/manrope/wght.css";
-import "@fontsource-variable/bricolage-grotesque/opsz.css";
+import "@fontsource/alice/400.css";
 import "./tokens.css";
 import "@/components/kin/base.css";
 import Splash from "@/components/onboarding/Splash";
@@ -8,7 +8,7 @@ import Shell from "@/components/kin/Shell";
 import { BOOT_SCRIPT } from "@/lib/boot";
 
 /**
- * Root layout for the redesigned pages (the "kin" system). Loads two fonts and two stylesheets, nothing
+ * Root layout for the redesigned pages (the "kin" system). Loads Alice and Manrope and two stylesheets, nothing
  * from app/(legacy). Shares the boot script, the splash, the session gate and the member context with the
  * legacy layout, so theme and sign-in carry over; only the presentation is new.
  */

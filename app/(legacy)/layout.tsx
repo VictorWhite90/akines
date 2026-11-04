@@ -5,6 +5,7 @@ import "@fontsource-variable/fraunces/wght.css";
 import "@fontsource-variable/fraunces/wght-italic.css";
 import "@fontsource-variable/instrument-sans/wght.css";
 import "@fontsource-variable/manrope/wght.css";
+import "@fontsource/alice/400.css";
 import "@fontsource-variable/dm-sans/wght.css";
 import "@fontsource/dm-mono/400.css";
 import "@fontsource/dm-mono/500.css";

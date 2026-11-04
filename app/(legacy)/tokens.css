@@ -638,3 +638,47 @@ html[data-theme="dark"] {
   letter-spacing: var(--ak-tracking-normal);
   text-decoration-line: underline;
 }
+
+/* =========================================================
+   2026 product design revision (the Akines prototype handed over in November 2026).
+   Same scales as above; only the roles change: actions are ink instead of teal, the page is ivory,
+   amber stays the accent, and the display face is Alice. Kept as overrides so the export above stays as delivered.
+   ========================================================= */
+:root {
+  --ak-brand-ivory: #F4F1EB;
+  --ak-font-display: "Alice", "Iowan Old Style", Georgia, serif;
+  --ak-action-akines-primary-default: var(--ak-grey-950);
+  --ak-action-akines-primary-hover: var(--ak-grey-800);
+  --ak-action-akines-primary-pressed: var(--ak-grey-700);
+  --ak-action-akines-primary-disabled: var(--ak-grey-300);
+  --ak-action-akines-primary-foreground: var(--ak-white);
+  --ak-border-akines-primary: var(--ak-grey-950);
+  --ak-border-focus: var(--ak-grey-950);
+  --ak-icon-akines-primary: var(--ak-grey-950);
+  --ak-text-akines-primary: var(--ak-grey-950);
+  --ak-text-on-akines-primary: var(--ak-white);
+  --ak-surface-akines-primary-strong: var(--ak-grey-950);
+  --ak-surface-akines-primary-subtle: var(--ak-secondary-50);
+  /* Amber as text: the 700 step is 3.9:1 on ivory, so text uses a slightly deeper tone (AA). */
+  --ak-text-akines-secondary: #995A0A;
+  --ak-accent-akines-secondary-text: #995A0A;
+  /* Tertiary grey (#969696) fails AA for text on ivory; secondary text is #6F6F6F. */
+  --ak-text-tertiary: var(--ak-grey-700);
+}
+html[data-theme="dark"] {
+  --ak-brand-ivory: #121110;
+  --ak-action-akines-primary-default: #F4F1EB;
+  --ak-action-akines-primary-hover: #D9D5CE;
+  --ak-action-akines-primary-pressed: #BDB8B0;
+  --ak-action-akines-primary-foreground: #181818;
+  --ak-border-akines-primary: #F4F1EB;
+  --ak-border-focus: #F4F1EB;
+  --ak-icon-akines-primary: #F4F1EB;
+  --ak-text-akines-primary: #F4F1EB;
+  --ak-text-on-akines-primary: #181818;
+  --ak-surface-akines-primary-strong: #F4F1EB;
+  --ak-surface-akines-primary-subtle: var(--ak-secondary-950);
+  --ak-text-akines-secondary: var(--ak-secondary-400);
+  --ak-accent-akines-secondary-text: var(--ak-secondary-400);
+  --ak-text-tertiary: var(--ak-grey-400);
+}
