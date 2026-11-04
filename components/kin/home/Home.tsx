@@ -1,47 +1,48 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { Fragment, useEffect, useRef, useState } from "react";
-import { ArrowDown2, CloseCircle, Gallery } from "iconsax-reactjs";
-import Avatar, { Faces, Tie } from "@/components/kin/Avatar";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, ChevronDown, ImagePlus } from "lucide-react";
+import Avatar from "@/components/kin/Avatar";
 import Button from "@/components/kin/Button";
-import { Media } from "@/components/kin/Card";
-import Settle from "@/components/kin/Settle";
+import { SectionHead, Tile } from "@/components/kin/Tile";
+import { allActivities, dayDistance } from "@/components/activities/activities";
 import { usePosts } from "@/components/feed/usePosts";
 import { useJoined } from "@/components/circles/useJoined";
 import { useMe } from "@/components/shell/MemberContext";
-import { BANTER_NOW, TODAYS_BANTER } from "@/lib/data/banter";
-import { CIRCLES, COLLABS, ROOMS } from "@/lib/data/community";
+import { useCollab } from "@/lib/collab/useCollab";
+import { CIRCLES, ROOMS, STUDIOS } from "@/lib/data/community";
 import { MORE_POSTS } from "@/lib/data/feedMore";
-import { GAME_SESSIONS } from "@/lib/data/games";
+import { JOURNAL } from "@/lib/data/journals";
 import { STORIES } from "@/lib/data/stories";
-import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
+import { ME, PEOPLE } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 import ComposeSheet from "./ComposeSheet";
 import Post from "./Post";
 import Rail from "./Rail";
 import "./home.css";
 
-type LiveItem = { href: string; title: string; sub: string; who: PersonId[]; live: boolean };
+const MOODS = ["Full", "Steady", "Low", "Running on empty"] as const;
+const first = (id: keyof typeof PEOPLE) => PEOPLE[id].name.split(" ")[0];
 
-/** What is happening right now, from the same data the rooms, Banter and games pages read. */
-function liveNow(): LiveItem[] {
-  const rooms = ROOMS.filter((r) => r.status === "live" || r.status === "soon").map((r) => ({ href: `/rooms/${r.id}`, title: r.title, sub: r.status === "live" ? "Room · live" : `Room · ${r.when.replace("Tonight · ", "")}`, who: r.seated.length ? r.seated : [r.host], live: r.status === "live" }));
-  const banters = BANTER_NOW.map((b) => ({ href: `/banter/now/${b.id}`, title: b.topic, sub: b.live ? `Banter · ${b.minutes} min` : `Banter · ${b.startsIn}`, who: b.people, live: b.live }));
-  const games = GAME_SESSIONS.filter((g) => g.live).map((g) => ({ href: `/play/session/${g.id}`, title: g.title, sub: `Game · ${g.when.replace("Tonight · ", "")}`, who: g.players, live: false }));
-  return [...rooms, ...banters, ...games].sort((a, b) => Number(b.live) - Number(a.live));
-}
-
+/**
+ * Community Home, as the product design lays it out: a welcome, living journals, your circles' posts,
+ * then rooms, projects, things to do, studios, a quiet moment and stories. Your circles, a person to meet
+ * and what is trending sit in a column beside it on desktop and after the welcome on phones.
+ * Everything reads the same data the rest of the app reads.
+ */
 export default function Home() {
   const { posts } = usePosts();
   const { ids: joinedIds } = useJoined();
   const { me } = useMe();
+  const { calls } = useCollab();
   const [filter, setFilter] = useState<string>("mine");
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
   const [compose, setCompose] = useState(false);
-  const [count, setCount] = useState(8);
-  const [moodDone, setMoodDone] = useLocal<string>("ak:home-mood-day", "");
+  const [count, setCount] = useState(3);
+  const [mood, setMood] = useLocal<{ day: string; mood: string } | null>("ak:home-mood", null);
   const today = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
@@ -55,111 +56,141 @@ export default function Home() {
   const joined = CIRCLES.filter((c) => joinedIds.includes(c.id));
   const feed = [...posts, ...MORE_POSTS].filter((p) => (filter === "all" ? true : filter === "mine" ? (p.circle ? joinedIds.includes(p.circle) : p.by === ME.id) : p.circle === filter));
   const shown = feed.slice(0, count);
-  const live = liveNow();
-  const spot = COLLABS[1];
-  const stories = STORIES.filter((s) => s.id !== "five-voices").slice(0, 4);
   const filterLabel = filter === "mine" ? "Your circles" : filter === "all" ? "All circles" : CIRCLES.find((c) => c.id === filter)?.name ?? "Your circles";
   const meAvatar = { name: me?.name ?? ME.name, photo: me?.photo, face: me?.photo ? undefined : ME.face };
 
-  /** Rows that live inside the feed, placed after a given post. */
-  const inline: Record<number, React.ReactNode> = {
-    1: moodDone !== today ? (
-      <div className="h-mood" role="status">
-        <span>How are you arriving today? <Link href="/wellbeing" onClick={() => setMoodDone(today)}>Check in privately</Link></span>
-        <button type="button" onClick={() => setMoodDone(today)} aria-label="Not today"><CloseCircle size={18} color="currentColor" /></button>
-      </div>
-    ) : null,
-    4: (
-      <section className="h-inline" aria-labelledby="h-stories">
-        <div className="h-inline-head"><h2 id="h-stories">Stories from people like you</h2><Link href="/stories">All stories</Link></div>
-        <div className="h-stories">
-          {stories.map((s) => (
-            <Link key={s.id} href={`/stories/${s.id}`} className="h-story">
-              <Media photo={s.photo} ratio="4 / 5" sizes="180px" />
-              <b>{s.title}</b>
-              <small>{PEOPLE[s.by].name.split(" ")[0]} · {s.voice ? `voice ${s.voice}` : `${s.read} read`}</small>
-            </Link>
-          ))}
-        </div>
-      </section>
-    ),
-    8: (
-      <section className="h-inline" aria-labelledby="h-banter">
-        <div className="h-inline-head"><h2 id="h-banter">Today&apos;s Banter</h2><Link href="/banter">All Banter</Link></div>
-        <div className="h-banter">
-          <blockquote>&ldquo;{TODAYS_BANTER}&rdquo;</blockquote>
-          <div className="k-row"><Faces people={(["kwame", "ayo", "leila"] as PersonId[]).map((id) => PEOPLE[id])} size={24} max={3} /><span className="t-small c-3">12 people answered</span></div>
-          <div><Button variant="primary" size="sm" href="/banter/unfinished">Add your answer</Button></div>
-        </div>
-      </section>
-    ),
-    12: (
-      <section className="h-inline" aria-labelledby="h-spot">
-        <div className="h-inline-head"><h2 id="h-spot">Being made right now</h2><Link href="/collaborate">Collaborate</Link></div>
-        <Link href={`/collaborate/${spot.id}`} className="h-spot">
-          <Media photo={spot.photo} ratio="1" sizes="120px" />
-          <span><b>{spot.title}</b><p>{spot.blurb}</p><Tie a={PEOPLE[spot.makers[0]]} b={PEOPLE[spot.makers[1]]} size={24} /></span>
-        </Link>
-      </section>
-    ),
-  };
+  const journals = JOURNAL.filter((j) => j.photo).slice(0, 3);
+  const rooms = [...ROOMS].sort((a, b) => (a.status === "live" ? -1 : b.status === "live" ? 1 : a.status === "soon" ? -1 : b.status === "soon" ? 1 : 0)).slice(0, 3);
+  const projects = calls.filter((c) => !c.postedByMe).slice(0, 3);
+  const things = allActivities().sort((a, b) => dayDistance(a.when) - dayDistance(b.when)).slice(0, 3);
+  const studios = STUDIOS.slice(0, 3);
+  const stories = STORIES.slice(0, 3);
+  const moodToday = mood?.day === today ? mood.mood : null;
 
   return (
     <div className="h">
       <div className="h-wrap">
         <div className="h-main">
-          <nav className="h-live" aria-label="Happening now">
-            {live.map((l, i) => (
-              <Settle key={l.href} index={i}>
-                <Link href={l.href} className="h-live-item">
-                  <Avatar person={PEOPLE[l.who[0]]} size={56} live={l.live} />
-                  <b>{l.title}</b>
-                  <small>{l.sub}</small>
-                </Link>
-              </Settle>
-            ))}
-            <Settle index={live.length}>
-              <Link href="/banter" className="h-live-item all"><span className="n">8</span><b>Banters for you</b></Link>
-            </Settle>
-          </nav>
-
-          <div className="h-compose">
-            <Avatar person={meAvatar} size={40} />
-            <button type="button" className="line" onClick={() => setCompose(true)}>Share with your circles</button>
-            <Button variant="ghost" icon onClick={() => setCompose(true)} aria-label="Share a photo"><Gallery size={22} color="currentColor" /></Button>
-          </div>
-
-          <div className="h-feedhead">
-            <h1>Home</h1>
-            <div className="h-filter" ref={filterRef}>
-              <button type="button" aria-expanded={filterOpen} aria-haspopup="menu" onClick={() => setFilterOpen((v) => !v)}>{filterLabel}<ArrowDown2 size={16} color="currentColor" /></button>
-              {filterOpen && (
-                <div className="k-menu" role="menu">
-                  {[{ id: "mine", name: "Your circles" }, ...joined, { id: "all", name: "All circles" }].map((c) => (
-                    <button key={c.id} type="button" role="menuitemradio" aria-checked={filter === c.id} className={filter === c.id ? "on" : undefined} onClick={() => { setFilter(c.id); setFilterOpen(false); setCount(8); }}>{c.name}</button>
-                  ))}
-                  <Link href="/circles" role="menuitem" className="c-3">Manage circles</Link>
-                </div>
-              )}
+          <section className="h-hero" aria-labelledby="h-hero">
+            <Image src="/kin/home/hero.jpg" alt="" fill priority sizes="(max-width: 1023px) 100vw, 900px" className="h-hero-img" />
+            <div className="h-hero-body">
+              <h1 id="h-hero">Bring together the right people around a shared purpose.</h1>
+              <div className="h-hero-acts">
+                <Button variant="primary" light href="/circles/new">Start a KinCircle</Button>
+                <Button variant="link" light href="/about/philosophy" arrow>See how it works</Button>
+              </div>
             </div>
-          </div>
+          </section>
 
-          {shown.length === 0 && (
-            <div className="h-end">Nothing here yet. <Link href="/circles" className="c-brand">Join a circle</Link> to see what people are sharing.</div>
+          <div className="h-phone-rail"><Rail /></div>
+
+          <section className="h-sec" aria-labelledby="h-journals">
+            <SectionHead id="h-journals" title="Witness the journey." sub="Living journals from people at work and in life." href="/journal" cta="Open journals" />
+            <div className="k-tiles">
+              {journals.map((j) => (
+                <Tile key={j.id} href={`/profile/${j.by}`} photo={j.photo!} label={j.kind === "work" ? "Work journal" : "Life journal"} title={j.title} text={j.text} left={`By ${first(j.by)}`} right={j.date} />
+              ))}
+            </div>
+          </section>
+
+          <section className="h-sec" aria-labelledby="h-feed">
+            <div className="h-feedhead">
+              <div>
+                <h2 id="h-feed">From your circles.</h2>
+                <p>What the people you gather with are sharing.</p>
+              </div>
+              <div className="h-filter" ref={filterRef}>
+                <button type="button" aria-expanded={filterOpen} aria-haspopup="menu" onClick={() => setFilterOpen((v) => !v)}>{filterLabel}<ChevronDown size={16} strokeWidth={1.5} aria-hidden /></button>
+                {filterOpen && (
+                  <div className="k-menu" role="menu">
+                    {[{ id: "mine", name: "Your circles" }, ...joined, { id: "all", name: "All circles" }].map((c) => (
+                      <button key={c.id} type="button" role="menuitemradio" aria-checked={filter === c.id} className={filter === c.id ? "on" : undefined} onClick={() => { setFilter(c.id); setFilterOpen(false); setCount(3); }}>{c.name}</button>
+                    ))}
+                    <Link href="/circles" role="menuitem">Manage circles</Link>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="h-compose">
+              <Avatar person={meAvatar} size={44} />
+              <button type="button" className="line" onClick={() => setCompose(true)}>Share with your circles</button>
+              <Button variant="ghost" icon onClick={() => setCompose(true)} aria-label="Share a photo"><ImagePlus size={22} strokeWidth={1.5} /></Button>
+            </div>
+            <div className="h-posts">
+              {shown.length === 0 && <p className="h-empty">Nothing here yet. <Link href="/circles" className="k-link">Join a circle</Link> to see what people are sharing.</p>}
+              {shown.map((p) => <Post key={p.id} post={p} />)}
+            </div>
+            {count < feed.length ? (
+              <div className="h-more"><Button variant="secondary" onClick={() => setCount((c) => c + 5)}>Show more posts</Button></div>
+            ) : shown.length > 0 && (
+              <p className="h-empty">You&apos;re caught up. <Link href="/circles" className="k-link">Find another circle</Link></p>
+            )}
+          </section>
+
+          <section className="h-sec" aria-labelledby="h-rooms">
+            <SectionHead id="h-rooms" title="Rooms open now." sub="Drop in, listen, or speak when you are ready." href="/rooms" cta="See all rooms" />
+            <div className="k-tiles">
+              {rooms.map((r) => (
+                <Tile key={r.id} href={`/rooms/${r.id}`} photo={r.photo} label={r.status === "live" ? "Live now" : r.when.startsWith("Tonight") ? `Starts ${r.when.replace("Tonight · ", "")}` : r.when} title={r.title} text={r.blurb} left={`${r.seated.length} ${r.status === "live" ? "in the room" : "going"}`} right={`Hosted by ${first(r.host)}`} />
+              ))}
+            </div>
+          </section>
+
+          {projects.length > 0 && (
+            <section className="h-sec" aria-labelledby="h-projects">
+              <SectionHead id="h-projects" title="Projects looking for you." sub="Open calls that could use what you do." href="/collaborate" cta="Discover projects" />
+              <div className="k-tiles">
+                {projects.map((c) => (
+                  <Tile key={c.id} href={`/collaborate/calls/${c.id}`} photo={c.photo} label={`Looking for: ${c.roles[0]}`} title={c.title} text={c.summary} left={`${c.city} · ${c.where}`} right={c.closesInDays <= 0 ? "Closing today" : `Closes in ${c.closesInDays} days`} />
+                ))}
+              </div>
+            </section>
           )}
-          {shown.map((p, i) => (
-            <Fragment key={p.id}>
-              <Settle index={i}><Post post={p} /></Settle>
-              {inline[i + 1]}
-            </Fragment>
-          ))}
-          {count < feed.length ? (
-            <div className="h-more"><Button onClick={() => setCount((c) => c + 8)}>Show more</Button></div>
-          ) : shown.length > 0 && (
-            <p className="h-end">You&apos;re caught up. <Link href="/circles" className="c-brand">Find another circle</Link></p>
-          )}
+
+          <section className="h-sec" aria-labelledby="h-things">
+            <SectionHead id="h-things" title="Things to do together." sub="Small, easy ways to meet people through doing something." href="/activities" cta="See all activities" />
+            <div className="k-tiles">
+              {things.map((a) => (
+                <Tile key={a.circleId + a.id} href="/activities" photo={a.photo} label={a.when} title={a.title} text={a.blurb} left={a.where} right={`${a.going.length} going`} />
+              ))}
+            </div>
+          </section>
+
+          <section className="h-sec" aria-labelledby="h-studios">
+            <SectionHead id="h-studios" title="Step inside the studio." sub="Live, virtual or 360°. Talk to the maker directly." href="/studios" cta="Visit studios" />
+            <div className="k-tiles">
+              {studios.map((v) => (
+                <Tile key={v.id} href={`/studios/${v.id}`} photo={v.photo} label={v.mode} title={`${PEOPLE[v.artist].name}'s studio`} text={v.blurb} left={v.place} right={v.when} />
+              ))}
+            </div>
+          </section>
+
+          <section className="h-quiet" aria-labelledby="h-quiet">
+            <div className="h-quiet-body">
+              <span className="k-eyebrow">Wellbeing</span>
+              <h2 id="h-quiet">A quiet moment.</h2>
+              <p>How is your energy today? Only you can see your answer.</p>
+              <div className="h-quiet-moods" role="radiogroup" aria-label="Your energy today">
+                {MOODS.map((m) => (
+                  <button key={m} type="button" role="radio" aria-checked={moodToday === m} className="k-chip" onClick={() => setMood({ day: today, mood: m })}>{m}</button>
+                ))}
+              </div>
+              {moodToday && <p className="h-quiet-thanks" role="status">Noted for today. {moodToday === "Low" || moodToday === "Running on empty" ? "Be gentle with yourself; there is a breathing room in Wellbeing." : "Thank you for checking in."}</p>}
+              <Link href="/wellbeing" className="k-link">Reflect privately<ArrowRight size={16} strokeWidth={1.75} aria-hidden /></Link>
+            </div>
+            <div className="h-quiet-photo"><Image src="/kin/home/quiet.jpg" alt="" fill sizes="(max-width: 1023px) 100vw, 360px" /></div>
+          </section>
+
+          <section className="h-sec" aria-labelledby="h-stories">
+            <SectionHead id="h-stories" title="These might resonate with you." sub="Stories, ideas and conversations worth your time." href="/stories" cta="Explore all" />
+            <div className="k-tiles">
+              {stories.map((s) => (
+                <Tile key={s.id} href={`/stories/${s.id}`} photo={s.photo} title={s.title} text={s.excerpt} left={`${s.reflections} reflections`} right={s.voice ? `Voice · ${s.voice}` : `${s.read} read`} />
+              ))}
+            </div>
+          </section>
         </div>
-        <Rail />
+        <div className="h-desk-rail"><Rail /></div>
       </div>
       <ComposeSheet open={compose} onClose={() => setCompose(false)} />
     </div>
