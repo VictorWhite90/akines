@@ -208,7 +208,7 @@ export default function BanterThread({ id }: { id: string }) {
         {/* Akines noticed a shared intention */}
         {banter.spark && !banter.closed && (
           <section className="rounded-[22px] border border-ai/30 bg-ai/10 p-5">
-            <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] text-ink-800 uppercase"><span aria-hidden><Icon name="spark" size={18} /></span> Akines Companion · suggestion</p>
+            <p className="flex items-center gap-2 text-[11px] font-bold tracking-[0.12em] text-ink-800 uppercase"><span aria-hidden><Icon name="spark" size={18} /></span> Create AI · suggestion</p>
             <p className="mt-2 text-[14.5px] leading-relaxed">{banter.spark.text}</p>
             <p className="mt-1 text-[14.5px] font-semibold">Would you like to create a KinCircle called <em>{banter.spark.suggestion}</em>?</p>
             <div className="mt-3 flex -space-x-2">{banter.spark.people.map((pid) => <Avatar key={pid} person={PEOPLE[pid]} size={28} ring />)}</div>
@@ -296,7 +296,7 @@ export default function BanterThread({ id }: { id: string }) {
 
         <section className="rounded-[20px] border border-line bg-paper-50 p-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-[18px]">Akines Companion</h2>
+            <h2 className="font-display text-[18px]">Create AI</h2>
             <span className="rounded-full bg-ai/15 px-2 py-0.5 text-[10px] font-bold uppercase">AI</span>
           </div>
           <p className="mt-1 text-[12px] text-mute">Supports quietly. Never posts, comments or picks a winner.</p>

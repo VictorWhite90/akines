@@ -233,7 +233,7 @@ export default function BanterRoom({ id }: { id: string }) {
         </section>
 
         <section className="hm-card">
-          <h3>Akines Companion</h3>
+          <h3>Create AI</h3>
           <p className="br-sub">Only when you ask. It never posts or picks a winner.</p>
           {summary ? (
             <div className="km-sum">
