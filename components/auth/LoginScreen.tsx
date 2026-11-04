@@ -1,30 +1,36 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { auth, type Member } from "@/lib/api/client";
 import { DEMO } from "@/lib/demo/mode";
 import { previewAsGuest, rememberMember, signOut } from "@/lib/session";
-import { ArrowRight, X } from "lucide-react";
+import Logo from "@/components/kin/Logo";
+import { AuField, AuSubmit, IconClose, OrRule, Provider, ShowToggle } from "./parts";
 import "./auth.css";
 
 /** Matches the backend rule: 12+ characters with upper and lower case, a number and a symbol. */
 export const STRONG = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/;
 export const STRONG_HINT = "Use at least 12 characters, with upper and lower case letters, a number and a symbol.";
 
-/** The Akines logo mark (vector, from the Figma file), the same one used on About and in the rail. */
-export function AkinesMark({ size = 72 }: { size?: number }) {
-  // eslint-disable-next-line @next/next/no-img-element -- small brand SVG
-  return <img src="/akines/mark.svg" alt="" width={size} height={size} className="au-mark" />;
-}
-
 type View = "login" | "verify" | "2fa" | "forgot" | "reset";
+const EXIT_MS = 280;
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
-/** Sign in against the Akines API, then Home. */
+/**
+ * Sign in, as the product design draws it: a panel over the landing page (full screen on phones).
+ * Talks to the Akines API exactly as before: email and password, then a code when the account needs one.
+ */
 export default function LoginScreen({ signedOut = false, sessionEnded = false }: { signedOut?: boolean; sessionEnded?: boolean }) {
   const router = useRouter();
+  const root = useRef<HTMLDivElement>(null);
+  const closeBtn = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const idRef = useRef<HTMLInputElement>(null);
+  const pwRef = useRef<HTMLInputElement>(null);
+  const closingRef = useRef(false);
+  const [closing, setClosing] = useState(false);
   // ?signout=1 (from Sign out) ends the session on the server too.
   useEffect(() => {
     if (!signedOut) return;
@@ -35,69 +41,98 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [show, setShow] = useState(false);
-  const [tried, setTried] = useState(false);
+  const [err, setErr] = useState<{ id: string | null; pw: string | null; code: string | null }>({ id: null, pw: null, code: null });
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(sessionEnded ? "You were signed out of this device. Log in again to continue." : null);
-  const [failure, setFailure] = useState<string | null>(null);
+  const [providerNote, setProviderNote] = useState<string | null>(null);
 
-  const errs = {
-    email: /^\S+@\S+\.\S+$/.test(email.trim()) ? "" : "Enter the email you signed up with.",
-    password: view === "login" && !password ? "Enter your password." : view === "reset" && !STRONG.test(password) ? STRONG_HINT : "",
-    code: (view === "verify" || view === "2fa" || view === "reset") && !/^\d{6}$/.test(code.replace(/\D/g, "")) ? "Enter the 6-digit code from your email." : "",
-  };
+  /** Close: the panel slides out, then the landing page. */
+  const close = useCallback((after?: () => void) => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+    const go = () => (after ? after() : router.push("/landing"));
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return go();
+    setClosing(true);
+    window.setTimeout(go, EXIT_MS);
+  }, [router]);
+
+  // Focus the close button first, keep focus inside the panel, Escape closes.
+  useEffect(() => {
+    // Focus moves into the dialog without drawing a focus ring on Close (the design shows none).
+    panelRef.current?.focus({ preventScroll: true });
+    const key = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { e.preventDefault(); close(); return; }
+      if (e.key !== "Tab" || !root.current) return;
+      const list = Array.from(root.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((n) => n.offsetParent !== null);
+      if (!list.length) return;
+      const a = list[0], z = list[list.length - 1], cur = document.activeElement;
+      if (e.shiftKey && (cur === a || !root.current.contains(cur))) { e.preventDefault(); z.focus(); }
+      else if (!e.shiftKey && (cur === z || !root.current.contains(cur))) { e.preventDefault(); a.focus(); }
+    };
+    document.addEventListener("keydown", key);
+    const html = document.documentElement, prev = html.style.overflow;
+    html.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", key); html.style.overflow = prev; };
+  }, [close]);
 
   const switchTo = (v: View, message: string | null = null) => {
     setView(v);
-    setTried(false);
-    setFailure(null);
+    setErr({ id: null, pw: null, code: null });
     setNotice(message);
     setCode("");
     if (v !== "login") setPassword("");
   };
 
-  // Returning members go straight to Home; "What brings you here?" is asked once, during sign-up.
   const signedIn = (data: { user?: Member }) => {
     if (data.user) rememberMember(data.user);
-    router.replace("/");
-    router.refresh();
+    close(() => { router.replace("/"); router.refresh(); });
   };
 
   // Demo mode only (no backend): one tap into the app as the sample member.
   const continueAsGuest = async () => {
     if (!(await previewAsGuest())) return;
-    router.replace("/");
-    router.refresh();
+    close(() => { router.replace("/"); router.refresh(); });
   };
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setTried(true);
-    const fields = view === "login" ? ["email", "password"] : view === "verify" || view === "2fa" ? ["code"] : view === "forgot" ? ["email"] : ["code", "password"];
-    if (fields.some((f) => errs[f as keyof typeof errs])) return;
-    setBusy(true);
-    setFailure(null);
+  const submit = async () => {
+    if (busy) return;
     const mail = email.trim().toLowerCase();
     const otp = code.replace(/\D/g, "");
+    const needId = view === "login" || view === "forgot";
+    const needPw = view === "login" || view === "reset";
+    const needCode = view === "verify" || view === "2fa" || view === "reset";
+    const next = {
+      id: needId ? (!mail ? "Enter your email." : /^\S+@\S+\.\S+$/.test(mail) ? null : "Enter the email you signed up with.") : null,
+      pw: needPw ? (!password ? (view === "reset" ? "Create a password." : "Enter your password.") : view === "reset" && !STRONG.test(password) ? STRONG_HINT : null) : null,
+      code: needCode ? (otp.length < 6 ? "Enter the 6-digit code." : null) : null,
+    };
+    if (next.id || next.pw || next.code) {
+      setErr(next);
+      (next.id ? idRef : pwRef).current?.focus();
+      return;
+    }
+    setErr({ id: null, pw: null, code: null });
+    setBusy(true);
     try {
       if (view === "login") {
         const r = await auth<{ redirect_to_2fa?: boolean; redirect_to_verify_email?: boolean; user?: Member }>("login", { email: mail, password });
-        if (!r.ok) return setFailure(r.message);
+        if (!r.ok) { setErr({ id: null, pw: r.message || "That password doesn't match this account.", code: null }); pwRef.current?.focus(); return; }
         if (r.data?.redirect_to_verify_email) return switchTo("verify", `Confirm your email first: we sent a 6-digit code to ${mail}.`);
         if (r.data?.redirect_to_2fa) return switchTo("2fa", `We sent a 6-digit code to ${mail}.`);
         return signedIn(r.data ?? {});
       }
       if (view === "verify" || view === "2fa") {
         const r = await auth<{ user?: Member }>(view === "verify" ? "verify-email" : "verify-2fa", { email: mail, otp });
-        return r.ok ? signedIn(r.data ?? {}) : setFailure(r.message);
+        return r.ok ? signedIn(r.data ?? {}) : setErr({ id: null, pw: null, code: r.message || "That code doesn't match. Check it and try again." });
       }
       if (view === "forgot") {
         const r = await auth("forgot", { email: mail });
-        return r.ok ? switchTo("reset", `If ${mail} has an account, we've sent it a 6-digit code.`) : setFailure(r.message);
+        return r.ok ? switchTo("reset", `If ${mail} has an account, we've sent it a 6-digit code.`) : setErr({ id: r.message, pw: null, code: null });
       }
       const v = await auth("verify-reset", { email: mail, otp });
-      if (!v.ok) return setFailure(v.message);
+      if (!v.ok) return setErr({ id: null, pw: null, code: v.message });
       const r = await auth("reset", { email: mail, password });
-      return r.ok ? switchTo("login", "Password changed. Log in with your new password.") : setFailure(r.message);
+      return r.ok ? switchTo("login", "Password changed. Log in with your new password.") : setErr({ id: null, pw: r.message, code: null });
     } finally {
       setBusy(false);
     }
@@ -105,85 +140,71 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
 
   const resend = async () => {
     const r = await auth(view === "2fa" ? "resend-2fa" : view === "verify" ? "resend-email" : "forgot", { email: email.trim().toLowerCase() });
-    setFailure(r.ok ? null : r.message);
-    setNotice(r.ok ? "A new code is on its way." : null);
+    setNotice(r.ok ? `A new code is on its way to ${email.trim()}.` : null);
+    if (!r.ok) setErr((x) => ({ ...x, code: r.message }));
   };
 
-  const title = view === "login" ? "Log in to Akines" : view === "2fa" || view === "verify" ? "Check your email" : view === "forgot" ? "Reset your password" : "Choose a new password";
+  const codeField = (
+    <AuField label="6-digit code" value={code.length > 3 ? `${code.slice(0, 3)} ${code.slice(3)}` : code} placeholder="123 456" inputMode="numeric" autoComplete="one-time-code" maxLength={7} message={err.code ?? undefined} helper={notice ?? undefined} helperTone="success" onChange={(v) => { setCode(v.replace(/\D/g, "").slice(0, 6)); if (err.code) setErr((x) => ({ ...x, code: null })); }} />
+  );
 
   return (
-    <div className="au au-signin">
-      {/* The landing photograph, softened, behind the panel (desktop and tablet). */}
-      <div className="au-backdrop" aria-hidden>
-        <Image src="/landing/images/hero.jpg" alt="" fill priority sizes="100vw" />
-      </div>
-      <main className="au-panel">
-        <div className="au-bar">
-          <Link href="/landing" className="au-close" aria-label="Close and go to the Akines home page">
-            <X size={20} strokeWidth={1.5} aria-hidden /><span>Close</span>
-          </Link>
-          <Link href="/landing" className="au-logo" aria-label="Akines"><AkinesMark size={30} /><span>AKINES</span></Link>
-        </div>
-
-        <form className="au-form" onSubmit={submit} noValidate aria-busy={busy}>
-          <h1 className={view === "login" ? "sr-only" : "au-h"}>{title}</h1>
-          {notice && <p className="au-note" role="status">{notice}</p>}
-          {failure && <p className="au-fail" role="alert">{failure}</p>}
-
-          {(view === "login" || view === "forgot") && (
-            <div className="au-field">
-              <label htmlFor="lg-email">Email</label>
-              <input id="lg-email" type="email" inputMode="email" className="au-input" aria-invalid={tried && !!errs.email} autoComplete="username" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-              {tried && errs.email && <span className="au-err">{errs.email}</span>}
-            </div>
-          )}
-
-          {(view === "verify" || view === "2fa" || view === "reset") && (
-            <div className="au-field">
-              <label htmlFor="lg-code">6-digit code</label>
-              <input id="lg-code" className="au-input au-code" aria-invalid={tried && !!errs.code} inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="123 456" value={code} onChange={(e) => setCode(e.target.value)} />
-              {tried && errs.code && <span className="au-err">{errs.code}</span>}
-            </div>
-          )}
-
-          {(view === "login" || view === "reset") && (
-            <div className="au-field">
-              <label htmlFor="lg-pw">{view === "reset" ? "New password" : "Password"}</label>
-              <div className="au-input au-pw" aria-invalid={tried && !!errs.password}>
-                <input id="lg-pw" type={show ? "text" : "password"} autoComplete={view === "reset" ? "new-password" : "current-password"} placeholder={view === "reset" ? "At least 12 characters" : "Your password"} value={password} onChange={(e) => setPassword(e.target.value)} />
-                <button type="button" onClick={() => setShow((s) => !s)} aria-pressed={show}>{show ? "Hide" : "Show"}</button>
-              </div>
-              {tried && errs.password && <span className="au-err">{errs.password}</span>}
-            </div>
-          )}
-
-          <button type="submit" className="au-primary" disabled={busy}>
-            <span>{busy ? "Please wait…" : view === "login" ? "Log in" : view === "2fa" || view === "verify" ? "Verify and log in" : view === "forgot" ? "Send reset code" : "Change password"}</span>
-            {!busy && <ArrowRight size={14} strokeWidth={2} aria-hidden />}
+    <div ref={root} className="au-root" role="dialog" aria-modal="true" aria-labelledby="au-panel-title" data-closing={closing ? "" : undefined}>
+      <div className="au-backdrop" onClick={() => close()} aria-hidden />
+      <div ref={panelRef} className="au-panel" tabIndex={-1}>
+        <h2 id="au-panel-title" className="sr-only">Sign in to Akines</h2>
+        <div className="au-head">
+          <button ref={closeBtn} type="button" className="au-close" onClick={() => close()} aria-label="Close">
+            <IconClose size={20} />
+            <span className="au-close__label" aria-hidden>Close</span>
           </button>
-
-          {view === "login" ? (
-            <button type="button" className="au-quiet" onClick={() => switchTo("forgot")}>Forgot password?</button>
-          ) : (
-            <span className="au-links">
-              {view !== "forgot" && <button type="button" className="au-quiet" onClick={resend}>Send a new code</button>}
-              <button type="button" className="au-quiet" onClick={() => switchTo("login")}>Back to log in</button>
-            </span>
-          )}
-
-          {view === "login" && DEMO && (
+          <Logo className="au-head__logo" />
+          <span className="au-head__spacer" aria-hidden />
+        </div>
+        <div className="au-rule" />
+        <div className="au-gap au-gap--a" />
+        <form className="au-form" noValidate onSubmit={(e) => { e.preventDefault(); void submit(); }}>
+          <div className="au-form__main">
+            {view !== "login" && notice && !(view === "verify" || view === "2fa" || view === "reset") ? <p className="au-helper" data-tone="success" role="status">{notice}</p> : null}
+            {view === "login" && notice ? <p className="au-helper" role="status">{notice}</p> : null}
+            {(view === "login" || view === "forgot") && (
+              <AuField label="Email" value={email} inputRef={idRef} placeholder="you@example.com" inputMode="email" autoComplete="username" message={err.id ?? undefined} onChange={(v) => { setEmail(v); if (err.id) setErr((x) => ({ ...x, id: null })); }} />
+            )}
+            {(view === "verify" || view === "2fa" || view === "reset") && codeField}
+            {(view === "login" || view === "reset") && (
+              <AuField label={view === "reset" ? "New password" : "Password"} value={password} inputRef={pwRef} type={show ? "text" : "password"} placeholder={view === "reset" ? "Enter at least 12 characters" : "Enter your password"} autoComplete={view === "reset" ? "new-password" : "current-password"} message={err.pw ?? undefined} action={<ShowToggle shown={show} onToggle={() => setShow((s) => !s)} />} onChange={(v) => { setPassword(v); if (err.pw) setErr((x) => ({ ...x, pw: null })); }} />
+            )}
+            <AuSubmit label={view === "login" ? "Log in" : view === "2fa" || view === "verify" ? "Confirm and continue" : view === "forgot" ? "Send a reset code" : "Change password"} type="submit" loading={busy} />
+            {view === "login" ? (
+              <button type="button" className="au-link au-forgot" onClick={() => switchTo("forgot")}>Forgot password?</button>
+            ) : (
+              <div className="au-links">
+                {view !== "forgot" && <button type="button" className="au-link" onClick={() => void resend()}>Send a new code</button>}
+                <button type="button" className="au-link" onClick={() => switchTo("login")}>Back to log in</button>
+              </div>
+            )}
+          </div>
+          {view === "login" && (
             <>
-              <div className="au-or"><span>or</span></div>
-              <button type="button" className="au-outline" onClick={continueAsGuest}>Preview as guest</button>
-              <small className="au-small">Demo: sample data only. Any email and password sign you in, and any 6-digit code works.</small>
+              <div className="au-social-block" data-dim={busy ? "" : undefined}>
+                <OrRule />
+                <div className="au-providers">
+                  <Provider provider="google" onClick={() => setProviderNote("Signing in with Google isn't available yet. Use your email and password.")} />
+                  <Provider provider="apple" onClick={() => setProviderNote("Signing in with Apple isn't available yet. Use your email and password.")} />
+                </div>
+                {providerNote && <p className="au-helper" role="status">{providerNote}</p>}
+              </div>
+              <p className="au-prompt">
+                <span>Don&apos;t have an account?</span>
+                <Link href="/signup" className="au-link au-link--inline" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return; e.preventDefault(); close(() => router.push("/signup")); }}>Create an account</Link>
+              </p>
+              {DEMO && <p className="au-prompt"><button type="button" className="au-link au-link--inline" onClick={() => void continueAsGuest()}>Preview as guest</button><span>(demo only)</span></p>}
             </>
           )}
-
-          {view === "login" && <p className="au-switch">Don&apos;t have an account? <Link href="/signup">Create an account</Link></p>}
         </form>
-
+        <div className="au-gap au-gap--b" />
         <p className="au-tagline">Less scrolling. More belonging.</p>
-      </main>
+      </div>
     </div>
   );
 }

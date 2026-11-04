@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import AuthFlow from "./AuthFlow";
 import LoginScreen from "./LoginScreen";
+import LandingPage from "@/components/landing/LandingPage";
+import Companion from "@/components/shell/Companion";
 
 /**
  * The log-in and sign-up pages read their options (?step=, ?signout=, ?ended=) here in the browser, so the
@@ -12,7 +14,7 @@ import LoginScreen from "./LoginScreen";
 export function LoginRoute() {
   const q = useSearchParams();
   const step = q.get("step");
-  if (!step || step === "account") return <LoginScreen signedOut={q.get("signout") === "1"} sessionEnded={q.get("ended") === "1"} />;
+  if (!step || step === "account") return <><LandingPage /><Companion guest /><LoginScreen signedOut={q.get("signout") === "1"} sessionEnded={q.get("ended") === "1"} /></>;
   return <AuthFlow mode="login" startAt={step} />;
 }
 

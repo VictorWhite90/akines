@@ -56,7 +56,7 @@ export default function Post({ post }: { post: PostT }) {
           ))}
         </div>
       )}
-      {post.type === "collaborate" && <div><Button variant="secondary" size="sm" href={post.collab ? `/collaborate/${post.collab}` : "/collaborate"} arrow>I&apos;m interested</Button></div>}
+      {post.type === "collaborate" && <div><Button variant="secondary" size="sm" href={post.collab ? `/collaborate/${post.collab}` : "/collaborate"} arrow="right">I&apos;m interested</Button></div>}
       <footer className="h-post-acts">
         <div className="pills">
           {used.map((k) => {

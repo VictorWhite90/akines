@@ -1,0 +1,66 @@
+/* Design tokens and motion keyframes.
+   Copied verbatim from the Akines product design prototype (November 2026). Do not restyle here:
+   change the design, then copy again. Only edit marked lines. */
+:root{--ivory: #f4f1eb;--surface-subtle: #fdfdfc;--ink: #181818;--muted: #6e6e6e;--inverse: #fefefe;--amber: #f4a63a;--border-subtle: #e5e5e5;--border-strong: #c0c0c0;--border-card: #dadada;--font-serif: "Alice", "Iowan Old Style", Georgia, "Times New Roman", serif;--font-sans: "Manrope Variable", "Manrope", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;--max-w: 1512px;--pad-x: 24px;--sec-y: 72px;--header-h: 64px;--header-h-solid: 64px;--anchor-offset: 64px;--fs-hero: 28px;--fs-h2: 28px;--fs-h3: 32px;--fs-h4: 24px;--fs-display: 32px;--fs-lead: 16px;--fs-stage: 22px;--fs-quote: 20px;--fs-tagline: 20px;--fs-step-num: 24px;--fs-step-num-active: 40px;--fs-step-title: 24px;--fs-step-title-active: 32px;--ease: cubic-bezier(.4, 0, .2, 1);--ease-out: cubic-bezier(.16, 1, .3, 1);--ease-io: cubic-bezier(.76, 0, .24, 1)}
+@media(min-width:768px){:root{--pad-x: 48px;--sec-y: 112px;--header-h: 76px;--header-h-solid: 76px;--anchor-offset: 76px;--fs-hero: 28px;--fs-h2: 40px;--fs-h3: 40px;--fs-h4: 28px;--fs-display: 48px;--fs-stage: 28px;--fs-quote: 22px;--fs-tagline: 22px;--fs-step-num: 28px;--fs-step-num-active: 56px;--fs-step-title: 28px;--fs-step-title-active: 40px}}
+@media(min-width:1280px){:root{--pad-x: 64px;--sec-y: 144px;--header-h: 96px;--header-h-solid: 80px;--anchor-offset: 80px;--fs-hero: 32px;--fs-h2: 48px;--fs-h3: 48px;--fs-h4: 32px;--fs-display: 60px;--fs-lead: 18px;--fs-stage: 32px;--fs-quote: 24px;--fs-tagline: 24px;--fs-step-num: 32px;--fs-step-num-active: 72px;--fs-step-title: 32px;--fs-step-title-active: 48px}}
+:root{--surface-default: #fefefe;--surface-subtle: #f9f9f9;--surface-muted: #f3f3f3;--surface-inverse: #181818;--surface-disabled: #f3f3f3;--surface-brand: #f4f1eb;--surface-brand-subtle: #fdfdfc;--surface-secondary-subtle: #fef6ec;--surface-secondary-strong: #f4a63a;--surface-success-subtle: #e0fee4;--surface-warning-subtle: #fff9ee;--surface-error-subtle: #fff0f0;--surface-info-subtle: #edf0ff;--text-primary: #181818;--text-secondary: #6e6e6e;--text-tertiary: #969696;--text-placeholder: #c0c0c0;--text-disabled: #cccccc;--text-inverse: #fefefe;--text-success: #279d45;--text-warning: #c79e00;--text-error: #d31900;--text-info: #005fca;--text-accent: #ae690a;--action-primary: #181818;--action-primary-hover: #494949;--action-primary-pressed: #6f6f6f;--action-primary-disabled: #dadada;--action-primary-fg: #fefefe;--action-outline-border: #181818;--action-outline-disabled: #dadada;--action-subtle-hover: #f3f3f3;--action-subtle-pressed: #e5e5e5;--action-secondary: #f4a63a;--action-secondary-hover: #e3890d;--action-secondary-pressed: #ae690a;--action-secondary-disabled: #fbdcb2;--action-secondary-fg: #181818;--icon-primary: #181818;--icon-secondary: #6e6e6e;--icon-tertiary: #969696;--icon-disabled: #cccccc;--icon-inverse: #fefefe;--icon-accent: #e3890d;--icon-success: #279d45;--icon-error: #d31900;--border-default: #cccccc;--border-subtle: #e5e5e5;--border-strong: #c0c0c0;--border-disabled: #dadada;--border-focus: #f4f1eb;--border-akines-secondary: #f4a63a;--border-success: #34c759;--border-warning: #ffcc00;--border-error: #ff3b30;--border-info: #007aff;--feedback-success: #34c759;--feedback-success-text: #0e4d1e;--feedback-warning: #ffcc00;--feedback-warning-text: #634d00;--feedback-error: #ff3b30;--feedback-error-text: #730800;--feedback-info: #007aff;--feedback-info-text: #00306d;--accent: #f4a63a;--accent-subtle: #fdeed8;--accent-strong: #ae690a;--radius-xs: 6px;--radius-sm: 8px;--radius-md: 12px;--radius-lg: 16px;--radius-xl: 24px;--radius-sheet: 28px;--radius-pill: 999px;--shadow-pop: 0 8px 28px rgba(24, 24, 24, .12), 0 1px 3px rgba(24, 24, 24, .06);--shadow-sheet: 0 -8px 32px rgba(24, 24, 24, .14);--scrim: rgba(24, 24, 24, .28)}
+@media(prefers-reduced-motion:no-preference){@keyframes route-in{0%{opacity:0;translate:0 14px}}}
+@media(prefers-reduced-motion:no-preference){@keyframes pp-sweep{0%{stroke-dashoffset:94.25px}}}
+:root{--k-focus: var(--text-primary);--k-warning-dot: #957600;--k-halo: var(--action-secondary-disabled)}
+@media(prefers-reduced-motion:no-preference){@keyframes ch-swap{0%{opacity:0;translate:0 12px}}}
+@media(prefers-reduced-motion:no-preference){@keyframes ch-spin{to{rotate:360deg}}}
+@media(prefers-reduced-motion:no-preference){@keyframes ch-pulse{0%{opacity:1}to{opacity:.55}}}
+@media(prefers-reduced-motion:no-preference){@keyframes ch-breathe{0%{box-shadow:0 0 0 2px var(--accent)}to{box-shadow:0 0 0 2px var(--accent),0 0 0 8px #f4a63a2e}}}
+@property --au-end{syntax: "<number>"; inherits: false; initial-value: .78;}
+@media(prefers-reduced-motion:no-preference){@keyframes cs-step-in{0%{opacity:0;translate:0 14px}}}
+@media(prefers-reduced-motion:no-preference){@keyframes cs-pop{0%{opacity:0;scale:.5}}}
+@keyframes underline-redraw{0%{background-size:100% 1px;background-position:100% 100%}45%{background-size:0 1px;background-position:100% 100%}46%{background-size:0 1px;background-position:0 100%}to{background-size:100% 1px;background-position:0 100%}}
+@keyframes chip-load{to{transform:scaleX(1)}}
+@keyframes menu-fade{0%{opacity:0}to{opacity:1}}
+@keyframes menu-panel-in{0%{opacity:0;transform:translate(-12px)}to{opacity:1;transform:none}}
+@keyframes rise{0%{opacity:0;translate:0 28px}}
+@keyframes rise-sm{0%{opacity:0;translate:0 .55em}}
+@keyframes fade-in{0%{opacity:0}}
+@keyframes card-text-in-move{0%{translate:calc(var(--dir, 1) * 55cqw) 0}}
+@keyframes card-text-in-fade{0%{opacity:0}}
+@keyframes card-text-out-move{to{translate:calc(var(--dir, 1) * -38cqw) 0}}
+@keyframes card-text-out-fade{to{opacity:0}}
+@keyframes card-num-in{0%{opacity:0;translate:calc(var(--dir, 1) * 12px) 0}}
+@keyframes img-settle{0%{scale:1.16}}
+@keyframes hero-img-in{0%{opacity:0;scale:1.14}to{opacity:1;scale:1}}
+@keyframes curtain-open{0%{transform:scaleY(1)}to{transform:scaleY(0)}}
+@keyframes rule-draw{0%{transform:scaleX(0)}}
+@keyframes sheet-open{0%{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes menu-fade-out{to{opacity:0}}
+@keyframes menu-panel-out{to{opacity:0;transform:translate(-16px)}}
+@keyframes nf-drop{0%{opacity:0;translate:0 -14px}}
+@keyframes nf-drift{0%{scale:1}to{scale:1.07}}
+@keyframes menu-pop{0%{opacity:0;scale:.96;translate:0 -6px}}
+@keyframes k-spin{to{rotate:360deg}}
+@keyframes k-fade-in{0%{opacity:0}}
+@keyframes k-fade-out{to{opacity:0}}
+@keyframes k-rise-in{0%{opacity:0;translate:0 14px}}
+@keyframes k-rise-out{to{opacity:0;translate:0 8px}}
+@keyframes k-slide-right-in{0%{translate:100% 0}}
+@keyframes k-slide-right-out{to{translate:100% 0}}
+@keyframes k-slide-left-in{0%{translate:-100% 0}}
+@keyframes k-slide-left-out{to{translate:-100% 0}}
+@keyframes k-sheet-in{0%{translate:0 100%}}
+@keyframes k-sheet-out{to{translate:0 100%}}
+@keyframes k-menu-in{0%{opacity:0;scale:.96;translate:0 -6px}}
+@keyframes k-menu-in-up{0%{opacity:0;scale:.96;translate:0 6px}}
+@keyframes k-menu-out{to{opacity:0;scale:.98}}
+@keyframes k-pulse{0%{background-color:var(--border-subtle)}to{background-color:var(--surface-muted)}}
+@keyframes k-toast-in{0%{opacity:0;translate:0 12px}}
+@keyframes k-toast-out{to{opacity:0;translate:0 8px}}
+@keyframes cai-in{0%{opacity:0;transform:translateY(14px) scale(.96)}}
+@keyframes cai-out{to{opacity:0;transform:translateY(10px) scale(.97)}}
+@keyframes cai-rise{0%{opacity:0;transform:translateY(8px)}}
+@keyframes cai-dot{0%,70%,to{opacity:.35;transform:translateY(0)}35%{opacity:1;transform:translateY(-3px)}}
+@keyframes au-msg-in{0%{opacity:0;translate:0 -4px}}
+@keyframes au-step-in{0%{opacity:0;translate:0 14px}}
+@keyframes au-step-out{to{opacity:0;translate:0 -8px}}
+@keyframes au-fill{0%{transform:scaleX(0)}}
+@keyframes cd-pop{0%{opacity:.4;scale:.9}}
+@keyframes cd-pulse{50%{background-color:var(--surface-muted)}}

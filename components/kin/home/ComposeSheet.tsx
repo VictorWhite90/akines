@@ -74,7 +74,7 @@ export default function ComposeSheet({ open, onClose }: { open: boolean; onClose
             {CIRCLES.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
-        <Button variant="primary" block onClick={submit} disabled={!text.trim() && !photo && !images.length}>Post</Button>
+        <Button variant="primary" full onClick={submit} disabled={!text.trim() && !photo && !images.length}>Post</Button>
       </div>
     </Sheet>
   );

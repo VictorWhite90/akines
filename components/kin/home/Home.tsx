@@ -77,7 +77,7 @@ export default function Home() {
               <h1 id="h-hero">Bring together the right people around a shared purpose.</h1>
               <div className="h-hero-acts">
                 <Button variant="primary" light href="/circles/new">Start a KinCircle</Button>
-                <Button variant="link" light href="/about/philosophy" arrow>See how it works</Button>
+                <Button variant="link" light href="/about/philosophy" arrow="right">See how it works</Button>
               </div>
             </div>
           </section>

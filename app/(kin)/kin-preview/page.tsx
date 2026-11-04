@@ -63,11 +63,11 @@ export default function KinPreview() {
       <section className="pv-sec" aria-labelledby="pv-btn">
         <h2 id="pv-btn" className="t-title">Buttons and links</h2>
         <div className="pv-row">
-          <Button variant="primary" arrow>Join the conversation</Button>
+          <Button variant="primary" arrow="right">Join the conversation</Button>
           <Button>Not now</Button>
           <Button variant="accent">Say hello</Button>
           <Button variant="ghost">See all</Button>
-          <Button variant="link" arrow>See all rooms</Button>
+          <Button variant="link" arrow="right">See all rooms</Button>
           <Button variant="danger">Withdraw</Button>
           <Button variant="primary" size="sm"><Add size={16} color="currentColor" />Post a call</Button>
           <Button variant="ghost" icon aria-label="Notifications"><Notification size={20} color="currentColor" /></Button>
@@ -139,7 +139,7 @@ export default function KinPreview() {
           <form className="k-stack" onSubmit={(e) => { e.preventDefault(); setSheet(false); }}>
             <div className="k-field"><label htmlFor="pv-t">Working title</label><input id="pv-t" className="k-input" defaultValue="New in Abuja, a photo zine" /></div>
             <div className="k-field"><label htmlFor="pv-i">The idea</label><textarea id="pv-i" className="k-input" defaultValue="A 16-page zine of people who moved to Abuja in the last year: one portrait, one sentence each." /></div>
-            <Button variant="primary" type="submit" block>Send the proposal</Button>
+            <Button variant="primary" type="submit" full>Send the proposal</Button>
           </form>
         </Sheet>
       </section>

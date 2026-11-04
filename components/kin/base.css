@@ -1,68 +1,7 @@
-/* Base components for the kin system. Prefix k-. Tokens in app/(kin)/tokens.css.
+/* Kin-only helpers not in the product design's library (avatar with the tie, media, tiles, sheet).
+   The design's own components (button, chip, field, menu, panel, tabs, toggle, tip) are in components/kin/akines/library.css.
    The app header has its own self-contained stylesheet (components/kin/header.css) because the
    legacy layout uses it too. */
-
-/* ---- Button ----
-   Every variant is a set of variables; the fill rises from below on hover, the button presses on click. */
-.k-btn {
-  --b-bg: var(--ink); --b-fg: var(--on-ink); --b-bd: transparent; --b-bw: 0px;
-  --b-sweep: var(--canvas); --b-hfg: var(--ink); --b-ring: var(--ink); --b-press: var(--muted-fill);
-  --b-h: 48px; --b-px: 24px; --b-fs: 14px;
-  position: relative; isolation: isolate; overflow: hidden;
-  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: var(--b-h); padding: 0 calc(var(--b-px) - var(--b-bw));
-  border: var(--b-bw) solid var(--b-bd); border-radius: var(--r-full);
-  background: var(--b-bg); color: var(--b-fg);
-  font: 600 var(--b-fs)/1.6 var(--font-text); letter-spacing: 0.018em;
-  white-space: nowrap; text-decoration: none; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
-  transition: color 0.4s var(--ease-out), background-color 0.3s ease-out, border-color 0.3s ease-out, transform 0.3s var(--ease-out);
-}
-.k-btn::before { content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: inherit; background: var(--b-sweep); transform: translateY(101%); transition: transform 0.55s var(--ease-out); }
-.k-btn::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--b-ring); opacity: 0; pointer-events: none; transition: opacity 0.35s var(--ease-out); }
-.k-btn-label { display: inline-flex; align-items: center; gap: 8px; }
-.k-btn-glyph { display: inline-flex; }
-.k-btn-arrow { display: inline-flex; flex: none; transition: translate 0.4s var(--ease-out); }
-@media (hover: hover) {
-  .k-btn:not(:disabled):hover { color: var(--b-hfg); }
-  .k-btn:not(:disabled):hover::before { transform: none; }
-  .k-btn:not(:disabled):hover::after { opacity: 1; }
-  .k-btn:not(:disabled):hover .k-btn-arrow { translate: 3px 0; }
-}
-.k-btn:not(:disabled):active { transform: scale(0.97); color: var(--b-hfg); }
-.k-btn:not(:disabled):active::before { transform: none; background: var(--b-press); transition-duration: 0.08s; }
-.k-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: var(--r-full); }
-
-.k-btn.secondary { --b-bg: transparent; --b-fg: var(--ink); --b-bw: 1px; --b-bd: var(--ink); --b-sweep: var(--ink); --b-hfg: var(--canvas); --b-ring: transparent; --b-press: var(--ink-hover); }
-.k-btn.accent { --b-bg: var(--brand); --b-fg: var(--on-brand); --b-sweep: var(--ink); --b-hfg: var(--brand); --b-ring: transparent; --b-press: var(--ink-hover); }
-.k-btn.ghost { --b-bg: transparent; --b-fg: var(--ink); --b-sweep: var(--muted-fill); --b-hfg: var(--ink); --b-ring: transparent; --b-press: var(--surface); }
-.k-btn.danger { --b-bg: transparent; --b-fg: var(--danger); --b-bw: 1px; --b-bd: var(--danger); --b-sweep: var(--danger); --b-hfg: var(--on-ink); --b-ring: transparent; --b-press: var(--danger); }
-.k-btn.primary.light { --b-bg: var(--canvas); --b-fg: var(--ink); --b-sweep: var(--ink); --b-hfg: var(--on-ink); --b-ring: transparent; --b-press: var(--ink-hover); }
-.k-btn.secondary.light { --b-fg: #FEFEFE; --b-bd: #FEFEFE; --b-sweep: #FEFEFE; --b-hfg: #181818; }
-.k-btn.ghost.light { --b-fg: #FEFEFE; --b-sweep: rgba(254, 254, 254, 0.16); --b-hfg: #FEFEFE; --b-press: rgba(254, 254, 254, 0.26); }
-/* Link: underlined text, the arrow nudges; no fill. */
-.k-btn.link { --b-bg: transparent; --b-fg: var(--ink); --b-hfg: var(--ink); min-height: 0; padding: 4px 0; gap: 8px; border-radius: 4px; overflow: visible; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; transition: color 0.3s ease-out, text-decoration-thickness 0.25s ease-out; }
-.k-btn.link::before, .k-btn.link::after { display: none; }
-.k-btn.link:hover { text-decoration-thickness: 2px; }
-.k-btn.link:active { transform: none; color: var(--ink-2); }
-.k-btn.link.light { --b-fg: #FEFEFE; --b-hfg: #FEFEFE; }
-.k-btn.link:focus-visible { border-radius: 4px; }
-
-.k-btn.sm { --b-h: 36px; --b-px: 16px; gap: 8px; }
-.k-btn.lg { --b-h: 56px; --b-px: 32px; --b-fs: 16px; letter-spacing: 0; }
-.k-btn.icon { width: 44px; min-height: 44px; padding: 0; }
-.k-btn.icon.sm { width: 36px; min-height: 36px; }
-.k-btn.icon.lg { width: 52px; min-height: 52px; }
-.k-btn.icon svg { width: 22px; height: 22px; }
-.k-btn.icon.sm svg { width: 18px; height: 18px; }
-.k-btn.block { display: flex; width: 100%; }
-.k-btn:disabled { --b-bg: var(--line-strong); --b-fg: var(--ink-2); cursor: not-allowed; }
-.k-btn.secondary:disabled, .k-btn.danger:disabled { --b-bg: transparent; --b-fg: var(--ink-4); --b-bd: var(--line); }
-.k-btn.ghost:disabled, .k-btn.link:disabled { --b-bg: transparent; --b-fg: var(--ink-4); }
-
-/* A text link with an arrow, for "See all rooms" and the like, outside a Button. */
-.k-link { display: inline-flex; align-items: center; gap: 8px; font: 600 14px/1.6 var(--font-text); color: var(--ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; transition: text-decoration-thickness 0.25s ease-out; }
-.k-link svg { transition: translate 0.4s var(--ease-out); }
-@media (hover: hover) { .k-link:hover { text-decoration-thickness: 2px; } .k-link:hover svg { translate: 3px 0; } }
 
 /* ---- Avatar, live ring, faces ---- */
 .k-ava-wrap { position: relative; display: inline-block; flex: none; align-self: flex-start; justify-self: start; line-height: 0; }
@@ -79,62 +18,12 @@
 .k-stack .k-ava-wrap + .k-ava-wrap { margin-left: -10px; }
 .k-stack .k-ava { outline: 2px solid var(--canvas); }
 
-/* ---- Tabs: underline marker, amber when active ---- */
-.k-tabs { display: flex; gap: 36px; border-bottom: 1px solid var(--hairline); overflow-x: auto; scrollbar-width: none; }
-.k-tabs::-webkit-scrollbar { display: none; }
-.k-tab { position: relative; flex: none; display: inline-flex; align-items: center; gap: 6px; height: 52px; padding: 0; border: 0; background: none; font: 400 14px/1.6 var(--font-text); letter-spacing: 0.25px; color: var(--ink-2); cursor: pointer; transition: color var(--d-state) ease-out; -webkit-tap-highlight-color: transparent; }
-.k-tab::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--line); transform: scaleX(0); transition: transform 0.55s var(--ease-out); }
-.k-tab:hover { color: var(--ink); }
-.k-tab:hover::after { transform: scaleX(1); }
-.k-tab[data-state="active"] { color: var(--ink); }
-.k-tab[data-state="active"]::after { transform: scaleX(0); }
-.k-tab .n { font-size: 12px; color: var(--ink-2); }
-.k-tab-ind { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--brand); z-index: 1; }
-.k-tabs.fill { gap: 0; }
-.k-tabs.fill .k-tab { flex: 1; justify-content: center; }
-.k-seg { display: inline-flex; padding: 4px; border-radius: var(--r-full); background: var(--raised); border: 1px solid var(--hairline); }
-.k-seg button { position: relative; isolation: isolate; height: 36px; padding: 0 16px; border-radius: var(--r-full); font: 600 14px/1 var(--font-text); color: var(--ink-2); transition: color var(--d-state); }
-.k-seg button[aria-pressed="true"] { color: var(--on-ink); }
-.k-seg .k-seg-pill { position: absolute; inset: 0; border-radius: var(--r-full); background: var(--ink); z-index: -1; }
-.k-seg button > span { position: relative; }
-
 /* ---- Card, media: white, hairline, square ---- */
 .k-card { display: block; border: 1px solid var(--hairline); border-radius: var(--r-card); background: var(--raised); overflow: hidden; color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
 .k-media { position: relative; overflow: hidden; background: var(--surface); }
 .k-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: scale 1.6s var(--ease-out); }
 @media (hover: hover) { a:hover > .k-media img, .k-zoom:hover .k-media img { scale: 1.04; } }
 html[data-theme="dark"] .k-media::after { content: ""; position: absolute; inset: 0; border: 1px solid var(--hairline); pointer-events: none; }
-
-/* ---- Chip: filters and choices ---- */
-.k-chip { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 10px 18px; border: 1px solid var(--line); border-radius: var(--r-full); background: var(--raised); color: var(--ink); font: 500 14px/1.6 var(--font-text); white-space: nowrap; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; transition: border-color 0.3s ease-out, background-color 0.3s ease-out, color 0.3s ease-out, box-shadow 0.3s ease-out, scale 0.35s var(--ease-out); }
-@media (hover: hover) { button.k-chip:hover { border-color: var(--ink); } }
-.k-chip:active:not(span) { scale: 0.97; }
-.k-chip[aria-pressed="true"], .k-chip[aria-checked="true"]:not(.choice), .k-chip.on { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
-.k-chip .n { color: var(--ink-2); font-size: 12px; }
-.k-chip.on .n, .k-chip[aria-pressed="true"] .n { color: inherit; opacity: 0.7; }
-/* A choice: an amber dot that fills when chosen. */
-.k-chip.choice { gap: 12px; min-height: 52px; padding: 0 22px 0 16px; font-weight: 400; font-size: 16px; }
-.k-chip.choice .ind { position: relative; display: inline-flex; flex: none; align-items: center; justify-content: center; width: 20px; height: 20px; color: var(--on-brand); }
-.k-chip.choice .ind::before { content: ""; position: absolute; inset: 2.5px; border-radius: 50%; border: 1.5px solid var(--ink-4); transition: inset 0.3s var(--ease-out), background-color 0.3s ease-out, border-color 0.3s ease-out; }
-.k-chip.choice .ind svg { position: relative; opacity: 0; scale: 0.6; transition: opacity 0.25s ease-out, scale 0.35s var(--ease-out); }
-.k-chip.choice[aria-pressed="true"], .k-chip.choice[aria-checked="true"] { background: var(--brand-soft); border-color: var(--brand-line); box-shadow: inset 0 0 0 0.5px var(--brand-line); color: var(--ink); }
-.k-chip.choice[aria-pressed="true"] .ind::before, .k-chip.choice[aria-checked="true"] .ind::before { inset: 0; background: var(--brand); border-color: var(--brand); }
-.k-chip.choice[aria-pressed="true"] .ind svg, .k-chip.choice[aria-checked="true"] .ind svg { opacity: 1; scale: 1; }
-@media (hover: hover) { button.k-chip.choice:hover { background: var(--muted-fill); border-color: var(--line-strong); } button.k-chip.choice[aria-pressed="true"]:hover { background: var(--brand-soft); border-color: var(--brand-line); } }
-
-/* ---- Inputs ---- */
-.k-field { display: grid; gap: 10px; min-width: 0; }
-.k-field label, .k-field .lbl { font: 600 14px/1.6 var(--font-text); color: var(--ink); }
-.k-field .msg { font: 400 14px/1.6 var(--font-text); color: var(--ink-2); }
-.k-field .msg.err { color: var(--danger); }
-.k-input { width: 100%; height: 52px; padding: 0 22px; border: 1px solid var(--ink-2); border-radius: var(--r-full); background: var(--raised); color: var(--ink); font: 400 16px/1.6 var(--font-text); outline: 0; transition: border-color 0.3s ease-out, box-shadow 0.3s ease-out; }
-@media (hover: hover) { .k-input:hover { border-color: var(--ink); } }
-.k-input:focus { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink), 0 0 0 3px color-mix(in srgb, var(--brand) 22%, transparent); }
-.k-input[aria-invalid="true"] { border-color: var(--danger); box-shadow: inset 0 0 0 0.5px var(--danger); }
-textarea.k-input { height: auto; min-height: 120px; padding: 14px 20px; border-radius: var(--r-lg); resize: vertical; }
-.k-search { display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 20px; border: 1px solid var(--line); border-radius: var(--r-full); background: var(--raised); color: var(--ink-2); }
-.k-search input { flex: 1; min-width: 0; border: 0; background: none; outline: 0; color: var(--ink); font: 400 15px var(--font-text); }
-.k-search:focus-within { border-color: var(--ink); }
 
 /* ---- Toggle switch ---- */
 .k-switch { position: relative; flex: none; width: 48px; height: 28px; border-radius: var(--r-full); background: var(--line); transition: background-color 0.3s ease-out; }
@@ -175,14 +64,6 @@ textarea.k-input { height: auto; min-height: 120px; padding: 14px 20px; border-r
   .k-sheet-handle { display: none; }
 }
 html[data-theme="dark"] .k-sheet { border: 1px solid var(--hairline); }
-
-/* ---- Menu ---- */
-.k-menu { display: grid; gap: 2px; padding: 8px; border-radius: var(--r-lg); background: var(--raised); box-shadow: var(--shadow-menu); animation: k-pop 0.4s var(--ease-out) backwards; }
-.k-menu button, .k-menu a { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: var(--r-sm); text-align: left; font: 400 14px/1.6 var(--font-text); transition: background-color 0.25s ease-out; }
-.k-menu button:hover, .k-menu a:hover, .k-menu button:focus-visible, .k-menu a:focus-visible { background: var(--muted-fill); }
-.k-menu .on { font-weight: 600; }
-.k-menu hr { height: 1px; margin: 4px 0; border: 0; background: var(--hairline); }
-@keyframes k-pop { from { opacity: 0; scale: 0.96; } }
 
 /* A row in a sheet (the phone version of a section's pages). */
 .k-sheet-row { position: relative; display: flex; align-items: center; gap: 14px; width: 100%; height: 56px; padding-inline: 16px; border-radius: var(--r-md); font: 400 16px/1.6 var(--font-text); text-align: left; transition: background-color 0.25s ease-out; }
