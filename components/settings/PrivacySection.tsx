@@ -1,15 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { Chip } from "@/components/kin/Chip";
+import { Toggle } from "@/components/kin/Choice";
 import { account, type MyProfile } from "@/lib/api/account";
+import { PrivacyExtras } from "./ConnectionSections";
 import { Notice, Status, useLoad } from "./useLoad";
 
-const WHO: { value: MyProfile["message_permission"]; label: string; hint: string }[] = [
-  { value: "everyone", label: "Everyone on Akines", hint: "Any member can start a conversation with you." },
-  { value: "circles", label: "People in my circles", hint: "Only people who share a KinCircle or community with you." },
-  { value: "nobody", label: "Nobody", hint: "No one can start a new conversation. Existing ones stay." },
+const WHO: { value: MyProfile["message_permission"]; label: string }[] = [
+  { value: "everyone", label: "Everyone on Akines" },
+  { value: "circles", label: "People in my circles" },
+  { value: "nobody", label: "Nobody" },
 ];
 
+/** Who can message you and whether you appear in search (saved to the API as you change them), then the design's privacy rows. */
 export default function PrivacySection() {
   const profile = useLoad(account.profile);
   const [notice, setNotice] = useState<{ text: string; tone: "ok" | "bad" } | null>(null);
@@ -29,26 +33,21 @@ export default function PrivacySection() {
   };
 
   return (
-    <div className="cm-form">
-      <fieldset className="st-group">
-        <legend>Who can message you</legend>
-        {WHO.map((w) => (
-          <label key={w.value} className="cm-check st-radio">
-            <input type="radio" name="who" checked={p.message_permission === w.value} onChange={() => change({ message_permission: w.value })} />
-            <span><b>{w.label}</b><small>{w.hint}</small></span>
-          </label>
-        ))}
-      </fieldset>
-
-      <fieldset className="st-group">
-        <legend>Discovery</legend>
-        <label className="cm-check st-radio">
-          <input type="checkbox" checked={p.show_in_search} onChange={(e) => change({ show_in_search: e.target.checked })} />
-          <span><b>Show me in search and suggestions</b><small>Turn off to only be found by people who already know your @username.</small></span>
-        </label>
-      </fieldset>
-
+    <>
+      <div className="ch-set__group">
+        <p className="ch-label">Who can message me</p>
+        <div className="ch-chips" role="radiogroup" aria-label="Who can message me">
+          {WHO.map((w) => <Chip key={w.value} variant="choice" selected={p.message_permission === w.value} onClick={() => change({ message_permission: w.value })}>{w.label}</Chip>)}
+        </div>
+      </div>
+      <div className="ch-set__list">
+        <div className="ch-set__row">
+          <div className="ch-set__rowtext"><span className="ch-set__rowtitle">Show me in search and suggestions</span><span className="ch-set__rowdesc">Turn off to only be found by people who already know your @username.</span></div>
+          <Toggle checked={p.show_in_search} onChange={(v) => change({ show_in_search: v })} aria-label="Show me in search and suggestions" />
+        </div>
+      </div>
       <Notice text={notice?.text ?? null} tone={notice?.tone} />
-    </div>
+      <PrivacyExtras />
+    </>
   );
 }
