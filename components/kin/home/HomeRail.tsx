@@ -1,0 +1,154 @@
+"use client";
+
+import Link from "next/link";
+import { useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, CircleCheck } from "lucide-react";
+import Button, { IconButton } from "@/components/kin/Button";
+import { toast } from "@/components/kin/Toast";
+import type { Circle } from "@/lib/data/community";
+import { MATCHES } from "@/lib/data/matches";
+import { PEOPLE, type PersonId } from "@/lib/data/people";
+import { TRENDS } from "@/lib/data/trends";
+import { useLocal } from "@/lib/useLocal";
+import { FdAvatar, FdLink, photoSrc } from "./parts";
+
+/** The design's right column on Community Home: your circles, a match to meet, what is trending. */
+export default function HomeRail({ circles }: { circles: Circle[] }) {
+  return (
+    <aside className="fd-rail" aria-label="Your circles, a match and what is trending">
+      <Circles circles={circles} />
+      <Match />
+      <Trending />
+    </aside>
+  );
+}
+
+function Circles({ circles }: { circles: Circle[] }) {
+  return (
+    <section className="fd-box fd-circles" aria-labelledby="fd-circles-title">
+      <div className="fd-box__head">
+        <h2 className="fd-box__title" id="fd-circles-title">Your Circles <span className="fd-box__count">({circles.length})</span></h2>
+        <Link className="fd-link" href="/circles">See all</Link>
+      </div>
+      <ul className="fd-circles__list">
+        {circles.map((c) => (
+          <li key={c.id}>
+            <Link className="fd-circle" href={`/circles/${c.id}`}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- circle photo */}
+              <span className="fd-circle__photo"><img className="cover" src={photoSrc(c.photo)} alt="" loading="lazy" decoding="async" draggable={false} /></span>
+              <span className="fd-circle__text"><span className="fd-circle__name">{c.name}</span><span className="fd-circle__meta">{c.members} members · {c.active} active</span></span>
+              <span className="fd-circle__chev"><ChevronRight size={16} strokeWidth={1.5} aria-hidden /></span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+const MAX = 10, SWIPE = 40;
+function Match() {
+  const list = MATCHES.slice(0, MAX);
+  const n = list.length;
+  const [i, setI] = useState(0);
+  const [drag, setDrag] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [hello, setHello] = useLocal<Record<string, boolean>>("ak:feed-hello", {});
+  const start = useRef<{ x: number; y: number; id: number; drag: boolean } | null>(null);
+  if (n === 0) {
+    return (
+      <section className="fd-box fd-match fd-match--empty" aria-labelledby="fd-match-title">
+        <h2 className="fd-box__title" id="fd-match-title">You two would get along</h2>
+        <p className="fd-match__nothing">Nothing to suggest today. Check back tomorrow.</p>
+        <Link className="fd-link" href="/settings/privacy">Update recommendation preferences</Link>
+      </section>
+    );
+  }
+  const go = (k: number) => setI(((k % n) + n) % n);
+  const cur = list[i];
+  const person = PEOPLE[cur.id as PersonId];
+  const firstName = person.name.split(" ")[0];
+  const sent = !!hello[cur.id];
+  const sayHello = () => { setHello((h) => ({ ...h, [cur.id]: true })); toast.show({ message: `Hello sent to ${firstName}` }); };
+  return (
+    <section className="fd-box fd-match" aria-roledescription="carousel" aria-labelledby="fd-match-title" tabIndex={0} data-index={i} onKeyDown={(e) => { if (e.key === "ArrowLeft") { e.preventDefault(); go(i - 1); } else if (e.key === "ArrowRight") { e.preventDefault(); go(i + 1); } }}>
+      <h2 className="fd-box__title fd-match__title" id="fd-match-title">You two would get along</h2>
+      <div
+        className="fd-match__view"
+        onPointerDown={(e) => { if (n < 2 || (e.pointerType === "mouse" && e.button !== 0)) return; start.current = { x: e.clientX, y: e.clientY, id: e.pointerId, drag: false }; }}
+        onPointerMove={(e) => {
+          const s = start.current; if (!s || s.id !== e.pointerId) return;
+          const dx = e.clientX - s.x, dy = e.clientY - s.y;
+          if (!s.drag) { if (Math.abs(dx) < 8 || Math.abs(dx) < Math.abs(dy)) return; s.drag = true; setDragging(true); try { e.currentTarget.setPointerCapture(e.pointerId); } catch {} }
+          setDrag(dx);
+        }}
+        onPointerUp={(e) => { const s = start.current; if (!s || s.id !== e.pointerId) return; start.current = null; const dx = e.clientX - s.x, dy = e.clientY - s.y; setDragging(false); setDrag(0); if (Math.abs(dx) >= SWIPE && Math.abs(dx) > Math.abs(dy)) go(i + (dx < 0 ? 1 : -1)); }}
+        onPointerCancel={() => { start.current = null; setDragging(false); setDrag(0); }}
+      >
+        <div className={dragging ? "fd-match__track is-dragging" : "fd-match__track"} style={{ "--fd-i": i, "--fd-drag": `${drag}px` } as React.CSSProperties}>
+          {list.map((m, k) => {
+            const p = PEOPLE[m.id as PersonId];
+            return (
+              <div key={m.id} className="fd-slide" role="group" aria-roledescription="slide" aria-label={`${k + 1} of ${n}`} inert={k !== i}>
+                <div className="fd-slide__who">
+                  <FdAvatar id={m.id as PersonId} size={56} />
+                  <div className="fd-slide__id"><p className="fd-slide__name" id={`fd-name-${m.id}`}>{p.name}</p><p className="fd-slide__role">{p.role} · {p.city}</p></div>
+                </div>
+                <p className="fd-slide__quote">{`“${m.reason}”`}</p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div className="fd-match__side">
+        <Link className="fd-link fd-match__why" href="/kindred">Why this match?</Link>
+        <div className="fd-match__slot">
+          {sent ? (
+            <p className="fd-match__sent" role="status"><CircleCheck size={20} strokeWidth={1.5} aria-hidden /><span>Hello sent to {firstName}. We will let you know when they reply.</span></p>
+          ) : (
+            <div className="fd-match__actions">
+              <Button variant="secondary" full onClick={() => go(i + 1)} aria-describedby={`fd-name-${cur.id}`}>Not now</Button>
+              <Button full onClick={sayHello} aria-describedby={`fd-name-${cur.id}`}>Say hello</Button>
+            </div>
+          )}
+        </div>
+        <div className="fd-match__ctrl">
+          <div className="fd-match__nav">
+            <div className="fd-dots" role="group" aria-label="Choose a profile">
+              {list.map((m, k) => <button key={m.id} type="button" className="fd-dot" aria-label={`Show profile ${k + 1} of ${n}`} aria-current={k === i ? "true" : undefined} onClick={() => go(k)}><span /></button>)}
+            </div>
+            <span className="fd-match__count">{i + 1} / {n}</span>
+          </div>
+          <div className="fd-match__arrows">
+            <IconButton variant="ghost" className="fd-arrow" label="Previous profile" onClick={() => go(i - 1)}><ChevronLeft size={24} strokeWidth={1.5} /></IconButton>
+            <IconButton variant="ghost" className="fd-arrow" label="Next profile" onClick={() => go(i + 1)}><ChevronRight size={24} strokeWidth={1.5} /></IconButton>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Trending() {
+  const items = Object.entries(TRENDS).flatMap(([circle, t]) => t.stories.slice(0, 1).map((s) => ({ ...s, circle }))).slice(0, 2);
+  return (
+    <section className="fd-box fd-trend" aria-labelledby="fd-trend-title">
+      <div className="fd-box__intro">
+        <h2 className="fd-box__title" id="fd-trend-title">Trending now on Akines</h2>
+        <p className="fd-box__support">Conversations and discoveries</p>
+      </div>
+      <ul className="fd-trend__list">
+        {items.map((s) => (
+          <li key={s.id}>
+            <Link className="fd-trend__item" href={`/circles/${s.circle}`}>
+              <span className="fd-trend__eyebrow">{`${s.circle.replace(/-/g, " ")} · ${s.tag}`.toUpperCase()}</span>
+              <span className="fd-trend__title">{s.title}</span>
+              <span className="fd-trend__text">{s.summary}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <FdLink href="/circles">Explore more discoveries</FdLink>
+    </section>
+  );
+}

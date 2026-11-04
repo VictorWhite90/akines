@@ -7,6 +7,7 @@ import { recordRoute } from "@/lib/navHistory";
 import { MemberProvider } from "@/components/shell/MemberContext";
 import Companion from "@/components/shell/Companion";
 import Header, { useLayout } from "./Header";
+import Toaster from "./Toast";
 import { ViewTransitions } from "./ViewTransitions";
 
 const PUBLIC = ["/landing", "/login", "/signup", "/about", "/about/philosophy", "/welcome"];
@@ -46,6 +47,7 @@ function Frame({ pathname, children }: { pathname: string; children: React.React
         <div className="route-stage" key={pathname}>{children}</div>
       </main>
       <Companion />
+      <Toaster />
     </div>
   );
 }
