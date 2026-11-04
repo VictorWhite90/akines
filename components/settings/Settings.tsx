@@ -26,6 +26,7 @@ export default function Settings({ section }: { section?: SectionId }) {
   return (
     <div className={`kh st${current ? " st-open" : ""}`}>
       <nav className="st-nav" aria-label="Settings">
+        <Link href="/" className="st-home"><ArrowLeft2 size={16} color="currentColor" />Back to Community Home</Link>
         <h1>Settings</h1>
         <ul>
           {SECTIONS.map(({ id, label, hint, Icon }) => (
