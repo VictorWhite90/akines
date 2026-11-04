@@ -6,14 +6,15 @@ import type { PersonId } from "./people";
 export type ConvoKind = "direct" | "cliq" | "circle" | "project";
 
 export const KIND_LABEL: Record<ConvoKind, string> = { direct: "Person", cliq: "Cliq", circle: "KinCircle", project: "Collaboration" };
-export const KIND_COLOR: Record<ConvoKind, string> = { direct: "#7b2ff7", cliq: "#e09a00", circle: "#00a86b", project: "#2547d0" };
+/** One quiet tone for every kind: the label says which kind it is (product design, November 2026). */
+export const KIND_COLOR: Record<ConvoKind, string> = { direct: "#6E6E6E", cliq: "#6E6E6E", circle: "#6E6E6E", project: "#6E6E6E" };
 
 export const INTENTS = [
-  { id: "checkin", label: "Check in", glyph: "wellbeing", tint: "#fdf3fb", color: "#c2187a", hint: "Just seeing how they are. No agenda." },
-  { id: "plan", label: "Plan", glyph: "event", tint: "#eef4ff", color: "#2547d0", hint: "Pick a time, a place, a next step." },
-  { id: "create", label: "Create", glyph: "spark", tint: "#fff6e8", color: "#c26a00", hint: "Make or decide something together." },
-  { id: "support", label: "Support", glyph: "support", tint: "#eefaf4", color: "#00845a", hint: "Someone needs care or advice." },
-  { id: "celebrate", label: "Celebrate", glyph: "celebrate", tint: "#fffbe6", color: "#b08600", hint: "Share good news, mark a moment." },
+  { id: "checkin", label: "Check in", glyph: "wellbeing", tint: "#FEF6EC", color: "#995A0A", hint: "Just seeing how they are. No agenda." },
+  { id: "plan", label: "Plan", glyph: "event", tint: "#FEF6EC", color: "#995A0A", hint: "Pick a time, a place, a next step." },
+  { id: "create", label: "Create", glyph: "spark", tint: "#FEF6EC", color: "#995A0A", hint: "Make or decide something together." },
+  { id: "support", label: "Support", glyph: "support", tint: "#FEF6EC", color: "#995A0A", hint: "Someone needs care or advice." },
+  { id: "celebrate", label: "Celebrate", glyph: "celebrate", tint: "#FEF6EC", color: "#995A0A", hint: "Share good news, mark a moment." },
 ] as const;
 export type IntentId = (typeof INTENTS)[number]["id"];
 

@@ -159,10 +159,11 @@ html[data-theme="dark"] .dr { background: var(--dk-bg); border-right: 1px solid 
 
   /* KinMessage: the inbox fits between the bars; an open chat takes the whole screen. */
   .app:has(.km) .content { padding: 0 !important; }
-  .km { height: calc(100dvh - 52px - 55px - env(safe-area-inset-bottom)) !important; min-height: 0 !important; border: 0 !important; border-radius: 0 !important; }
-  .app:has(.km.show-thread) .nx-top, .app:has(.km.show-thread) .nx-dock, .app:has(.km.show-thread) .nx-fab { display: none !important; }
+  .km { height: calc(100dvh - 64px - 57px - env(safe-area-inset-bottom)) !important; min-height: 0 !important; border: 0 !important; border-radius: 0 !important; }
+  body:has(.ak-demo) .km { height: calc(100dvh - 30px - 64px - 57px - env(safe-area-inset-bottom)) !important; }
+  body:has(.km.show-thread) :is(.ak-hdr, .ak-bbar, .ak-demo) { display: none !important; }
   .app:has(.km.show-thread) .main { padding-bottom: 0 !important; }
-  .km.show-thread { position: fixed; inset: 0; z-index: 20; height: auto !important; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+  .km.show-thread { position: fixed; inset: 0; z-index: 70; height: auto !important; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
   .km.show-thread .km-thread { height: 100%; }
 
   /* Chat headers: one tidy row. */
