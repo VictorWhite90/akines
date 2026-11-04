@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import KinMessage from "@/components/messages/KinMessage";
+import Messages from "@/components/messages/Messages";
 
-export const metadata: Metadata = { title: "KinMessage · Akines" };
+export const metadata: Metadata = { title: "Messages | Akines" };
 
 export default function MessagesPage() {
-  return <KinMessage />;
+  return <Messages />;
 }

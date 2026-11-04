@@ -48,7 +48,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const night = pathname === "/constellation" || pathname.startsWith("/layouts");
   // Pages restyled by remapping the older tokens inside a calm scope. One accent for all of them now: the deep
   // amber of the brand (it carries white text and reads as text on white, which the old per-page colours were for).
-  const CALM = ["/kindred", "/play", "/activities", "/messages", "/studio", "/journal", "/store", "/shop", "/studios", "/stories", "/wellbeing", "/dna", "/applications", "/profile"];
+  const CALM = ["/kindred", "/play", "/activities", "/studio", "/journal", "/store", "/shop", "/studios", "/stories", "/wellbeing", "/dna", "/applications", "/profile"];
   const calm = CALM.some((p) => isActive(pathname, p));
   // Chat screens: on phones they fill the screen like a messaging app (see mobile.css).
   const chat = /^\/(circles\/(?!new$)[^/]+|rooms\/(?!new$)[^/]+|banter\/(?!classic|now|new)[^/]+|banter\/now\/[^/]+)$/.test(pathname);

@@ -95,7 +95,7 @@
   /* A smaller type scale for every page's big headings on phones (base sizes only, not sm:/md: ones). */
   .app .content :is([class^="text-[4"], [class*=" text-[4"], [class^="text-[5"], [class*=" text-[5"], [class^="text-[6"], [class*=" text-[6"], [class^="text-[7"], [class*=" text-[7"]):is(h1, h2, h3, p, span, div) { font-size: 28px; line-height: 1.12; }
   .app .content :is([class^="text-[30px"], [class*=" text-[30px"], [class^="text-[32px"], [class*=" text-[32px"], [class^="text-[34px"], [class*=" text-[34px"], [class^="text-[36px"], [class*=" text-[36px"], [class^="text-[38px"], [class*=" text-[38px"]):is(h1, h2, h3, p, span, div) { font-size: 23px; line-height: 1.15; }
-  .app .content h1 { font-size: 25px !important; line-height: 1.12 !important; }
+  .app .content h1:not(:is(.ch-page, .ch-msg, .fd-page) *) { font-size: 25px !important; line-height: 1.12 !important; }
   .app .content :is([class^="text-[26px"], [class*=" text-[26px"], [class^="text-[28px"], [class*=" text-[28px"], [class^="text-3xl"], [class*=" text-3xl"], [class^="text-4xl"], [class*=" text-4xl"]):is(h2, h3, span) { font-size: 21px; line-height: 1.2; }
   .app .content :is(.bd-ask h2, .hc-panel h1) { font-size: 21px !important; line-height: 1.2; }
   .app .content .bd-ask h2 { margin-top: 8px; }

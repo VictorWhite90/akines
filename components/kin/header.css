@@ -106,3 +106,5 @@ a.pp-row:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--surface-inv
 .ak-demo a, .ak-demo button { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; font: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 @media (max-width: 639px) { .ak-demo .long { display: none; } }
 @media (max-width: 1279px) { .app.nx.ak-framed .main { padding-bottom: calc(57px + max(28px, env(safe-area-inset-bottom, 0px))) !important; } }
+/* The demo strip (30px) sits above the header: full-height screens give it room. */
+@media (min-width: 768px) { body:has(.ak-demo) .ch-msg { height: max(600px, calc(100dvh - 110px)); } }

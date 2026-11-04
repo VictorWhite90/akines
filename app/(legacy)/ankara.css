@@ -645,7 +645,7 @@ a:hover .gc .gc-card.front, .ap-card:hover .gc .gc-card.front { transform: trans
   display: grid; grid-template-columns: 400px minmax(0, 1fr) 340px; height: calc(100dvh - 80px); min-height: 560px; overflow: hidden; background: var(--m-card); color: var(--m-ink);
 }
 html[data-theme="dark"] .km { --m-page: #121110; --m-card: #1B1A18; --m-ink: #F4F1EB; --m-ink-2: #B5B0A8; --m-muted: #24221F; --m-line: rgba(244, 241, 235, 0.12); --m-field: #3A3733; --m-amber-soft: #2A2010; --m-amber-text: #F4A63A; }
-.app:has(.km) .content { padding: 0 !important; max-width: none !important; }
+.app:has(.km) .content, .app:has(.ch-msg) .content, .app:has(.ch-page) .content { padding: 0 !important; max-width: none !important; }
 /* The demo strip above the header takes 30px. */
 body:has(.ak-demo) .km { height: calc(100dvh - 110px); }
 .km button { font-family: inherit; cursor: pointer; color: inherit; }

@@ -69,13 +69,13 @@ html:not([data-theme="dark"]) .app.nx { --nx-night: var(--ak-grey-950); --nx-dus
 /* ---- Headings and text on every page use the type scale ---- */
 .app .content h4 { font-family: var(--font-manrope), system-ui, sans-serif; letter-spacing: 0; }
 /* Titles in Alice, as the product design sets them. Alice has one weight, so titles are never bold. */
-.app .content :is(h1, h2, h3) { font-family: var(--ak-font-display) !important; font-weight: 400 !important; letter-spacing: -0.005em; }
-.app .content h1 { line-height: 1.2; }
+.app .content :is(h1, h2, h3):not(:is(.ch-page, .ch-msg, .fd-page) *) { font-family: var(--ak-font-display) !important; font-weight: 400 !important; letter-spacing: -0.005em; }
+.app .content h1:not(:is(.ch-page, .ch-msg, .fd-page) *) { line-height: 1.2; }
 .app .content :is(h2, h3) { line-height: 1.3; }
 .app .content :is(.font-display, [class*="font-playfair"], [class*="font-fraunces"]) { font-family: var(--ak-font-display) !important; font-weight: 400 !important; font-style: normal; letter-spacing: 0; }
 .app .content :is(.font-display em, h1 em, h2 em) { font-style: normal; color: var(--ak-text-akines-secondary); }
 .app .content :is(.eyebrow, .ac-eyebrow, .ap-kicker, .bd-kicker) { font-size: var(--ak-size-1); font-weight: var(--ak-weight-medium); letter-spacing: var(--ak-tracking-tracking); text-transform: uppercase; color: var(--ak-accent-akines-secondary-text); }
-.app .content :is(p, li, small) { letter-spacing: var(--ak-tracking-loose); }
+.app .content :is(p, li, small):not(:is(.ch-page, .ch-msg, .fd-page) *) { letter-spacing: var(--ak-tracking-loose); }
 .app .content :is(.text-mute, .ap-meta) { color: var(--ak-text-tertiary); }
 
 /* ---- Cards, fields and buttons: one look ---- */
@@ -98,6 +98,6 @@ html:not([data-theme="dark"]) .app.nx { --nx-night: var(--ak-grey-950); --nx-dus
 
 /* Page titles: Alice, 40px on desktop, as the product design sets them. */
 @media (min-width: 761px) {
-  .app .content h1 { font-size: min(var(--ak-size-9, 2.5rem), 2.5rem) !important; line-height: 1.2 !important; }
+  .app .content h1:not(:is(.ch-page, .ch-msg, .fd-page) *) { font-size: min(var(--ak-size-9, 2.5rem), 2.5rem) !important; line-height: 1.2 !important; }
   .app .content .hero h2, .app .content [class*="text-[4"]:is(h2), .app .content [class*="text-[5"]:is(h2) { font-size: var(--ak-size-7) !important; line-height: var(--ak-leading-snug) !important; }
 }

@@ -236,7 +236,7 @@ function NotificationsPanel({ open, onClose, onRead }: { open: boolean; onClose:
           </button>
         ))}
       </div>
-      <button type="button" className="k-btn k-btn--link k-btn--md k-btn--live ch-notif__pref" onClick={() => go("/notifications")}><span className="k-btn__label">See all notifications</span></button>
+      <button type="button" className="ch-tlink ch-notif__pref" onClick={() => go("/notifications")}>See all notifications</button>
     </Modal>
   );
 }
