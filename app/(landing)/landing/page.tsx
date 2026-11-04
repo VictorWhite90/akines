@@ -8,6 +8,7 @@ import { Intention } from '@/components/landing/Intention';
 import { Motion } from '@/components/landing/Motion';
 import { Rhythm } from '@/components/landing/Rhythm';
 import { Trust } from '@/components/landing/Trust';
+import Companion from '@/components/shell/Companion';
 
 export default function Page() {
   return (
@@ -27,6 +28,7 @@ export default function Page() {
       </main>
       <Footer />
       <Motion />
+      <Companion guest />
     </>
   );
 }

@@ -101,8 +101,11 @@ function greeting() {
   return h < 12 ? "Good morning." : h < 17 ? "Good afternoon." : "Good evening.";
 }
 
-/** Controlled when `open` and `onClose` are passed; otherwise it owns its state and shows its launcher. */
-export default function Companion({ open: openProp, onClose }: { open?: boolean; onClose?: () => void } = {}) {
+/**
+ * Controlled when `open` and `onClose` are passed; otherwise it owns its state and shows its launcher.
+ * `guest` (the public landing page): the places it suggests need an account, so they lead to Join.
+ */
+export default function Companion({ open: openProp, onClose, guest = false }: { open?: boolean; onClose?: () => void; guest?: boolean } = {}) {
   const pathname = usePathname();
   const { me } = useMe();
   const [own, setOwn] = useState(false);
@@ -186,9 +189,9 @@ export default function Companion({ open: openProp, onClose }: { open?: boolean;
                       <ul className="rows">
                         {m.go.map((g) => (
                           <li key={g.href + g.title}>
-                            <Link href={g.href} className="row">
+                            <Link href={guest ? "/signup" : g.href} className="row">
                               <span className="dot" aria-hidden />
-                              <span className="txt"><span className="t">{g.title}</span><span className="s">{g.text}</span></span>
+                              <span className="txt"><span className="t">{g.title}</span><span className="s">{guest ? `${g.text} Join Akines to open it.` : g.text}</span></span>
                               <ChevronRight size={16} strokeWidth={1.5} className="chev" aria-hidden />
                             </Link>
                           </li>
