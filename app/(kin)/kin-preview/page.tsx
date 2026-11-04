@@ -32,9 +32,9 @@ export default function KinPreview() {
   return (
     <div className="pv">
       <Settle className="pv-head">
-        <p className="t-small c-3">Kin system · specimen</p>
-        <h1 className="t-page">One amber, warm paper, warm night.</h1>
-        <p className="t-body c-2 pv-prose">Everything on this page is built from the tokens and base components the three redesigned pages will use. Switch the theme with the toggle to judge both. Nothing here is a final layout.</p>
+        <p className="k-eyebrow">Kin system · specimen</p>
+        <h1 className="t-page">Ivory, ink and one amber.</h1>
+        <p className="t-body c-2 pv-prose">The tokens and base components every redesigned page is built from, following the Akines product design: an ivory page, ink for actions, amber for what is active or chosen, Alice for titles and Manrope for reading. Switch the theme to judge the night version too.</p>
         <div className="pv-row"><ThemeToggle label /></div>
       </Settle>
 
@@ -48,32 +48,37 @@ export default function KinPreview() {
       <section className="pv-sec" aria-labelledby="pv-type">
         <h2 id="pv-type" className="t-title">Type</h2>
         <div className="pv-type">
-          <div><small>display 56</small><span className="t-display">Find your people.</span></div>
-          <div><small>display-2 40</small><span className="t-display2">Every gathering has a purpose.</span></div>
-          <div><small>page 32</small><span className="t-page">Collaborate</span></div>
-          <div><small>title 22</small><span className="t-title">Open calls</span></div>
-          <div><small>heading 17</small><span className="t-heading">Jabi Lake Arts Week: a 20‑metre mural</span></div>
-          <div><small>body 15</small><span className="t-body">Twelve-hour shift done, and a patient&apos;s daughter brought the whole ward jollof. Ẹ ṣeun, Ìbàdàn.</span></div>
-          <div><small>small 13</small><span className="t-small c-3">Nurse · Ibadan · 2h</span></div>
-          <div><small>micro 12</small><span className="t-micro">4 WAITING</span></div>
+          <div><small>display 60 · Alice</small><span className="t-display">Find your people.</span></div>
+          <div><small>display-2 48 · Alice</small><span className="t-display2">Every gathering has a purpose.</span></div>
+          <div><small>page 40 · Alice</small><span className="t-page">Rooms open now.</span></div>
+          <div><small>section 32 · Alice</small><span className="t-section">Things to do together.</span></div>
+          <div><small>title 24 · Alice</small><span className="t-title">Evening Studio Hour</span></div>
+          <div><small>heading 16 · Manrope</small><span className="t-heading">Jabi Lake Arts Week: a 20‑metre mural</span></div>
+          <div><small>body 16 · Manrope</small><span className="t-body">Twelve-hour shift done, and a patient&apos;s daughter brought the whole ward jollof. Ẹ ṣeun, Ìbàdàn.</span></div>
+          <div><small>small 14</small><span className="t-small c-2">Nurse · Ibadan · 2h</span></div>
+          <div><small>eyebrow 12</small><span className="k-eyebrow brand">Live now</span></div>
         </div>
       </section>
 
       <section className="pv-sec" aria-labelledby="pv-btn">
         <h2 id="pv-btn" className="t-title">Buttons and links</h2>
         <div className="pv-row">
-          <Button variant="primary"><Add size={18} color="currentColor" />Post a call</Button>
-          <Button>Propose a project</Button>
+          <Button variant="primary" arrow>Join the conversation</Button>
+          <Button>Not now</Button>
+          <Button variant="accent">Say hello</Button>
           <Button variant="ghost">See all</Button>
+          <Button variant="link" arrow>See all rooms</Button>
           <Button variant="danger">Withdraw</Button>
-          <Button variant="primary" size="sm">Apply</Button>
-          <Button size="sm">Pass</Button>
+          <Button variant="primary" size="sm"><Add size={16} color="currentColor" />Post a call</Button>
           <Button variant="ghost" icon aria-label="Notifications"><Notification size={20} color="currentColor" /></Button>
           <Button variant="primary" disabled>Sending…</Button>
         </div>
-        <div className="pv-grid">
-          <div className="pv-opt"><b className="t-micro c-3">OPTION A · AMBER LINKS</b><p className="t-body pv-prose">Links in running text use the deeper amber: <a href="#pv-btn">edit your work profile</a>, or <a href="#pv-btn">see all calls</a>. The same tone marks the active icon and the tie.</p></div>
-          <div className="pv-opt"><b className="t-micro c-3">OPTION B · INK LINKS</b><p className="t-body pv-prose alt">Links in running text are ink with an underline: <a href="#pv-btn">edit your work profile</a>, or <a href="#pv-btn">see all calls</a>. Amber is kept for the active icon and the tie only.</p></div>
+        <p className="t-small c-2 pv-prose">Hover a button: the fill rises from below and the arrow moves. Press: it settles to 97%.</p>
+        <div className="pv-row">
+          <button type="button" className="k-chip">Everyday</button>
+          <button type="button" className="k-chip" aria-pressed="true">All</button>
+          <button type="button" className="k-chip choice" aria-pressed="true"><span className="ind" aria-hidden />Community health</button>
+          <button type="button" className="k-chip choice"><span className="ind" aria-hidden />Storytelling</button>
         </div>
         <label className="k-search" style={{ maxWidth: 420 }}><SearchNormal1 size={18} color="currentColor" /><input placeholder="Search calls, roles, organisations" aria-label="Search" /></label>
       </section>
