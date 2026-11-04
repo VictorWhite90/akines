@@ -87,7 +87,7 @@ type FieldProps = {
 };
 
 /** The design's sign-in field: label, pill input with the error or ok icon, then the message or helper. */
-export function AuField(e: FieldProps) {
+export function AuField({ inputRef, ...e }: FieldProps) {
   const auto = useId();
   const id = e.id ?? auto;
   const msg = `${id}-msg`, help = `${id}-help`;
@@ -96,7 +96,7 @@ export function AuField(e: FieldProps) {
     <div className="au-field" data-state={state}>
       <label className="au-field__label" htmlFor={id}>{e.label}</label>
       <div className="au-input" data-state={state}>
-        <input ref={e.inputRef} id={id} name={e.name} className="au-input__el" type={e.type ?? "text"} inputMode={e.inputMode} autoComplete={e.autoComplete} maxLength={e.maxLength} placeholder={e.placeholder} value={e.value} readOnly={e.readOnly} spellCheck={false} autoCapitalize="none" autoCorrect="off" autoFocus={e.autoFocus} aria-invalid={e.message ? true : undefined} aria-describedby={e.message ? msg : e.helper ? help : undefined} onChange={(ev) => e.onChange?.(ev.target.value)} onBlur={e.onBlur} onKeyDown={(ev) => { if (ev.key === "Enter" && e.onEnter) { ev.preventDefault(); e.onEnter(); } }} />
+        <input ref={inputRef} id={id} name={e.name} className="au-input__el" type={e.type ?? "text"} inputMode={e.inputMode} autoComplete={e.autoComplete} maxLength={e.maxLength} placeholder={e.placeholder} value={e.value} readOnly={e.readOnly} spellCheck={false} autoCapitalize="none" autoCorrect="off" autoFocus={e.autoFocus} aria-invalid={e.message ? true : undefined} aria-describedby={e.message ? msg : e.helper ? help : undefined} onChange={(ev) => e.onChange?.(ev.target.value)} onBlur={e.onBlur} onKeyDown={(ev) => { if (ev.key === "Enter" && e.onEnter) { ev.preventDefault(); e.onEnter(); } }} />
         {e.message ? <IconAlert className="au-input__icon au-input__icon--error" /> : null}
         {!e.message && e.verified ? <IconOk className="au-input__icon au-input__icon--ok" /> : null}
         {e.action}

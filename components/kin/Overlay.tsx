@@ -39,7 +39,7 @@ function Layer({ open, onClose, kind, panelClass, panelStyle, title, description
   const uid = useId().replace(/:/g, "");
   const titleId = `k-ov-t-${uid}`, descId = `k-ov-d-${uid}`;
   const close = useRef(onClose);
-  close.current = onClose;
+  useEffect(() => { close.current = onClose; }, [onClose]);
 
   // Scroll lock, Escape, focus trap and focus return.
   useEffect(() => {
