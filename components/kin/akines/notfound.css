@@ -34,3 +34,8 @@
 @media(prefers-reduced-motion:no-preference){.nf__eyebrow>span:not(.nf__rule){animation:rise 1.1s var(--ease-out) .6s both}}
 @media(prefers-reduced-motion:no-preference){.nf__body{animation:rise 1.1s var(--ease-out) 1.3s both}}
 @media(prefers-reduced-motion:no-preference){.nf__actions{animation:rise 1.1s var(--ease-out) 1.45s both}}
+/* Added: three of their rules the first copy missed (word spans, the line break, the headline's word rise). */
+.w{display:inline-block}
+.lb{display:none}
+@media(min-width:768px){.lb{display:inline}}
+@media(prefers-reduced-motion:no-preference){.nf__headline .w{animation:rise-sm 1.1s var(--ease-out) calc(.75s + var(--wi, 0) * 60ms) both}}

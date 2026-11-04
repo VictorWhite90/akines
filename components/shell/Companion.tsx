@@ -128,9 +128,9 @@ const stamp = () => `Today, ${new Date().toLocaleTimeString([], { hour: "numeric
 const greeting = (name: string | null) => { const h = new Date().getHours(); const g = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening"; return name ? `${g}, ${name}.` : `${g}.`; };
 /** Pages where the panel never opens by itself. */
 const quietPage = (p: string) => p === "/login" || p.startsWith("/signup");
-/** Pages with their own composer at the bottom: the launcher would sit on their Send button. */
+/** Pages with their own composer at the bottom: the launcher would sit on their Send button. Messages keeps it, as the design shows. */
 function hasComposer(p: string) {
-  return p.startsWith("/messages") || p.includes("/events/") || p.includes("/check-in/") || p.startsWith("/circles/community/") || p.startsWith("/collaborate/projects/") || /^\/(circles\/(?!new$)[^/]+|rooms\/(?!new$)[^/]+|banter\/(?!classic|now|new)[^/]+|banter\/now\/[^/]+)$/.test(p);
+  return p.includes("/events/") || p.includes("/check-in/") || p.startsWith("/circles/community/") || p.startsWith("/collaborate/projects/") || /^\/(circles\/(?!new$)[^/]+|rooms\/(?!new$)[^/]+|banter\/(?!classic|now|new)[^/]+|banter\/now\/[^/]+)$/.test(p);
 }
 
 let seq = 0;

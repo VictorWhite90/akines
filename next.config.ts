@@ -4,6 +4,8 @@ const nextConfig: NextConfig = {
   // The Django API mixes paths with and without a trailing slash (auth/register, profile/), so /api/v1/*
   // must reach the gateway untouched. Page URLs are still normalised, in proxy.ts.
   skipTrailingSlashRedirect: true,
+  // app/global-not-found.tsx: one 404 page across the three root layouts.
+  experimental: { globalNotFound: true },
   // Development: locally stored uploads (/media/...) live on the Django server. Production photos are S3 URLs.
   async rewrites() {
     const origin = (process.env.AKINES_API_URL ?? "http://localhost:8000/api/v1").replace(/\/api\/v1\/?$/, "");
