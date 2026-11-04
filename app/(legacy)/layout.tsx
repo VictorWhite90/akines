@@ -18,8 +18,6 @@ import "./tokens.css";
 import "./welcome.css";
 import "./globals.css";
 import "./artelia.css";
-import "./auth.css";
-import "./login.css";
 import "./rooms.css";
 import "./studio.css";
 import "./store.css";

@@ -10,7 +10,8 @@ import { useState } from "react";
 import Pic from "@/components/home/Pic";
 import DateOfBirth from "@/components/ui/DateOfBirth";
 import { INTENTS } from "@/lib/data/community";
-import Icon from "@/components/ui/Icon";
+import { ArrowRight } from "lucide-react";
+import "./auth.css";
 
 type Mode = "login" | "signup";
 type Step = "account" | "verify" | "about" | "intent" | "arrive";
@@ -34,6 +35,17 @@ const STEPS: Record<Mode, Step[]> = {
 const ROLES = ["Student", "Professional", "Founder", "Creative", "Educator", "Parent", "Community organiser", "Just here to connect"];
 const MEDIA = ["Tech", "Business", "Health", "Education", "Arts & design", "Music", "Sports", "Faith & community", "Food", "Travel", "Parenting", "Volunteering"];
 
+
+/** A labelled field with an optional hint and error. Module level, so inputs keep focus while typing. */
+function Field({ id, label, hint, error, children }: { id: string; label: string; hint?: string; error?: string; children: React.ReactNode }) {
+  return (
+    <div className="au-field">
+      <label htmlFor={id}>{label}{hint && <small>{hint}</small>}</label>
+      {children}
+      {error && <span className="au-err">{error}</span>}
+    </div>
+  );
+}
 
 /** Sign in / sign up. Both routes end in "What would feel meaningful today?", the Connection Intent Engine. */
 export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: string }) {
@@ -131,221 +143,171 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   const toggle = (m: string) => setMedia((cur) => (cur.includes(m) ? cur.filter((x) => x !== m) : [...cur, m]));
 
   return (
-    <div className="auth">
-      <aside className="auth-side">
-        <div className="bg pattern-adire" aria-hidden />
-        <Link href="/about" className="auth-brand" aria-label="Akines"><Image src="/akines/mark.svg" alt="" width={32} height={32} priority /><span>AKINES</span></Link>
-        <div className="auth-collage" aria-hidden>
-          <div className="t a"><Pic name="kincircleHero" sizes="30vw" position="50% 30%" priority /></div>
-          <div className="t b"><Pic name="talkLaugh" sizes="20vw" position="50% 40%" priority /></div>
-          <div className="t c"><Pic name="talkCafe" sizes="20vw" position="50% 40%" priority /></div>
-          <div className="t d"><Pic name="talkGroup" sizes="20vw" position="50% 40%" priority /></div>
+    <div className="au au-join">
+      <header className="au-top">
+        <Link href="/landing" className="au-logo" aria-label="Akines"><Image src="/akines/mark.svg" alt="" width={30} height={30} priority /><span>AKINES</span></Link>
+        {mode === "signup" ? (
+          <span className="au-top-switch">Already a member? <Link href="/login">Sign in</Link></span>
+        ) : (
+          <span className="au-top-switch">New to Akines? <Link href="/signup">Create an account</Link></span>
+        )}
+      </header>
+
+      <main className={`au-card${step === "intent" || step === "arrive" ? " wide" : ""}`}>
+        <div className="au-steps" aria-label={`Step ${idx + 1} of ${steps.length}`}>
+          {steps.map((s, i) => <i key={s} className={i <= idx ? "on" : undefined} />)}
         </div>
-        <div className="auth-quote">
-          <div className="auth-kicker">akines</div>
-          <h2>Less scrolling. <em>More belonging.</em></h2>
-          <p>Akines brings people together on purpose: friends, families, teams, students and professionals from every line of work, through honest conversation, small circles and things you make together.</p>
-          <div className="auth-points">
-            <div><b><Icon name="discover" size={18} /></b>Introductions that come with a reason, not a wall of profiles.</div>
-            <div><b><Icon name="circle" size={18} /></b>Banter, KinCircles, live rooms and collaborations in one place.</div>
-            <div><b><Icon name="wellbeing" size={18} /></b>Kind by design: no follower counts, and AI that never diagnoses.</div>
+
+        {step === "account" && (
+          <form onSubmit={submitAccount} noValidate className="au-stack">
+            <span className="au-eyebrow">{mode === "signup" ? "Join Akines" : "Welcome back"}</span>
+            <h1 className="au-title">{mode === "signup" ? "Take a seat. Stay awhile." : "Good to see you again."}</h1>
+            <p className="au-lead">
+              {mode === "signup"
+                ? "Create your account. It takes about a minute, and the next questions are what make the place feel like yours."
+                : "Sign in to pick up where you left off."}
+            </p>
+
+            {failure && <p className="au-fail" role="alert">{failure}</p>}
+
+            {mode === "signup" && (
+              <Field id="name" label="Your name" error={tried ? errs.name : ""}>
+                <input id="name" className="au-input" aria-invalid={tried && !!errs.name} autoComplete="name" placeholder="How friends would say it" value={name} onChange={(e) => setName(e.target.value)} />
+              </Field>
+            )}
+            <Field id="email" label="Email" error={tried ? errs.email : ""}>
+              <input id="email" type="email" className="au-input" aria-invalid={tried && !!errs.email} autoComplete="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </Field>
+            <Field id="phone" label="Mobile number" hint="One account per number" error={tried ? errs.phone : ""}>
+              <input id="phone" type="tel" inputMode="tel" className="au-input" aria-invalid={tried && !!errs.phone} autoComplete="tel" placeholder="0803 123 4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+            </Field>
+            <Field id="dob" label="Date of birth" hint="Never shown on your profile" error={tried ? errs.dob : ""}>
+              <DateOfBirth id="dob" value={dob} onChange={setDob} minAge={MIN_AGE} invalid={tried && !!errs.dob} className="dob-auth au-dob" />
+            </Field>
+            <div className="au-field">
+              <label htmlFor="password">Password</label>
+              <div className="au-input au-pw" data-invalid={tried && !!errs.password}>
+                <input id="password" type={show ? "text" : "password"} autoComplete={mode === "signup" ? "new-password" : "current-password"} placeholder="At least 12 characters" value={password} onChange={(e) => setPassword(e.target.value)} />
+                <button type="button" onClick={() => setShow((s) => !s)} aria-pressed={show}>{show ? "Hide" : "Show"}</button>
+              </div>
+              {tried && errs.password ? <span className="au-err">{errs.password}</span> : <span className="au-small">12+ characters with upper and lower case letters, a number and a symbol.</span>}
+            </div>
+
+            <label className="au-check">
+              <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
+              <span>I&apos;ll come as myself, keep what&apos;s said in rooms in the room, and treat what people share and make with care. I accept the <a href="#" onClick={(e) => e.preventDefault()}>community promises</a>.</span>
+            </label>
+            {tried && errs.agree && <span className="au-err">{errs.agree}</span>}
+
+            <button className="au-primary" type="submit" disabled={busy}><span>{busy ? "Creating your account…" : "Continue"}</span>{!busy && <ArrowRight size={14} strokeWidth={2} aria-hidden />}</button>
+          </form>
+        )}
+
+        {step === "verify" && (
+          <form onSubmit={submitCode} noValidate className="au-stack">
+            <span className="au-eyebrow">Confirm your email</span>
+            <h1 className="au-title">Check your inbox.</h1>
+            {notice && <p className="au-lead" role="status">{notice}</p>}
+            {failure && <p className="au-fail" role="alert">{failure}</p>}
+            <Field id="code" label="6-digit code" error={tried && !/^\d{6}$/.test(code.replace(/\D/g, "")) ? "Enter the 6-digit code from the email." : ""}>
+              <input id="code" inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="123 456" value={code} onChange={(e) => setCode(e.target.value)} className="au-input au-code" aria-invalid={tried && !/^\d{6}$/.test(code.replace(/\D/g, ""))} />
+            </Field>
+            <button className="au-primary" type="submit" disabled={busy}><span>{busy ? "Checking…" : "Confirm and continue"}</span>{!busy && <ArrowRight size={14} strokeWidth={2} aria-hidden />}</button>
+            <div className="au-links">
+              <button type="button" className="au-quiet" onClick={resendCode}>Send a new code</button>
+              <button type="button" className="au-quiet" onClick={() => { setFailure(null); setCode(""); go("account"); }}>Use a different email</button>
+            </div>
+          </form>
+        )}
+
+        {step === "about" && (
+          <div className="au-stack">
+            <span className="au-eyebrow">A little about you</span>
+            <h1 className="au-title">Which chair are you sitting in?</h1>
+            <p className="au-lead">Optional, and only used to introduce you to the right people. You can change every answer later.</p>
+
+            <div className="au-group" role="group" aria-labelledby="au-role">
+              <p className="au-label" id="au-role">I am mostly a… <small>choose one</small></p>
+              <div className="au-chips">
+                {ROLES.map((r) => <button key={r} type="button" className="au-chip" aria-pressed={role === r} onClick={() => setRole(r)}><span className="ind" aria-hidden />{r}</button>)}
+              </div>
+            </div>
+
+            <div className="au-group" role="group" aria-labelledby="au-media">
+              <p className="au-label" id="au-media">What are you into, or working on? <small>pick any</small></p>
+              <div className="au-chips">
+                {MEDIA.map((m) => <button key={m} type="button" className="au-chip" aria-pressed={media.includes(m)} onClick={() => toggle(m)}><span className="ind" aria-hidden />{m}</button>)}
+              </div>
+            </div>
+
+            <Field id="city" label="Where are you based?" hint="City only">
+              <input id="city" className="au-input" placeholder="Lagos, Nairobi, London…" value={city} onChange={(e) => setCity(e.target.value)} />
+            </Field>
+
+            <div className="au-row">
+              <button className="au-outline" onClick={back}>Back</button>
+              <button className="au-primary" onClick={next}><span>Continue</span><ArrowRight size={14} strokeWidth={2} aria-hidden /></button>
+            </div>
+            <button className="au-quiet center" onClick={next}>Skip this for now</button>
           </div>
-          <small className="auth-copy">© 2026 Akines. Built for real connection.</small>
-        </div>
-      </aside>
+        )}
 
-      <section className="auth-main">
-        <div className="auth-top">
-          <Link href="/about" className="mbrand" aria-label="Akines"><Image src="/akines/mark.svg" alt="" width={24} height={24} /><span>AKINES</span></Link>
-          {mode === "signup" ? (
-            <span>Already a member? <Link href="/login">Sign in</Link></span>
-          ) : (
-            <span>New to Akines? <Link href="/signup">Create an account</Link></span>
-          )}
-        </div>
+        {step === "intent" && (
+          <div className="au-stack">
+            <span className="au-eyebrow">One quick question</span>
+            <h1 className="au-title">What brings you here today?</h1>
+            <p className="au-lead">
+              {mode === "login" ? `Welcome back${first ? `, ${first}` : ""}. ` : ""}Pick one and we&apos;ll suggest a good place to start. It only shapes suggestions, is never shown on your profile, and you can change it anytime.
+            </p>
 
-        <div className={`auth-card${step === "intent" ? " wide" : ""}`}>
-          <div className="auth-steps" aria-label={`Step ${idx + 1} of ${steps.length}`}>
-            {steps.map((s, i) => <i key={s} className={i <= idx ? "on" : undefined} />)}
+            <div className="au-intents" role="radiogroup" aria-label="What brings you here today?">
+              {INTENTS.map((i) => (
+                <button key={i.id} type="button" role="radio" aria-checked={intentId === i.id} className="au-intent" onClick={() => setIntentId(i.id)}>
+                  <span className="ph"><Pic name={i.photo} sizes="(max-width: 900px) 50vw, 240px" /></span>
+                  <span className="lbl"><span className="ind" aria-hidden />{i.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {intent && (
+              <div className="au-reply" key={intent.id} role="status">
+                <p className="h">{intent.headline}</p>
+                <p>{intent.body}</p>
+              </div>
+            )}
+
+            <div className="au-row">
+              {mode === "signup" && <button className="au-outline" onClick={back}>Back</button>}
+              <button className="au-primary" disabled={!intent} onClick={() => finish()}><span>{intent ? "Continue with this reason" : "Choose a reason to continue"}</span>{intent && <ArrowRight size={14} strokeWidth={2} aria-hidden />}</button>
+            </div>
+            <button className="au-quiet center" onClick={() => finish(true)}>Skip and go to Community Home</button>
           </div>
+        )}
 
-          {step === "account" && (
-            <form onSubmit={submitAccount} noValidate>
-              <div className="ac-eyebrow">{mode === "signup" ? "Join Akines" : "Welcome back"}</div>
-              <h1>{mode === "signup" ? <>Take a seat. <em>Stay awhile.</em></> : <>Good to see <em>you again.</em></>}</h1>
-              <p className="auth-lead">
-                {mode === "signup"
-                  ? "Create your Akines account. It takes a minute, and the next questions are what make the place feel like yours."
-                  : "Sign in to pick up where you left off."}
-              </p>
+        {step === "arrive" && (
+          <div className="au-stack">
+            <span className="au-eyebrow">{mode === "signup" ? "You're in" : "Signed in"}</span>
+            <h1 className="au-title">{mode === "signup" ? "Welcome to Akines" : "Welcome back"}{first ? `, ${first}.` : "."}</h1>
+            <p className="au-lead">
+              {mode === "signup" ? "Your account is ready. Here is where we'd start, based on what you told us." : "Here is where we'd pick things up, based on what you told us."}
+            </p>
 
-              {failure && <p className="auth-fail" role="alert">{failure}</p>}
-
-              {mode === "signup" && (
-                <div className="auth-field">
-                  <label htmlFor="name">Your name</label>
-                  <div className={`auth-input${tried && errs.name ? " bad" : ""}`}>
-                    <input id="name" autoComplete="name" placeholder="How friends would say it" value={name} onChange={(e) => setName(e.target.value)} />
-                  </div>
-                  {tried && errs.name && <span className="auth-err">{errs.name}</span>}
-                </div>
-              )}
-              <div className="auth-field">
-                <label htmlFor="email">Email</label>
-                <div className={`auth-input${tried && errs.email ? " bad" : ""}`}>
-                  <input id="email" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-                </div>
-                {tried && errs.email && <span className="auth-err">{errs.email}</span>}
-              </div>
-              <div className="auth-field">
-                <label htmlFor="phone">Mobile number <small>One account per number</small></label>
-                <div className={`auth-input${tried && errs.phone ? " bad" : ""}`}>
-                  <input id="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="0803 123 4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                </div>
-                {tried && errs.phone && <span className="auth-err">{errs.phone}</span>}
-              </div>
-              <div className="auth-field">
-                <label htmlFor="dob" id="dob-label">Date of birth <small>Never shown on your profile</small></label>
-                <DateOfBirth id="dob" value={dob} onChange={setDob} minAge={MIN_AGE} invalid={tried && !!errs.dob} className="dob-auth" />
-                {tried && errs.dob && <span className="auth-err">{errs.dob}</span>}
-              </div>
-              <div className="auth-field">
-                <label htmlFor="password">Password</label>
-                <div className={`auth-input${tried && errs.password ? " bad" : ""}`}>
-                  <input id="password" type={show ? "text" : "password"} autoComplete={mode === "signup" ? "new-password" : "current-password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
-                  <button type="button" onClick={() => setShow((s) => !s)}>{show ? "Hide" : "Show"}</button>
-                </div>
-                {tried && errs.password ? <span className="auth-err">{errs.password}</span> : <span className="auth-hint">12+ characters with upper and lower case letters, a number and a symbol.</span>}
-              </div>
-
-              {(
-                <>
-                  <label className="auth-check">
-                    <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-                    <span>I'll come as myself, keep what's said in rooms in the room, and treat what people share and make with care. I accept the <a href="#" onClick={(e) => e.preventDefault()}>community promises</a>.</span>
-                  </label>
-                  {tried && errs.agree && <span className="auth-err" style={{ display: "block", margin: "-10px 0 14px" }}>{errs.agree}</span>}
-                </>
-              )}
-
-              <button className="auth-cta" type="submit" disabled={busy}>{busy ? "Creating your account…" : "Create my account →"}</button>
-            </form>
-          )}
-
-          {step === "verify" && (
-            <form onSubmit={submitCode} noValidate>
-              <div className="ac-eyebrow">Confirm your email</div>
-              <h1>Check your <em>inbox.</em></h1>
-              {notice && <p className="auth-lead" role="status">{notice}</p>}
-              {failure && <p className="auth-fail" role="alert">{failure}</p>}
-              <div className="auth-field">
-                <label htmlFor="code">6-digit code</label>
-                <div className={`auth-input${tried && !/^\d{6}$/.test(code.replace(/\D/g, "")) ? " bad" : ""}`}>
-                  <input id="code" inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="123 456" value={code} onChange={(e) => setCode(e.target.value)} className="auth-code" />
-                </div>
-                {tried && !/^\d{6}$/.test(code.replace(/\D/g, "")) && <span className="auth-err">Enter the 6-digit code from the email.</span>}
-              </div>
-              <button className="auth-cta" type="submit" disabled={busy}>{busy ? "Checking…" : "Confirm and continue →"}</button>
-              <div className="auth-actions" style={{ justifyContent: "center" }}>
-                <button type="button" className="auth-ghost" onClick={resendCode}>Send a new code</button>
-                <button type="button" className="auth-ghost" onClick={() => { setFailure(null); setCode(""); go("account"); }}>Use a different email</button>
-              </div>
-            </form>
-          )}
-
-          {step === "about" && (
-            <div>
-              <div className="ac-eyebrow">A little about you</div>
-              <h1>Which chair <em>are you sitting in?</em></h1>
-              <p className="auth-lead">Optional, and only used to introduce you to the right people. You can change every answer later.</p>
-
-              <div className="auth-label">I am mostly a… <small>choose one</small></div>
-              <div className="auth-pills">
-                {ROLES.map((r) => <button key={r} type="button" className={`auth-pill${role === r ? " on" : ""}`} onClick={() => setRole(r)}>{r}</button>)}
-              </div>
-
-              <div className="auth-label">What are you into, or working on? <small>pick any</small></div>
-              <div className="auth-pills">
-                {MEDIA.map((m) => <button key={m} type="button" className={`auth-pill${media.includes(m) ? " on" : ""}`} onClick={() => toggle(m)}>{m}</button>)}
-              </div>
-
-              <div className="auth-field" style={{ marginTop: 20 }}>
-                <label htmlFor="city">Where are you based? <small>city only</small></label>
-                <div className="auth-input">
-                  <input id="city" placeholder="Lagos, Nairobi, London…" value={city} onChange={(e) => setCity(e.target.value)} />
-                </div>
-              </div>
-
-              <div className="auth-actions">
-                <button className="auth-ghost" onClick={back}>← Back</button>
-                <button className="auth-cta" onClick={next}>Continue →</button>
-              </div>
-              <div className="auth-actions" style={{ marginTop: 0, justifyContent: "center" }}>
-                <button className="auth-ghost" onClick={next}>Skip this for now</button>
+            <div className="au-arrive">
+              <div className="ph"><Pic name={intent?.photo ?? "circleInner"} sizes="(max-width: 900px) 100vw, 640px" /></div>
+              <div className="tx">
+                <span className="au-eyebrow">{intent ? "Your first step" : "Start anywhere"}</span>
+                <p className="h">{intent ? intent.headline : "Wander in. The doors are all open."}</p>
+                <p>{intent ? intent.body : "No reason needed. You can tell Create AI what would feel meaningful whenever you like."}</p>
               </div>
             </div>
-          )}
 
-          {step === "intent" && (
-            <div>
-              <div className="ac-eyebrow">One quick question</div>
-              <h1>What brings you here <em>today?</em></h1>
-              <p className="auth-lead">
-                {mode === "login" ? `Welcome back${first ? `, ${first}` : ""}. ` : ""}Pick one and we'll suggest a good place to start. It only shapes suggestions, is never shown on your profile, and you can change it anytime.
-              </p>
-
-              <div className="intent-tiles" role="radiogroup" aria-label="What would feel meaningful today?">
-                {INTENTS.map((i) => (
-                  <button key={i.id} type="button" role="radio" aria-checked={intentId === i.id} className={`intent-tile${intentId === i.id ? " on" : ""}`} onClick={() => setIntentId(i.id)}>
-                    <Pic name={i.photo} sizes="(max-width: 900px) 50vw, 260px" />
-                    <em className="tick" aria-hidden style={{ fontStyle: "normal" }}>✓</em>
-                    <span>{i.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              {intent && (
-                <div className="intent-reply" key={intent.id}>
-                  <h3>{intent.headline}</h3>
-                  <p>{intent.body}</p>
-                </div>
-              )}
-
-              <div className="auth-actions">
-                {mode === "signup" && <button className="auth-ghost" onClick={back}>← Back</button>}
-                <button className="auth-cta" disabled={!intent} onClick={() => finish()}>{intent ? "Continue with this reason →" : "Choose a reason to continue"}</button>
-              </div>
-              <div className="auth-actions" style={{ marginTop: 0, justifyContent: "center" }}>
-                <button className="auth-ghost" onClick={() => finish(true)}>Skip and go to community →</button>
-              </div>
+            <div className="au-row">
+              <Link className="au-primary" href={intent?.cta.href ?? "/"}><span>{intent ? intent.cta.label : "Go to Community Home"}</span><ArrowRight size={14} strokeWidth={2} aria-hidden /></Link>
+              <Link className="au-outline" href="/">{intent ? "Go to Community Home" : "See what's live"}</Link>
             </div>
-          )}
-
-          {step === "arrive" && (
-            <div>
-              <div className="ac-eyebrow">{mode === "signup" ? "You're in" : "Signed in"}</div>
-              <h1>{mode === "signup" ? "Welcome to Akines" : "Welcome back"}{first ? <>, <em>{first}.</em></> : "."}</h1>
-              <p className="auth-lead">
-                {mode === "signup" ? "Your account is ready. Here is where we'd start, based on what you told us." : "Here is where we'd pick things up, based on what you told us."}
-              </p>
-
-              <div className="arrive">
-                <Pic name={intent?.photo ?? "circleInner"} sizes="(max-width: 900px) 100vw, 640px" />
-                <div>
-                  <span className="ac-eyebrow">{intent ? "Your first step" : "Start anywhere"}</span>
-                  <h3>{intent ? intent.headline : "Wander in. The doors are all open."}</h3>
-                  <p>{intent ? intent.body : "No reason needed. You can tell us what would feel meaningful whenever you like, from Begin something."}</p>
-                </div>
-              </div>
-
-              <div className="arrive-links">
-                <Link className="a" href={intent?.cta.href ?? "/"}>{intent ? `${intent.cta.label} →` : "Go to Home →"}</Link>
-                <Link className="b" href="/">{intent ? "Go to Home" : "See what's live"}</Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+          </div>
+        )}
+      </main>
     </div>
   );
 }

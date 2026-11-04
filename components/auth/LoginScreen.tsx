@@ -4,34 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import ThemeToggle from "@/components/shell/ThemeToggle";
-import { FACE, type FaceKey } from "@/lib/data/images";
 import { auth, type Member } from "@/lib/api/client";
 import { DEMO } from "@/lib/demo/mode";
 import { previewAsGuest, rememberMember, signOut } from "@/lib/session";
+import { ArrowRight, X } from "lucide-react";
+import "./auth.css";
 
 /** Matches the backend rule: 12+ characters with upper and lower case, a number and a symbol. */
 export const STRONG = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/;
 export const STRONG_HINT = "Use at least 12 characters, with upper and lower case letters, a number and a symbol.";
 
-/** The ring of people around the mark, each on a soft colour like the design. */
-const RING: { face: FaceKey; bg: string }[] = [
-  { face: "w3", bg: "#fcd9a4" },
-  { face: "m2", bg: "#ffffff" },
-  { face: "w10", bg: "#d9f0e6" },
-  { face: "amaraFace", bg: "#ffffff" },
-  { face: "kwameFace", bg: "#fbe3b8" },
-  { face: "w5", bg: "#e2d6fb" },
-  { face: "maleFace", bg: "#ffffff" },
-  { face: "w8", bg: "#ffd8bf" },
-  { face: "m1", bg: "#ffffff" },
-  { face: "leilaFace", bg: "#fcd9a4" },
-];
-
 /** The Akines logo mark (vector, from the Figma file), the same one used on About and in the rail. */
 export function AkinesMark({ size = 72 }: { size?: number }) {
   // eslint-disable-next-line @next/next/no-img-element -- small brand SVG
-  return <img src="/akines/mark.svg" alt="" width={size} height={size} className="lg-mark" />;
+  return <img src="/akines/mark.svg" alt="" width={size} height={size} className="au-mark" />;
 }
 
 type View = "login" | "verify" | "2fa" | "forgot" | "reset";
@@ -123,110 +109,81 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
     setNotice(r.ok ? "A new code is on its way." : null);
   };
 
+  const title = view === "login" ? "Log in to Akines" : view === "2fa" || view === "verify" ? "Check your email" : view === "forgot" ? "Reset your password" : "Choose a new password";
+
   return (
-    <div className="lg">
-      <div className="lg-theme"><ThemeToggle /></div>
-
-      <main className="lg-main">
-        <section className="lg-hero">
-          <Link href="/about" className="lg-brand">
-            <AkinesMark size={30} />
-            <span>AKINES</span>
+    <div className="au au-signin">
+      {/* The landing photograph, softened, behind the panel (desktop and tablet). */}
+      <div className="au-backdrop" aria-hidden>
+        <Image src="/landing/images/hero.jpg" alt="" fill priority sizes="100vw" />
+      </div>
+      <main className="au-panel">
+        <div className="au-bar">
+          <Link href="/landing" className="au-close" aria-label="Close and go to the Akines home page">
+            <X size={20} strokeWidth={1.5} aria-hidden /><span>Close</span>
           </Link>
-          <h1>Building better <em>human connection.</em></h1>
+          <Link href="/landing" className="au-logo" aria-label="Akines"><AkinesMark size={30} /><span>AKINES</span></Link>
+        </div>
 
-          <div className="lg-ring" aria-hidden>
-            <div className="lg-orbit">
-            {RING.map((p, i) => {
-              const a = (i / RING.length) * Math.PI * 2 - Math.PI / 2 - Math.PI / RING.length;
-              const style = { left: `${(50 + 40 * Math.cos(a)).toFixed(2)}%`, top: `${(50 + 40 * Math.sin(a)).toFixed(2)}%`, ["--d" as string]: `${i * 60}ms` } as React.CSSProperties;
-              return (
-                <span key={i} className="lg-tile" style={{ ...style, ["--ring" as string]: p.bg } as React.CSSProperties}>
-                  <span className="lg-face"><Image src={FACE[p.face].src} alt="" fill sizes="96px" className="object-cover" /></span>
-                </span>
-              );
-            })}
+        <form className="au-form" onSubmit={submit} noValidate aria-busy={busy}>
+          <h1 className={view === "login" ? "sr-only" : "au-h"}>{title}</h1>
+          {notice && <p className="au-note" role="status">{notice}</p>}
+          {failure && <p className="au-fail" role="alert">{failure}</p>}
+
+          {(view === "login" || view === "forgot") && (
+            <div className="au-field">
+              <label htmlFor="lg-email">Email</label>
+              <input id="lg-email" type="email" inputMode="email" className="au-input" aria-invalid={tried && !!errs.email} autoComplete="username" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+              {tried && errs.email && <span className="au-err">{errs.email}</span>}
             </div>
-            <span className="lg-core"><AkinesMark size={64} /></span>
-          </div>
-        </section>
+          )}
 
-        <section className="lg-form-wrap">
-          <form className="lg-form" onSubmit={submit} noValidate aria-busy={busy}>
-            <h2>{view === "login" ? "Log into Akines" : view === "2fa" || view === "verify" ? "Check your email" : view === "forgot" ? "Reset your password" : "Choose a new password"}</h2>
-            {notice && <p className="lg-note" role="status">{notice}</p>}
-            {failure && <p className="lg-fail" role="alert">{failure}</p>}
+          {(view === "verify" || view === "2fa" || view === "reset") && (
+            <div className="au-field">
+              <label htmlFor="lg-code">6-digit code</label>
+              <input id="lg-code" className="au-input au-code" aria-invalid={tried && !!errs.code} inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="123 456" value={code} onChange={(e) => setCode(e.target.value)} />
+              {tried && errs.code && <span className="au-err">{errs.code}</span>}
+            </div>
+          )}
 
-            {(view === "login" || view === "forgot") && (
-              <>
-                <label className="sr-only" htmlFor="lg-email">Email</label>
-                <input id="lg-email" type="email" inputMode="email" className={`lg-input${tried && errs.email ? " bad" : ""}`} autoComplete="username" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                {tried && errs.email && <span className="lg-err">{errs.email}</span>}
-              </>
-            )}
-
-            {(view === "verify" || view === "2fa" || view === "reset") && (
-              <>
-                <label className="sr-only" htmlFor="lg-code">6-digit code</label>
-                <input id="lg-code" className={`lg-input lg-code${tried && errs.code ? " bad" : ""}`} inputMode="numeric" autoComplete="one-time-code" maxLength={7} placeholder="6-digit code" value={code} onChange={(e) => setCode(e.target.value)} />
-                {tried && errs.code && <span className="lg-err">{errs.code}</span>}
-              </>
-            )}
-
-            {(view === "login" || view === "reset") && (
-              <>
-                <label className="sr-only" htmlFor="lg-pw">{view === "reset" ? "New password" : "Password"}</label>
-                <div className={`lg-input lg-pw${tried && errs.password ? " bad" : ""}`}>
-                  <input id="lg-pw" type={show ? "text" : "password"} autoComplete={view === "reset" ? "new-password" : "current-password"} placeholder={view === "reset" ? "New password" : "Password"} value={password} onChange={(e) => setPassword(e.target.value)} />
-                  <button type="button" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} aria-pressed={show}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden>
-                      <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z" />
-                      <circle cx="12" cy="12" r="3" />
-                      {show && <path d="M4 4l16 16" />}
-                    </svg>
-                  </button>
-                </div>
-                {tried && errs.password && <span className="lg-err">{errs.password}</span>}
-              </>
-            )}
-
-            <button type="submit" className="lg-primary" disabled={busy}>
-              {busy ? "Please wait…" : view === "login" ? "Login" : view === "2fa" || view === "verify" ? "Verify and log in" : view === "forgot" ? "Send reset code" : "Change password"}
-            </button>
-
-            {view === "login" ? (
-              <button type="button" className="lg-forgot" onClick={() => switchTo("forgot")}>Forgot Password?</button>
-            ) : (
-              <span className="lg-links">
-                {view !== "forgot" && <button type="button" className="lg-forgot" onClick={resend}>Send a new code</button>}
-                <button type="button" className="lg-forgot" onClick={() => switchTo("login")}>Back to log in</button>
-              </span>
-            )}
-
-            {view === "login" && (
-              <div className="lg-alt">
-                {DEMO && (
-                  <>
-                    <button type="button" className="lg-outline" onClick={continueAsGuest}>Preview as guest</button>
-                    <small className="lg-guest-note">Demo: sample data only. Any email and password sign you in, and any 6-digit code works.</small>
-                  </>
-                )}
-                <Link href="/signup" className="lg-outline">Create New Account</Link>
+          {(view === "login" || view === "reset") && (
+            <div className="au-field">
+              <label htmlFor="lg-pw">{view === "reset" ? "New password" : "Password"}</label>
+              <div className="au-input au-pw" aria-invalid={tried && !!errs.password}>
+                <input id="lg-pw" type={show ? "text" : "password"} autoComplete={view === "reset" ? "new-password" : "current-password"} placeholder={view === "reset" ? "At least 12 characters" : "Your password"} value={password} onChange={(e) => setPassword(e.target.value)} />
+                <button type="button" onClick={() => setShow((s) => !s)} aria-pressed={show}>{show ? "Hide" : "Show"}</button>
               </div>
-            )}
-          </form>
-        </section>
-      </main>
+              {tried && errs.password && <span className="au-err">{errs.password}</span>}
+            </div>
+          )}
 
-      <footer className="lg-foot">
-        <nav aria-label="Footer">
-          <Link href="/about">About Akines</Link>
-          <a href="#" onClick={(e) => e.preventDefault()}>Privacy Policy</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Terms &amp; Conditions</a>
-          <a href="#" onClick={(e) => e.preventDefault()}>Contact Support</a>
-        </nav>
-        <small>© 2026 Akines</small>
-      </footer>
+          <button type="submit" className="au-primary" disabled={busy}>
+            <span>{busy ? "Please wait…" : view === "login" ? "Log in" : view === "2fa" || view === "verify" ? "Verify and log in" : view === "forgot" ? "Send reset code" : "Change password"}</span>
+            {!busy && <ArrowRight size={14} strokeWidth={2} aria-hidden />}
+          </button>
+
+          {view === "login" ? (
+            <button type="button" className="au-quiet" onClick={() => switchTo("forgot")}>Forgot password?</button>
+          ) : (
+            <span className="au-links">
+              {view !== "forgot" && <button type="button" className="au-quiet" onClick={resend}>Send a new code</button>}
+              <button type="button" className="au-quiet" onClick={() => switchTo("login")}>Back to log in</button>
+            </span>
+          )}
+
+          {view === "login" && DEMO && (
+            <>
+              <div className="au-or"><span>or</span></div>
+              <button type="button" className="au-outline" onClick={continueAsGuest}>Preview as guest</button>
+              <small className="au-small">Demo: sample data only. Any email and password sign you in, and any 6-digit code works.</small>
+            </>
+          )}
+
+          {view === "login" && <p className="au-switch">Don&apos;t have an account? <Link href="/signup">Create an account</Link></p>}
+        </form>
+
+        <p className="au-tagline">Less scrolling. More belonging.</p>
+      </main>
     </div>
   );
 }
