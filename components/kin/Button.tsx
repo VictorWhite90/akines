@@ -31,7 +31,7 @@ type Common = {
   children: React.ReactNode;
 };
 type LinkProps = Common & { href: string; onClick?: React.MouseEventHandler<HTMLAnchorElement>; "aria-label"?: string; "aria-current"?: React.AriaAttributes["aria-current"]; target?: string; rel?: string; disabled?: undefined };
-type ActionProps = Common & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof Common> & { href?: undefined };
+type ActionProps = Common & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof Common> & { href?: undefined; ref?: React.Ref<HTMLButtonElement> };
 
 const ARROW: Record<Nudge, typeof ArrowRight> = { right: ArrowRight, "up-right": ArrowUpRight, down: ArrowDown };
 

@@ -60,16 +60,16 @@ export const SECTIONS: Section[] = [
   {
     key: "connect",
     label: "Connect",
-    href: "/kindred",
+    href: "/connect",
+    // The design's Connect tabs. Cliqs, Play Together and the older Discover (/kindred) stay in Connect without a tab.
     tabs: [
-      { href: "/kindred", label: "Discover" },
-      { href: "/banter", label: "Banter" },
+      { href: "/connect", label: "Discover" },
       { href: "/circles", label: "KinCircle" },
-      { href: "/cliqs", label: "Cliqs" },
       { href: "/rooms", label: "Rooms" },
-      { href: "/play", label: "Play Together" },
+      { href: "/banter", label: "Banter" },
       { href: "/activities", label: "Activities" },
     ],
+    also: ["/kindred", "/cliqs", "/play"],
   },
   {
     key: "collaborate",

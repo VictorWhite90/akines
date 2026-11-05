@@ -28,6 +28,7 @@ export const PAGE_GROUPS: PageGroup[] = [
   {
     id: "connect", title: "Connect", blurb: "Meeting people: questions, circles, rooms, games, projects and messages.",
     pages: [
+      { path: "/connect", title: "Discover", what: "Explore, a mix for you, interests and people to meet" },
       { path: "/kindred", title: "Discover people", what: "People whose journeys complement yours" },
       { path: "/banter", title: "Banter", what: "One question, a small chat that fades or grows" },
       { path: "/banter?new=chat", title: "Start a banter", what: "Ask your own question" },

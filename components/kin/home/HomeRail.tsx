@@ -11,10 +11,10 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 import { FdAvatar, photoSrc } from "./parts";
 
-/** The design's right column on Community Home: your circles and a match to meet. */
-export default function HomeRail({ circles }: { circles: Circle[] }) {
+/** The design's right column on Community Home and Connect Discover: your circles and a match to meet. */
+export default function HomeRail({ circles, className = "fd-rail" }: { circles: Circle[]; className?: string }) {
   return (
-    <aside className="fd-rail" aria-label="Your circles and a match">
+    <aside className={className} aria-label="Your circles and a match">
       <Circles circles={circles} />
       <Match />
     </aside>
