@@ -39,6 +39,7 @@
 .fd-page .dxe-card:focus-visible{outline:2px solid var(--text-primary);outline-offset:2px;border-radius:0}
 @media(prefers-reduced-motion:reduce){.dxe-card,.dxe-arrow,.dxe-rule{transition:none}}
 @media(max-width:767px){.dxe-scroller{margin-inline:calc(var(--fd-pad) * -1);padding-inline:var(--fd-pad);scroll-padding-inline:var(--fd-pad);scroll-snap-type:x mandatory;mask-image:none}}
+.dxf{container:dxf / inline-size}
 .dxf-filters{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 var(--fd-head-gap)}
 @container dxf (max-width: 559px){.dxf-filters{flex-wrap:nowrap;margin:-6px -6px calc(var(--fd-head-gap) - 6px);padding:6px;overflow-x:auto;scrollbar-width:none}}
 @container dxf (max-width: 559px){.dxf-filters::-webkit-scrollbar{display:none}}

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import "@fontsource/alice/400.css";
-import "@fontsource-variable/manrope/wght.css";
+import "@/components/kin/akines/fonts.css";
 import "@/components/kin/akines/tokens.css";
 import "@/components/kin/akines/library.css";
 import "./styles/tokens.css";

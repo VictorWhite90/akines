@@ -1,0 +1,6 @@
+/* The design's own font files (Alice, and Manrope at 400, 500 and 600), taken unchanged from the prototype
+   (November 2026) and served from public/fonts/akines. Same @font-face rules as the prototype. */
+@font-face{font-family:'Alice';font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/akines/alice-400.woff2) format('woff2')}
+@font-face{font-family:'Manrope';font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/akines/manrope-400.woff2) format('woff2')}
+@font-face{font-family:'Manrope';font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/akines/manrope-500.woff2) format('woff2')}
+@font-face{font-family:'Manrope';font-style:normal;font-weight:600;font-display:swap;src:url(/fonts/akines/manrope-600.woff2) format('woff2')}
