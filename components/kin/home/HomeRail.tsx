@@ -8,17 +8,15 @@ import { toast } from "@/components/kin/Toast";
 import type { Circle } from "@/lib/data/community";
 import { MATCHES } from "@/lib/data/matches";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
-import { TRENDS } from "@/lib/data/trends";
 import { useLocal } from "@/lib/useLocal";
-import { FdAvatar, FdLink, photoSrc } from "./parts";
+import { FdAvatar, photoSrc } from "./parts";
 
-/** The design's right column on Community Home: your circles, a match to meet, what is trending. */
+/** The design's right column on Community Home: your circles and a match to meet. */
 export default function HomeRail({ circles }: { circles: Circle[] }) {
   return (
-    <aside className="fd-rail" aria-label="Your circles, a match and what is trending">
+    <aside className="fd-rail" aria-label="Your circles and a match">
       <Circles circles={circles} />
       <Match />
-      <Trending />
     </aside>
   );
 }
@@ -27,7 +25,7 @@ function Circles({ circles }: { circles: Circle[] }) {
   return (
     <section className="fd-box fd-circles" aria-labelledby="fd-circles-title">
       <div className="fd-box__head">
-        <h2 className="fd-box__title" id="fd-circles-title">Your Circles <span className="fd-box__count">({circles.length})</span></h2>
+        <h2 className="fd-box__title" id="fd-circles-title">Your circles <span className="fd-box__count">({circles.length})</span></h2>
         <Link className="fd-link" href="/circles">See all</Link>
       </div>
       <ul className="fd-circles__list">
@@ -125,30 +123,6 @@ function Match() {
           </div>
         </div>
       </div>
-    </section>
-  );
-}
-
-function Trending() {
-  const items = Object.entries(TRENDS).flatMap(([circle, t]) => t.stories.slice(0, 1).map((s) => ({ ...s, circle }))).slice(0, 2);
-  return (
-    <section className="fd-box fd-trend" aria-labelledby="fd-trend-title">
-      <div className="fd-box__intro">
-        <h2 className="fd-box__title" id="fd-trend-title">Trending now on Akines</h2>
-        <p className="fd-box__support">Conversations and discoveries</p>
-      </div>
-      <ul className="fd-trend__list">
-        {items.map((s) => (
-          <li key={s.id}>
-            <Link className="fd-trend__item" href={`/circles/${s.circle}`}>
-              <span className="fd-trend__eyebrow">{`${s.circle.replace(/-/g, " ")} · ${s.tag}`.toUpperCase()}</span>
-              <span className="fd-trend__title">{s.title}</span>
-              <span className="fd-trend__text">{s.summary}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <FdLink href="/circles">Explore more discoveries</FdLink>
     </section>
   );
 }

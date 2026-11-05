@@ -23,7 +23,6 @@ img.cover{transition:opacity .9s ease-out,scale 1.6s var(--ease-out)}
 @media(hover:hover){.ch-mem .ch-photo img.cover{transition:opacity .9s ease-out,scale 1.2s var(--ease-out)}}
 @media(hover:hover){.ch-mem:hover .ch-photo img.cover{scale:1.04}}
 .fd-photo img.cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .9s ease-out,scale .8s var(--ease-out)}
-.fd-hslide img.cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .fd-circle__photo img.cover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:scale .8s var(--ease-out)}
 @media(hover:hover){.fd-circle:hover .fd-circle__photo img.cover{scale:1.04}}
 @media(hover:hover){.fd-card:hover img.cover{scale:1.04}}

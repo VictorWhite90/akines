@@ -18,13 +18,14 @@ import { sortProducts } from "@/lib/data/shop";
 import { STORIES } from "@/lib/data/stories";
 import { useLocal } from "@/lib/useLocal";
 import FeedPosts from "./FeedPosts";
+import HomeHero from "./HomeHero";
 import HomeRail from "./HomeRail";
 import { FdAvatar, FdFaces, FdLink, FdPhoto, photoSrc } from "./parts";
 import "./home.css";
 
 /*
- * Community Home, mirrored from the product design (classes in home.css): a rotating welcome, a column with
- * your circles, a match and what is trending, and a feed of six sections. Like the design, each visit shows
+ * Community Home, mirrored from the product design (classes in home.css): a row of what is happening now, a column
+ * with your circles and a match, and a feed of six sections. Like the design, each visit shows
  * one of four feed versions, never the same one twice in a row. Every section reads our own data.
  */
 
@@ -49,12 +50,6 @@ const HEAD: Record<SectionName, { title: string; support: string; link?: { label
   wellbeing: { title: "A quiet moment.", support: "How is your creative energy today? Only you can see your answer." },
   dna: { title: "Your creative DNA.", support: "Traits that shape how you make, and the people who share them.", link: { label: "See your full DNA", href: "/dna" } },
 };
-const SLIDES = [
-  { src: "/kin/home/hero.jpg", position: "50% 38%" },
-  { src: "/kin/home/hero-2.jpg", position: "50% 45%" },
-  { src: "/kin/home/hero-3.jpg", position: "50% 50%" },
-  { src: "/kin/home/hero-4.jpg", position: "50% 42%" },
-];
 const FIRST = "fd-first";
 const first = (id: PersonId) => PEOPLE[id]?.name.split(" ")[0] ?? "";
 
@@ -73,43 +68,6 @@ function Cards({ cards }: { cards: Card[] }) {
         </Link>
       ))}
     </div>
-  );
-}
-
-function Hero() {
-  const [i, setI] = useState(0);
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let t: number | undefined;
-    const stop = () => { if (t !== undefined) window.clearInterval(t); t = undefined; };
-    const start = () => { stop(); t = window.setInterval(() => setI((x) => (x + 1) % SLIDES.length), 6500); };
-    const vis = () => (document.hidden ? stop() : start());
-    start();
-    document.addEventListener("visibilitychange", vis);
-    return () => { stop(); document.removeEventListener("visibilitychange", vis); };
-  }, []);
-  return (
-    <section className="fd-hero" aria-label="Welcome">
-      <div className="fd-hero__frame">
-        <div className="fd-hero__slides" data-m="frame" aria-hidden>
-          {SLIDES.map((s, n) => (
-            <div key={s.src} className="fd-hslide" data-on={n === i ? "" : undefined}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- the design's welcome photos */}
-              <img className="cover" src={s.src} alt="" loading={n === 0 ? "eager" : "lazy"} decoding="async" draggable={false} style={{ objectPosition: s.position }} />
-            </div>
-          ))}
-        </div>
-        <span className="fd-pblur" aria-hidden />
-        <span className="fd-scrim" aria-hidden />
-        <div className="fd-hero__text">
-          <h1 className="fd-hero__headline">Bring together the right people around a shared purpose.</h1>
-          <div className="fd-hero__actions">
-            <Button light href="/circles/new">Start a KinCircle</Button>
-            <Button variant="link" light iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={() => document.getElementById(FIRST)?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" })}>See how it works</Button>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -265,8 +223,8 @@ export default function Home() {
   const sections = v ? VERSIONS[v] : null;
   return (
     <div className="fd-page" data-feed-version={v ?? undefined}>
+      <HomeHero />
       <div className="fd-layout">
-        <Hero />
         <HomeRail circles={joined} />
         <div className="fd-feed">
           {sections ? sections.map((s, i) => <Section key={s} name={s} isFirst={i === 0} />) : <div className="fd-feed__sk" aria-busy="true" aria-label="Loading your feed" role="status" />}
