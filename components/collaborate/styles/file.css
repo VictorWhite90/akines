@@ -24,3 +24,7 @@ a.fp-line__in--link{color:var(--text-primary);cursor:pointer}
 @media(max-width:1023px){.fp-pair{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:767px){.fp-page .cd-metric{padding:20px 18px}}
 @media(max-width:767px){.fp-page .cd-card{padding:20px}}
+/* Added: the design previews only documents; image files (studio photos, proof images) show the picture itself on
+   the same sheet, edge to edge. */
+.fl-sheet--photo{padding:0}
+.fl-sheet--photo img{display:block;width:100%;height:100%;object-fit:cover}

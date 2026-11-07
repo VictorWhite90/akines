@@ -1,8 +1,9 @@
 "use client";
 
 import { useCollab } from "@/lib/collab/useCollab";
+import { useLocal } from "@/lib/useLocal";
 import { ME } from "@/lib/collab/me";
-import type { Project } from "@/lib/collab/types";
+import type { Milestone, Project } from "@/lib/collab/types";
 import { PEOPLE, type PersonId, type Presence } from "@/lib/data/people";
 
 /*
@@ -29,6 +30,9 @@ export const WORKSPACE_KIND_LABEL: Record<WorkspaceKind, string> = { art: "Digit
 
 export type Availability = "available" | "working" | "away";
 export const AVAILABILITY_TEXT: Record<Availability, string> = { available: "Available for review", working: "Working on a milestone", away: "Away" };
+/** The dot colour the design gives each availability. */
+export const AVAILABILITY_TONE: Record<Availability, "green" | "accent" | "gray"> = { available: "green", working: "accent", away: "gray" };
+export const AVAILABILITY_WORD: Record<Availability, string> = { available: "Available", working: "Working", away: "Away" };
 const FROM_PRESENCE: Record<Presence, Availability> = { open: "available", studio: "working", room: "working", quiet: "away" };
 
 export type WorkspaceMember = { id: PersonId; name: string; initials: string; role: string; owner: boolean; you: boolean; availability: Availability };
@@ -44,7 +48,12 @@ export function pulseOf(p: Project) {
   for (const c of p.checkins ?? []) if (!latest.has(c.who) || latest.get(c.who)!.at < c.at) latest.set(c.who, c);
   return [...latest.values()].some((c) => c.stuck) ? "Steady alignment" : "Strong alignment";
 }
-export const nextMilestoneOf = (p: Project) => { const m = p.milestones.find((x) => !x.done); return m ? `${m.title.replace(/\.$/, "")}.` : "All milestones complete."; };
+/**
+ * A project's milestones. Build, study and teach projects track their work as deliverables and keep no
+ * milestones, so each deliverable stands as one (done once approved).
+ */
+export const milestonesOf = (p: Project): Milestone[] => (p.milestones.length ? p.milestones : (p.deliverables ?? []).map((d) => ({ id: d.id, title: d.title, due: d.due, done: d.status === "approved" })));
+export const nextMilestoneOf = (p: Project) => { const m = milestonesOf(p).find((x) => !x.done); return m ? `${m.title.replace(/\.$/, "")}.` : "All milestones complete."; };
 export const kindOf = (p: Project): WorkspaceKind => (p.kind === "make" || p.kind === "event" ? "art" : "research");
 
 export function membersOf(p: Project): WorkspaceMember[] {
@@ -61,17 +70,38 @@ export const isMine = (p: Project) => p.host === ME || p.members.some((m) => m.i
 export function useWorkspace(id: string) {
   const collab = useCollab();
   const project = collab.projects.find((p) => p.id === id);
+  const { settings } = useProjectSettings(id);
   if (!project) return { ready: collab.ready, project: undefined, collab } as const;
   return {
+    /** The name and summary, as edited in the project settings. */
+    title: settings.name || project.title,
+    summary: settings.summary || project.summary,
     ready: collab.ready,
     collab,
     project,
     phase: phaseOf(project),
     pulse: pulseOf(project),
     nextMilestone: nextMilestoneOf(project),
+    milestones: milestonesOf(project),
     kind: kindOf(project),
     members: membersOf(project),
     href: (page: WorkspacePage = "overview") => workspaceHref(project.id, page),
     mine: collab.projects.filter(isMine),
   } as const;
+}
+
+/*
+ * What the project bar's settings change that our Project can't hold yet: edited details (name, summary, what the
+ * team needs), whether it is open to new collaborators, the member's notification preferences and which project
+ * notifications they have read. Shaped like PATCH /collab/projects/:id and /collab/projects/:id/me.
+ */
+export type NotifyPrefs = { review: boolean; decisions: boolean; conversations: boolean; milestones: boolean };
+export type ProjectSettings = { name?: string; summary?: string; needs?: string; open?: boolean; prefs?: NotifyPrefs; read?: string[] };
+export const DEFAULT_PREFS: NotifyPrefs = { review: true, decisions: true, conversations: true, milestones: false };
+
+export function useProjectSettings(id: string) {
+  const [all, setAll] = useLocal<Record<string, ProjectSettings>>("ak:collab-project-settings:v1", {});
+  const s = all[id] ?? {};
+  const put = (next: ProjectSettings | ((cur: ProjectSettings) => ProjectSettings)) => setAll((cur) => ({ ...cur, [id]: typeof next === "function" ? next(cur[id] ?? {}) : { ...cur[id], ...next } }));
+  return { settings: s, prefs: s.prefs ?? DEFAULT_PREFS, read: s.read ?? [], open: s.open ?? true, put };
 }
