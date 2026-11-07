@@ -1,0 +1,13 @@
+/* Collaborate: contributions (co-).
+   Copied verbatim from the Akines product design prototype (November 2026). Do not restyle here:
+   change the design, then copy again. Only edit marked lines. */
+.co-rec--static{cursor:default}
+.co-rec__date{flex:none;color:var(--text-secondary);font:500 12px/16px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.co-list{display:flex;flex-direction:column;gap:24px}
+.co-rec__meta{display:flex;align-items:flex-start;gap:48px}
+.co-rec__meta>.co-rec__field{flex:1 1 0}
+.co-note{margin:0}
+@media(max-width:1023px){.co-rec__meta{gap:32px}}
+@media(max-width:767px){.co-rec__top{flex-wrap:wrap;height:auto;row-gap:6px}}
+@media(max-width:767px){.co-rec__meta{flex-direction:column;gap:20px}}
+@media(max-width:767px){.co-rec__value--work,.co-rec__value--project{min-height:0}}

@@ -1,0 +1,71 @@
+/* Collaborate: overview (ov-).
+   Copied verbatim from the Akines product design prototype (November 2026). Do not restyle here:
+   change the design, then copy again. Only edit marked lines. */
+.ov{display:flex;flex-direction:column;gap:24px;min-width:0}
+.ov .cw-pagehead{gap:16px}
+.ov .cd-card{position:static;gap:20px;padding:24px;border-color:var(--border-subtle);transition:none}
+@media(hover:hover){.ov .cd-card:hover{border-color:var(--border-subtle)}}
+.ov .cd-card__title,.ov .cd-label{margin:0;font:500 12px/1.5 var(--font-sans);letter-spacing:1.7px;text-transform:uppercase;color:var(--text-secondary)}
+.ov .cd-stage{display:block;gap:0;font:inherit;letter-spacing:normal;text-transform:none}
+.ov .cd-stage__line{flex:1;width:auto;height:1px;border-radius:0;background:var(--border-default)}
+.ov .cd-status{display:flex;align-items:stretch;padding:0;border-radius:0;background:none;font:inherit;letter-spacing:normal;white-space:normal}
+.ov .cd-status__bar i{width:auto;height:auto;border-radius:0}
+.ov .cd-status .cd-status__dot{width:7px;height:7px;border-radius:50%}
+.ov .cd-status .cd-tone--gray{background:var(--border-strong)}
+.ov .cd-status .cd-tone--accent{background:var(--accent)}
+.ov .cd-status .cd-tone--ink{background:var(--surface-inverse)}
+.ov .cd-status .cd-tone--green{background:var(--icon-success)}
+.ov .ov-linkcard{color:var(--text-primary);cursor:pointer;transition:border-color .3s ease-out}
+@media(hover:hover){.ov a.ov-linkcard:hover{border-color:var(--text-primary)}}
+.ov .cd-card__title,.ov .cd-label{line-height:16px}
+.ov .cd-metric{height:150px;min-height:0;padding:22px 24px}
+.ov .cd-metric__label{line-height:16px}
+.ov .cd-metric__value{line-height:48px}
+.ov .cd-metric__cap{line-height:20px}
+.ov #progress{gap:24px}
+.ov .cd-stages{column-gap:24px}
+.ov .cd-stage__body{gap:12px;padding-right:0}
+.ov .cd-stage__rail{margin-bottom:0}
+.ov .cd-stage__when{font:500 12px/16px var(--font-sans);letter-spacing:.12em}
+.ov .cd-stage__title{font:500 15px/22px var(--font-sans)}
+.ov .cd-pair{padding-bottom:10px}
+.ov .cd-pair>.cd-card{height:218px;min-height:0;gap:16px}
+.ov .cd-status{gap:16px}
+.ov .cd-status__bar{gap:3px;height:10px}
+.ov .cd-status__list li{line-height:20px}
+.ov .cd-status .cd-status__dot{width:8px;height:8px}
+.ov .cd-status__n{font-weight:500}
+.ov .cd-week{gap:16px}
+.ov .cd-week__total{align-items:flex-end;line-height:20px}
+.ov .cd-week__total span{font:400 36px/42px var(--font-serif)}
+.ov .cd-week__bars{grid-template-columns:repeat(7,34px);justify-content:space-between;gap:0;height:60px;margin:4px 0 24px}
+.ov .cd-week__col{gap:0;height:60px}
+.ov .cd-week__bar--zero{background:var(--border-strong)}
+.ov .cd-week__day{position:absolute;left:0;right:0;top:calc(100% + 8px);font-size:12px;line-height:16px}
+.ov .cd-week__bar--today+.cd-week__day{font-weight:500;color:var(--text-primary)}
+.ov .cd-glance{grid-template-columns:minmax(0,209px) minmax(0,234px) minmax(0,210px)}
+.ov .cd-glance>div{gap:6px;padding:0 24px}
+.ov .cd-glance>div:first-child{padding-left:0}
+.ov .cd-glance>div:last-child{padding-right:0}
+.ov .cd-glance dt{font-size:12px;line-height:16px;letter-spacing:.12em}
+.ov .cd-glance dd{font:500 15px/22px var(--font-sans)}
+.ov .cd-row{padding:20px 24px}
+.ov .cd-row__text{gap:6px}
+.ov .cd-row__title{font:500 16px/24px var(--font-sans)}
+.ov .cd-row__status,.ov .cd-row__act{line-height:20px}
+.ov-continue{display:flex;flex-direction:column;gap:12px}
+.ov-continue .cd-label{margin:0}
+.ov-avail{display:flex;justify-content:space-between}
+.ov-avail>li{width:72px}
+.ov-plain{cursor:default}
+.ov-plain.cd-avail__item:hover .cd-portrait{scale:1}
+.ov-plain.cd-review__row:hover>svg:last-child{translate:0 0}
+.ov-plain.cd-review__row:hover .cd-review__title{text-decoration:none}
+@media(max-width:1023px){.ov .cd-pair>.cd-card{height:auto;min-height:218px}}
+@media(max-width:1023px){.ov .cd-pair{padding-bottom:0}}
+@media(max-width:767px){.ov .cd-metric{height:auto;min-height:132px;padding:20px 18px}}
+@media(max-width:767px){.ov .cd-metric__value{font-size:38px;line-height:44px}}
+@media(max-width:767px){.ov .cd-stages{column-gap:0;row-gap:20px}}
+@media(max-width:767px){.ov .cd-glance{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:767px){.ov .cd-glance>div,.ov .cd-glance>div:first-child,.ov .cd-glance>div:last-child{padding:0}}
+@media(max-width:767px){.ov .cd-row{padding:18px 20px}}

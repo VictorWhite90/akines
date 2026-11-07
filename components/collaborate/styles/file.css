@@ -1,0 +1,26 @@
+/* Collaborate: file (fp-).
+   Copied verbatim from the Akines product design prototype (November 2026). Do not restyle here:
+   change the design, then copy again. Only edit marked lines. */
+.fp-page{display:flex;flex-direction:column;gap:24px;min-width:0}
+.fp-page .cd-metric{padding:22px 24px;border-color:var(--border-default)}
+.fp-page .cd-metric__label{line-height:16px;letter-spacing:.12em}
+.fp-page .cd-metric__value{line-height:48px}
+.fp-page .cd-metric__cap{line-height:20px}
+.fp-page .cd-card{position:static;gap:20px;padding:24px;border-color:var(--border-default);transition:none}
+@media(hover:hover){.fp-page .cd-card:hover{border-color:var(--border-default)}}
+.fp-page .cd-card__title{margin:0;font:500 12px/16px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary)}
+.fp-sec{display:flex;flex-direction:column;gap:16px;min-width:0}
+.fp-anchor{scroll-margin-top:260px}
+.fp-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;scroll-margin-top:260px}
+.fp-page .fp-info{gap:14px}
+.fp-lines{display:flex;flex-direction:column;gap:14px;margin:0;padding:0;list-style:none}
+.fp-line+.fp-line{padding-top:14px;border-top:1px solid var(--border-default)}
+.fp-line__in{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.fp-line__k{font:400 13px/18px var(--font-sans);color:var(--text-secondary)}
+.fp-line__v{display:inline-flex;align-items:center;gap:6px;min-width:0;font:500 14px/19px var(--font-sans);color:var(--text-primary);text-align:right}
+a.fp-line__in--link{color:var(--text-primary);cursor:pointer}
+@media(hover:hover){a.fp-line__in--link:hover .fp-line__v{text-decoration:underline}}
+.app a.fp-line__in--link:focus-visible{border-radius:0;outline:2px solid var(--text-primary);outline-offset:2px}
+@media(max-width:1023px){.fp-pair{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:767px){.fp-page .cd-metric{padding:20px 18px}}
+@media(max-width:767px){.fp-page .cd-card{padding:20px}}

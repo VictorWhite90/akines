@@ -12,6 +12,8 @@ import { ViewTransitions } from "./ViewTransitions";
 import { useReveal } from "./useReveal";
 
 const PUBLIC = ["/landing", "/login", "/signup", "/about", "/about/philosophy", "/welcome"];
+/** Full-screen tools in the design (a project's canvas or document, and its meetings): signed in, but no header or Create AI. */
+const FULL = /^\/collaborate\/my-projects\/[^/]+\/(workspace|meet)(\/|$)/;
 
 /** The frame for redesigned pages: the shared app header, the page, and Create AI. Public pages get no frame. */
 export default function Shell({ children }: { children: React.ReactNode }) {
@@ -29,6 +31,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
   if (open) return <ViewTransitions>{children}</ViewTransitions>;
   if (gate !== "in") return <div style={{ minHeight: "100dvh" }} aria-busy="true" />;
+  if (FULL.test(pathname)) return <MemberProvider><Toaster />{children}</MemberProvider>;
   return (
     <MemberProvider>
       <ViewTransitions>

@@ -7,6 +7,17 @@ const nextConfig: NextConfig = {
   // app/global-not-found.tsx: one 404 page across the three root layouts.
   experimental: { globalNotFound: true },
   // Development: locally stored uploads (/media/...) live on the Django server. Production photos are S3 URLs.
+  // The older Collaborate pages, now the design's: open calls are projects, applications are contributions.
+  async redirects() {
+    return [
+      { source: "/applications", destination: "/collaborate/contributions", permanent: false },
+      { source: "/collaborate/applications", destination: "/collaborate/contributions", permanent: false },
+      { source: "/collaborate/review/:id*", destination: "/collaborate/my-projects", permanent: false },
+      { source: "/collaborate/new", destination: "/collaborate/start", permanent: false },
+      { source: "/collaborate/calls/:id/apply", destination: "/collaborate/projects/:id/interest", permanent: false },
+      { source: "/collaborate/calls/:id", destination: "/collaborate/projects/:id", permanent: false },
+    ];
+  },
   async rewrites() {
     const origin = (process.env.AKINES_API_URL ?? "http://localhost:8000/api/v1").replace(/\/api\/v1\/?$/, "");
     return [{ source: "/media/:path*", destination: `${origin}/media/:path*` }];

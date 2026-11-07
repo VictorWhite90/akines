@@ -1,0 +1,52 @@
+/* Collaborate: member (mb-).
+   Copied verbatim from the Akines product design prototype (November 2026). Do not restyle here:
+   change the design, then copy again. Only edit marked lines. */
+.mb-page{display:flex;flex-direction:column;gap:24px;min-width:0}
+.mb-page .cd-metric{padding:22px 24px;border-color:var(--border-default)}
+.mb-page .cd-metric__label{line-height:16px;letter-spacing:.12em}
+.mb-page .cd-metric__value{line-height:48px}
+.mb-page .cd-metric__cap{line-height:20px}
+.mb-page .cd-card{position:static;gap:20px;padding:24px;border-color:var(--border-default);transition:none}
+@media(hover:hover){.mb-page .cd-card:hover{border-color:var(--border-default)}}
+.mb-page .cd-card__title{margin:0;font:500 12px/16px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary)}
+.mb-avatar{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:72px;height:72px;border-radius:50%;background:var(--surface-brand);border:1px solid var(--border-default);color:var(--text-primary);font:500 20px/1 var(--font-sans);user-select:none}
+.mb-label{margin:0;font:500 12px/16px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary)}
+.mb-meta{margin:0;font:400 13px/18px var(--font-sans);color:var(--text-secondary)}
+.mb-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;gap:16px}
+.mb-page .mb-week{gap:16px}
+.mb-total{display:flex;align-items:flex-end;gap:10px;margin:0;font:400 13px/20px var(--font-sans);color:var(--text-secondary)}
+.mb-total span{font:400 36px/42px var(--font-serif);color:var(--text-primary)}
+.mb-chart{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;height:88px}
+.mb-day{display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:8px;min-width:0}
+.mb-bar{display:block;background:var(--border-strong)}
+.mb-bar--now{background:var(--accent)}
+.mb-day__label{text-align:center;font:400 12px/16px var(--font-sans);color:var(--text-secondary)}
+.mb-day__label.is-now{font-weight:500;color:var(--text-primary)}
+.mb-page .mb-avail{gap:14px}
+.mb-status{display:flex;align-items:center;gap:10px;margin:0;font:400 24px/27px var(--font-serif);color:var(--text-primary)}
+.mb-status__dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--feedback-success)}
+.mb-rule{height:1px;background:var(--border-default)}
+.mb-session{margin:0;font:500 15px/20px var(--font-sans);color:var(--text-primary)}
+.mb-page .mb-role{gap:20px}
+.mb-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 24px;margin:0}
+.mb-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mb-field dd{margin:0;font:500 15px/20px var(--font-sans);color:var(--text-primary)}
+.mb-page .mb-skills{gap:16px}
+.mb-history{display:flex;flex-direction:column;gap:12px;scroll-margin-top:260px}
+.mb-rows{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.mb-row{display:flex;align-items:center;justify-content:space-between;gap:16px;box-sizing:border-box;min-width:0;padding:20px 24px;background:var(--surface-default);border:1px solid var(--border-default);color:var(--text-primary);transition:border-color .3s ease-out,background-color .3s ease-out}
+.mb-row__text{display:flex;flex-direction:column;gap:6px;min-width:0}
+.mb-row__title{font:500 16px/24px var(--font-sans);color:var(--text-primary)}
+.mb-row__status{font:400 13px/20px var(--font-sans);color:var(--text-secondary)}
+.mb-row__act{flex:none;display:inline-flex;align-items:center;gap:8px;font:500 14px/20px var(--font-sans)}
+a.mb-row--link{cursor:pointer}
+@media(hover:hover){a.mb-row--link:hover{border-color:var(--border-strong)}}
+@media(hover:hover){a.mb-row--link:hover .mb-row__open{text-decoration:underline}}
+a.mb-row--link:active{background:var(--surface-subtle);border-color:var(--border-strong)}
+.app a.mb-row--link:focus-visible{border-radius:0;outline:2px solid var(--text-primary);outline-offset:-2px}
+@media(max-width:1023px){.mb-pair{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:767px){.mb-page .cd-metric{padding:20px 18px}}
+@media(max-width:767px){.mb-page .cd-card{padding:20px}}
+@media(max-width:767px){.mb-fields{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:767px){.mb-row{padding:18px 20px}}
+@media(prefers-reduced-motion:reduce){.mb-row{transition:none}}

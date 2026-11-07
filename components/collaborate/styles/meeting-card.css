@@ -1,0 +1,29 @@
+/* Collaborate: meeting card (mt-).
+   Copied verbatim from the Akines product design prototype (November 2026). Do not restyle here:
+   change the design, then copy again. Only edit marked lines. */
+.mt-card{display:flex;flex-direction:column;gap:16px;box-sizing:border-box;min-width:0;padding:20px;margin-bottom:40px;background:var(--surface-default);border:1px solid var(--border-default)}
+.mt-card__top{display:flex;align-items:flex-start;gap:16px}
+.mt-card__text{display:flex;flex-direction:column;gap:4px;min-width:0}
+.mt-eyebrow{display:inline-flex;align-items:center;gap:8px;margin:0;font:500 11px/14px var(--font-sans);letter-spacing:.12em;text-transform:uppercase;color:var(--text-secondary)}
+.mt-title{margin:0;font:400 20px/26px var(--font-serif);color:var(--text-primary)}
+.mt-sub{margin:0;font:400 13px/20px var(--font-sans);color:var(--text-secondary)}
+.mt-tile{flex:none;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;width:56px;height:56px}
+.mt-tile--date{background:var(--surface-brand);gap:2px}
+.mt-tile__day{font:500 11px/14px var(--font-sans);letter-spacing:.12em;color:var(--text-secondary)}
+.mt-tile__time{font:400 20px/24px var(--font-serif);color:var(--text-primary);white-space:nowrap}
+.mt-tile--dark{background:var(--surface-inverse);color:var(--text-inverse)}
+.mt-tile--grey{background:var(--surface-brand);color:var(--text-primary)}
+.mt-card__foot{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mt-faces{display:inline-flex}
+.mt-faces .cd-portrait{border:2px solid var(--surface-default);box-sizing:border-box}
+.mt-faces .cd-portrait+.cd-portrait{margin-left:-8px}
+.mt-card__buttons{display:flex;gap:12px}
+.mt-card__buttons>*{flex:1;min-width:0}
+.mt-card--ongoing{border-color:var(--text-primary)}
+.mt-join{display:flex;align-items:center;justify-content:space-between;gap:16px;box-sizing:border-box;max-width:420px;padding:14px 16px;border:1px solid var(--border-default);background:var(--surface-default)}
+.mt-join__main{display:flex;align-items:center;gap:14px;min-width:0}
+.mt-join__icon{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;background:var(--surface-inverse);color:var(--text-inverse)}
+.mt-join__text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mt-join__title{font:500 14px/1.4 var(--font-sans)}
+.mt-join__meta{font:400 12px/1.4 var(--font-sans);color:var(--text-secondary)}
+.mt-plain-select .k-select__chev{display:none}
