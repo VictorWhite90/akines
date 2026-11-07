@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Check, ChevronRight, MessageSquare } from "lucide-react";
+import PlanCall from "@/components/community/PlanCall";
 import Button from "@/components/kin/Button";
 import { faceSrc, photoSrc } from "@/components/kin/home/parts";
 import { CONVOS, KIND_LABEL, type Convo, type KMsg } from "@/lib/data/kinmessage";
@@ -67,6 +68,7 @@ function Bubble({ m, group }: { m: KMsg; group: boolean }) {
 
 function Thread({ c, added, onSend }: { c: Convo; added: KMsg[]; onSend: (t: string) => void }) {
   const [draft, setDraft] = useState("");
+  const [planning, setPlanning] = useState(false);
   const feed = useRef<HTMLDivElement>(null);
   const msgs = [...c.msgs, ...added];
   useEffect(() => { const el = feed.current; if (el) el.scrollTop = el.scrollHeight; }, [msgs.length, c.id]);
@@ -83,7 +85,7 @@ function Thread({ c, added, onSend }: { c: Convo; added: KMsg[]; onSend: (t: str
             <p className="ch-conv__sub">{sub(c)}</p>
           </div>
         </div>
-        {c.kind === "project" ? <Button variant="secondary" href="/collaborate">Open the workspace</Button> : null}
+        {c.kind === "direct" || c.kind === "project" ? <Button variant="secondary" onClick={() => setPlanning(true)}>Arrange a Create Call</Button> : null}
       </header>
       <div className="ch-conv__feed" ref={feed} role="log" aria-label={`Conversation with ${c.name}`}>
         {msgs.map((m, i) => (
@@ -98,6 +100,19 @@ function Thread({ c, added, onSend }: { c: Convo; added: KMsg[]; onSend: (t: str
         <input className="ch-composer__field" aria-label={`Message ${c.name}`} placeholder="Write a message" value={draft} onChange={(e) => setDraft(e.target.value)} />
         <Button type="submit" iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} disabled={!draft.trim()}>Send</Button>
       </form>
+      <PlanCall
+        open={planning}
+        onClose={() => setPlanning(false)}
+        plan={{
+          eyebrow: "Create Call",
+          title: c.kind === "direct" ? `Arrange a Create Call with ${c.name.split(" ")[0]}` : `Arrange a Create Call for ${c.name}`,
+          lead: c.kind === "direct" ? "Make something together, or pick up where you left off." : `Pick a time to work on ${c.name} together.`,
+          people: c.members.slice(0, 3),
+          convo: c.id,
+          note: "Shall we find time to work on this together?",
+          placeholder: "Add what you would like to work on (optional)",
+        }}
+      />
     </div>
   );
 }

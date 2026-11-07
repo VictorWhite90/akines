@@ -56,8 +56,8 @@ export type SectionTab = { href: string; label: string; also?: string[] };
 export type Section = { key: SectionKey; label: string; href: string; tabs: SectionTab[]; also?: string[] };
 
 export const SECTIONS: Section[] = [
-  // The design keeps Messages, Settings and the three care screens inside Community Home.
-  { key: "home", label: "Community Home", href: "/", tabs: [], also: ["/notifications", "/messages", "/settings", "/wellbeing/quiet", "/wellbeing/reflect", "/wellbeing/support"] },
+  // The design keeps Messages, Settings, the three care screens and your collaborations inside Community Home.
+  { key: "home", label: "Community Home", href: "/", tabs: [], also: ["/notifications", "/messages", "/settings", "/wellbeing/quiet", "/wellbeing/reflect", "/wellbeing/support", "/community/collaborations"] },
   {
     key: "connect",
     label: "Connect",
