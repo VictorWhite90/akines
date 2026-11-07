@@ -134,7 +134,7 @@ export default function Courtyard() {
                 <div className="curator-row">
                   <Avatar person={callBy} size={35} />
                   <div><b>{callBy.name}</b><small>Verified curator · {call.city}</small></div>
-                  <Link href={`/collaborate/calls/${call.id}`}>View call</Link>
+                  <Link href={`/collaborate/projects/${call.id}`}>View call</Link>
                 </div>
               </article>
             </div>

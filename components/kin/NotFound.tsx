@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Fragment, useEffect } from "react";
 import Button from "./Button";
 import Logo from "./Logo";
+import "./akines/notfound.css";
 
 const HEADLINE = ["This", "connection", null, "has", "not", "been", "made", "yet."] as const;
 

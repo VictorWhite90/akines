@@ -43,7 +43,7 @@ const HEAD: Record<SectionName, { title: string; support: string; link?: { label
   banter: { title: "Conversations worth joining.", support: "Open conversations happening across Akines right now.", link: { label: "Open Banter", href: "/banter" } },
   rooms: { title: "Rooms open now.", support: "Drop in, listen, or speak when you are ready.", link: { label: "See all rooms", href: "/rooms" } },
   activities: { title: "Things to do together.", support: "Small, easy ways to meet people through making.", link: { label: "See all activities", href: "/activities" } },
-  collaborate: { title: "Projects looking for you.", support: "Open projects that match your interests and skills.", link: { label: "Discover projects", href: "/collaborate" } },
+  collaborate: { title: "Projects looking for you.", support: "Open projects that match your interests and skills.", link: { label: "Discover projects", href: "/collaborate/discover" } },
   shop: { title: "Fresh from the makers.", support: "Original work and made-to-order pieces, sold by the people who made them.", link: { label: "Shop all", href: "/shop" } },
   studios: { title: "Step inside the studio.", support: "Live, virtual, 360° or VR. Talk to the maker directly.", link: { label: "Visit studios", href: "/studios" } },
   stories: { title: "Witness the journey.", support: "Living journals and the legacy every artwork carries.", link: { label: "Open journals", href: "/journal" } },
@@ -131,7 +131,7 @@ function SectionBody({ name }: { name: SectionName }) {
     case "activities":
       return <Cards cards={allActivities().sort((a, b) => dayDistance(a.when) - dayDistance(b.when)).slice(0, 3).map((a) => ({ id: a.circleId + a.id, href: "/activities", image: photoSrc(a.photo), tag: a.when.toUpperCase(), title: a.title, text: a.blurb, left: a.where, right: `${a.going.length} going` }))} />;
     case "collaborate":
-      return <Cards cards={calls.filter((c) => !c.postedByMe).slice(0, 3).map((c) => ({ id: c.id, href: `/collaborate/calls/${c.id}`, image: photoSrc(c.photo), tag: `LOOKING FOR: ${c.roles[0]?.toUpperCase() ?? "COLLABORATORS"}`, title: c.title, text: c.summary, left: `${c.teamSize} collaborators`, right: c.closesInDays <= 0 ? "Closing today" : `Closes in ${c.closesInDays} days` }))} />;
+      return <Cards cards={calls.filter((c) => !c.postedByMe).slice(0, 3).map((c) => ({ id: c.id, href: `/collaborate/projects/${c.id}`, image: photoSrc(c.photo), tag: `LOOKING FOR: ${c.roles[0]?.toUpperCase() ?? "COLLABORATORS"}`, title: c.title, text: c.summary, left: `${c.teamSize} collaborators`, right: c.closesInDays <= 0 ? "Closing today" : `Closes in ${c.closesInDays} days` }))} />;
     case "shop":
       return (
         <div className="fd-row" data-m="stagger">

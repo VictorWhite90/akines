@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { slugOf } from "@/lib/collab/tasks";
 import { useState } from "react";
 import { FileRow } from "@/components/collab/FileParts";
 import { PieceCard, PieceDetail, PieceForm } from "@/components/portfolio/Portfolio";
@@ -64,7 +65,7 @@ export function WorkProfileBody({ wp, projects, own = true, onOpenProject }: { w
           <ul className="wk-verified">
             {verified.map(({ d, p }) => (
               <li key={d.id}>
-                <Link href={`/collaborate/projects/${p.id}?tab=work&d=${d.id}`}>
+                <Link href={`/collaborate/my-projects/${p.id}/tasks/${slugOf(d.title) || d.id}`}>
                   <b>{d.title}</b>
                   <span>{p.title}</span>
                   <small><Icon name="verified" size={12} />Approved by {PEOPLE[d.approver].name}{d.approvedAt ? ` · ${new Date(d.approvedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}` : ""}</small>

@@ -104,7 +104,7 @@ function useLocalCollab({ engine = false }: { engine?: boolean } = {}) {
         if (!call) continue;
         if (a.arrivesAt && a.arrivesAt <= now) {
           a.arrivesAt = undefined; changed = true;
-          bell("collab_application", `${PEOPLE[a.applicant].name} applied to ${call.title} as ${a.role}.`, `/collaborate/review/${call.id}`);
+          bell("collab_application", `${PEOPLE[a.applicant].name} applied to ${call.title} as ${a.role}.`, `/collaborate/projects/${call.id}`);
         }
         if (!a.nextAt || a.nextAt > now) continue;
         a.nextAt = undefined; changed = true;
@@ -114,14 +114,14 @@ function useLocalCollab({ engine = false }: { engine?: boolean } = {}) {
           if (a.stage === "submitted") {
             a.stage = "viewed"; a.history.push({ stage: "viewed", at: now, note: `${host} opened your application.` });
             a.nextAt = now + 12 * SEC;
-            bell("collab_update", `${host} is reviewing your application to ${call.title}.`, "/collaborate/applications");
+            bell("collab_update", `${host} is reviewing your application to ${call.title}.`, "/collaborate/contributions");
           } else if (a.stage === "viewed") {
             a.stage = "shortlisted"; a.history.push({ stage: "shortlisted", at: now, note: `${host} shortlisted you. Pick a time for a 20-minute conversation.` });
-            bell("collab_update", `You're shortlisted for ${call.title}. Pick a time to talk with ${host}.`, "/collaborate/applications");
+            bell("collab_update", `You're shortlisted for ${call.title}. Pick a time to talk with ${host}.`, "/collaborate/contributions");
           } else if (a.stage === "conversation") {
             a.stage = "offer"; a.offer = { role: a.role, fee: call.fee, start: call.timeline[call.timeline.length - 2]?.when ?? "Soon" };
             a.history.push({ stage: "offer", at: now, note: `${host} would like you on the team as ${a.role}.` });
-            bell("collab_update", `${host} offered you a place on ${call.title}.`, "/collaborate/applications");
+            bell("collab_update", `${host} offered you a place on ${call.title}.`, "/collaborate/contributions");
           }
         } else if (call.postedByMe) {
           // An applicant to my call, answering me.

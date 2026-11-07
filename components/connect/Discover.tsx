@@ -33,7 +33,7 @@ const EXPLORE = [
   { id: "people", title: "People", text: "Artists, creators and kindred spirits.", image: "/kin/discover/ngozi.jpg", href: "/kindred" },
   { id: "circles", title: "Circles", text: "Communities and shared interests.", image: "/kin/discover/kincircle.jpg", href: "/circles" },
   { id: "stores", title: "Artworks & Stores", text: "Original work that's made-to-order.", image: "/kin/discover/explore-stores.jpg", href: "/shop" },
-  { id: "projects", title: "Projects", text: "Collaborations and creative builds.", image: "/kin/discover/zine.jpg", href: "/collaborate" },
+  { id: "projects", title: "Projects", text: "Collaborations and creative builds.", image: "/kin/discover/zine.jpg", href: "/collaborate/discover" },
   { id: "events", title: "Events", text: "Talks, workshops and gatherings.", image: "/kin/discover/event-workshop.jpg", href: "/activities" },
 ];
 const INTERESTS = [
@@ -65,7 +65,7 @@ function useCards(): Record<Filter, Card[]> {
   const people: Card[] = allPeople.filter((p) => p.id !== ME.id).slice(0, 6).map((p) => ({ kind: "person", id: `person-${p.id}`, person: p.id as PersonId, name: p.name, image: faceSrc(p.id as PersonId, 640), identity: `${p.role} · ${p.city}`, text: p.about }));
   const circles: Card[] = CIRCLES.filter((c) => !c.joined).slice(0, 6).map((c) => ({ kind: "circle", id: `circle-${c.id}`, circle: c.id, name: c.name, image: photoSrc(c.photo), meta: `${c.members} members · ${c.active} active`, text: c.blurb }));
   const art: Card[] = products.slice(0, 1).map((p) => ({ kind: "artwork", id: `artwork-${p.id}`, tag: p.category.toUpperCase(), title: p.title, maker: p.seller, price: `$${p.price.toLocaleString()}`, edition: p.unique ? "1 of 1" : `${p.stock} available`, image: photoSrc(p.photos[0]), href: `/shop/${p.id}` }));
-  const projects: Card[] = calls.filter((c) => !c.postedByMe).slice(0, 3).map((c) => ({ kind: "project", id: `project-${c.id}`, tag: "PROJECT", title: c.title, text: c.summary, meta: `${PEOPLE[c.host]?.name ?? c.org} · ${c.teamSize} people`, image: photoSrc(c.photo), action: "View project", href: `/collaborate/calls/${c.id}` }));
+  const projects: Card[] = calls.filter((c) => !c.postedByMe).slice(0, 3).map((c) => ({ kind: "project", id: `project-${c.id}`, tag: "PROJECT", title: c.title, text: c.summary, meta: `${PEOPLE[c.host]?.name ?? c.org} · ${c.teamSize} people`, image: photoSrc(c.photo), action: "View project", href: `/collaborate/projects/${c.id}` }));
   const studios: Card[] = STUDIOS.slice(0, 3).map((v) => ({ kind: "studio", id: `studio-${v.id}`, tag: "STUDIO VISIT", title: `${first(v.artist)}'s studio`, text: v.blurb, meta: `${v.place} · ${v.when}`, image: photoSrc(v.photo), action: "Request a visit", href: `/studios/${v.id}` }));
   const stories: Card[] = STORIES.slice(0, 3).map((s) => ({ kind: "story", id: `story-${s.id}`, tag: "STORY", title: s.title, text: s.excerpt, meta: `By ${PEOPLE[s.by]?.name ?? "a member"}`, image: photoSrc(s.photo), action: "Read story", href: `/stories/${s.id}` }));
   const events: Card[] = allActivities().sort((a, b) => dayDistance(a.when) - dayDistance(b.when)).slice(0, 3).map((a) => ({ kind: "event", id: `event-${a.circleId}-${a.id}`, tag: a.when.toUpperCase(), title: a.title, text: a.blurb, meta: `${a.where} · ${a.mode}`, image: photoSrc(a.photo), action: "View event", href: "/activities" }));

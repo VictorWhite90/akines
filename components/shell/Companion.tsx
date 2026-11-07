@@ -28,8 +28,8 @@ const INTENTIONS: Intention[] = [
     { title: "Things to do together", text: "Small, easy ways to meet people nearby.", meta: "This week", href: "/activities" },
   ] },
   { label: "I want to collaborate.", headline: "People and projects to build with.", items: [
-    { title: "Open calls", text: "Projects looking for someone with your skills.", meta: "Collaborate", href: "/collaborate" },
-    { title: "Post an open call", text: "Say what you are making and who you need.", meta: "Step by step", href: "/collaborate/new" },
+    { title: "Discover projects", text: "Projects looking for someone with your skills.", meta: "Collaborate", href: "/collaborate/discover" },
+    { title: "Start a project", text: "Say what you are making and who you need.", meta: "Step by step", href: "/collaborate/start" },
     { title: "Discover people", text: "People whose work complements yours.", meta: "Introductions", href: "/kindred" },
   ] },
   { label: "I want to meet someone new.", headline: "Someone new, for a good reason.", items: [
@@ -51,7 +51,7 @@ const INTENTIONS: Intention[] = [
     { title: "Stories", text: "From members, in their own words.", meta: "Read", href: "/stories" },
   ] },
   { label: "I want to offer help.", headline: "A way to be useful.", items: [
-    { title: "Open calls", text: "Projects that could use what you do.", meta: "Collaboration", href: "/collaborate" },
+    { title: "Opportunities", text: "Projects that could use what you do.", meta: "Collaboration", href: "/collaborate/opportunities" },
     { title: "Start a KinCircle", text: "Gather people around a shared purpose.", meta: "KinCircle", href: "/circles/new" },
   ] },
   { label: "I want quiet company.", headline: "Quiet company, close by.", items: [
@@ -63,7 +63,7 @@ const INTENTIONS: Intention[] = [
 const PLACES: Go[] = [
   { path: "/", label: "Community Home" }, { path: "/messages", label: "Messages" }, { path: "/banter", label: "Banter" },
   { path: "/circles", label: "KinCircle" }, { path: "/rooms", label: "Rooms" }, { path: "/activities", label: "Activities" },
-  { path: "/play", label: "Play Together" }, { path: "/collaborate", label: "Collaborate" }, { path: "/collaborate/new", label: "Post an open call" },
+  { path: "/play", label: "Play Together" }, { path: "/collaborate", label: "Collaborate" }, { path: "/collaborate/start", label: "Start a project" },
   { path: "/kindred", label: "Discover people" }, { path: "/studio", label: "My Studio" }, { path: "/store", label: "My Store" },
   { path: "/stories", label: "Stories" }, { path: "/studios", label: "Studio Visits" }, { path: "/wellbeing", label: "Wellbeing" },
   { path: "/journal", label: "My journal" }, { path: "/settings", label: "Settings" }, { path: "/signup", label: "Join Akines" }, { path: "/about", label: "About Akines" },

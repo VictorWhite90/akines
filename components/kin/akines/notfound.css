@@ -39,3 +39,5 @@
 .lb{display:none}
 @media(min-width:768px){.lb{display:inline}}
 @media(prefers-reduced-motion:no-preference){.nf__headline .w{animation:rise-sm 1.1s var(--ease-out) calc(.75s + var(--wi, 0) * 60ms) both}}
+/* Added: inside the app (a project or page that doesn't exist), the 404 covers the app header as their full-screen 404 does; Create AI stays above it. */
+.app .nf{position:fixed;inset:0;z-index:50;overflow-y:auto}
