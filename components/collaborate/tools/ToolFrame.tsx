@@ -1,0 +1,250 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { ChevronRight, CircleCheck, CloudOff, Eye, FileText, MessageSquare, Palette, PanelLeft, RefreshCw, RotateCcwClock, type LucideIcon } from "lucide-react";
+import Button, { IconButton } from "@/components/kin/Button";
+import { faceSrc } from "@/components/kin/home/parts";
+import { WORKSPACE_PAGES, type useWorkspace } from "@/lib/collab/workspace";
+import { accessOf, initialsOf, nameOf, presenceSummary, versionTime, type LivePerson, type Version } from "@/lib/collab/live";
+import { ME } from "@/lib/collab/me";
+import type { PersonId } from "@/lib/data/people";
+import "../styles/art-workspace.css";
+
+/*
+ * The frame both full-screen workspace tools share, mirrored from the product design (art-workspace.css, tw-):
+ * the top bar (project menu, breadcrumb, tool chip, title, save status, who is here, version history, comments,
+ * Share), its two popovers (the project menu and People in this workspace), the status banners and the version
+ * history list. The canvas and the document fill it (ArtWorkspace, ResearchWorkspace).
+ */
+
+export type Ws = ReturnType<typeof useWorkspace>;
+/** What the status pill says: saved, saving a change, offline, reconnecting, or a read-only preview. */
+export type ToolState = "saved" | "saving" | "lost" | "reconnecting" | "versionHistory";
+const STATUS: Record<ToolState, { tone: "saved" | "saving" | "lost" | "reconnecting" | "view"; label: string; icon: LucideIcon }> = {
+  saved: { tone: "saved", label: "All changes saved", icon: CircleCheck },
+  saving: { tone: "saving", label: "Saving changes", icon: RefreshCw },
+  lost: { tone: "lost", label: "Connection lost", icon: CloudOff },
+  reconnecting: { tone: "reconnecting", label: "Reconnecting", icon: RefreshCw },
+  versionHistory: { tone: "view", label: "View only", icon: Eye },
+};
+
+/** The design's icon: 16px by default, a 1.5 stroke that stays 1.5 at any size. */
+export function Ico({ icon: I, size = 16, className }: { icon: LucideIcon; size?: number; className?: string }) {
+  return <I size={size} strokeWidth={1.5} absoluteStrokeWidth className={className} aria-hidden="true" focusable="false" />;
+}
+
+/** A person's avatar with their live ring and dot. */
+export function LiveAvatar({ who, state }: { who: PersonId; state: LivePerson["state"] | "offline" }) {
+  const src = faceSrc(who);
+  return (
+    <span className="tw-av" data-state={state} title={nameOf(who)}>
+      {state !== "away" ? <span className="tw-av__ring" /> : null}
+      {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
+      <span className="tw-av__photo">{src ? <img src={src} alt="" loading="lazy" decoding="async" /> : <span className="tw-av__initials">{initialsOf(who)}</span>}</span>
+      {state !== "away" ? <span className="tw-av__dot" /> : null}
+    </span>
+  );
+}
+
+/** Saving: a change shows "Saving changes" for a moment, then "All changes saved". Offline shows "Connection lost". */
+export function useToolState() {
+  const [saving, setSaving] = useState(false);
+  const [net, setNet] = useState<"online" | "lost" | "reconnecting">("online");
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => {
+    const off = () => setNet("lost");
+    const on = () => { setNet("reconnecting"); window.setTimeout(() => setNet("online"), 1500); };
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the browser's connection when the tool opens
+    if (!navigator.onLine) setNet("lost");
+    window.addEventListener("offline", off);
+    window.addEventListener("online", on);
+    return () => { window.removeEventListener("offline", off); window.removeEventListener("online", on); clearTimeout(timer.current); };
+  }, []);
+  return {
+    net,
+    saving,
+    /** Show a change being saved. */
+    save: () => { setSaving(true); clearTimeout(timer.current); timer.current = setTimeout(() => setSaving(false), 1500); },
+    retry: () => { setNet("reconnecting"); window.setTimeout(() => setNet(navigator.onLine ? "online" : "lost"), 3000); },
+  };
+}
+
+function Status({ state }: { state: ToolState }) {
+  const s = STATUS[state];
+  return (
+    <span className="tw-status" data-tone={s.tone} role="status">
+      <Ico icon={s.icon} className="tw-status__icon" />
+      <span className="tw-status__label">{s.label}</span>
+    </span>
+  );
+}
+
+/** A popover under the top bar: focus moves in, Escape or a click outside closes it, focus returns. */
+export function Pop({ onClose, label, className, children }: { onClose: () => void; label: string; className?: string; children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const close = useRef(onClose);
+  useEffect(() => { close.current = onClose; });
+  useEffect(() => {
+    const back = document.activeElement as HTMLElement | null;
+    (ref.current?.querySelector<HTMLElement>('a[href], button:not([disabled]), [tabindex="0"]') ?? ref.current)?.focus({ preventScroll: true });
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close.current(); };
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("keydown", onKey); if (back && document.contains(back)) back.focus({ preventScroll: true }); };
+  }, []);
+  return (
+    <>
+      <div className="tw-scrim" onClick={onClose} aria-hidden="true" />
+      <div ref={ref} className={["tw-pop", className].filter(Boolean).join(" ")} role="dialog" aria-label={label} tabIndex={-1}>{children}</div>
+    </>
+  );
+}
+
+function ProjectMenu({ ws, onClose }: { ws: Ws; onClose: () => void }) {
+  return (
+    <Pop onClose={onClose} label="Project menu" className="tw-pop--menu">
+      <nav className="tw-menu" aria-label="Project workspace">
+        <p className="tw-menu__eyebrow">PROJECT WORKSPACE</p>
+        <ul className="tw-menu__list">
+          {WORKSPACE_PAGES.map((p, i) => {
+            const inner = <><span className="tw-menu__num">{String(i + 1).padStart(2, "0")}</span><span className="tw-menu__label">{p.label}</span></>;
+            return <li key={p.key}>{p.key === "workspace" ? <button type="button" className="tw-menu__item" aria-current="page" onClick={onClose}>{inner}</button> : <Link href={ws.href!(p.key)} className="tw-menu__item">{inner}</Link>}</li>;
+          })}
+        </ul>
+      </nav>
+    </Pop>
+  );
+}
+
+function PeoplePop({ ws, people, onClose }: { ws: Ws; people: LivePerson[]; onClose: () => void }) {
+  return (
+    <Pop onClose={onClose} label="People and access" className="tw-pop--people">
+      <div className="tw-people">
+        <header className="tw-people__head">
+          <h2 className="tw-people__title">People in this workspace</h2>
+          <p className="tw-people__sub">{presenceSummary(people)}</p>
+        </header>
+        <ul className="tw-people__list">
+          {people.map((p) => {
+            const access = accessOf(p.who, ws.project!.host);
+            return (
+              <li key={p.who} className="tw-person">
+                <LiveAvatar who={p.who} state={p.state} />
+                <span className="tw-person__who"><span className="tw-person__name">{nameOf(p.who) + (p.who === ME ? " (you)" : "")}</span><span className="tw-person__note">{p.note}</span></span>
+                <span className="tw-role" data-owner={access === "Owner" || undefined}>{access}</span>
+              </li>
+            );
+          })}
+        </ul>
+        <hr className="tw-people__rule" />
+        <footer className="tw-people__foot">
+          <p>Only the project owner can change who has access. Access follows the project team and its agreements.</p>
+          <Button variant="secondary" size="sm" href={ws.href!("team")}>Manage access</Button>
+        </footer>
+      </div>
+    </Pop>
+  );
+}
+
+type BannerKind = "reconnecting" | "lost" | "version";
+const BANNER: Record<BannerKind, { tone: "warning" | "error" | "info"; icon: LucideIcon; title: string; detail: string }> = {
+  reconnecting: { tone: "warning", icon: RefreshCw, title: "Reconnecting to the workspace", detail: "Hold on. You can keep working and nothing will be lost." },
+  lost: { tone: "error", icon: CloudOff, title: "Connection lost", detail: "Your changes are saved on this device. We will sync them when you are back online." },
+  version: { tone: "info", icon: RotateCcwClock, title: "", detail: "This is a preview. The current version is not changed until you restore." },
+};
+
+/** The banner over the work: offline, reconnecting, or previewing an older version. */
+export function Banner({ kind, title, className, onRetry, onBack, onRestore }: { kind: BannerKind; title?: string; className?: string; onRetry?: () => void; onBack?: () => void; onRestore?: () => void }) {
+  const b = BANNER[kind];
+  return (
+    <div className={["tw-banner", className].filter(Boolean).join(" ")} data-tone={b.tone} data-kind={kind} role={kind === "lost" ? "alert" : "status"}>
+      <Ico icon={b.icon} size={20} className="tw-banner__icon" />
+      <div className="tw-banner__text">
+        <p className="tw-banner__title">{title ?? b.title}</p>
+        <p className="tw-banner__detail">{b.detail}</p>
+      </div>
+      {kind === "lost" ? <div className="tw-banner__actions"><Button variant="secondary" size="sm" onClick={onRetry}>Try again</Button></div> : null}
+      {kind === "version" ? (
+        <div className="tw-banner__actions">
+          <Button variant="ghost" size="sm" onClick={onBack}>Back to current</Button>
+          <Button variant="primary" size="sm" onClick={onRestore}>Restore this version</Button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+export const bannerFor = (state: ToolState): BannerKind | null => (state === "lost" ? "lost" : state === "reconnecting" ? "reconnecting" : state === "versionHistory" ? "version" : null);
+/** "Viewing the version from yesterday, 16:20" */
+export const viewingTitle = (v: Version) => { const t = versionTime(v.at); return `Viewing the version from ${t.charAt(0).toLowerCase()}${t.slice(1)}`; };
+
+/** The version history list: the current version, then older ones to preview. */
+export function VersionList({ versions, selected, onSelect }: { versions: Version[]; selected?: string; onSelect: (v: Version) => void }) {
+  return (
+    <div className="tw-vh">
+      <header className="tw-vh__head">
+        <h2 className="tw-vh__title">Version history</h2>
+        <p className="tw-vh__sub">Pick a version to preview it</p>
+      </header>
+      <ul className="tw-vh__list">
+        {versions.map((v, i) => {
+          const inner = (
+            <>
+              <i className="tw-vh__dot" aria-hidden="true" />
+              <span className="tw-vh__text"><span className="tw-vh__time">{versionTime(v.at)}</span><span className="tw-vh__detail">{nameOf(v.who)}, {v.what}</span></span>
+              {i === 0 ? <span className="tw-vh__current">Current</span> : null}
+            </>
+          );
+          return (
+            <li key={v.id}>
+              {i === 0 ? <div className="tw-vh__row" data-state="current">{inner}</div> : <button type="button" className="tw-vh__row" data-state={v.id === selected ? "selected" : "default"} aria-pressed={v.id === selected} onClick={() => onSelect(v)}>{inner}</button>}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+/** The full-screen tool: top bar and popovers around the tool's body. */
+export function ToolFrame({ ws, kind, state, title, people, history, onHistory, comments, onComments, children, overlays }: {
+  ws: Ws; kind: "art" | "research"; state: ToolState; title: string; people: LivePerson[];
+  /** Version history is open. */ history: boolean; onHistory: () => void;
+  /** The comments control: pressed when the comments are showing. */ comments: boolean; onComments: () => void;
+  children: React.ReactNode; overlays?: React.ReactNode;
+}) {
+  const [menu, setMenu] = useState(false);
+  const [who, setWho] = useState(false);
+  const shown = people.filter((p) => p.state !== "away");
+  const avatars = shown.slice(0, 3);
+  const more = people.length - avatars.length;
+  return (
+    <div className="tw-ws" data-kind={kind} data-state={state}>
+      <header className="tw-top">
+        <IconButton label="Project menu" size="sm" variant="ghost" onClick={() => setMenu((o) => !o)} aria-haspopup="menu" aria-expanded={menu} className="tw-top__menu"><Ico icon={PanelLeft} /></IconButton>
+        <nav className="tw-crumb" aria-label="Breadcrumb">
+          <span className="tw-crumb__project">{ws.project!.title}</span>
+          <Ico icon={ChevronRight} className="tw-crumb__sep" />
+          <span className="tw-crumb__here" aria-current="page">Workspace</span>
+        </nav>
+        <span className="tw-chip"><Ico icon={kind === "research" ? FileText : Palette} /><span>{kind === "research" ? "Research Workspace" : "Digital Art Workspace"}</span></span>
+        <div className="tw-title">
+          <h1 className="tw-title__text">{title}</h1>
+          <Status state={state} />
+        </div>
+        <div className="tw-actions">
+          <button type="button" className="tw-presence" onClick={() => setWho((o) => !o)} aria-haspopup="dialog" aria-expanded={who} aria-label={`People in this workspace, ${shown.length} here now`}>
+            {avatars.map((p) => <LiveAvatar key={p.who} who={p.who} state={p.state} />)}
+            {more > 0 ? <span className="tw-presence__more">+{more}</span> : null}
+          </button>
+          <IconButton label="Version history" size="sm" variant="ghost" onClick={onHistory} aria-pressed={history}><Ico icon={RotateCcwClock} /></IconButton>
+          <IconButton label="Comments" size="sm" variant="ghost" onClick={onComments} aria-pressed={comments}><Ico icon={MessageSquare} /></IconButton>
+          <Button variant="primary" size="sm" onClick={() => setWho((o) => !o)} aria-haspopup="dialog">Share</Button>
+        </div>
+      </header>
+      {children}
+      {menu ? <ProjectMenu ws={ws} onClose={() => setMenu(false)} /> : null}
+      {who ? <PeoplePop ws={ws} people={people} onClose={() => setWho(false)} /> : null}
+      {overlays}
+    </div>
+  );
+}
