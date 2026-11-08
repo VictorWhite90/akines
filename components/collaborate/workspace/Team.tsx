@@ -9,13 +9,14 @@ import { toast } from "@/components/kin/Toast";
 import { faceSrc } from "@/components/kin/home/parts";
 import { ME } from "@/lib/collab/me";
 import { useNextSession } from "@/lib/collab/session";
-import { skillsOf, useTeam, type JoinRequest } from "@/lib/collab/team";
+import { skillsOf, useTeam } from "@/lib/collab/team";
 import { AVAILABILITY_TEXT, useWorkspace, workspaceHref, type Availability } from "@/lib/collab/workspace";
 import type { Project } from "@/lib/collab/types";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { cn } from "@/lib/cn";
 import { Dot, PageHead, WorkspaceFrame } from "./Frame";
 import { Band, Metric, Metrics } from "./blocks";
+import { InterestBand, useInterestRequests } from "./InterestRequests";
 import { CwLink, IconUpRight } from "./parts";
 import "../styles/team.css";
 
@@ -23,7 +24,7 @@ import "../styles/team.css";
  * The project workspace's Team page, mirrored from the product design (classes pt-* in ../styles/team.css):
  * the head with members and interest requests, each request with Accept and Not now, the member cards, the
  * member panel (cd-member), and the invite and not-now dialogs. Members come from the project (useWorkspace);
- * requests and invitations from lib/collab/team.
+ * interest requests from ./InterestRequests (the call's applications) and invitations from lib/collab/team.
  */
 
 const NUM = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve"];
@@ -136,35 +137,6 @@ function MemberCard({ m, wide, onOpen }: { m: TeamPerson; wide: boolean; onOpen:
   );
 }
 
-const sentOn = (at: number) => `Interest sent ${new Date(at).toLocaleDateString("en-GB", { day: "numeric", month: "long" })}`;
-
-function RequestCard({ r, onAccept, onNotNow }: { r: JoinRequest; onAccept: () => void; onNotNow: () => void }) {
-  const name = PEOPLE[r.person]?.name ?? "Someone";
-  const photo = faceSrc(r.person, 112);
-  return (
-    <article className="pt-req" aria-label={`Interest request from ${name}`}>
-      <div className="pt-req__top">
-        <div className="pt-req__person">
-          {/* eslint-disable-next-line @next/next/no-img-element -- their face */}
-          <span className="pt-photo" style={{ "--pt-ph": "56px" } as React.CSSProperties} aria-hidden>{photo ? <img src={photo} alt="" width={56} height={56} loading="lazy" decoding="async" /> : null}</span>
-          <div className="pt-req__text"><h3 className="pt-req__name">{name}</h3><p className="pt-req__role">{r.role}</p></div>
-        </div>
-        <p className="pt-req__sent">{sentOn(r.sentAt)}</p>
-      </div>
-      <SkillList labels={skillsOf(r.person).map((label) => ({ label }))} />
-      <div className="pt-rule" aria-hidden />
-      <div className="pt-req__fields">
-        <div className="pt-req__field"><p className="cw-over cw-over--12">WANTS TO JOIN AS</p><p className="pt-req__value">{r.wants}</p></div>
-        <div className="pt-req__field pt-req__field--grow"><p className="cw-over cw-over--12">MESSAGE</p><p className="pt-req__value pt-req__value--msg">{r.message}</p></div>
-      </div>
-      <div className="pt-req__actions">
-        <Button size="sm" onClick={onAccept}>Accept</Button>
-        <Button size="sm" variant="secondary" onClick={onNotNow} aria-haspopup="dialog">Not now</Button>
-      </div>
-    </article>
-  );
-}
-
 function InviteModal({ open, onClose, onSend }: { open: boolean; onClose: () => void; onSend: (v: { to: string; role: string; message: string }) => void }) {
   const [to, setTo] = useState(""), [role, setRole] = useState(""), [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -182,37 +154,16 @@ function InviteModal({ open, onClose, onSend }: { open: boolean; onClose: () => 
   );
 }
 
-function NotNowModal({ open, name, onClose, onSend }: { open: boolean; name: string; onClose: () => void; onSend: (message: string) => void }) {
-  const [message, setMessage] = useState("");
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- a fresh form each time it opens
-  useEffect(() => { if (open) setMessage(""); }, [open]);
-  const first = name.split(" ")[0];
-  return (
-    <Modal open={open} onClose={onClose} width={640} eyebrow="NOT NOW" title={`Reply to ${first}?`} description={`This is not a no. ${first} will see that now is not the right time.`} footer={<><Button type="submit" form="pt-notnow-form">Send</Button><CwLink onClick={onClose}>Cancel</CwLink></>}>
-      <form id="pt-notnow-form" className="cw-form pt-form" onSubmit={(e) => { e.preventDefault(); onSend(message); }} noValidate>
-        <Field label="To" hint="They will see your reply."><Input className="pt-filled" value={name} readOnly /></Field>
-        <Field label="Message" hint="Optional."><Input className={filled(message)} value={message} placeholder="For example, We are not adding anyone just yet." onChange={(e) => setMessage(e.target.value)} /></Field>
-      </form>
-    </Modal>
-  );
-}
-
 export default function Team({ projectId }: { projectId: string }) {
   const { ws, team, people } = useTeamPeople(projectId);
   const [inviteOpen, setInviteOpen] = useState(false);
-  const [notNow, setNotNow] = useState<JoinRequest | null>(null);
   const [panel, setPanel] = useState<TeamPerson | null>(null);
+  const ir = useInterestRequests({ callId: ws.project?.callId, projectId });
   if (!ws.project) return null;
   const empty = people.length <= 1;
-  const pending = team.pending;
+  const pending = ir.requests;
   const me = people.find((x) => x.id === ME);
 
-  const accept = (r: JoinRequest) => {
-    team.accept(r.id);
-    const name = PEOPLE[r.person]?.name ?? "They";
-    toast.show({ message: `Request accepted. ${name} is on the team.`, actionLabel: "Undo", duration: TOAST_MS, onAction: () => team.reopen(r.id) });
-  };
-  const confirmation = !pending.length && team.latest ? (team.latest.status === "accepted" ? `${PEOPLE[team.latest.person]?.name} joined the team as ${team.latest.wants}.` : `Response sent to ${PEOPLE[team.latest.person]?.name}.`) : null;
 
   return (
     <WorkspaceFrame projectId={projectId} active="team" rail={empty ? "short" : "full"}>
@@ -234,10 +185,7 @@ export default function Team({ projectId }: { projectId: string }) {
           </div>
         ) : (
           <>
-            <Band label="INTEREST REQUESTS" title={pending.length ? (pending.length === 1 ? "One person would like to join." : `${num(pending.length)} people would like to join.`) : "No requests waiting."} support={pending.length ? "People who pressed Express interest on this project. You decide who joins." : "When someone expresses interest in joining, you will see it here."}>
-              {pending.map((r) => <RequestCard key={r.id} r={r} onAccept={() => accept(r)} onNotNow={() => setNotNow(r)} />)}
-              {confirmation ? <p className="pt-confirm"><Dot tone="green" size={8} /><span>{confirmation}</span></p> : null}
-            </Band>
+            <InterestBand ir={ir} />
             <Band label="TEAM MEMBERS" title={`${num(people.length)} people, one project.`} support="Availability is shown only when a member chooses to share it.">
               <ul className="pt-grid">
                 {people.map((m, i) => <li key={m.id}><MemberCard m={m} wide={people.length % 2 === 1 && i === people.length - 1} onOpen={() => setPanel(m)} /></li>)}
@@ -250,13 +198,6 @@ export default function Team({ projectId }: { projectId: string }) {
         setInviteOpen(false);
         const inv = team.invite(v);
         toast.show({ message: "Invitation sent. You will see their reply here.", actionLabel: "Undo", duration: TOAST_MS, onAction: () => team.uninvite(inv.id) });
-      }} />
-      <NotNowModal open={!!notNow} name={notNow ? PEOPLE[notNow.person]?.name ?? "" : ""} onClose={() => setNotNow(null)} onSend={(message) => {
-        if (!notNow) return;
-        const r = notNow;
-        setNotNow(null);
-        team.notNow(r.id, message);
-        toast.show({ message: `Response sent. ${PEOPLE[r.person]?.name} will see it.`, actionLabel: "Undo", duration: TOAST_MS, onAction: () => team.reopen(r.id) });
       }} />
       <MemberPanel projectId={projectId} person={panel} open={!!panel} onClose={() => setPanel(null)} />
     </WorkspaceFrame>

@@ -9,6 +9,8 @@ import { toast } from "@/components/kin/Toast";
 import { conversationSlots, useCollab } from "@/lib/collab/useCollab";
 import { discoverProject, firstOf, fitOf, sentWhen, type DiscoverProject } from "@/lib/collab/projects";
 import type { Application } from "@/lib/collab/types";
+import { ME } from "@/lib/collab/me";
+import { HostInterest } from "@/components/collaborate/workspace/InterestRequests";
 import { Back, Bar, GlancePanel, InterestPanel, Item, Match, PageState, PrivacyPanel, SaveButton, Section, SkelSection, SkelSide, StageLine, Status, Tags, TeamMemberRow, memberHref, pageStatus } from "./parts";
 
 /*
@@ -16,7 +18,8 @@ import { Back, Bar, GlancePanel, InterestPanel, Item, Match, PageState, PrivacyP
  * needs, its team, progress and way of working, and why it may fit you; beside it, Express interest or your interest
  * as it stands, at a glance and what you are seeing. The project is an open call; interest is an application.
  * A closed call (past its closing date) gets the design's closed page. Older links here to a project's workspace
- * go on to My Projects.
+ * go on to My Projects. The host also sees who has expressed interest (the Team page's INTEREST REQUESTS band),
+ * so a call with no workspace yet still has a place to answer people.
  */
 
 const glance = (p: DiscoverProject) => [
@@ -80,6 +83,8 @@ export default function ProjectPage({ id }: { id: string }) {
     toast.show({ message: "Interest withdrawn.", actionLabel: "Undo", onAction: () => { void collab.apply({ callId: a.callId, role: a.role, works: a.works, links: a.links, files: a.files, statement: a.statement, availability: a.availability, materials: a.materials }); } });
   };
   const ownerMember = p.team[0];
+  // The host answers interest here rather than sending it.
+  const host = call.host === ME || !!call.postedByMe;
 
   return (
     <div className="dsc-page">
@@ -96,6 +101,7 @@ export default function ProjectPage({ id }: { id: string }) {
               <Tags tags={p.skillTags} label="Skills needed" />
             </div>
           </header>
+          {host ? <HostInterest callId={call.id} projectId={collab.projects.find((x) => x.callId === call.id)?.id} /> : null}
           <Section title="About the project"><p className="dsc-body">{p.about}</p></Section>
           <Section title="What the project needs"><div className="dsc-items">{p.needs.map((n) => <Item key={n.title} title={n.title} detail={n.detail} />)}</div></Section>
           <Section title="The team so far"><div className="dsc-members">{p.team.map((m) => <TeamMemberRow key={m.id} initials={m.initials} name={m.name} role={m.role} href={memberHref(m.id, p.id)} />)}</div></Section>
@@ -104,7 +110,7 @@ export default function ProjectPage({ id }: { id: string }) {
           <Section title="Why this may fit you"><Match sentence={fitOf(p, saved)} /></Section>
         </div>
         <aside className="dsc-detail__side" aria-label="Project actions">
-          {app ? <YourInterest app={app} owner={owner} saved={saved} onSave={save} onWithdraw={() => setWithdrawing(true)} /> : <InterestPanel interestHref={`/collaborate/projects/${encodeURIComponent(p.id)}/interest`} saved={saved} onSave={save} />}
+          {app ? <YourInterest app={app} owner={owner} saved={saved} onSave={save} onWithdraw={() => setWithdrawing(true)} /> : host ? null : <InterestPanel interestHref={`/collaborate/projects/${encodeURIComponent(p.id)}/interest`} saved={saved} onSave={save} />}
           <GlancePanel rows={glance(p)} />
           <PrivacyPanel text="The project summary and what the owner chose to share. Private details stay private." />
         </aside>
