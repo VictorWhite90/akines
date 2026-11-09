@@ -6,28 +6,32 @@ import { Field, Input } from "@/components/kin/Field";
 import { Modal } from "@/components/kin/Overlay";
 import { toast } from "@/components/kin/Toast";
 import { faceSrc } from "@/components/kin/home/parts";
-import { DEMO } from "@/lib/demo/mode";
 import { fileSize, linkLook } from "@/lib/collab/proof";
-import { skillsOf, useTeam } from "@/lib/collab/team";
+import { skillsOf } from "@/lib/collab/team";
+import { useApplicants } from "@/lib/collab/applicants";
 import { useCollab } from "@/lib/collab/useCollab";
 import type { AppStage, ProofFile, ProofLink } from "@/lib/collab/types";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { cn } from "@/lib/cn";
 import { Band } from "./blocks";
+import { InterestRequestsBand } from "../applicants/band";
 import { CwLink, Dot } from "./parts";
 import "../styles/pages.css";
 import "../styles/team.css";
+import "../styles/applicants.css";
 
 /*
  * Interest requests, as the design's Team page shows them (pt-req in ../styles/team.css): people who pressed
  * Express interest, with what they want to do and what they said, and the owner's Accept and Not now.
  * Interest is an application to the project's open call (useCollab `apps`), so these are the call's open
  * applications: Accept sends an offer (they join when they accept it), Not now lets them know with the owner's
- * message. Both can be undone from the toast. Demo projects without a call show lib/collab/team's seeded requests.
- * Used by the workspace Team page and, for a call with no workspace yet, by the host's view of the project page.
+ * message. Both can be undone from the toast. Projects without a call read the applications sent to them
+ * (lib/collab/applicants, the same list as the Applicants page). Each card has the design's Review link to that page.
+ * Used by the workspace Team page; the host's view of a project page shows the Overview's band (../applicants/band).
  */
 
-const OPEN: AppStage[] = ["submitted", "viewed", "shortlisted", "conversation"];
+// Waiting for an answer: New on the Applicants page. Shortlisted people are taken further there.
+const OPEN: AppStage[] = ["submitted", "viewed"];
 const NUM = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve"];
 const TOAST_MS = 2500;
 const filled = (v: string) => (v.trim() ? "pt-filled" : undefined);
@@ -48,65 +52,48 @@ export type InterestRequest = {
   files: ProofFile[];
   sentAt: number;
   appId?: string;
-  seedId?: string;
 };
 
-/** The open requests for a project (by its call, or its seeded demo requests), and what the owner can do. */
+/** The open requests for a project (its call's applications, or the ones sent to it: lib/collab/applicants), and what the owner can do. */
 export function useInterestRequests({ callId, projectId }: { callId?: string; projectId?: string }) {
+  const review = useApplicants({ callId, projectId });
   const collab = useCollab();
-  const team = useTeam(projectId ?? "");
   const apps = useMemo(() => (callId ? collab.apps.filter((a) => a.callId === callId) : []), [collab.apps, callId]);
-  const seeded = DEMO && !!projectId && apps.length === 0;
+  const proof = (id: string) => apps.find((a) => a.id === id);
 
-  const requests = useMemo<InterestRequest[]>(() => {
-    if (seeded) return team.pending.map((r) => ({ key: r.id, person: r.person, role: r.role, wants: r.wants, message: r.message, links: [], files: [], sentAt: r.sentAt, seedId: r.id }));
-    return apps.filter((a) => OPEN.includes(a.stage)).sort((a, b) => (b.history[0]?.at ?? 0) - (a.history[0]?.at ?? 0)).map((a) => ({
-      key: a.id, person: a.applicant, role: PEOPLE[a.applicant]?.role ?? "", wants: a.role, message: a.statement, availability: a.availability,
-      links: a.links ?? [], files: a.files ?? [], sentAt: a.history[0]?.at ?? 0, appId: a.id,
-    }));
-  }, [seeded, team.pending, apps]);
+  const requests = useMemo<InterestRequest[]>(() => review.list.filter((a) => OPEN.includes(a.stage)).sort((a, b) => b.appliedAt - a.appliedAt).map((a) => ({
+    key: a.id, person: a.person, role: a.role, wants: a.wants, message: a.message, availability: a.availability,
+    links: proof(a.id)?.links ?? [], files: proof(a.id)?.files ?? [], sentAt: a.appliedAt, appId: a.id,
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- proof reads apps
+  })), [review.list, apps]);
 
   /** The latest answer the owner gave, for the line under the band once nobody is waiting. */
   const latest = useMemo(() => {
-    if (seeded) return team.latest ? { person: team.latest.person, wants: team.latest.wants, accepted: team.latest.status === "accepted" } : null;
-    const answered = apps.filter((a) => a.stage === "offer" || a.stage === "joined" || a.stage === "not-selected").sort((a, b) => (b.history.at(-1)?.at ?? 0) - (a.history.at(-1)?.at ?? 0))[0];
-    return answered ? { person: answered.applicant, wants: answered.role, accepted: answered.stage !== "not-selected", joined: answered.stage === "joined" } : null;
-  }, [seeded, team.latest, apps]);
+    const answered = review.list.filter((a) => a.status === "Offer sent" || a.status === "Joined" || a.status === "Not now").sort((a, b) => b.appliedAt - a.appliedAt)[0];
+    return answered ? { person: answered.person, wants: answered.wants, accepted: answered.status !== "Not now", joined: answered.status === "Joined" } : null;
+  }, [review.list]);
 
   // Seeing a new application counts as opening it: the applicant's status moves on to "viewed".
-  const unseen = apps.filter((a) => a.stage === "submitted").map((a) => a.id).join(",");
+  const unseen = review.list.filter((a) => a.stage === "submitted").map((a) => a.id).join(",");
   useEffect(() => {
     if (!unseen) return;
-    for (const id of unseen.split(",")) collab.setAppStage(id, "viewed", { note: "You opened the application." });
+    for (const id of unseen.split(",")) review.view(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per newly seen application
   }, [unseen]);
 
-  const stageOf = (appId: string) => collab.apps.find((a) => a.id === appId)?.stage;
   return {
     requests,
     latest,
     accept: (r: InterestRequest) => {
       const name = nameOf(r.person);
-      if (r.seedId) {
-        team.accept(r.seedId);
-        toast.show({ message: `Request accepted. ${name} is on the team.`, actionLabel: "Undo", duration: TOAST_MS, onAction: () => team.reopen(r.seedId!) });
-        return;
-      }
-      const before = stageOf(r.appId!);
-      collab.setAppStage(r.appId!, "offer", { note: `You offered them the ${r.wants} role.` });
-      toast.show({ message: `Request accepted. ${name} joins when they accept.`, actionLabel: "Undo", duration: TOAST_MS, onAction: () => { if (before && stageOf(r.appId!) === "offer") collab.setAppStage(r.appId!, before, { note: "You took the offer back." }); } });
+      const before = review.list.find((a) => a.id === r.appId)?.stage;
+      review.sendOffer(r.appId!, { role: r.wants, hours: "", start: "", note: "" });
+      toast.show({ message: `Request accepted. ${name} joins when they accept.`, actionLabel: "Undo", duration: TOAST_MS, onAction: () => { if (before) review.restore(r.appId!, before); } });
     },
     notNow: (r: InterestRequest, message: string) => {
       const name = nameOf(r.person);
-      if (r.seedId) {
-        team.notNow(r.seedId, message);
-      } else {
-        const before = stageOf(r.appId!);
-        collab.setAppStage(r.appId!, "not-selected", { feedback: message.trim() || `Thank you, ${name.split(" ")[0]}. Now is not the right time for us to add someone.`, note: "You let them know: not now." });
-        toast.show({ message: `Response sent. ${name} will see it.`, actionLabel: "Undo", duration: TOAST_MS, onAction: () => { if (before) collab.setAppStage(r.appId!, before, { note: "You took your reply back." }); } });
-        return;
-      }
-      toast.show({ message: `Response sent. ${name} will see it.`, actionLabel: "Undo", duration: TOAST_MS, onAction: () => team.reopen(r.seedId!) });
+      const before = review.notNow(r.appId!, message);
+      toast.show({ message: `Response sent. ${name} will see it.`, actionLabel: "Undo", duration: TOAST_MS, onAction: () => { if (before) review.restore(r.appId!, before); } });
     },
   };
 }
@@ -174,7 +161,7 @@ function NotNowModal({ open, name, onClose, onSend }: { open: boolean; name: str
 }
 
 /** The INTEREST REQUESTS band: who is waiting, or the owner's latest answer. */
-export function InterestBand({ ir }: { ir: ReturnType<typeof useInterestRequests> }) {
+export function InterestBand({ ir, reviewHref }: { ir: ReturnType<typeof useInterestRequests>; reviewHref?: string }) {
   const [notNow, setNotNow] = useState<InterestRequest | null>(null);
   const n = ir.requests.length;
   const l = ir.latest;
@@ -182,7 +169,13 @@ export function InterestBand({ ir }: { ir: ReturnType<typeof useInterestRequests
   return (
     <>
       <Band label="INTEREST REQUESTS" title={n ? (n === 1 ? "One person would like to join." : `${NUM[n] ?? n} people would like to join.`) : "No requests waiting."} support={n ? "People who pressed Express interest on this project. You decide who joins." : "When someone expresses interest in joining, you will see it here."}>
-        {ir.requests.map((r) => <RequestCard key={r.key} r={r} onAccept={() => ir.accept(r)} onNotNow={() => setNotNow(r)} />)}
+        {ir.requests.map((r) => reviewHref ? (
+          // Review sits at the right of Accept and Not now and opens the Applicants page
+          <div className="ap-reqwrap" key={r.key}>
+            <RequestCard r={r} onAccept={() => ir.accept(r)} onNotNow={() => setNotNow(r)} />
+            <CwLink className="ap-reqwrap__review" href={reviewHref}>Review<span className="sr-only"> {nameOf(r.person)}</span></CwLink>
+          </div>
+        ) : <RequestCard key={r.key} r={r} onAccept={() => ir.accept(r)} onNotNow={() => setNotNow(r)} />)}
         {confirmation ? <p className="pt-confirm"><Dot tone="green" size={8} /><span>{confirmation}</span></p> : null}
       </Band>
       <NotNowModal open={!!notNow} name={notNow ? nameOf(notNow.person) : ""} onClose={() => setNotNow(null)} onSend={(message) => { const r = notNow; setNotNow(null); if (r) ir.notNow(r, message); }} />
@@ -190,8 +183,7 @@ export function InterestBand({ ir }: { ir: ReturnType<typeof useInterestRequests
   );
 }
 
-/** The band on its own, for the host's view of a project page (an open call that may have no workspace yet). */
+/** The host's view of a project page: the Interest requests band of the Overview, opening the call's applicants (or its project's, once it has one). */
 export function HostInterest({ callId, projectId }: { callId: string; projectId?: string }) {
-  const ir = useInterestRequests({ callId, projectId });
-  return <InterestBand ir={ir} />;
+  return <InterestRequestsBand callId={callId} href={projectId ? `/collaborate/my-projects/${projectId}/applicants` : `/collaborate/open-calls/${callId}`} />;
 }

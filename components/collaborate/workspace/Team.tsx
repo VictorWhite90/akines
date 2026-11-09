@@ -19,6 +19,7 @@ import { Band, Metric, Metrics } from "./blocks";
 import { InterestBand, useInterestRequests } from "./InterestRequests";
 import { CwLink, IconUpRight } from "./parts";
 import "../styles/team.css";
+import "../styles/applicants.css";
 
 /*
  * The project workspace's Team page, mirrored from the product design (classes pt-* in ../styles/team.css):
@@ -171,7 +172,7 @@ export default function Team({ projectId }: { projectId: string }) {
         <PageHead label="TEAM" title="The people behind the work." lead="Understand the strengths, roles and contributions that bring this project together.">
           <Metrics>
             <Metric label="MEMBERS" value={people.length} caption={people.length === 1 ? "just you" : "people"} />
-            <Metric label="INTEREST REQUESTS" value={pending.length} caption={pending.length ? "waiting" : "none waiting"} dot={pending.length > 0} />
+            <Metric label="INTEREST REQUESTS" value={pending.length} caption={pending.length ? "waiting" : "none waiting"} dot={pending.length > 0} href={`${workspaceHref(projectId)}/applicants`} />
           </Metrics>
           <div className="cw-actions cw-actions--btns">
             <Button onClick={() => setInviteOpen(true)} aria-haspopup="dialog">Invite collaborator</Button>
@@ -185,7 +186,7 @@ export default function Team({ projectId }: { projectId: string }) {
           </div>
         ) : (
           <>
-            <InterestBand ir={ir} />
+            <InterestBand ir={ir} reviewHref={`${workspaceHref(projectId)}/applicants`} />
             <Band label="TEAM MEMBERS" title={`${num(people.length)} people, one project.`} support="Availability is shown only when a member chooses to share it.">
               <ul className="pt-grid">
                 {people.map((m, i) => <li key={m.id}><MemberCard m={m} wide={people.length % 2 === 1 && i === people.length - 1} onOpen={() => setPanel(m)} /></li>)}

@@ -13,6 +13,7 @@ import { Card, Metric, Metrics } from "./blocks";
 import { PageHead, WorkspaceFrame } from "./Frame";
 import { CwLink, Dot, IconArrow, IconCheck, IconUpRight } from "./parts";
 import { useNeedsReview } from "./Rail";
+import { InterestRequestsBand } from "../applicants/band";
 import "../styles/overview.css";
 
 /*
@@ -174,6 +175,8 @@ export default function Overview({ projectId }: { projectId: string }) {
           <Metric label="TO REVIEW" value={toReview} caption={toReview ? (toReview === 1 ? "needs you" : "need you") : "all clear"} dot={toReview > 0} href={`${base}/tasks`} />
           <Metric label="DECISIONS" value={toDecide} caption={toDecide ? "to make" : "none waiting"} dot={toDecide > 0} href={`${base}/decisions`} />
         </Metrics>
+        {/* Interest requests (Figma 02b) sit between the metric cards and Project progress */}
+        <InterestRequestsBand projectId={p.id} callId={p.callId} href={`${base}/applicants`} />
         {ms.length ? <Card title="PROJECT PROGRESS" id="progress"><Stages stages={stagesOf(p, ms, doneAt)} /></Card> : null}
         <div className="cd-pair">
           <Link href={`${base}/tasks/board`} className="cd-card ov-linkcard" data-m="up">

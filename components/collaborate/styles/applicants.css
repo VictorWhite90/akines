@@ -1,0 +1,1059 @@
+/* Host review of applicants and open calls (12.45, 12.46): ported verbatim from the product design's applicants.css (classes ap-*). */
+/*
+ * Host side of reviewing applicants: 12.45 REVIEW APPLICANTS (Career Guidance for Everyone) and 12.46 OPEN CALL REVIEW (Mapping the Market Road),
+ * plus the Interest requests band of the Overview pages. Every class is prefixed ap-. Values come from the Figma components Applicant Row
+ * (17972:144941), Applicant Filter (17972:143702), Compare Bar (17972:143603), Compare Table (17972:156966), Applicant Detail (17972:147955),
+ * Private Note (17972:143738), Propose Times Form (17974:154002), Send Offer Form (17974:154190), Call Header (17972:143043), Call Row (17972:143099)
+ * and Request Card (17972:140787). Colours are the tokens of app-tokens.css. Hover effects live inside @media (hover: hover).
+ */
+
+.ap-page,
+.ap-page *,
+.ap-wide,
+.ap-wide *,
+.ap-band,
+.ap-band *,
+.ap-slide,
+.ap-slide *,
+.ap-form,
+.ap-form * {
+  box-sizing: border-box;
+}
+
+/* ------------------------------------------------------------------ page frames */
+/* 12.45: the centre column of the wide project frame (1088), sections 40 apart */
+.ap-page {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  min-width: 0;
+}
+/* 12.46: no project frame, a 1384 column under the app header, 40 apart (the list of calls is 48) */
+.ap-wide {
+  max-width: 1512px;
+  margin: 0 auto;
+  padding: 72px 64px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  min-width: 0;
+}
+.ap-wide--list {
+  gap: 48px;
+}
+.ap-wide > * {
+  min-width: 0;
+}
+.ap-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+.ap-title {
+  margin: 0;
+  font: 400 48px/1.2 var(--font-serif);
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+.ap-lead {
+  margin: 0;
+  font: 400 18px/1.6 var(--font-sans);
+  color: var(--text-secondary);
+}
+.ap-summary {
+  margin: 0;
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+/* a filter chip whose group has no one (assumed copy) */
+.ap-none {
+  margin: 0;
+  font: 400 16px/1.6 var(--font-sans);
+  color: var(--text-secondary);
+}
+.ap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ap-list > li {
+  display: block;
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------------ Applicant Filter */
+.ap-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ap-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  background: var(--surface-default);
+  color: var(--text-primary);
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.3s ease-out,
+    background-color 0.3s ease-out,
+    box-shadow 0.3s ease-out,
+    scale 0.35s var(--ease-out);
+}
+@media (hover: hover) {
+  .ap-chip:hover {
+    border-color: var(--text-primary);
+  }
+}
+.ap-chip:active {
+  scale: 0.97;
+}
+/* selected: amber ground and a 1.5 px amber edge */
+.ap-chip[aria-pressed='true'] {
+  background: var(--surface-secondary-subtle);
+  border-color: var(--border-akines-secondary);
+  box-shadow: inset 0 0 0 0.5px var(--border-akines-secondary);
+}
+.app .ap-chip:focus-visible {
+  border-radius: 999px;
+}
+/* 12.46: chips on the left, Close call on the right */
+.ap-filterrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* ------------------------------------------------------------------ Applicant Row (Default, Hover, Pressed, Focus, Selected) */
+.ap-portrait {
+  flex: none;
+  display: inline-block;
+  width: var(--ap-p, 56px);
+  height: var(--ap-p, 56px);
+  overflow: hidden;
+  border: 1px solid var(--border-default);
+  border-radius: 50%;
+  background: var(--surface-muted);
+}
+.ap-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+}
+.ap-row {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  transition:
+    border-color 0.15s ease-out,
+    background-color 0.15s ease-out,
+    box-shadow 0.15s ease-out;
+}
+@media (hover: hover) {
+  .ap-row:hover {
+    border-color: var(--border-strong);
+  }
+}
+/* Pressed (a press on a control of the row only presses the control) */
+.ap-row:active:not(:has(.k-btn:active, .k-check:active, .cw-link:not(.ap-row__view--go):active)) {
+  background: var(--surface-subtle);
+  border-color: var(--border-strong);
+}
+/* Focus: the View applicant control has focus, the row shows the Focus variant */
+.ap-row:has(.ap-row__view--go:focus-visible) {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
+}
+/* Selected: the compare box is ticked, a 2 px edge that counts in the layout (the frame is 2 px taller than the default row) */
+.ap-row[data-selected] {
+  border-width: 2px;
+  border-color: var(--border-strong);
+}
+/* Not now: grey ground, the person and the facts dimmed */
+.ap-row[data-status='Not now'] {
+  background: var(--surface-subtle);
+}
+.ap-row[data-status='Not now'] .ap-row__top,
+.ap-row[data-status='Not now'] .ap-row__fields {
+  opacity: 0.55;
+}
+.ap-row__top {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.ap-row__who {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ap-row__name {
+  margin: 0;
+  font: 400 24px/1.4 var(--font-serif);
+  color: var(--text-primary);
+}
+.ap-row__sub {
+  margin: 0;
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+/* the compare box and its word (the kit Checkbox, label in secondary grey); above the stretched View link */
+.ap-row__tick {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  align-items: center;
+  gap: 12px;
+}
+.ap-row__tick .k-check__box {
+  margin-top: 0;
+}
+.ap-row__tick .k-check__text {
+  padding-top: 0;
+}
+.ap-row__tick .k-check__label {
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+.ap-row__rule {
+  height: 1px;
+  background: var(--border-subtle);
+}
+.ap-row__fields {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+}
+.ap-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.ap-field--wants {
+  flex: none;
+  width: 240px;
+}
+.ap-field--avail {
+  flex: none;
+  width: 220px;
+}
+.ap-field--message {
+  flex: 1;
+}
+.ap-field .cw-over {
+  line-height: 19.2px;
+}
+.ap-field__value {
+  margin: 0;
+  font: 400 16px/26px var(--font-sans);
+  color: var(--text-primary);
+}
+.ap-row__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 30px;
+}
+.ap-row__actions .k-btn {
+  position: relative;
+  z-index: 1;
+}
+.ap-row__info {
+  margin: 0;
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+/* View applicant: a control that stretches over the whole row (a link-like button; without a destination it does nothing) */
+.ap-row__view {
+  margin-left: auto;
+  flex: none;
+}
+.ap-row__view--go {
+  cursor: pointer;
+}
+.ap-row__view--go::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.app .ap-row__view--go:focus-visible {
+  outline: 0;
+}
+.ap-row__view:not(.ap-row__view--go) {
+  cursor: default;
+}
+
+/* ------------------------------------------------------------------ Compare Bar */
+.ap-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  /* the frame is 70 px high: its text block (50 px) sits 10 px from the top and the bottom edge (1 px edge + 9 px) */
+  padding: 9px 24px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-strong);
+}
+.ap-bar__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ap-bar__summary {
+  margin: 0;
+  font: 600 16px/26px var(--font-sans);
+  color: var(--text-primary);
+}
+.ap-bar__names {
+  margin: 0;
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+
+/* ------------------------------------------------------------------ Notice (amber rule), Confirmation line */
+.ap-notice {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  min-width: 0;
+}
+.ap-notice::before {
+  content: '';
+  flex: none;
+  width: 3px;
+  background: var(--border-akines-secondary);
+}
+.ap-notice__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.ap-notice__title {
+  margin: 0;
+  font: 400 24px/31px var(--font-serif);
+  color: var(--text-primary);
+}
+.ap-notice__text {
+  margin: 0;
+  font: 400 14px/22px var(--font-sans);
+  color: var(--text-secondary);
+}
+.ap-closed {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.ap-closed > .ap-notice {
+  flex: 1;
+}
+.ap-closed > .k-btn {
+  flex: none;
+}
+.ap-joined {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  padding: 20px 24px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  font: 400 15px/23px var(--font-sans);
+  color: var(--text-primary);
+}
+
+/* ------------------------------------------------------------------ Applicant Row Skeleton */
+.ap-skel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-subtle);
+}
+.ap-skel__top {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.ap-skel__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ap-skel__fields {
+  display: flex;
+  gap: 40px;
+}
+.ap-skel__actions {
+  display: flex;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------------ Compare Table */
+/* a real table: the label column, then one white column per person, 16 apart (border-spacing, the table is pulled out by the same 16) */
+.ap-cmp-wrap {
+  overflow-x: auto;
+}
+.ap-cmp {
+  width: calc(100% + 32px);
+  max-width: 1120px;
+  margin: 0 -16px;
+  border-collapse: separate;
+  border-spacing: 16px 0;
+  table-layout: fixed;
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-primary);
+}
+.ap-cmp-wrap .ap-cmp {
+  min-width: 760px;
+}
+.ap-cmp th,
+.ap-cmp td {
+  padding: 0;
+  text-align: left;
+  font-weight: 400;
+  vertical-align: top;
+}
+.ap-cmp__lab {
+  width: 176px;
+}
+/* the empty corner above the labels is not a person's column: no white, no edge */
+.ap-cmp td.ap-cmp__corner {
+  padding: 0;
+  background: none;
+  border: 0;
+}
+.ap-cmp__label {
+  padding: 0 !important;
+}
+.ap-cmp__label > span {
+  display: block;
+  padding-top: 17px;
+  border-top: 1px solid var(--border-subtle);
+}
+.ap-cmp__label .cw-over {
+  line-height: 19px;
+}
+/* the people's cells: white, 20 inside, an edge on the left and right; the first has the top edge, the last the bottom edge */
+.ap-cmp td,
+.ap-cmp th.ap-cmp__col {
+  padding: 0 20px;
+  background: var(--surface-default);
+  border-left: 1px solid var(--border-default);
+  border-right: 1px solid var(--border-default);
+}
+.ap-cmp th.ap-cmp__col {
+  height: 181px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-default);
+}
+.ap-cmp tbody tr:last-child td {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-default);
+}
+.ap-cmp__in {
+  height: 100%;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-subtle);
+  overflow-wrap: anywhere;
+}
+.ap-cmp__in--muted {
+  color: var(--text-secondary);
+}
+.ap-cmp__who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding-bottom: 16px;
+}
+.ap-cmp__name {
+  margin: 0;
+  font: 400 20px/1.4 var(--font-serif);
+  letter-spacing: 0;
+  color: var(--text-primary);
+}
+.ap-cmp tr[data-h='role'] td,
+.ap-cmp tr[data-h='wants'] td,
+.ap-cmp tr[data-h='avail'] td {
+  height: 60px;
+}
+.ap-cmp tr[data-h='skills'] td,
+.ap-cmp tr[data-h='notes'] td {
+  height: 104px;
+}
+.ap-cmp tr[data-h='exp'] td,
+.ap-cmp tr[data-h='message'] td {
+  height: 128px;
+}
+.ap-cmp tr[data-h='actions'] td {
+  height: 92px;
+}
+.ap-cmp__acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.ap-cmp tr[data-h='actions'] .ap-cmp__label > span {
+  height: 72px;
+}
+
+/* ------------------------------------------------------------------ Slide-out:Applicant (Applicant Detail, Private Note) */
+.ap-slide .cd-member__body {
+  gap: 22px;
+}
+.ap-id {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.ap-id__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+.ap-id__name {
+  margin: 0;
+  font: 400 32px/38px var(--font-serif);
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+/* the panel takes focus on its name when it opens (not on the note field, which has its own Focus look) */
+.ap-id__name:focus {
+  outline: 0;
+}
+.ap-id__sub {
+  margin: 0;
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+/* Facts: two fixed columns (170 and 200), a longer value wraps inside its column */
+.ap-facts {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+}
+.ap-facts > .ap-field {
+  flex: none;
+}
+.ap-facts > .ap-field:nth-child(1) {
+  width: 170px;
+}
+.ap-facts > .ap-field:nth-child(2) {
+  width: 200px;
+}
+.ap-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ap-slide .cw-over {
+  line-height: 19.2px;
+}
+.ap-slide .ap-field__value {
+  font: 400 16px/26px var(--font-sans);
+}
+.ap-slide .cd-chips li {
+  padding: 7px 14px;
+  font: 500 13px/20px var(--font-sans);
+}
+.ap-note {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ap-note__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.ap-note__saved {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-primary);
+}
+/* the kit text area at the size of the design: 120 high, 16 above and below, 20 at the sides */
+.ap-ta .k-textarea__el {
+  height: 120px;
+  min-height: 120px;
+  padding: 16px 20px;
+  resize: none;
+}
+/* the Not now link of the Shortlisted slide-out is the Card Link of the design (600, 14 on 22) */
+.cd-slide:has(.ap-slide) .k-panel__foot .cw-link {
+  padding: 4px 0;
+  font: 600 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+}
+
+/* ------------------------------------------------------------------ modals (Propose times, Send offer, Not now, Close call, Start project) */
+.ap-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.ap-form .k-field__label,
+.ap-form .k-field__msg {
+  line-height: 22px;
+}
+.ap-form .k-field__msg {
+  letter-spacing: 0.25px;
+}
+/* a Line Field with a value has the ink edge of the Filled state */
+.ap-form .k-input.ap-filled {
+  border-color: var(--text-primary);
+}
+.ap-form__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.ap-form__pair > * {
+  align-self: start;
+}
+.ap-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ap-day {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ap-day__name {
+  flex: none;
+  width: 104px;
+  font: 600 16px/26px var(--font-sans);
+  color: var(--text-primary);
+}
+.ap-slot {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  background: var(--surface-default);
+  color: var(--text-primary);
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.3s ease-out,
+    background-color 0.3s ease-out,
+    box-shadow 0.3s ease-out,
+    scale 0.35s var(--ease-out);
+}
+@media (hover: hover) {
+  .ap-slot:not([aria-disabled='true']):hover {
+    border-color: var(--text-primary);
+  }
+}
+.ap-slot:not([aria-disabled='true']):active {
+  scale: 0.97;
+}
+.ap-slot[aria-pressed='true'] {
+  background: var(--surface-secondary-subtle);
+  border-color: var(--border-akines-secondary);
+  box-shadow: inset 0 0 0 0.5px var(--border-akines-secondary);
+}
+/* three are chosen: the others keep the Default look of the frame and take no more (the count line says so) */
+.ap-slot[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+.ap-count {
+  margin: 0;
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+/* Start date is a Line Field with the calendar mark at the right: 56 high, as the Search Field */
+.ap-form .k-input.ap-date .k-input__el {
+  height: 54px;
+}
+
+/* ------------------------------------------------------------------ Call Header, Call Row, 12.46 pages */
+.ap-callhead {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  min-width: 0;
+}
+.ap-callhead__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.ap-callstatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 12px;
+  border-radius: 999px;
+  background: var(--surface-success-subtle);
+  font: 500 12px/19px var(--font-sans);
+  letter-spacing: 0.4px;
+  color: var(--text-primary);
+}
+.ap-callstatus::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--icon-success);
+}
+.ap-callstatus--closed {
+  background: var(--surface-muted);
+}
+.ap-callstatus--closed::before {
+  background: var(--icon-tertiary);
+}
+.ap-callhead__title {
+  margin: 0;
+  font: 400 48px/1.2 var(--font-serif);
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+.ap-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 48px;
+  margin: 0;
+}
+.ap-meta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+.ap-meta dt {
+  margin: 0;
+}
+.ap-meta .cw-over {
+  line-height: 19.2px;
+}
+.ap-meta dd {
+  margin: 0;
+  font: 400 16px/26px var(--font-sans);
+  color: var(--text-primary);
+}
+.ap-start {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.ap-start__help {
+  margin: 0;
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+
+.ap-listhead {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.ap-listhead__text {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 920px;
+}
+.ap-listhead__title {
+  margin: 0;
+  font: 400 56px/1.15 var(--font-serif);
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+}
+.ap-callrow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 28px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  transition:
+    border-color 0.15s ease-out,
+    background-color 0.15s ease-out;
+}
+@media (hover: hover) {
+  .ap-callrow:hover {
+    border-color: var(--border-strong);
+  }
+}
+.ap-callrow:active:not(:has(.k-btn:active)) {
+  background: var(--surface-subtle);
+  border-color: var(--border-strong);
+}
+.ap-callrow:has(.ap-callrow__go:focus-visible) {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
+}
+.ap-callrow__left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ap-callrow__title {
+  margin: 0;
+  font: 400 24px/1.4 var(--font-serif);
+  color: var(--text-primary);
+}
+.ap-callrow__line {
+  margin: 0;
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+.ap-callrow__right {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.ap-callrow__count {
+  margin: 0;
+  font: 400 16px/1.6 var(--font-sans);
+  color: var(--text-primary);
+}
+.ap-callrow__go::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.app .ap-callrow__go:focus-visible {
+  outline: 0;
+}
+
+/* ------------------------------------------------------------------ Interest requests band of the Overview (Request Card) */
+.ap-band {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+.ap-band__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 30px;
+}
+.ap-band__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.ap-band__count {
+  margin: 0;
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+.ap-band__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ap-band__cards > li {
+  display: flex;
+  min-width: 0;
+}
+/* a single request is one card wide, not two */
+.ap-band__cards--one {
+  grid-template-columns: minmax(0, calc(50% - 8px));
+}
+.ap-req {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+  padding: 20px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  transition:
+    border-color 0.15s ease-out,
+    background-color 0.15s ease-out;
+}
+@media (hover: hover) {
+  .ap-req:hover {
+    border-color: var(--border-strong);
+  }
+}
+.ap-req:active:not(:has(.k-btn:active)) {
+  background: var(--surface-subtle);
+  border-color: var(--border-strong);
+}
+.ap-req:has(.ap-req__review:focus-visible) {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
+}
+.ap-req__top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  align-self: stretch;
+}
+.ap-req__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ap-req__name {
+  margin: 0;
+  font: 400 20px/1.4 var(--font-serif);
+  color: var(--text-primary);
+}
+.ap-req__wants {
+  margin: 0;
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+.ap-req__msg {
+  margin: 0;
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-primary);
+}
+.ap-req__review::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.app .ap-req__review:focus-visible {
+  outline: 0;
+}
+
+/* ------------------------------------------------------------------ Review link on the Team page (beside Accept and Not now) */
+.ap-reqwrap {
+  position: relative;
+}
+.ap-reqwrap__review {
+  position: absolute;
+  right: 24px;
+  bottom: 32px;
+}
+
+/* ------------------------------------------------------------------ narrower screens */
+@media (max-width: 1279px) {
+  .ap-wide {
+    padding: 56px 40px 96px;
+  }
+}
+@media (max-width: 1023px) {
+  .ap-wide {
+    padding: 40px 32px 80px;
+  }
+  .ap-title,
+  .ap-callhead__title {
+    font-size: 40px;
+  }
+  .ap-listhead__title {
+    font-size: 44px;
+  }
+  .ap-row__fields {
+    flex-wrap: wrap;
+    gap: 20px 40px;
+  }
+  .ap-field--message {
+    flex-basis: 100%;
+  }
+  .ap-callrow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+@media (max-width: 767px) {
+  .ap-wide {
+    padding: 32px 16px 72px;
+  }
+  .ap-row {
+    padding: 20px;
+  }
+  .ap-row__top {
+    flex-wrap: wrap;
+    gap: 12px 16px;
+  }
+  .ap-row__actions {
+    flex-wrap: wrap;
+  }
+  .ap-bar,
+  .ap-closed,
+  .ap-start,
+  .ap-filterrow,
+  .ap-listhead {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ap-band__cards,
+  .ap-band__cards--one {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ap-reqwrap__review {
+    position: static;
+    margin-top: 12px;
+  }
+  .ap-form__pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
