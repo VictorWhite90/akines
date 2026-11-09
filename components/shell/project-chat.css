@@ -1,0 +1,206 @@
+/*
+ * Create AI starts a project in the thread (their src/features/assistant/project-chat.tsx; ours components/shell/createai/ProjectChat.tsx), copied verbatim. Prefix `cai-p`, `cai-pill`, `cai-wcard`, `cai-brief`.
+ * Sizes are those of the Figma "Project chat" views (section 16, journey 16.3): body padding 18/20/8, 20 between messages,
+ * 12 between the parts of one message, 8 between the person's answer and the chips, option pills 44 high, Go row 100 high.
+ * Colours come from app-tokens.css. Light theme only, like the rest of Create AI.
+ */
+
+/* the panel is a little taller in this thread: the Workspace step is 757 high in Figma */
+.cai-panel[data-flow] {
+  max-height: min(760px, calc(100dvh - var(--cai-b) - var(--cai-launcher) - 28px));
+}
+.cai[data-layout='mobile'] .cai-panel[data-flow] {
+  max-height: none;
+}
+
+/* ---------------------------------------------------------------- messages */
+.cai-pmsg {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  animation: cai-rise 0.4s ease-out both;
+}
+.cai-pmsg--you {
+  align-items: flex-end;
+  gap: 8px;
+}
+.cai-bubble {
+  max-width: min(300px, 86%);
+  margin: 0;
+  padding: 12px 16px;
+  border-radius: 18px 18px 6px 18px;
+  background: var(--surface-muted);
+  font: 400 14px/1.55 var(--font-sans);
+  overflow-wrap: anywhere;
+}
+.cai-ptext {
+  margin: 0;
+  font: 400 14px/1.6 var(--font-sans);
+  overflow-wrap: anywhere;
+}
+.cai-pmsg .cai-typing {
+  padding: 9.5px 0;
+}
+
+/* ---------------------------------------------------------------- option pills (Figma "Create AI / Option chips") */
+.cai-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-self: stretch;
+  gap: 8px;
+}
+.cai-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-primary);
+  font: 400 14px/1.55 var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease-out,
+    background-color 0.25s ease-out,
+    box-shadow 0.25s ease-out;
+  -webkit-tap-highlight-color: transparent;
+}
+@media (hover: hover) {
+  .cai-pill:hover {
+    border-color: var(--text-primary);
+  }
+}
+.cai-pill:active {
+  background: var(--surface-muted);
+}
+/* chosen (the People step takes several): warm fill and a 1.5px amber line */
+.cai-pill[aria-pressed='true'] {
+  border-color: var(--border-akines-secondary);
+  background: var(--surface-secondary-subtle);
+  box-shadow: inset 0 0 0 0.5px var(--border-akines-secondary);
+}
+.cai-pill:focus-visible,
+.cai-wcard:focus-visible {
+  outline: 2px solid var(--surface-inverse);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------- Go row (Figma "Go": the row is 100 high) */
+.cai-pgo {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: flex-start;
+  align-self: stretch;
+  gap: 8px;
+  min-height: 100px;
+}
+
+/* ---------------------------------------------------------------- Workspace card (Figma "Create AI / Workspace card") */
+.cai-wcard {
+  align-self: stretch;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-default);
+}
+.cai-wcard[data-state='accepted'] {
+  border-color: var(--border-success);
+}
+.cai-wcard__preview {
+  width: 100%;
+  aspect-ratio: 362 / 190;
+  background: var(--surface-muted);
+}
+.cai-wcard__preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.cai-wcard__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 14px 16px 16px;
+}
+.cai-wcard__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  background: var(--accent-subtle);
+  color: var(--text-accent);
+  font: 500 11px/14px var(--font-sans);
+  letter-spacing: 1.2px;
+}
+.cai-wcard__chip svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  color: var(--icon-accent);
+}
+.cai-wcard[data-state='accepted'] .cai-wcard__chip {
+  background: var(--surface-success-subtle);
+  color: var(--feedback-success-text);
+}
+.cai-wcard[data-state='accepted'] .cai-wcard__chip svg {
+  color: var(--icon-success);
+}
+.cai-wcard__name {
+  margin: 0;
+  font: 400 22px/26px var(--font-serif);
+  letter-spacing: -0.2px;
+}
+.cai-wcard__why {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 13px/20px var(--font-sans);
+}
+
+/* ---------------------------------------------------------------- Brief summary (Figma "Create AI / Brief summary") */
+.cai-brief {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-default);
+}
+.cai-brief p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.cai-brief__name {
+  font: 600 15px/22px var(--font-sans);
+}
+.cai-brief__text {
+  font: 400 14px/21px var(--font-sans);
+}
+.cai-brief__meta {
+  color: var(--text-secondary);
+  font: 400 13px/20px var(--font-sans);
+}
+
+/* a field that waits for something else (Workspace step) */
+.cai-input:disabled {
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cai-pmsg {
+    animation: none;
+  }
+  .cai-pill {
+    transition: none;
+  }
+}

@@ -80,7 +80,7 @@ export const SECTIONS: Section[] = [
     tabs: [
       { href: "/collaborate", label: "Home" },
       { href: "/collaborate/discover", label: "Discover Projects", also: ["/collaborate/projects", "/collaborate/saved", "/collaborate/members"] },
-      { href: "/collaborate/my-projects", label: "My Projects", also: ["/collaborate/start"] },
+      { href: "/collaborate/my-projects", label: "My Projects", also: ["/collaborate/start", "/collaborate/open-calls"] },
       { href: "/collaborate/collaborators", label: "Collaborators", also: ["/collaborate/introduction-requests", "/collaborate/saved-collaborators"] },
       { href: "/collaborate/opportunities", label: "Opportunities" },
       { href: "/collaborate/contributions", label: "My Contributions" },

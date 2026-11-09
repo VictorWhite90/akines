@@ -8,13 +8,16 @@ import { Chip } from "@/components/kin/Chip";
 import Tooltip from "@/components/kin/Tooltip";
 import { isSignedIn } from "@/lib/session";
 import { useMe } from "./MemberContext";
+import { ProjectChatView, START_PATH, useProjectChat } from "./createai/ProjectChat";
+import { CollabChatView, EXPLORE_PATH, OPEN_PATH, useCollabChat } from "./createai/CollabChat";
 import "./companion.css";
 
 /**
  * Create AI, mirrored from the product design (classes in companion.css): a launcher in the corner that
  * opens a chat panel once a day by itself, a "How would you like to connect today?" survey whose answers
  * list places to go, and free questions answered by a built-in guide until the model is connected.
- * Every suggestion points to a real page in our app.
+ * Every suggestion points to a real page in our app. "Start a project", "Explore collaborators" and "Open a project"
+ * run their journeys inside the thread (createai/, the design's 16.3 to 16.5) instead of opening the page.
  */
 
 type Go = { path: string; label: string };
@@ -64,6 +67,7 @@ const PLACES: Go[] = [
   { path: "/", label: "Community Home" }, { path: "/messages", label: "Messages" }, { path: "/banter", label: "Banter" },
   { path: "/circles", label: "KinCircle" }, { path: "/rooms", label: "Rooms" }, { path: "/activities", label: "Activities" },
   { path: "/play", label: "Play Together" }, { path: "/collaborate", label: "Collaborate" }, { path: "/collaborate/start", label: "Start a project" },
+  { path: "/collaborate/collaborators", label: "Explore collaborators" }, { path: "/collaborate/discover", label: "Discover projects" }, { path: "/collaborate/my-projects", label: "Open a project" },
   { path: "/kindred", label: "Discover people" }, { path: "/studio", label: "My Studio" }, { path: "/store", label: "My Store" },
   { path: "/stories", label: "Stories" }, { path: "/studios", label: "Studio Visits" }, { path: "/wellbeing", label: "Wellbeing" },
   { path: "/journal", label: "My journal" }, { path: "/settings", label: "Settings" }, { path: "/signup", label: "Join Akines" }, { path: "/about", label: "About Akines" },
@@ -75,8 +79,9 @@ const RULES: { test: RegExp; text: string; go?: string[] }[] = [
   { test: /\b(hi|hello|hey|good (morning|afternoon|evening))\b/i, text: "Hello. I am Create AI. I can help you find the right place in Akines, or just talk something through. What is on your mind?" },
   { test: /\b(join|sign ?up|create (an )?account|register)\b/i, text: "Joining is a short, step by step flow, and you can go back at any step. When you are ready, it starts here.", go: ["/signup"] },
   { test: /\b(sign ?in|log ?in|password)\b/i, text: "You can sign in from the top of any page. If you forgot your password, the sign-in panel can send you a reset code." },
-  { test: /\b(start|begin|launch|new)\b.*\bproject\b|\bproject\b.*\b(start|begin|idea)\b/i, text: "Starting a project takes a few short questions about what you want to make and who you would like beside you.", go: ["/collaborate/new"] },
-  { test: /\b(collaborat|co-?found|partner|teammate|find (a )?(maker|person|people))\b/i, text: "Collaborate is where projects and people meet. You can post an open call, answer one, or find people to work with.", go: ["/collaborate", "/kindred"] },
+  { test: /\b(start|begin|launch|new)\b.*\bproject\b|\bproject\b.*\b(start|begin|idea)\b/i, text: "Starting a project takes a few short questions about what you want to make and who you would like beside you. You can save it and come back.", go: ["/collaborate/start", "/collaborate/collaborators", "/collaborate/my-projects"] },
+  { test: /\b(collaborat\w*|co-?found\w*|partners?|teammates?|find (a )?(maker|person|people))\b/i, text: "Collaborate is where projects and people meet. You can start your own, look for collaborators, or see open projects that could use another pair of hands.", go: ["/collaborate/collaborators", "/collaborate/discover"] },
+  { test: /\b(open projects?|discover)\b/i, text: "Discover projects lists open projects you could join. Each one shows what is needed and who is already in.", go: ["/collaborate/discover"] },
   { test: /\bbanter\b/i, text: "Banter starts with one question. You can listen quietly or join in.", go: ["/banter"] },
   { test: /\b(kin ?circle|circle|gathering)\b/i, text: "A KinCircle is a small group around something you care about, so it stays personal.", go: ["/circles"] },
   { test: /\b(room|quiet|calm)\b/i, text: "Rooms are open spaces to be with others. Some are for talking, and some are calm rooms where no talking is needed.", go: ["/rooms"] },
@@ -158,6 +163,9 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
   const input = useRef<HTMLInputElement>(null);
   const launcher = useRef<HTMLButtonElement>(null);
   const auto = useRef(false);
+  // The journeys inside the thread: their own steps replace the conversation until the person starts again.
+  const project = useProjectChat();
+  const collab = useCollabChat();
 
   useEffect(() => {
     const read = () => setLayout(window.matchMedia("(max-width: 767px)").matches ? "mobile" : window.matchMedia("(max-width: 1279px)").matches ? "tablet" : "desktop");
@@ -210,13 +218,22 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
     body.current?.scrollTo({ top: body.current.scrollHeight, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [msgs, mounted]);
 
-  const restart = () => { setBusy(false); setChosen(0); setDraft(""); setTime(stamp()); setMsgs([{ id: nextId(), role: "assistant", kind: "survey" }]); };
+  const restart = () => { project.stop(); collab.stop(); setBusy(false); setChosen(0); setDraft(""); setTime(stamp()); setMsgs([{ id: nextId(), role: "assistant", kind: "survey" }]); };
   const pick = (n: number) => {
     if (busy) return;
     setChosen(n);
     setMsgs((m) => [...m, { id: nextId(), role: "user", kind: "text", text: INTENTIONS[n - 1].label }, { id: nextId(), role: "assistant", kind: "result", intention: n }]);
   };
   const goTo = (href: string) => { hide(); router.push(signedIn ? href : "/signup"); };
+  const go = (g: Go) => {
+    if (g.path === START_PATH) { collab.stop(); project.begin(); return; }
+    if (g.path === EXPLORE_PATH || g.path === OPEN_PATH) { project.stop(); collab.begin(g.path === EXPLORE_PATH ? "explore" : "open"); return; }
+    goTo(g.path);
+  };
+  // A free question typed inside a journey: the thread goes back to the open chat and answers it.
+  const askFromProject = (text: string) => { project.stop(); send(text); };
+  const askFromCollab = (text: string) => { collab.stop(); send(text); };
+  const startFromCollab = () => { collab.stop(); project.begin(); };
   const send = (q: string) => {
     const t = q.trim();
     if (!t || busy) return;
@@ -236,7 +253,7 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
   return (
     <div className="cai" data-open={open || undefined} data-layout={layout} data-app={inApp || undefined}>
       {mounted ? (
-        <section id={panelId} className="cai-panel" data-state={state} role="dialog" aria-modal="false" aria-label="Create AI" onKeyDown={(e) => { if (e.key === "Escape" && open) { e.stopPropagation(); hide(); } }}>
+        <section id={panelId} className="cai-panel" data-state={state} data-flow={project.active || undefined} role="dialog" aria-modal="false" aria-label="Create AI" onKeyDown={(e) => { if (e.key === "Escape" && open) { e.stopPropagation(); hide(); } }}>
           <header className="cai-head">
             <span className="cai-head__mark" aria-hidden><CreateAiMark size={32} /></span>
             <h2 className="cai-head__title">Create AI</h2>
@@ -245,6 +262,11 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
               <IconButton label="Close" size="sm" variant="ghost" onClick={hide}><X strokeWidth={1.5} /></IconButton>
             </div>
           </header>
+          {project.active ? (
+            <ProjectChatView chat={project} leave={goTo} onAsk={askFromProject} signedIn={signedIn} />
+          ) : collab.active ? (
+            <CollabChatView chat={collab} leave={goTo} onAsk={askFromCollab} onStart={startFromCollab} />
+          ) : (<>
           <div className="cai-body" ref={body} aria-live="polite">
             <p className="cai-stamp">{time}</p>
             {msgs.map((m) => {
@@ -286,7 +308,7 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
               return (
                 <div key={m.id} className="cai-msg cai-msg--bot">
                   {m.pending && !m.text ? <p className="cai-typing" role="status" aria-label="Create AI is thinking"><span /><span /><span /></p> : <p className="cai-text">{m.text}</p>}
-                  {m.go && m.go.length ? <div className="cai-go">{m.go.map((g) => <Button key={g.path} size="sm" variant="secondary" arrow="up-right" onClick={() => goTo(g.path)}>{g.label}</Button>)}</div> : null}
+                  {m.go && m.go.length ? <div className="cai-go">{m.go.map((g) => <Button key={g.path} size="sm" variant="secondary" arrow="up-right" onClick={() => go(g)}>{g.label}</Button>)}</div> : null}
                   {m.note ? <p className="cai-note">{m.note}</p> : null}
                 </div>
               );
@@ -300,6 +322,7 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
             </label>
             <p className="cai-foot">Create AI can get things wrong. Please check anything important.</p>
           </form>
+          </>)}
         </section>
       ) : null}
       <Tooltip label="Create AI" side="top" describe={false}>
