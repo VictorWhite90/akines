@@ -8,7 +8,7 @@ import { toast } from "@/components/kin/Toast";
 import { collabHref, leadId, suggestedMessage, useCollaborator, useIntroductions, useMatching, useSavedCollaborators, wordsFor, type Collaborator } from "@/lib/collab/collaborators";
 import { PEOPLE } from "@/lib/data/people";
 import Overlays, { type OverlayKind } from "./Overlays";
-import { Arrow, Back, CcAvatar, Heading } from "./parts";
+import { Back, CcAvatar, Heading } from "./parts";
 
 /*
  * An introduction request, mirrored from the product design (cc-req): the project and the person, a suggested
@@ -68,7 +68,7 @@ function RequestFor({ c }: { c: Collaborator }) {
             <p className="cc-notice__text">{w.requestNotice}</p>
           </aside>
           <div className="cc-actions" data-m="up">
-            <Button iconRight={<Arrow />} onClick={onSend}>Send introduction request</Button>
+            <Button arrow="up-right" onClick={onSend}>Send introduction request</Button>
             <Button variant="secondary" onClick={onSave}>Save for later</Button>
           </div>
         </div>

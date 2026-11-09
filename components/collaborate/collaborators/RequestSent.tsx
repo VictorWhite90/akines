@@ -2,9 +2,9 @@
 
 import { notFound } from "next/navigation";
 import Button from "@/components/kin/Button";
-import { CC, leadId, useCollaborator, useIntroductions, useMatching, wordsFor } from "@/lib/collab/collaborators";
+import { CC, leadId, requestHref, useCollaborator, useIntroductions, useMatching, wordsFor } from "@/lib/collab/collaborators";
 import { PEOPLE } from "@/lib/data/people";
-import { Arrow, CcAvatar, HERO, Status } from "./parts";
+import { CcAvatar, HERO, Status } from "./parts";
 
 /* Request sent, mirrored from the product design (cc-split with cc-sent): where the introduction stands now. */
 
@@ -36,8 +36,8 @@ export default function RequestSent({ id }: { id?: string }) {
           <p className="cc-sent__note">{w.sentNote}</p>
         </section>
         <div className="cc-actions" data-m="up">
-          <Button href={CC.discovery} iconRight={<Arrow />}>Return to collaborators</Button>
-          <Button variant="secondary" href={CC.requests}>View request</Button>
+          <Button href={CC.discovery} arrow="up-right">Return to collaborators</Button>
+          <Button variant="secondary" href={requestHref(c.id, intro?.status)}>View request</Button>
         </div>
       </div>
       <div className="cc-split__photo" data-m="frame">

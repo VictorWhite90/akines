@@ -96,7 +96,7 @@ export function PersonCard({ c, saved, saveLabel, onSave, hideNotRelevant, onNot
       </div>
       <div className="cc-card__actions">
         <div className="cc-card__primary">
-          <Button href={h.profile} iconRight={<Arrow />}>View profile</Button>
+          <Button href={h.profile} arrow="up-right">View profile</Button>
           <Button variant="secondary" href={h.request}>Request introduction</Button>
         </div>
         <div className="cc-card__secondary">

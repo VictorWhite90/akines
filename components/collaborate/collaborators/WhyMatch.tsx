@@ -7,7 +7,7 @@ import Button from "@/components/kin/Button";
 import { CC, collabHref, leadId, useCollaborator, wordsFor } from "@/lib/collab/collaborators";
 import { PEOPLE } from "@/lib/data/people";
 import Overlays, { type OverlayKind } from "./Overlays";
-import { Arrow, Back, Heading, photoOf } from "./parts";
+import { Back, Heading, photoOf } from "./parts";
 
 /* Why this match, mirrored from the product design (cc-why): each reason with where it came from, and a summary of the person. */
 
@@ -44,7 +44,7 @@ export default function WhyMatch({ id }: { id?: string }) {
             <p className="cc-card__avail-text"><span className="cc-dot" aria-hidden />{c.availability}</p>
             <h2 className="cc-summary__name">{p.name}</h2>
             <p className="cc-card__role">{p.role}</p>
-            <Button full href={h.profile} iconRight={<Arrow />}>View profile</Button>
+            <Button full href={h.profile} arrow="up-right">View profile</Button>
             <Button full variant="secondary" href={h.request}>Request introduction</Button>
             <Button variant="link" onClick={() => setOpen("ask")}>Ask Akines why</Button>
             <div className="cc-summary__privacy">

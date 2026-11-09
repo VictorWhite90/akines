@@ -75,7 +75,7 @@ export default function Profile({ id }: { id?: string }) {
         <aside className="cc-prof__side" aria-label="Actions">
           <section className="cc-panel" data-m="up">
             <h2 className="cc-eyebrow">Interested in {w.first}?</h2>
-            <Button full href={h.request} iconRight={<Arrow />}>Request introduction</Button>
+            <Button full href={h.request} arrow="up-right">Request introduction</Button>
             <Button full variant="secondary" onClick={onSave}>Save for later</Button>
             <div className="cc-panel__links">
               <Button variant="link" onClick={() => setOpen("notrelevant")}>Not relevant</Button>

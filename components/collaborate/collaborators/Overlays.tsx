@@ -9,18 +9,20 @@ import { Radio } from "@/components/kin/Choice";
 import { Drawer, Modal } from "@/components/kin/Overlay";
 import { toast } from "@/components/kin/Toast";
 import { CC, useMatching, useRecommendations, wordsFor, type Collaborator, type MatchPrefs } from "@/lib/collab/collaborators";
-import { Arrow, Back } from "./parts";
+import { Back } from "./parts";
 
 /*
  * The Collaborators dialogs, mirrored from the product design: matching preferences, Ask Akines (a drawer),
- * "Why isn't this a fit?", what's visible and why, and the confirmation before an introduction is sent.
+ * "Why isn't this a fit?", what's visible and why, and the confirmation before an introduction is sent, and
+ * Change project (the project matching is for). `from` says where Ask Akines was opened: from a card it ends
+ * with "Back to collaborators", from a profile or Why this match with "Back to profile".
  */
 
-export type OverlayKind = "prefs" | "ask" | "notrelevant" | "privacy" | "confirm";
+export type OverlayKind = "prefs" | "project" | "ask" | "notrelevant" | "privacy" | "confirm";
 
 const REASONS = ["Skills do not match", "Project interests differ", "Working preferences differ", "Not available", "Other"];
 
-export default function Overlays({ open, onClose, person, onSend }: { open: OverlayKind | null; onClose: () => void; person: Collaborator | null; onSend?: () => void }) {
+export default function Overlays({ open, onClose, person, onSend, from = "profile" }: { open: OverlayKind | null; onClose: () => void; person: Collaborator | null; onSend?: () => void; from?: "cards" | "profile" }) {
   const router = useRouter();
   const path = usePathname();
   const { setPrefs } = useMatching();
@@ -29,9 +31,10 @@ export default function Overlays({ open, onClose, person, onSend }: { open: Over
   return (
     <>
       <Prefs open={open === "prefs"} onClose={onClose} onApply={(p) => { setPrefs(p); onClose(); toDiscovery(); }} />
+      <ProjectModal open={open === "project"} onClose={onClose} />
       {person ? (
         <>
-          <Ask open={open === "ask"} onClose={onClose} c={person} />
+          <Ask open={open === "ask"} onClose={onClose} c={person} backLabel={from === "cards" ? "Back to collaborators" : "Back to profile"} />
           <NotRelevant open={open === "notrelevant"} onClose={onClose} c={person} onRemove={() => {
             const undo = dismiss(person.id);
             onClose(); toDiscovery();
@@ -76,7 +79,31 @@ function Prefs({ open, onClose, onApply }: { open: boolean; onClose: () => void;
   );
 }
 
-function Ask({ open, onClose, c }: { open: boolean; onClose: () => void; c: Collaborator }) {
+/**
+ * Change project: the member's projects as a radio list, the one in use ticked ("Current project." in front of
+ * its line). Use this project applies the ticked one and shows the toast with Undo.
+ */
+function ProjectModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { brief, projects, setProject } = useMatching();
+  const [draft, setDraft] = useState(brief?.id ?? "");
+  useOnOpen(open, () => setDraft(brief?.id ?? ""));
+  const use = () => {
+    onClose();
+    if (!draft || draft === brief?.id) return;
+    const undo = setProject(draft);
+    toast.show({ message: `Looking for collaborators for ${(projects.find((p) => p.id === draft)?.name ?? "").replace(/\.$/, "")}.`, actionLabel: "Undo", onAction: undo });
+  };
+  return (
+    <Modal open={open} onClose={onClose} width={640} className="cc-proj" eyebrow="Change project" title="Which project is this for?" description="We will look for people who fit the project you choose."
+      footer={<><Button onClick={use}>Use this project</Button><Button variant="link" onClick={onClose}>Cancel</Button></>}>
+      <div className="cc-proj__list" role="radiogroup" aria-label="Project">
+        {projects.map((o) => <Radio key={o.id} name="cc-project" value={o.id} label={o.name} description={o.id === brief?.id ? `Current project. ${o.line}` : o.line} checked={draft === o.id} onChange={() => setDraft(o.id)} />)}
+      </div>
+    </Modal>
+  );
+}
+
+function Ask({ open, onClose, c, backLabel }: { open: boolean; onClose: () => void; c: Collaborator; backLabel: string }) {
   const w = wordsFor(c);
   const [picked, setPicked] = useState<string[]>([]);
   useOnOpen(open, () => setPicked([]));
@@ -101,7 +128,7 @@ function Ask({ open, onClose, c }: { open: boolean; onClose: () => void; c: Coll
           <input className="cc-ask__input" type="text" aria-label="Ask a follow-up question" placeholder="Ask a follow-up question..." />
           <IconButton type="submit" variant="primary" className="cc-ask__send" label="Send"><ArrowUp size={20} strokeWidth={1.5} /></IconButton>
         </form>
-        <Back onClick={onClose}>Back to profile</Back>
+        <Back onClick={onClose}>{backLabel}</Back>
       </div>
     </Drawer>
   );
@@ -165,6 +192,6 @@ function Confirm({ open, onClose, onSend, c }: { open: boolean; onClose: () => v
   const w = wordsFor(c);
   return (
     <Modal open={open} onClose={onClose} width={560} className="cc-confirm" eyebrow="Confirm your request" title={`Send this request to ${w.first}?`} description={w.confirm}
-      footer={<><Button iconRight={<Arrow />} onClick={onSend}>Send request</Button><Button variant="secondary" onClick={onClose}>Keep editing</Button></>} />
+      footer={<><Button arrow="up-right" onClick={onSend}>Send request</Button><Button variant="secondary" onClick={onClose}>Keep editing</Button></>} />
   );
 }

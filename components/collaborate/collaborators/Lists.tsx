@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Button from "@/components/kin/Button";
 import { toast } from "@/components/kin/Toast";
-import { CC, collabHref, sampleCollaborator, sentOn, useIntroductions, useSavedCollaborators, type Collaborator } from "@/lib/collab/collaborators";
+import { CC, requestHref, sampleCollaborator, sentOn, useIntroductions, useSavedCollaborators, type Collaborator } from "@/lib/collab/collaborators";
 import { PEOPLE } from "@/lib/data/people";
 import Overlays, { type OverlayKind } from "./Overlays";
 import { Back, CcAvatar, CcEmpty, Heading, PersonCard, photoOf, Status } from "./parts";
@@ -42,6 +42,7 @@ export function SavedCollaborators({ staticEmpty }: { staticEmpty?: boolean }) {
 
 export function IntroductionRequests({ staticEmpty }: { staticEmpty?: boolean }) {
   const { list } = useIntroductions();
+  // a withdrawn request has left the list (Undo on its toast brings it back)
   const rows = staticEmpty ? [] : list;
   return (
     <div className="cc-page cc-list">
@@ -70,7 +71,7 @@ export function IntroductionRequests({ staticEmpty }: { staticEmpty?: boolean })
                 <div className="cc-req-row__status">
                   <Status status={r.status} />
                   <p className="cc-req-row__date">{sentOn(r.sentAt)}</p>
-                  <Button variant="link" href={sampleCollaborator(r.to) ? collabHref(r.to).profile : `/profile/${r.to}`}>View request</Button>
+                  <Button variant="link" href={requestHref(r.to, r.status)}>View request</Button>
                 </div>
               </li>
             );

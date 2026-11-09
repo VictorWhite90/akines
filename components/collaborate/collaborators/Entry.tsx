@@ -3,7 +3,7 @@
 import { Check } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { CC } from "@/lib/collab/collaborators";
-import { Arrow, HERO } from "./parts";
+import { HERO } from "./parts";
 
 /* Collaborators, the way in, mirrored from the product design (cc-split): a hero with the three promises and a photo. */
 
@@ -19,7 +19,7 @@ export default function Entry() {
           <p className="cc-support" data-m="up">Discover people whose skills, experience and working preferences may complement yours.</p>
         </div>
         <div className="cc-actions" data-m="up">
-          <Button href={CC.matching} iconRight={<Arrow />}>Explore collaborators</Button>
+          <Button href={CC.matching} arrow="up-right">Explore collaborators</Button>
           <Button variant="secondary" href={CC.start}>Start a project</Button>
         </div>
         <ul className="cc-principles" data-m="up">

@@ -278,3 +278,165 @@
 @media(max-width:767px){.k-panel.cc-drawer{padding:24px 20px}}
 @media(max-width:767px){.cc-priv__why{margin-top:12px}}
 .cc-page .k-btn--link,.cc-split .k-btn--link,.cc-drawer .k-btn--link,.cc-nr .k-btn--link,.cc-priv .k-btn--link{line-height:22px}
+
+/* ---- 8 Nov 2026 update, copied verbatim from the design's people.css: Change project, 12.47 Introduction request, its Loading and Could not load ---- */
+/* Change project (Figma Modal:Change project 17972:147081): 640 wide, padding 40, gap 24; Project Options is a column of Radio Row / Described, gap 8 */
+.cc-proj__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cc-proj .k-radio--row {
+  align-items: flex-start;
+}
+.cc-proj .k-radio__text {
+  gap: 2px;
+}
+.cc-proj .k-radio__desc {
+  letter-spacing: 0.25px;
+}
+
+/* ------------------------------------------------------------------ 12.47 Introduction request */
+/* the request card (Figma Request card: padding 24, gap 16, 64 px portrait) */
+.cc-rq {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+}
+.cc-rq__row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.cc-rq__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cc-rq__name {
+  margin: 0;
+  font: 400 24px/30px var(--font-serif);
+}
+.cc-rq__project {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 13px/21px var(--font-sans);
+}
+.cc-rq__sent {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 14px/22px var(--font-sans);
+}
+.cc-rq__note {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 14px/22px var(--font-sans);
+  white-space: pre-line;
+}
+/* Withdraw request modal: 640 wide, padding 40, gap 24 (the kit modal values) */
+.cc-wd .k-panel__foot {
+  gap: 16px 24px;
+}
+
+/* Loading: Skeleton Section Header and two Skeleton Request Cards (17974:163829), Pulse A to Pulse B */
+.cc-sk {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+.cc-sk-head {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 6px 0;
+}
+.cc-sk--head {
+  background-color: var(--border-default);
+}
+@keyframes cc-sk-head-pulse {
+  from {
+    background-color: var(--border-default);
+  }
+  to {
+    background-color: var(--border-subtle);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cc-sk--head {
+    animation-name: cc-sk-head-pulse;
+  }
+}
+.cc-sk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 28px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+}
+.cc-sk-card__top {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.cc-sk-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cc-sk-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cc-sk-card__actions {
+  gap: 16px;
+}
+.cc-sk-card__fields {
+  display: flex;
+  gap: 40px;
+}
+.cc-sk-field {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.cc-sk-field--grow {
+  flex: 1;
+}
+.cc-sk-card__rule {
+  background: var(--border-subtle);
+}
+/* Could not load (17974:163934): the buttons sit in a 100 high row in Figma */
+.cc-rq-err__actions {
+  padding: 26px 0;
+}
+@media (max-width: 1279px) {
+  .cc-sk-card__fields {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .cc-sk-field--grow {
+    flex: none;
+  }
+}
+@media (max-width: 767px) {
+  .cc-rq {
+    padding: 20px;
+  }
+  .cc-rq__row {
+    flex-wrap: wrap;
+  }
+  .cc-sk-card {
+    padding: 20px;
+  }
+  .cc-rq-err__actions {
+    padding: 0;
+  }
+}

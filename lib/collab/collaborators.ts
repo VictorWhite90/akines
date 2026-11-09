@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import { ME } from "@/lib/collab/me";
 import { useCollab } from "@/lib/collab/useCollab";
+import { isMine, phaseOf } from "@/lib/collab/workspace";
 import type { CollabCall, Project } from "@/lib/collab/types";
 import { DEMO } from "@/lib/demo/mode";
 import { MATCHES } from "@/lib/data/matches";
@@ -16,7 +17,10 @@ import { newId, useLocal } from "@/lib/useLocal";
  *   GET  /collab/collaborators/:id                   → Collaborator
  *   PUT  /collab/match-intention                     → MatchIntention
  *   GET|POST|DELETE /collab/saved-collaborators[/:id]
- *   GET|POST /collab/introductions                   → Introduction
+ *   GET|POST /collab/introductions                   → Introduction (the ones you sent)
+ *   POST /collab/introductions/:id/withdraw           → Introduction (withdrawnAt set; it leaves your list)
+ *   GET  /collab/introductions/incoming              → IncomingIntroduction[] (people who asked to meet you)
+ *   POST /collab/introductions/incoming/:id/accept|not-now|reopen → IncomingIntroduction
  * Until those exist everything is kept in the browser. Recommendations are sample content in the demo only;
  * a real member sees none yet rather than people who aren't on Akines.
  */
@@ -28,9 +32,10 @@ export type PrefKey = "skills" | "experience" | "availability" | "communication"
 export type MatchPrefs = Record<PrefKey, string[]>;
 
 /** The member's collaboration intention (the matching step): what they want, for which project, and what matters. */
-export type MatchIntention = { intention: Intention; projectId: string | null; prefs: MatchPrefs | null; updatedAt: number | null };
+/** `need` is the help asked for in Create AI's Explore collaborators chat (a Start a project need id), when matching started there. */
+export type MatchIntention = { intention: Intention; projectId: string | null; prefs: MatchPrefs | null; updatedAt: number | null; need?: string | null };
 
-export type Pronoun = "she" | "he";
+export type Pronoun = "she" | "he" | "they";
 export type MatchReason = { category: string; text: string; source: string };
 
 /** A recommended collaborator: one of our members plus what they chose to share for matching. */
@@ -61,11 +66,19 @@ export type Collaborator = {
 };
 
 export type IntroStatus = "pending" | "accepted" | "notnow";
-export type Introduction = { id: string; to: PersonId; projectId: string | null; projectTitle: string; message: string; status: IntroStatus; sentAt: number };
+/** An introduction you asked for. `seenAt` is when they opened it, `answeredAt` when they replied; a withdrawn one is kept with `withdrawnAt` and left out of your list. */
+export type Introduction = { id: string; to: PersonId; projectId: string | null; projectTitle: string; message: string; status: IntroStatus; sentAt: number; seenAt?: number; answeredAt?: number; withdrawnAt?: number };
+
+/** Someone who asked to be introduced to you, around one of your projects. */
+export type IncomingStatus = "waiting" | "accepted" | "notnow";
+export type IncomingIntroduction = { id: string; from: PersonId; projectId: string | null; projectTitle: string; purpose: string; note: string; status: IncomingStatus; receivedAt: number; answeredAt?: number };
 
 // ── Copy helpers ──
 
-const P = { she: { subj: "she", obj: "her", poss: "her" }, he: { subj: "he", obj: "him", poss: "his" } } as const;
+const P = { she: { subj: "she", obj: "her", poss: "her" }, he: { subj: "he", obj: "him", poss: "his" }, they: { subj: "they", obj: "them", poss: "their" } } as const;
+/** Pronouns of people we write sentences about who are not among the recommendations (the seeded introductions). */
+const PRONOUNS: Partial<Record<PersonId, Pronoun>> = { leila: "she", wanjiru: "she", nandi: "she" };
+export const pronounOf = (id: PersonId): Pronoun => SAMPLE.find((c) => c.id === id)?.pronoun ?? PRONOUNS[id] ?? "they";
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 export const firstName = (id: PersonId) => PEOPLE[id].name.split(" ")[0];
 
@@ -78,7 +91,7 @@ export function wordsFor(c: Collaborator) {
     requestNotice: `${f} will see your message and your public profile, then decide whether to connect. Neither of you is added to a project automatically.`,
     confirm: `${cap(subj)} will see your message and your public profile, then decide whether to connect. Nothing is sent until you confirm.`,
     sentSupport: `${f} can now review your message and decide whether ${subj}’d like to connect.`,
-    sentNote: `${f} hasn’t responded yet. You’ll see ${poss} decision here when ${subj} does.`,
+    sentNote: `${f} hasn’t responded yet. You’ll see ${poss} decision here when ${f} does.`,
     privacyNote: `Explanations use only what ${f} has chosen to share. This is a reason to explore, not a promise of compatibility.`,
     notRelevant: `Your answer is optional and ${f} won’t be notified.`,
     askUser: `Why is ${f} recommended for this project?`,
@@ -91,7 +104,7 @@ export function wordsFor(c: Collaborator) {
     visible: [
       { label: "Availability", text: `${f} agreed to share ${poss} availability for collaboration matching.` },
       { label: "Skills", text: `${cap(poss)} skills are part of ${poss} public profile.` },
-      { label: "Working preferences", text: `${f} shared these for this match so you can see how ${subj} likes to collaborate.` },
+      { label: "Working preferences", text: `${f} shared these for this match so you can see how ${f} likes to collaborate.` },
     ],
   };
 }
@@ -236,8 +249,13 @@ const SAMPLE: Collaborator[] = [
 
 const SEED_SAVED: PersonId[] = DEMO ? ["zuri", "tunde"] : [];
 const SEED_INTROS: Introduction[] = DEMO ? [
-  { id: "in-leila", to: "leila", projectId: "youth-podcast", projectTitle: "Abuja Youth Podcast: season one", message: "Hi Leila, I’m starting a podcast with young people in Abuja. You’ve hosted founders on stage, and I’d love your view on how to run a good conversation.", status: "pending", sentAt: Date.UTC(2026, 10, 1) },
-  { id: "in-wanjiru", to: "wanjiru", projectId: "youth-podcast", projectTitle: "Abuja Youth Podcast: season one", message: "Hi Wanjiru, I’m putting together the cover for a podcast about starting out in Abuja and would love to see whether your portraits could be part of it.", status: "notnow", sentAt: Date.UTC(2026, 9, 28) },
+  { id: "in-leila", to: "leila", projectId: "youth-podcast", projectTitle: "Abuja Youth Podcast: season one", message: "Hi Leila, I’m starting a podcast with young people in Abuja. You’ve hosted founders on stage, and I’d love your view on how to run a good conversation.", status: "pending", sentAt: Date.UTC(2026, 10, 1, 9) },
+  { id: "in-wanjiru", to: "wanjiru", projectId: "youth-podcast", projectTitle: "Abuja Youth Podcast: season one", message: "Hi Wanjiru, I’m putting together the cover for a podcast about starting out in Abuja and would love to see whether your portraits could be part of it.", status: "notnow", sentAt: Date.UTC(2026, 9, 28, 9), answeredAt: Date.UTC(2026, 10, 2, 9) },
+] : [];
+/** Demo: one person waiting for your answer, about the clinic booking app you lead (received a day before the visit). */
+const SEED_INCOMING: IncomingIntroduction[] = DEMO ? [
+  { id: "ii-nandi", from: "nandi", projectId: "garki-clinic-booking", projectTitle: "Garki Clinic booking app", purpose: "Helping patients get seen without the long wait",
+    note: "Hello Amara. I read your brief for the Garki Clinic booking app. I run a small practice and see how hard booking is for my clients, and I would like to talk about the reminder messages.", status: "waiting", receivedAt: Date.now() - 86_400_000 },
 ] : [];
 
 // ── The project you're matching for ──
@@ -258,7 +276,14 @@ function briefFromCall(c: CollabCall): Brief {
   };
 }
 function briefFromProject(p: Project): Brief {
-  return { id: p.id, name: p.title, stage: "In progress", line: p.summary, summary: p.summary, roles: [], fields: [], city: "" };
+  const phase = phaseOf(p) === "PLANNING" ? "Planning" : "Building";
+  return { id: p.id, name: p.title, stage: phase, line: `${phase}. ${p.summary}`, summary: p.summary, roles: [], fields: [], city: "" };
+}
+
+/** The projects matching can be for (Change project): the open calls you host, then the projects you lead or belong to. */
+export function matchProjects(c: Pick<ReturnType<typeof useCollab>, "hostedCalls" | "projects">): Brief[] {
+  const calls = c.hostedCalls.filter((x) => !c.projects.some((p) => p.callId === x.id));
+  return [...calls.map(briefFromCall), ...c.projects.filter(isMine).map(briefFromProject)];
 }
 
 // ── Matching preferences ──
@@ -300,15 +325,23 @@ export const INTENTIONS: { id: Intention; label: string; title: string; text: st
 export function useMatching() {
   const c = useCollab();
   const [m, setM] = useLocal<MatchIntention>("ak:collab-match", { intention: "project", projectId: null, prefs: null, updatedAt: null });
-  const call = c.hostedCalls.find((x) => x.id === m.projectId) ?? c.hostedCalls[0];
-  const hosted = c.projects.find((p) => p.id === m.projectId) ?? c.projects.find((p) => p.host === ME);
-  const brief = call ? briefFromCall(call) : hosted ? briefFromProject(hosted) : null;
+  const projects = matchProjects(c);
+  // the chosen one, else the first open call you host, else a project you host, else any of yours
+  const brief = projects.find((b) => b.id === m.projectId) ?? projects.find((b) => c.hostedCalls.some((x) => x.id === b.id)) ?? projects.find((b) => c.projects.some((p) => p.id === b.id && p.host === ME)) ?? projects[0] ?? null;
   const rows = prefRows(brief);
   const prefs = m.prefs ?? defaultPrefs(rows);
   return {
-    intention: m.intention, brief, rows, prefs,
+    intention: m.intention, need: m.need ?? null, brief, rows, prefs, projects,
+    /** Matching for a need named elsewhere (Create AI): every need is help for a project, so the choice becomes "For a project". */
+    setNeed: (need: string) => setM((cur) => ({ ...cur, need, intention: "project", updatedAt: Date.now() })),
     setIntention: (intention: Intention) => setM((cur) => ({ ...cur, intention, updatedAt: Date.now() })),
     setPrefs: (next: MatchPrefs) => setM((cur) => ({ ...cur, prefs: next, updatedAt: Date.now() })),
+    /** Match for another project (Change project); returns an undo. */
+    setProject: (projectId: string) => {
+      const before = m;
+      setM((cur) => ({ ...cur, projectId, updatedAt: Date.now() }));
+      return () => setM(before);
+    },
   };
 }
 
@@ -388,20 +421,109 @@ export function useSavedCollaborators() {
 }
 
 export function useIntroductions() {
-  const [list, setList] = useLocal<Introduction[]>("ak:collab-intros", SEED_INTROS);
+  const [all, setAll, ready] = useLocal<Introduction[]>("ak:collab-intros", SEED_INTROS);
+  const list = all.filter((x) => !x.withdrawnAt);
   return {
-    list,
+    list, ready,
+    /** The one you sent to this person (withdrawn ones don't count). */
+    get: (to: string) => list.find((x) => x.to === to) ?? null,
     /** A new request replaces an earlier one to the same person. */
     send: (input: Pick<Introduction, "to" | "projectId" | "projectTitle" | "message">) => {
       const intro: Introduction = { ...input, id: newId("in"), status: "pending", sentAt: Date.now() };
-      setList((cur) => [intro, ...cur.filter((x) => x.to !== input.to)]);
+      setAll((cur) => [intro, ...cur.filter((x) => x.to !== input.to)]);
       return intro;
+    },
+    /** Take back a request that is still pending: it leaves the list. Returns an undo that puts it back. */
+    withdraw: (id: string) => {
+      setAll((cur) => cur.map((x) => (x.id === id ? { ...x, withdrawnAt: Date.now() } : x)));
+      return () => setAll((cur) => cur.map((x) => (x.id === id ? { ...x, withdrawnAt: undefined } : x)));
     },
   };
 }
 
 export const INTRO_STATUS: Record<IntroStatus, string> = { pending: "Pending", accepted: "Accepted", notnow: "Not now" };
-export const sentOn = (at: number) => `Sent ${new Date(at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}`;
+const longDate = (at: number) => new Date(at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const WD = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MO = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+/** "Sun 1 Nov", as the timeline dates its steps. */
+const shortDay = (at: number) => { const d = new Date(at); return `${WD[d.getDay()]} ${d.getDate()} ${MO[d.getMonth()]}`; };
+export const sentOn = (at: number) => `Sent ${longDate(at)}`;
+
+// ── One introduction request's page ──
+
+export type RequestStep = { title: string; note: string; state: "done" | "upcoming" | "ended" };
+/** What the page of a request you sent says at each stage: the card's date line, the heading, where it stands, and what is shared. */
+export type RequestPage = { stage: IntroStatus; sent: string; headline: string; support: string; steps: RequestStep[]; notice: { title: string; text: string } };
+
+/**
+ * The page copy for `intro` at `stage` (its own status, or the one a review address shows). A reply with no
+ * recorded date (only on those review addresses) reads as today.
+ */
+export function requestPage(intro: Introduction, stage: IntroStatus = intro.status): RequestPage {
+  const f = firstName(intro.to), { poss } = P[pronounOf(intro.to)];
+  const replied = intro.answeredAt ?? Date.now();
+  if (stage === "accepted") {
+    const seen = intro.seenAt ?? replied;
+    return {
+      stage, sent: `${sentOn(intro.sentAt)}. Accepted ${longDate(replied)}.`,
+      headline: `${f} accepted your request.`, support: "You can start a conversation whenever you are ready.",
+      steps: [
+        { title: "Sent", note: shortDay(intro.sentAt), state: "done" },
+        { title: "Seen", note: shortDay(seen), state: "done" },
+        { title: "Reply", note: `${f} accepted, ${shortDay(replied)}`, state: "done" },
+      ],
+      notice: { title: "You are connected.", text: `${f} has agreed to talk with you. You are not added to each other’s projects until you both choose to be.` },
+    };
+  }
+  if (stage === "notnow") {
+    return {
+      stage, sent: `${sentOn(intro.sentAt)}. Reply ${longDate(replied)}.`,
+      headline: `${f} is not available to connect right now.`, support: "This is not a reflection on you or your project. You can look for other collaborators, or try again another time.",
+      steps: [
+        { title: "Sent", note: shortDay(intro.sentAt), state: "done" },
+        { title: "Not now", note: shortDay(replied), state: "ended" },
+      ],
+      notice: { title: "Nothing changes for your project.", text: `Your note stays between you and ${f}. You can send a new request later, or look at other people who may fit.` },
+    };
+  }
+  return {
+    stage, sent: sentOn(intro.sentAt),
+    headline: `Waiting for ${f}.`, support: `${f} has not replied yet. You will see ${poss} decision here when ${f} does.`,
+    steps: [
+      { title: "Sent", note: shortDay(intro.sentAt), state: "done" },
+      intro.seenAt ? { title: "Seen", note: shortDay(intro.seenAt), state: "done" } : { title: "Seen", note: `You will see when ${f} has opened it`, state: "upcoming" },
+      { title: "Reply", note: `${f} decides whether to connect`, state: "upcoming" },
+    ],
+    notice: { title: `Nothing more is shared until ${f} agrees.`, text: `${f} can see your note and your public profile. Neither of you is added to a project automatically. You can withdraw this request before ${f} replies.` },
+  };
+}
+
+// ── Introductions people asked of you ──
+
+/** People waiting for your answer, and what you answered. Accept and Not now each return an undo (back to waiting). */
+export function useIncomingIntroductions() {
+  const [list, setList, ready] = useLocal<IncomingIntroduction[]>("ak:collab-intros-in", SEED_INCOMING);
+  const answer = (id: string, status: IncomingStatus) => {
+    setList((cur) => cur.map((x) => (x.id === id ? { ...x, status, answeredAt: status === "waiting" ? undefined : Date.now() } : x)));
+    return () => setList((cur) => cur.map((x) => (x.id === id ? { ...x, status: "waiting", answeredAt: undefined } : x)));
+  };
+  return {
+    list, ready,
+    waiting: list.filter((x) => x.status === "waiting"),
+    accept: (id: string) => answer(id, "accepted"),
+    notNow: (id: string) => answer(id, "notnow"),
+    /** Back to waiting (Undo). */
+    reopen: (id: string) => { answer(id, "waiting"); },
+  };
+}
+/** "Received yesterday", "Received 3 days ago", "Received 2 November". */
+export function receivedOn(at: number) {
+  const days = Math.floor((new Date().setHours(0, 0, 0, 0) - new Date(at).setHours(0, 0, 0, 0)) / 86_400_000);
+  if (days <= 0) return "Received today";
+  if (days === 1) return "Received yesterday";
+  if (days < 7) return `Received ${days} days ago`;
+  return `Received ${new Date(at).toLocaleDateString("en-GB", { day: "numeric", month: "long" })}`;
+}
 
 /** Where each person's pages live. */
 export const collabHref = (id: string) => ({
@@ -410,6 +532,10 @@ export const collabHref = (id: string) => ({
   sent: `/collaborate/collaborators/${id}/request-sent`,
   why: `/collaborate/collaborators/${id}/why-this-match`,
 });
+/** Where a person's profile is: their collaborator profile when they are recommended to you, otherwise their Akines profile. */
+export const profileHref = (id: string) => (sampleCollaborator(id) ? collabHref(id).profile : `/profile/${id}`);
+/** The page of the introduction you sent to someone; the Not now one has its own address, as in the design. */
+export const requestHref = (to: string, status: IntroStatus = "pending") => `/collaborate/introduction-requests/${to}${status === "notnow" ? "/not-now" : ""}`;
 export const CC = {
   start: "/collaborate/start",
   entry: "/collaborate/collaborators",
@@ -419,5 +545,7 @@ export const CC = {
   savedEmpty: "/collaborate/saved-collaborators/state-empty",
   requests: "/collaborate/introduction-requests",
   requestsEmpty: "/collaborate/introduction-requests/state-empty",
+  introductions: "/collaborate/introductions",
+  introductionsEmpty: "/collaborate/introductions/state-empty",
   myProjects: "/collaborate/my-projects",
 };

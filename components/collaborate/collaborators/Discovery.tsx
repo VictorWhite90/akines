@@ -56,7 +56,7 @@ export default function Discovery({ forceEmpty }: { forceEmpty?: boolean }) {
           <CcEmpty title="We’re still finding the right people." text="Try adjusting your matching preferences to discover more collaborators." textWidth={760} action={<div><Button onClick={() => setOpen("prefs")}>Adjust preferences</Button></div>} />
         )}
       </div>
-      <Overlays open={open} onClose={() => setOpen(null)} person={who} />
+      <Overlays open={open} onClose={() => setOpen(null)} person={who} from="cards" />
     </>
   );
 }
