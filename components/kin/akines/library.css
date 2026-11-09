@@ -517,7 +517,7 @@ span.k-chip:not(.k-chip--removable){cursor:default}
 .toast{position:fixed;left:64px;right:auto;bottom:calc(48px + env(safe-area-inset-bottom,0px));z-index:150;width:max-content;max-width:calc(100vw - 128px);display:flex;align-items:center;gap:16px;padding:16px 22px;border-radius:8px;background:var(--surface-inverse);color:var(--text-inverse);box-shadow:var(--shadow-pop)}
 .toast__icon{flex:none;color:var(--accent)}
 .toast__msg{font:500 14px/1.6 var(--font-sans);letter-spacing:.3px}
-.toast__action{flex:none;margin-left:6px;padding:0;color:var(--text-inverse);font:600 14px/1.6 var(--font-sans);letter-spacing:.3px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;cursor:pointer;transition:color .3s ease-out}
+.toast__action{flex:none;margin-left:0;padding:0;color:var(--text-inverse);font:600 14px/1.6 var(--font-sans);letter-spacing:.3px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;cursor:pointer;transition:color .3s ease-out}
 .toast__action:focus-visible{outline:2px solid var(--text-inverse);outline-offset:3px;border-radius:2px}
 @media(hover:hover){.toast__action:hover{color:var(--accent)}}
 @media(max-width:1279px){.toast{left:0;right:0;margin-inline:auto;max-width:calc(100vw - 32px);bottom:calc(100px + env(safe-area-inset-bottom,0px))}}
