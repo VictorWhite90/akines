@@ -420,3 +420,235 @@
 @media(max-width:767px){.cs-wsr__name{font-size:32px}}
 @media(max-width:767px){.cs-wsr__features{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:767px){.cs-wsr__actions{flex-direction:column;align-items:flex-start;gap:12px}}
+
+/* ---------- 8 Nov 2026 design update, copied verbatim from home.css and start.css ---------- */
+/* Card Link is the kit link Button. Figma draws its underline at "auto" thickness and offset. */
+.cs-home .k-btn--link {
+  --k-icon: 16px; /* the Figma Card Link arrow is a 16 px icon */
+  text-decoration: underline;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-decoration-color: color-mix(in srgb, currentColor 55%, transparent);
+}
+/* the plain card links keep the 19 px slot they had before they became buttons; the Figma Card Link is 14 / 22 with 4 px above and below */
+.cs-home .k-btn.k-btn--link.cs-tight {
+  padding-block: 0;
+  line-height: 19px;
+  /* Figma underlines only the section header Card Links and the small text links; the tile links and card CTAs are plain, Medium, with an arrow */
+  text-decoration-line: none;
+  font-weight: 500;
+}
+.cs-home .k-btn.cs-att__action {
+  font-weight: 500; /* Attention Item action: 14 Medium in Figma */
+}
+@media (hover: hover) {
+  .cs-home .k-btn.k-btn--link.cs-tight:hover {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+}
+.cs-tile {
+  position: relative;
+}
+.cs-tile__hit {
+  position: absolute;
+  inset: 0;
+}
+.cs-tile .k-btn {
+  position: relative;
+  z-index: 1;
+  font-weight: 500; /* the Overview Indicator link is Medium, not SemiBold */
+}
+/* ---------- Open calls header: Your open calls and View All Open Calls (Figma "Open calls links", 32 px apart, bottom aligned) ---------- */
+.cs-sec__links {
+  display: flex;
+  flex: none;
+  align-items: flex-end;
+  gap: 32px;
+}
+
+/* ---------- Loading state (17974:166533): Skeleton / Overview Tile, Project Card Skeletons, Skeleton / List Row ---------- */
+.cs-sktile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 273px;
+  padding: 28px 24px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+}
+.cs-sktile__top {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 100%;
+}
+.cs-skcards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+  gap: 24px;
+}
+.cs-skatt {
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+}
+.cs-skatt__row {
+  display: flex;
+  flex-direction: column;
+  gap: 23px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.cs-skatt__row:last-child {
+  border-bottom-color: transparent;
+}
+.cs-skatt__line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* ---------- Empty state (17111:9037): the page of someone with no projects ---------- */
+.cs-home--empty {
+  gap: 104px;
+  padding-bottom: 120px;
+}
+/* Starting Point Card (Figma 17169:11022): Default, Hover (white fill, ink border), Pressed (muted fill), Focus (2 px ink border) */
+.cs-sps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+.cs-sps__item {
+  display: flex;
+  min-width: 0;
+}
+.cs-sp {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 304px;
+  padding: 32px;
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  text-decoration: none;
+  transition:
+    background-color 0.3s ease-out,
+    border-color 0.3s ease-out,
+    box-shadow 0.3s ease-out;
+}
+@media (hover: hover) {
+  .cs-sp:hover {
+    background: var(--surface-default);
+    border-color: var(--text-primary);
+  }
+  .cs-sp:hover .cs-sp__action svg {
+    translate: 3px 0;
+  }
+}
+.cs-sp:active {
+  background: var(--surface-muted);
+  border-color: var(--text-primary);
+}
+.cs-home .cs-sp:focus-visible {
+  outline: none;
+  border-color: var(--text-primary);
+  box-shadow: inset 0 0 0 1px var(--text-primary);
+}
+.cs-sp__n {
+  font: 400 24px/24px var(--font-serif);
+  color: var(--text-secondary);
+}
+.cs-sp__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cs-sp__title {
+  font: 400 32px/37px var(--font-serif);
+}
+.cs-sp__text {
+  font: 400 16px/25.6px var(--font-sans);
+  color: var(--text-secondary);
+}
+.cs-sp__action {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px; /* Figma: 12 px gap, an 8 px space, 12 px gap above the action */
+  padding: 4px 0;
+  font: 600 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+}
+.cs-sp__action svg {
+  flex: none;
+  transition: translate 0.4s var(--ease-out);
+}
+/* What you can do here: Capability Line (Figma 17972:143971), a 1 px rule above the list and under each line */
+.cs-cap {
+  border-top: 1px solid var(--border-subtle);
+}
+.cs-cap__line {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 80px;
+  padding: 20px 0 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.cs-cap__title {
+  font: 500 17px/23px var(--font-sans);
+}
+.cs-cap__support {
+  font: 400 15px/20px var(--font-sans);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1279px) {
+  .cs-home--empty {
+    gap: 88px;
+    padding-bottom: 96px;
+  }
+}
+@media (max-width: 1099px) {
+  .cs-sps,
+  .cs-skcards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cs-sp {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .cs-home--empty {
+    gap: 64px;
+    padding-bottom: 80px;
+  }
+  .cs-sec__links {
+    flex-wrap: wrap;
+    gap: 8px 24px;
+  }
+  .cs-sp {
+    padding: 24px;
+  }
+  .cs-sp__title {
+    font-size: 28px;
+    line-height: 34px;
+  }
+  .cs-skatt__line {
+    flex-wrap: wrap;
+  }
+}
+/* the suggestion buttons of the design are 44 high with 20 px sides (Add 146 x 44), not the 48 of the standard button */
+.cs-sg__actions .k-btn--secondary {
+  --k-h: 44px;
+  --k-px: 20px;
+}

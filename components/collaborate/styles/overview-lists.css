@@ -1,0 +1,352 @@
+/* Collaborate: overview lists (ol-).
+   Copied verbatim from the Akines product design (8 Nov 2026, overview-lists.css). Do not restyle here:
+   change the design, then copy again. */
+/*
+ * The three lists behind the Collaborate Home count tiles: 12.48 Decisions awaiting you, 12.49 Introduction requests and 12.50 Tasks due this
+ * week, each with Empty and Loading (prefix ol-). Values are read from Figma V2 Desktop section 12 at 1512 wide: content 1384 with 64 px sides,
+ * 72 px under the header, 48 px between back link, header, tab row and results, 120 px at the bottom.
+ * The Introduction Request reuses the Interest Request of the Team page (pt-req in project-team/team.css), the task rows reuse the Task Row
+ * of the Tasks screens (tk-row in tasks/tasks.css). Hover lives in @media (hover: hover); the focus rings restate the radius because
+ * `.app :focus-visible` sets 6 px on everything.
+ */
+.ol-page,
+.ol-page *,
+.ol-page *::before,
+.ol-page *::after {
+  box-sizing: border-box;
+}
+.ol-page {
+  max-width: 1512px;
+  margin: 0 auto;
+  padding: 72px 64px 120px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+.ol-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+/* ------------------------------------------------------------------ header (Header row) */
+.ol-head {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 920px;
+  max-width: 100%;
+  min-width: 0;
+}
+.ol-eyebrow {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 500 12px/18px var(--font-sans);
+  letter-spacing: 1.7px;
+  text-transform: uppercase;
+}
+.ol-h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 56px/64px var(--font-serif);
+  letter-spacing: -0.5px;
+}
+.ol-lead {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 18px/29px var(--font-sans);
+}
+
+/* ------------------------------------------------------------------ Tabs: one open tab and the count */
+.ol-tabs {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.ol-tab {
+  padding: 16px 0 14px;
+  border-bottom: 2px solid var(--accent);
+  color: var(--text-primary);
+  font: 600 14px/21px var(--font-sans);
+  white-space: nowrap;
+}
+.ol-count {
+  padding-bottom: 16px;
+  color: var(--text-secondary);
+  font: 400 14px/21px var(--font-sans);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ results */
+.ol-results {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+.ol-narrow {
+  width: 100%;
+  max-width: 984px;
+}
+.ol-next {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.ol-box {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+}
+/* the Figma rows (and skeleton rows) all keep their bottom rule, so the last one sits just inside the box border
+   (tasks.css hides it for the project Tasks page, so it is restated here for the Tasks due this week box) */
+.ol-box.tk-rows > li:last-child > .tk-row {
+  border-bottom-color: var(--border-subtle);
+}
+
+/* ------------------------------------------------------------------ Awaiting Decision Row */
+.ol-drow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background-color 0.15s ease-out;
+}
+@media (hover: hover) {
+  .ol-drow:hover {
+    background: var(--surface-subtle);
+  }
+}
+.ol-drow:has(.ol-drow__hit:active) {
+  background: var(--surface-muted);
+}
+.ol-drow:has(.ol-drow__hit:focus-visible) {
+  outline: 2px solid var(--text-primary);
+  outline-offset: -2px;
+}
+.ol-drow__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.ol-drow__top,
+.ol-drow__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ol-drow__top .dc-status {
+  flex: none;
+}
+/* the title is the row link: its ::after covers the whole row, the project name and the Review button sit above it */
+.ol-drow__hit {
+  display: block;
+  min-width: 0;
+  color: var(--text-primary);
+  font: 600 15px/20px var(--font-sans); /* Figma: 15 px at 135 % rounds to a 20 px line, so the row is 87 px */
+  text-decoration: none;
+}
+.ol-drow__hit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.app .ol-drow__hit:focus-visible {
+  outline: none;
+}
+.ol-drow__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-secondary);
+  font: 400 13px/20px var(--font-sans);
+}
+.ol-drow__meta > span {
+  white-space: nowrap;
+}
+.ol-drow__project {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  white-space: nowrap;
+  cursor: default;
+}
+.app .ol-drow__project:focus-visible {
+  border-radius: 2px;
+}
+.ol-drow .k-btn {
+  position: relative;
+  z-index: 1;
+  flex: none;
+}
+
+/* ------------------------------------------------------------------ Introduction Request (on top of pt-req) */
+.ol-req {
+  width: 100%;
+  max-width: 984px;
+}
+.ol-req__purpose {
+  flex: none;
+  width: 260px;
+}
+
+/* ------------------------------------------------------------------ Empty State */
+.ol-state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 56px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+}
+.ol-state__rule {
+  width: 48px;
+  height: 3px;
+  background: var(--accent);
+}
+.ol-state__headline {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 40px/46px var(--font-serif);
+  letter-spacing: -0.4px;
+}
+.ol-state__support {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 18px/27px var(--font-sans);
+}
+
+/* ------------------------------------------------------------------ Loading skeletons (bars pulse between two greys, see .dsc-bar) */
+.ol-skrow {
+  display: flex;
+  flex-direction: column;
+  gap: 23px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.ol-skrow__line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.ol-skreq {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 984px;
+  padding: 28px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+}
+.ol-skreq__top {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.ol-skreq__text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ol-skreq__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ol-skreq__rule {
+  height: 1px;
+  background: var(--border-subtle);
+}
+.ol-skreq__fields {
+  display: flex;
+  gap: 40px;
+}
+.ol-skreq__field {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+.ol-skreq__field--purpose {
+  flex: none;
+  width: 240px;
+}
+.ol-skreq__actions {
+  display: flex;
+  gap: 16px;
+}
+
+/* ------------------------------------------------------------------ Tablet and mobile (the design is desktop only for now) */
+@media (max-width: 1279px) {
+  .ol-page {
+    padding: 56px 48px 96px;
+  }
+  .ol-h1 {
+    font-size: 44px;
+    line-height: 52px;
+  }
+}
+@media (max-width: 767px) {
+  .ol-page {
+    padding: 40px 16px 80px;
+  }
+  .ol-stack {
+    gap: 32px;
+  }
+  .ol-h1 {
+    font-size: 36px;
+    line-height: 42px;
+  }
+  .ol-state {
+    padding: 28px 24px;
+  }
+  .ol-state__headline {
+    font-size: 30px;
+    line-height: 36px;
+  }
+  .ol-drow {
+    flex-wrap: wrap;
+  }
+  .ol-drow__content {
+    flex-basis: 100%;
+  }
+  .ol-drow__top,
+  .ol-drow__bottom {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .ol-drow__meta {
+    flex-wrap: wrap;
+  }
+  .ol-req__purpose {
+    width: auto;
+  }
+  .ol-skreq__fields {
+    flex-direction: column;
+    gap: 20px;
+  }
+  .ol-skreq__field--purpose {
+    width: auto;
+  }
+  .ol-next {
+    flex-wrap: wrap;
+  }
+}

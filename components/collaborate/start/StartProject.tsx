@@ -23,6 +23,9 @@ import "../styles/home-start.css";
 
 const FRESH: DraftAnswers = DEMO ? SAMPLE : BLANK;
 const TOAST_MS = 2500;
+/** Review brief / Draft removed: where Undo on "Draft saved" leads, with the brief as the member left it. */
+const DRAFT_REMOVED_PATH = "/collaborate/start/state-draft-removed";
+const DRAFT_REMOVED = "Draft removed from My Projects. Your brief is still here.";
 
 /** Where a builder step sits for a draft (null: not worth keeping yet). */
 function atOf(s: Step): DraftAt | null {
@@ -32,7 +35,7 @@ function atOf(s: Step): DraftAt | null {
   return "workspace";
 }
 
-export default function StartProject({ initial = "entry" }: { initial?: Step }) {
+export default function StartProject({ initial = "entry", draftRemoved = false }: { initial?: Step; draftRemoved?: boolean }) {
   const router = useRouter();
   const params = useSearchParams();
   const collab = useCollab();
@@ -79,6 +82,12 @@ export default function StartProject({ initial = "entry" }: { initial?: Step }) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drafts.ready]);
 
+  // Review brief / Draft removed: the toast over the page, once, when it opens.
+  useEffect(() => {
+    if (draftRemoved) toast.show({ message: DRAFT_REMOVED, duration: TOAST_MS });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // After saving (a draft, or the project) the next Start a project begins empty.
   const resetRef = useRef(reset);
   useEffect(() => { resetRef.current = reset; });
@@ -116,7 +125,17 @@ export default function StartProject({ initial = "entry" }: { initial?: Step }) 
     const id = keep("review", answers, accepted);
     resetOnLeave.current = true;
     router.push("/collaborate/my-projects/drafts");
-    toast.show({ message: "Draft saved.", actionLabel: "Undo", duration: TOAST_MS, onAction: () => router.push(`/collaborate/start?draft=${encodeURIComponent(id)}`) });
+    // Undo takes the draft out of My Projects and goes back to the brief, as it was (the builder is put back).
+    const kept = { answers, edits, accepted };
+    toast.show({
+      message: "Draft saved.", actionLabel: "Undo", duration: TOAST_MS,
+      onAction: () => {
+        resetOnLeave.current = false;
+        drafts.discard(id);
+        setAnswers(kept.answers); setEdits(kept.edits); setAccepted(kept.accepted); setDraftId(null);
+        router.push(DRAFT_REMOVED_PATH);
+      },
+    });
   };
 
   const saveProject = async () => {

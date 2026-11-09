@@ -81,11 +81,13 @@ export function useDrafts() {
     setList((cur) => cur.filter((x) => x.id !== id));
     return { draft, index };
   }, [list, setList]);
+  /** Deletes a draft by id, whatever this hook last read (the Undo of "Draft saved" runs after the builder has gone). */
+  const discard = useCallback((id: string) => setList((cur) => cur.filter((x) => x.id !== id)), [setList]);
   const restore = useCallback((draft: ProjectDraft, index: number) => setList((cur) => {
     if (cur.some((x) => x.id === draft.id)) return cur;
     const next = [...cur];
     next.splice(Math.min(index, next.length), 0, draft);
     return next;
   }), [setList]);
-  return { ready, drafts, get: (id: string) => list.find((x) => x.id === id), save, remove, restore } as const;
+  return { ready, drafts, get: (id: string) => list.find((x) => x.id === id), save, remove, discard, restore } as const;
 }
