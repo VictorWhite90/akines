@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Button from "@/components/kin/Button";
 import { Modal } from "@/components/kin/Overlay";
-import { toast } from "@/components/kin/Toast";
-import { conversationSlots, useCollab } from "@/lib/collab/useCollab";
-import { discoverProject, firstOf, fitOf, sentWhen, type DiscoverProject } from "@/lib/collab/projects";
+import { useCollab } from "@/lib/collab/useCollab";
+import { discoverProject, firstOf, fitOf, type DiscoverProject } from "@/lib/collab/projects";
 import type { Application } from "@/lib/collab/types";
 import { ME } from "@/lib/collab/me";
+import { withdrawWithUndo } from "@/components/collaborate/applications/parts";
 import { HostInterest } from "@/components/collaborate/workspace/InterestRequests";
-import { Back, Bar, GlancePanel, InterestPanel, Item, Match, PageState, PrivacyPanel, SaveButton, Section, SkelSection, SkelSide, StageLine, Status, Tags, TeamMemberRow, memberHref, pageStatus } from "./parts";
+import { Back, Bar, GlancePanel, InterestPanel, Item, Match, PageState, PrivacyPanel, SaveButton, Section, SentPanel, SkelSection, SkelSide, StageLine, Tags, TeamMemberRow, memberHref, pageStatus } from "./parts";
 
 /*
  * A project's page, mirrored from the product design (classes in ../styles/projects.css): what the project is and
@@ -30,8 +30,6 @@ const glance = (p: DiscoverProject) => [
   { label: "Location", value: p.glanceLocation },
 ];
 
-const PENDING = new Set(["submitted", "viewed", "shortlisted", "conversation"]);
-
 export default function ProjectPage({ id }: { id: string }) {
   const collab = useCollab({ engine: true });
   const router = useRouter();
@@ -44,7 +42,7 @@ export default function ProjectPage({ id }: { id: string }) {
     if (workspace) router.replace(`/collaborate/my-projects/${encodeURIComponent(id)}`);
   }, [workspace, id, router]);
 
-  if (status === "loading" || workspace) return <LoadingProject />;
+  if (status === "loading" || workspace) return <DetailSkeleton />;
   if (status === "error" || !call) {
     return (
       <div className="dsc-page"><div className="dsc-stack">
@@ -77,10 +75,8 @@ export default function ProjectPage({ id }: { id: string }) {
   }
 
   const withdraw = (a: Application) => {
-    collab.withdraw(a.id);
     setWithdrawing(false);
-    // Undo sends the same interest again.
-    toast.show({ message: "Interest withdrawn.", actionLabel: "Undo", onAction: () => { void collab.apply({ callId: a.callId, role: a.role, works: a.works, links: a.links, files: a.files, statement: a.statement, availability: a.availability, materials: a.materials }); } });
+    withdrawWithUndo(collab, a);
   };
   const ownerMember = p.team[0];
   // The host answers interest here rather than sending it.
@@ -110,65 +106,32 @@ export default function ProjectPage({ id }: { id: string }) {
           <Section title="Why this may fit you"><Match sentence={fitOf(p, saved)} /></Section>
         </div>
         <aside className="dsc-detail__side" aria-label="Project actions">
-          {app ? <YourInterest app={app} owner={owner} saved={saved} onSave={save} onWithdraw={() => setWithdrawing(true)} /> : host ? null : <InterestPanel interestHref={`/collaborate/projects/${encodeURIComponent(p.id)}/interest`} saved={saved} onSave={save} />}
+          {app ? <SentPanel app={app} owner={owner} saved={saved} onSave={save} onWithdraw={() => setWithdrawing(true)} /> : host ? null : <InterestPanel interestHref={`/collaborate/projects/${encodeURIComponent(p.id)}/interest`} saved={saved} onSave={save} />}
           <GlancePanel rows={glance(p)} />
           <PrivacyPanel text="The project summary and what the owner chose to share. Private details stay private." />
         </aside>
       </div>
-      <Modal open={withdrawing} onClose={() => setWithdrawing(false)} width={640} className="dsc-modal dsc-modal--withdraw" eyebrow="Withdraw interest" title="Withdraw your interest?" description={`${owner} will no longer see your request. You can send interest again later.`}
-        footer={<div className="dsc-modal__actions dsc-modal__actions--wide">
-          <Button onClick={() => app && withdraw(app)}>Withdraw interest</Button>
-          <button type="button" className="dsc-link" onClick={() => setWithdrawing(false)}><span className="dsc-link__label">Keep my interest</span></button>
-        </div>} />
+      <WithdrawInterestModal open={withdrawing} owner={owner} onClose={() => setWithdrawing(false)} onWithdraw={() => { if (app) withdraw(app); }} />
     </div>
   );
 }
 
-/** Your interest as it stands: waiting, a time to talk, an offer, on the team, or not this time. */
-function YourInterest({ app, owner, saved, onSave, onWithdraw }: { app: Application; owner: string; saved: boolean; onSave: () => void; onWithdraw: () => void }) {
-  const collab = useCollab();
-  const router = useRouter();
-  const pending = PENDING.has(app.stage);
+/** Withdraw interest modal, shared by the project page and the Pending page of the request (12.44). */
+export function WithdrawInterestModal({ open, onClose, onWithdraw, owner }: { open: boolean; onClose: () => void; onWithdraw: () => void; owner: string }) {
   return (
-    <section className="dsc-panel-card dsc-panel-card--actions" aria-label="Your interest">
-      <p className="dsc-eyebrow">Your interest</p>
-      <div className="dsc-sent-status">
-        {app.stage === "joined" ? <Status status="open" label="Joined" /> : app.stage === "not-selected" ? <Status status="closed" label="Not selected" /> : app.stage === "offer" ? <Status status="open" label="Offer" /> : <Status status="pending" />}
-        <span>{sentWhen(app)}</span>
-      </div>
-      {app.stage === "shortlisted" && !app.slot ? (
-        <>
-          <p className="dsc-panel-card__note">{owner} shortlisted you. Pick a time for a 20-minute conversation.</p>
-          {(app.slotsOffered?.length ? app.slotsOffered : conversationSlots()).map((s) => <Button key={s} variant="secondary" full onClick={() => collab.pickSlot(app.id, s)}>{s}</Button>)}
-        </>
-      ) : app.stage === "conversation" ? (
-        <p className="dsc-panel-card__note">You are talking with {owner} on {app.slot}. You can withdraw your interest until they decide.</p>
-      ) : app.stage === "offer" ? (
-        <>
-          <p className="dsc-panel-card__note">{owner} would like you on the team as {(app.offer?.role ?? app.role).toLowerCase()}{app.offer?.fee ? `, for ${app.offer.fee}` : ""}.</p>
-          <Button full onClick={async () => { const pid = await collab.acceptOffer(app.id); if (pid) router.push(`/collaborate/my-projects/${pid}`); }}>Accept and join</Button>
-          <Button variant="secondary" full onClick={() => collab.declineOffer(app.id)}>Decline</Button>
-        </>
-      ) : app.stage === "joined" ? (
-        <>
-          <p className="dsc-panel-card__note">You are on the team as {app.role.toLowerCase()}.</p>
-          {app.projectId ? <Button href={`/collaborate/my-projects/${app.projectId}`} full>Open the project</Button> : null}
-        </>
-      ) : app.stage === "not-selected" ? (
-        <p className="dsc-panel-card__note">{app.feedback ?? `${owner} chose other people this time.`}</p>
-      ) : (
-        <p className="dsc-panel-card__note">{owner} will reply here. You can withdraw your interest until they respond.</p>
-      )}
-      {pending ? <Button variant="secondary" full onClick={onWithdraw}>Withdraw interest</Button> : null}
-      <SaveButton saved={saved} onClick={onSave} />
-    </section>
+    <Modal open={open} onClose={onClose} width={640} className="dsc-modal dsc-modal--withdraw" eyebrow="Withdraw interest" title="Withdraw your interest?" description={`${owner} will no longer see your request. You can send interest again later.`}
+      footer={<div className="dsc-modal__actions dsc-modal__actions--wide">
+        <Button onClick={onWithdraw}>Withdraw interest</Button>
+        <button type="button" className="dsc-link" onClick={onClose}><span className="dsc-link__label">Keep my interest</span></button>
+      </div>} />
   );
 }
 
-function LoadingProject() {
+/** The page loading; also the body of the request page while it loads (12.44). */
+export function DetailSkeleton({ label = "Loading the project" }: { label?: string }) {
   return (
     <div className="dsc-page">
-      <div className="dsc-detail" aria-busy="true" aria-label="Loading the project">
+      <div className="dsc-detail" aria-busy="true" aria-label={label}>
         <div className="dsc-detail__main" aria-hidden="true">
           <Bar w={170} h={14} />
           <span className="dsc-spacer" style={{ height: 36 }} />

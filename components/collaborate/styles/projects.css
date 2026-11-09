@@ -205,6 +205,10 @@
 .dsc-request__meta{margin:0;color:var(--text-secondary);font:400 13px/21px var(--font-sans)}
 .dsc-request__rule{height:1px;margin:0;border:0;background:var(--border-default)}
 .dsc-request__note{margin:0;color:var(--text-secondary);font:400 14px/22px var(--font-sans)}
+/* 12.44: the Interest sent card opens the request, through its View request link stretched over the card */
+.dsc-request--link{position:relative;cursor:pointer}
+.dsc-request--link .dsc-link::after{content:'';position:absolute;inset:0}
+.dsc-request .dsc-link,.dsc-panel-card>.dsc-link{align-self:flex-start}
 .dsc-modal__actions{display:flex;flex-wrap:wrap;align-items:center;gap:16px}
 .dsc-modal__actions--wide{gap:24px}
 .dsc-filters{display:flex;flex-direction:column}

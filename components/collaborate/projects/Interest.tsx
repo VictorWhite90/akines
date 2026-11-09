@@ -11,7 +11,8 @@ import { ME, useCollab } from "@/lib/collab/useCollab";
 import { ANOTHER_WAY, INTEREST_TIMES, discoverProject, firstOf, type DiscoverProject } from "@/lib/collab/projects";
 import type { Application } from "@/lib/collab/types";
 import { PEOPLE } from "@/lib/data/people";
-import { ArrowIcon, Back, Notice, PageState, Portrait, Status, pageStatus } from "./parts";
+import { requestHref } from "@/components/collaborate/applications/paths";
+import { ArrowIcon, Back, DsLink, Notice, PageState, Portrait, Status, pageStatus } from "./parts";
 
 /*
  * Express interest, mirrored from the product design (classes in ../styles/projects.css): choose a role, say how
@@ -125,7 +126,7 @@ function Sent({ project: p, app }: { project: DiscoverProject; app: Application 
         <p className="dsc-eyebrow" data-m="up">Interest sent</p>
         <h1 className="dsc-h1 dsc-h1--sent" data-m="words">Your interest is on its way.</h1>
         <p className="dsc-lead" data-m="up">{owner} can now read your message and decide whether to invite you onto the team. You will see the reply here.</p>
-        <section className="dsc-request" aria-label="Your request" data-m="up">
+        <section className="dsc-request dsc-request--link" aria-label="Your request" data-m="up">
           <div className="dsc-request__row">
             <Portrait project={p} size={64} />
             <div className="dsc-request__info">
@@ -135,7 +136,9 @@ function Sent({ project: p, app }: { project: DiscoverProject; app: Application 
             {pending ? <Status status="pending" /> : app.stage === "not-selected" ? <Status status="closed" label="Not selected" /> : <Status status="open" label={app.stage === "joined" ? "Joined" : "Offer"} />}
           </div>
           <hr className="dsc-request__rule" />
-          <p className="dsc-request__note">{pending ? `${owner} has not replied yet. You will see the decision here when it arrives.` : `${owner} has replied. See it on the project.`}</p>
+          <p className="dsc-request__note">{pending ? `${owner} has not replied yet. You will see the decision here when it arrives.` : `${owner} has replied. See it on your request.`}</p>
+          {/* 12.44: the card and this link open the request */}
+          <DsLink href={requestHref(p.id)} arrow>View request</DsLink>
         </section>
         <div className="dsc-actions">
           <Button href={`/collaborate/projects/${encodeURIComponent(p.id)}`} iconRight={<ArrowIcon />}>Back to project</Button>

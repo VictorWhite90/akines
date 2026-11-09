@@ -31,7 +31,7 @@ export const SEED_CALLS: CollabCall[] = [
     roles: ["Lead muralist", "Assistant painter", "Graphic designer"], fields: ["Arts", "Design"], level: "Any level, with at least three finished pieces",
     fee: "₦600,000 lead · ₦250,000 per teammate", rights: "The festival may photograph and show the mural for two years. You keep the design, and your name is on the wall.",
     selection: "Zuri reviews every application herself. Shortlisted people get a 20-minute conversation, and everyone hears back.", teamSize: 3,
-    materials: ab("jabi"), timeline: [{ label: "Applications close", when: "9 Nov" }, { label: "Conversations", when: "11–13 Nov" }, { label: "Painting", when: "20–28 Nov" }, { label: "Unveiling", when: "30 Nov" }],
+    materials: ab("jabi"), timeline: [{ label: "Applications close", when: "9 Nov" }, { label: "Conversations", when: "11 to 13 Nov" }, { label: "Painting", when: "20 to 28 Nov" }, { label: "Unveiling", when: "30 Nov" }],
     closesInDays: 14, verified: true,
   },
   {
@@ -51,7 +51,7 @@ export const SEED_CALLS: CollabCall[] = [
     roles: ["Product designer", "Developer"], fields: ["Tech", "Design"], level: "Two or more shipped projects",
     fee: "₦1.2m, paid at three milestones", rights: "The clinic owns the app. You can show it in your portfolio and you're credited in the app.",
     selection: "Ayo and the clinic manager review together. Shortlisted pairs get a 30-minute call.", teamSize: 2,
-    materials: ab("clinic"), timeline: [{ label: "Applications close", when: "12 Nov" }, { label: "Patient interviews", when: "18–20 Nov" }, { label: "First version", when: "15 Dec" }],
+    materials: ab("clinic"), timeline: [{ label: "Applications close", when: "12 Nov" }, { label: "Patient interviews", when: "18 to 20 Nov" }, { label: "First version", when: "15 Dec" }],
     closesInDays: 17, verified: true,
   },
   {
@@ -205,7 +205,7 @@ export function seedState(): CollabState {
         steps: [{ id: "s1", title: "Fabric row (6)", done: true }, { id: "s2", title: "Bead sellers (8)", done: true }, { id: "s3", title: "Food stalls (10)", done: false }],
         proof: [{ id: "ml-p3", kind: "note", title: "Caption style", text: "First name, stall, years at the market, one sentence in their own words. No more than 30 words.", by: "efua", at: now - 4 * DAY }] }),
       dl({ id: "ml-d3", title: "Book layout, 24 pages", owner: ME, approver: "wanjiru", due: "15 Nov", share: 25, status: "doing",
-        steps: [{ id: "s1", title: "Grid and type", done: true }, { id: "s2", title: "Spreads 1–6", done: true }, { id: "s3", title: "Spreads 7–12", done: false }],
+        steps: [{ id: "s1", title: "Grid and type", done: true }, { id: "s2", title: "Spreads 1 to 6", done: true }, { id: "s3", title: "Spreads 7 to 12", done: false }],
         proof: [{ id: "ml-p4", kind: "image", title: "Spread 3 draft", photo: "journalOpen", by: ME, at: now - 2 * DAY }, { id: "ml-p5", kind: "link", title: "Layout in Figma", url: "https://figma.com/file/market-light-book", by: ME, at: now - 2 * DAY }] }),
       dl({ id: "ml-d4", title: "Launch at Wuse Market", owner: "wanjiru", approver: "efua", due: "7 Dec", share: 15, status: "todo" }),
     ],
@@ -334,7 +334,7 @@ export function seedState(): CollabState {
 
   /** Study: a final-year group project, with you as their industry mentor. Tunde's survey is waiting for you. */
   const study: Project = {
-    ...base, id: "kubwa-ride-final-year", title: "Final-year project: a ride app for Kubwa students", summary: "Three engineering students design and test a shared-ride app for the Kubwa–campus route.", photo: "notebookWhite", host: "chidi", kind: "study", createdAt: now - 40 * DAY,
+    ...base, id: "kubwa-ride-final-year", title: "Final-year project: a ride app for Kubwa students", summary: "Three engineering students design and test a shared-ride app for the Kubwa to campus route.", photo: "notebookWhite", host: "chidi", kind: "study", createdAt: now - 40 * DAY,
     members: [
       { id: "chidi", role: "Group lead", contribution: "Research question, report" },
       { id: "tunde", role: "Student", contribution: "Survey and data" },

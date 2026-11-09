@@ -4,7 +4,9 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Bookmark, Eye } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { faceSrc } from "@/components/kin/home/parts";
-import type { DiscoverProject } from "@/lib/collab/projects";
+import { sentWhen, type DiscoverProject } from "@/lib/collab/projects";
+import type { Application } from "@/lib/collab/types";
+import { requestHref } from "@/components/collaborate/applications/paths";
 import type { PersonId } from "@/lib/data/people";
 import "../styles/projects.css";
 
@@ -172,6 +174,32 @@ export function InterestPanel({ interestHref, saved, onSave }: { interestHref?: 
     <section className="dsc-panel-card dsc-panel-card--actions" aria-label="Interest">
       <p className="dsc-eyebrow">Interested in this project?</p>
       {interestHref ? <Button href={interestHref} full iconRight={<ArrowIcon />}>Express interest</Button> : <Button full iconRight={<ArrowIcon />} disabled>Express interest</Button>}
+      <SaveButton saved={saved} onClick={onSave} />
+    </section>
+  );
+}
+
+const PENDING = new Set(["submitted", "viewed", "shortlisted", "conversation"]);
+
+/** Side panel once interest was sent: status, note, View request (12.44), Withdraw interest, Save project. */
+export function SentPanel({ app, owner, saved, onSave, onWithdraw }: { app: Application; owner: string; saved: boolean; onSave: () => void; onWithdraw: () => void }) {
+  const pending = PENDING.has(app.stage);
+  const note = app.stage === "shortlisted" && !app.slot ? `${owner} shortlisted you. Pick a time for a 20-minute conversation.`
+    : app.stage === "conversation" ? `You are talking with ${owner} on ${app.slot}. You can withdraw your interest until they decide.`
+    : app.stage === "offer" ? `${owner} would like you on the team as ${(app.offer?.role ?? app.role).toLowerCase()}.`
+    : app.stage === "joined" ? `You are on the team as ${app.role.toLowerCase()}.`
+    : app.stage === "not-selected" ? `${owner} chose other people this time.`
+    : `${owner} will reply here. You can withdraw your interest until they respond.`;
+  return (
+    <section className="dsc-panel-card dsc-panel-card--actions" aria-label="Your interest">
+      <p className="dsc-eyebrow">Your interest</p>
+      <div className="dsc-sent-status">
+        {app.stage === "joined" ? <Status status="open" label="Joined" /> : app.stage === "not-selected" ? <Status status="closed" label="Not selected" /> : app.stage === "offer" ? <Status status="open" label="Offer" /> : <Status status="pending" />}
+        <span>{sentWhen(app)}</span>
+      </div>
+      <p className="dsc-panel-card__note">{note}</p>
+      <DsLink href={requestHref(app.callId)} arrow>View request</DsLink>
+      {pending ? <Button variant="secondary" full onClick={onWithdraw}>Withdraw interest</Button> : null}
       <SaveButton saved={saved} onClick={onSave} />
     </section>
   );

@@ -1,0 +1,204 @@
+/*
+ * Shared parts of the application journey (Figma 12.44 APPLICATION STATUS): Application Status pill, Application Step and
+ * Application Timeline. Prefix apl-. Values read from Figma components 17972:138675, 17972:140290 and 17972:140671.
+ * Display only: no hover or press, nothing here is interactive.
+ */
+.apl-pill,
+.apl-pill *,
+.apl-timeline,
+.apl-timeline *,
+.apl-timeline *::before,
+.apl-timeline *::after {
+  box-sizing: border-box;
+}
+
+/* ------------------------------------------------------------------ Application Status */
+.apl-pill {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px 6px 10px;
+  border-radius: 999px;
+  color: var(--text-primary);
+  font: 500 12px/19.2px var(--font-sans);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+.apl-pill__icon {
+  flex: none;
+  display: block;
+}
+.apl-pill__label {
+  display: block;
+}
+.apl-pill--warning {
+  background: var(--surface-warning-subtle);
+  color: var(--k-warning-dot, #957600);
+}
+.apl-pill--info {
+  background: var(--surface-info-subtle);
+  color: var(--text-info);
+}
+.apl-pill--success {
+  background: var(--surface-success-subtle);
+  color: var(--text-success);
+}
+.apl-pill--muted {
+  background: var(--surface-muted);
+  color: var(--icon-secondary);
+}
+/* the label is always ink, only the icon takes the tone colour */
+.apl-pill__label {
+  color: var(--text-primary);
+}
+
+/* ------------------------------------------------------------------ Application Timeline */
+.apl-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  min-width: 0;
+  padding: 28px 32px 8px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+.apl-timeline__heading {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 20px/28px var(--font-serif);
+}
+.apl-timeline__steps {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ------------------------------------------------------------------ Application Step */
+.apl-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+}
+.apl-step__rail {
+  position: relative;
+  flex: none;
+  align-self: stretch;
+  width: 24px;
+}
+.apl-step__node {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-default);
+  border: 1px solid var(--border-strong);
+  color: var(--icon-primary);
+}
+.apl-step__node svg {
+  display: block;
+}
+.apl-step__line {
+  position: absolute;
+  top: 30px;
+  bottom: 0;
+  left: 11.5px;
+  width: 1px;
+  background: var(--border-subtle);
+}
+.apl-step__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-bottom: 24px;
+}
+.apl-step__title {
+  position: relative;
+  display: block;
+  color: var(--text-secondary);
+  font: 400 16px/25.6px var(--font-sans);
+}
+.apl-step__note {
+  display: block;
+  color: var(--text-tertiary);
+  font: 400 14px/22.4px var(--font-sans);
+  letter-spacing: 0.25px;
+}
+
+/* done: filled ink node, darker line, semibold title */
+.apl-step[data-state='done'] .apl-step__node {
+  border-color: var(--surface-inverse);
+  background: var(--surface-inverse);
+  color: var(--icon-inverse);
+}
+.apl-step[data-state='done'] .apl-step__line {
+  background: var(--border-strong);
+}
+.apl-step[data-state='done'] .apl-step__title,
+.apl-step[data-state='current'] .apl-step__title,
+.apl-step[data-state='ended'] .apl-step__title {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.apl-step[data-state='done'] .apl-step__note,
+.apl-step[data-state='current'] .apl-step__note,
+.apl-step[data-state='ended'] .apl-step__note,
+.apl-step[data-state='skipped'] .apl-step__note {
+  color: var(--text-secondary);
+}
+
+/* current: ring with a dot */
+.apl-step[data-state='current'] .apl-step__node {
+  border: 2px solid var(--surface-inverse);
+  background: var(--surface-default);
+}
+.apl-step__dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--surface-inverse);
+}
+
+/* skipped: grey node with a short dash, regular title */
+.apl-step[data-state='skipped'] .apl-step__node {
+  border-color: var(--border-default);
+  background: var(--surface-muted);
+  color: var(--icon-secondary);
+}
+
+/* ended: grey node with the ending mark in ink */
+.apl-step[data-state='ended'] .apl-step__node {
+  border-color: var(--border-strong);
+  background: var(--surface-muted);
+  color: var(--icon-primary);
+}
+
+.apl-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 1099px) {
+  .apl-timeline {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}

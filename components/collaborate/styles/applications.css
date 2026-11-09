@@ -1,0 +1,459 @@
+/*
+ * Collaborate applicant journey "12.44 APPLICATION STATUS" (Pending, Shortlisted, Pick a time, Talk booked, Offer received).
+ * Prefix apl-. Values are read from the Figma frames at 1512 wide: page padding 72 / 64 / 120, main column 880, side column 440, 64 apart.
+ * Below 1100 the side column drops under the main one, below 768 everything gets smaller padding.
+ * The end states (Joined, Offer declined, Not selected, Withdrawn) use the dsc-sent classes of projects.css.
+ */
+.apl-page,
+.apl-page *,
+.apl-page *::before,
+.apl-page *::after {
+  box-sizing: border-box;
+}
+.apl-page {
+  max-width: 1512px;
+  margin: 0 auto;
+  padding: 72px 64px 120px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+.apl-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 880px) minmax(0, 440px);
+  column-gap: 64px;
+  align-items: start;
+}
+.apl-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.apl-side {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  min-width: 0;
+}
+.apl-side > .dsc-link {
+  align-self: flex-start;
+}
+
+/* ------------------------------------------------------------------ heading block */
+.apl-head {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 36px;
+}
+.apl-h1 {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 48px/1.2 var(--font-serif);
+  letter-spacing: -0.5px;
+}
+.apl-lead {
+  max-width: 640px;
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 18px/1.6 var(--font-sans);
+}
+.apl-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 24px;
+  padding-top: 28px;
+}
+.apl-note {
+  margin: 0;
+  padding-top: 16px;
+  color: var(--text-secondary);
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.3px;
+}
+.apl-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding-top: 40px;
+}
+.apl-offer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+}
+
+/* ------------------------------------------------------------------ Next Steps Panel */
+.apl-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 28px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-subtle);
+}
+.apl-panel__title {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 20px/1.4 var(--font-serif);
+}
+.apl-panel__lines {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.apl-panel__line {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.apl-panel__num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--text-primary);
+  font: 500 12px/1 var(--font-sans);
+  letter-spacing: 0.5px;
+}
+.apl-panel__text {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-secondary);
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.3px;
+}
+
+/* ------------------------------------------------------------------ cards (Request Summary, Talk Card, Offer Card, Slot Picker) */
+.apl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-subtle);
+}
+.apl-card__head {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.apl-card__head--top {
+  align-items: flex-start;
+}
+.apl-card__avatar {
+  flex: none;
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.apl-card__avatar--lg {
+  width: 72px;
+  height: 72px;
+}
+.apl-card__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.apl-label {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 500 12px/1.6 var(--font-sans);
+  letter-spacing: 0.5px;
+}
+.apl-card__title {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 24px/1.4 var(--font-serif);
+}
+.apl-card__sub {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.3px;
+}
+.apl-card__note {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.3px;
+}
+.apl-rule {
+  flex: none;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  background: var(--border-subtle);
+}
+.apl-facts {
+  display: flex;
+  gap: 24px;
+  margin: 0;
+}
+.apl-fact {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+.apl-fact__value {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 16px/1.6 var(--font-sans);
+}
+.apl-noteblock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.apl-noteblock--offer {
+  gap: 8px;
+}
+.apl-noteblock__text {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 16px/1.6 var(--font-sans);
+}
+.apl-noteblock__quote {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 20px/1.4 var(--font-serif);
+}
+.apl-when {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.apl-when__date {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 32px/1.2 var(--font-serif);
+  letter-spacing: -0.5px;
+}
+.apl-when__time {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 18px/1.6 var(--font-sans);
+}
+
+/* ------------------------------------------------------------------ Slot Picker: Day Tab and Slot Chip */
+.apl-picker__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.apl-picker__heading {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 20px/1.4 var(--font-serif);
+}
+.apl-picker__support {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.3px;
+}
+.apl-days {
+  display: flex;
+  gap: 12px;
+}
+.apl-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.apl-day,
+.apl-slot {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.3s ease-out,
+    background-color 0.3s ease-out,
+    box-shadow 0.3s ease-out,
+    scale 0.35s var(--ease-out);
+}
+.apl-day {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 68px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+.apl-day__weekday {
+  color: var(--text-secondary);
+  font: 500 12px/1.6 var(--font-sans);
+  letter-spacing: 0.5px;
+}
+.apl-day__date {
+  color: var(--text-primary);
+  font: 400 20px/1.4 var(--font-serif);
+}
+.apl-day__bar {
+  display: block;
+  width: 32px;
+  height: 3px;
+  background: var(--surface-inverse);
+}
+.apl-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 120px;
+  height: 48px;
+  padding: 0;
+  border-radius: 999px;
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.3px;
+}
+.apl-slot svg {
+  flex: none;
+}
+.apl-day:focus-visible,
+.apl-slot:focus-visible {
+  outline: 2px solid var(--k-focus, var(--text-primary));
+  outline-offset: 2px;
+}
+.apl-slot:focus-visible {
+  border-radius: 999px;
+}
+@media (hover: hover) {
+  .apl-day:not([data-selected]):hover,
+  .apl-slot:not([data-selected]):not(:disabled):hover {
+    background: var(--surface-muted);
+    border-color: var(--border-strong);
+  }
+}
+.apl-day:not([data-selected]):active,
+.apl-slot:not([data-selected]):not(:disabled):active {
+  background: var(--action-subtle-pressed);
+  border-color: var(--border-strong);
+}
+.apl-slot:not(:disabled):active {
+  scale: 0.97;
+}
+.apl-day:active {
+  scale: 0.99;
+}
+/* selected: amber ground and a 1.5 px amber edge; the day carries a short ink bar, the time a check, so it is never colour alone */
+.apl-day[data-selected],
+.apl-slot[data-selected] {
+  background: var(--surface-secondary-subtle);
+  border-color: var(--border-akines-secondary);
+  box-shadow: inset 0 0 0 0.5px var(--border-akines-secondary);
+}
+.apl-day[data-selected] .apl-day__weekday {
+  color: var(--text-primary);
+}
+/* Slot Chip State=Disabled: grey ground, light edge and text */
+.apl-slot:disabled {
+  background: var(--surface-disabled);
+  border-color: var(--border-disabled);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
+
+.apl-picker__foot {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.apl-picker__summary {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 16px/1.6 var(--font-sans);
+}
+.apl-picker__summary[data-chosen] {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ Reason chips of Modal:Decline offer */
+.apl-reasons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------------ narrower windows */
+@media (max-width: 1099px) {
+  .apl-layout {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 40px;
+  }
+  .apl-page {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+@media (max-width: 767px) {
+  .apl-page {
+    padding: 40px 20px 80px;
+  }
+  .apl-h1 {
+    font-size: 36px;
+  }
+  .apl-card {
+    padding: 24px 20px;
+  }
+  .apl-card__head {
+    flex-wrap: wrap;
+  }
+  .apl-facts {
+    flex-wrap: wrap;
+  }
+  .apl-fact {
+    flex: 1 1 140px;
+  }
+  .apl-days {
+    flex-direction: column;
+  }
+  .apl-day {
+    height: 60px;
+  }
+  .apl-picker__foot {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .apl-day,
+  .apl-slot {
+    transition: none;
+  }
+  .apl-day:active,
+  .apl-slot:active {
+    scale: none;
+  }
+}
