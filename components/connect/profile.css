@@ -1,0 +1,232 @@
+/*
+ * Connect / People profile (Figma 11.73: nine profiles, Loading, Could not load). Prefix dxp-. The side panels, pills, hairline blocks and tag pills
+ * are the shared dxl- parts (lists.css); the page frame is the Event page's (event.css) with 72 above instead of 56.
+ * Numbers at 1512: Feed has 72 above and 120 below; Content is two columns 64 apart (Member profile 880, Side 440), no rail.
+ * Member profile: Back link, 36, Profile header (portrait 280 x 352, 40, Info; 48 below), About, Interests. Info: 14 apart.
+ */
+.dxp-page {
+  --dxp-top: var(--fd-top);
+  padding-top: var(--dxp-top);
+  padding-bottom: 120px;
+}
+@media (min-width: 1280px) {
+  .dxp-page {
+    --dxp-top: 72px;
+  }
+}
+.dxp-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 64px;
+  max-width: var(--fd-max);
+  margin: 0 auto;
+  padding-inline: var(--fd-pad);
+}
+.dxp-main {
+  flex: 1 1 880px;
+  max-width: 880px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.dxp-side {
+  flex: none;
+  width: 440px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+@media (max-width: 1099px) {
+  .dxp-body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 32px;
+  }
+  .dxp-main {
+    flex: none;
+    max-width: none;
+  }
+  .dxp-side {
+    width: 100%;
+  }
+}
+
+/* ===================================================================================================== */
+/* Profile header                                                                                        */
+/* ===================================================================================================== */
+.dxp-header {
+  display: flex;
+  gap: 40px;
+  margin-top: 36px;
+  padding-bottom: 48px;
+}
+.dxp-portrait {
+  flex: none;
+  width: 280px;
+  aspect-ratio: 280 / 352;
+}
+.dxp-info {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dxp-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--text-secondary);
+  font: 500 13px/21px var(--font-sans);
+  letter-spacing: 0.3px;
+}
+.dxp-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--border-akines-secondary);
+}
+.dxp-name {
+  margin: 0;
+  font: 400 56px/1.1 var(--font-serif);
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+.dxp-role {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 16px/26px var(--font-sans);
+}
+.dxp-intro {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 18px/1.6 var(--font-sans);
+}
+@media (max-width: 767px) {
+  .dxp-header {
+    flex-direction: column;
+    gap: 24px;
+  }
+  .dxp-portrait {
+    width: min(280px, 100%);
+  }
+  .dxp-name {
+    font-size: 44px;
+  }
+}
+
+/* ===================================================================================================== */
+/* Loading (Figma Profile skeleton): the same layout in grey, no hairlines                               */
+/* ===================================================================================================== */
+/* At rest the bars are Border/Subtle, as in the frame; the pulse takes them to Border/Default and back (the two greys of the Discover skeletons) */
+.dxp-bar {
+  display: block;
+  flex: none;
+  max-width: 100%;
+  background: var(--border-subtle);
+  animation: dxp-pulse 3.2s ease-in-out infinite;
+}
+@keyframes dxp-pulse {
+  0%,
+  25% {
+    background-color: var(--border-subtle);
+  }
+  50%,
+  75% {
+    background-color: var(--border-default);
+  }
+  100% {
+    background-color: var(--border-subtle);
+  }
+}
+.dxp-sk-info {
+  gap: 16px;
+}
+.dxp-sk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.dxp-sk-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 36px 0;
+}
+.dxp-sk-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.dxp-sk-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dxp-sk-row {
+  display: flex;
+  gap: 32px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dxp-bar {
+    animation: none;
+  }
+}
+
+/* ===================================================================================================== */
+/* Could not load (Figma Empty state 17974:173603): a 1384 wide panel under the Back link, 48 apart       */
+/* ===================================================================================================== */
+.dxp-wide {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+  max-width: var(--fd-max);
+  margin: 0 auto;
+  padding-inline: var(--fd-pad);
+}
+.dxp-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 56px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+}
+.dxp-error__rule {
+  width: 40px;
+  height: 3px;
+  background: var(--border-akines-secondary);
+}
+.dxp-error__title {
+  margin: 0;
+  font: 400 40px/1.2 var(--font-serif);
+  letter-spacing: -0.4px;
+  color: var(--text-primary);
+}
+.dxp-error__text {
+  margin: 0;
+  max-width: 560px;
+  color: var(--text-secondary);
+  font: 400 18px/1.6 var(--font-sans);
+}
+/* the Actions frame of the design is 100 high with the two 48 buttons centred in it */
+.dxp-error__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  min-height: 100px;
+}
+@media (max-width: 767px) {
+  .dxp-error {
+    padding: 32px 24px;
+  }
+  .dxp-error__title {
+    font-size: 32px;
+  }
+}

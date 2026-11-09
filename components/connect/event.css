@@ -1,0 +1,225 @@
+/*
+ * Connect / Discover / Event (Figma 11.71: Event, Registered, Modal:Register, Toast). Prefix dxv-. The side panels, pills, tags and the
+ * hairline blocks are the shared dxl- parts (lists.css).
+ * Numbers at 1512: Feed has 56 above and 120 below; Body is two columns 64 apart (Event 880, Side 440), no rail. Event: Back link, hero
+ * 880 x 440, Title block, Facts, About, 32 apart. Side: Actions panel and What to bring panel, 24 apart.
+ */
+.dxv-page {
+  --dxv-top: var(--fd-top);
+  padding-top: var(--dxv-top);
+  padding-bottom: 120px;
+}
+@media (min-width: 1280px) {
+  .dxv-page {
+    --dxv-top: 56px;
+  }
+}
+.dxv-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 64px;
+  max-width: var(--fd-max);
+  margin: 0 auto;
+  padding-inline: var(--fd-pad);
+}
+.dxv-main {
+  flex: 1 1 880px;
+  max-width: 880px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.dxv-side {
+  flex: none;
+  width: 440px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+@media (max-width: 1099px) {
+  .dxv-body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 32px;
+  }
+  .dxv-main {
+    flex: none;
+    max-width: none;
+  }
+  .dxv-side {
+    width: 100%;
+  }
+}
+
+/* Hero photograph: 880 x 440 */
+.dxv-hero {
+  width: 100%;
+  aspect-ratio: 2 / 1;
+}
+
+/* Title block: tag, Alice 48 title, host row, 16 apart */
+.dxv-title {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.dxv-tag {
+  margin: 0;
+  color: var(--text-accent);
+  font: 500 12px/19px var(--font-sans);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.dxv-h1 {
+  margin: 0;
+  font: 400 48px/1.2 var(--font-serif);
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
+}
+/* Host row: 40 px round photograph and two lines, 12 apart. It opens the host's profile. */
+.dxv-host {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  align-self: flex-start;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.dxv-av {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface-muted);
+}
+.dxv-av img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.dxv-host__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dxv-host__label {
+  color: var(--text-secondary);
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+}
+.dxv-host__name {
+  font: 600 16px/26px var(--font-sans);
+  color: var(--text-primary);
+}
+@media (hover: hover) {
+  .dxv-host:hover .dxv-host__name {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+.fd-page .dxv-host:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Facts: label 240 wide (Medium 14, grey), value (16), rows 16 apart */
+.dxv-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+}
+.dxv-fact {
+  display: grid;
+  grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
+  column-gap: 32px;
+}
+.dxv-fact dt {
+  padding-top: 3px;
+  color: var(--text-secondary);
+  font: 500 14px/22px var(--font-sans);
+}
+.dxv-fact dd {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 16px/26px var(--font-sans);
+}
+@media (max-width: 599px) {
+  .dxv-fact {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2px;
+  }
+  .dxv-h1 {
+    font-size: 36px;
+  }
+}
+
+/* About: the hairline block of dxl-, but the Facts above it already end 32 before the line (the Main gap) */
+.dxv-about {
+  margin: 0;
+}
+
+/* Side panels. The bookmark of Save event is 20 px (the kit icon slot is 16) */
+.dxv-save {
+  --k-icon: 20px;
+}
+.dxv-share {
+  align-self: flex-start;
+}
+.dxv-bring {
+  display: flex;
+  flex-direction: column;
+}
+.dxv-bring p {
+  margin: 0;
+}
+
+/* The pill that replaces Register keeps the focus ring of a control when it takes focus after the dialog closes */
+.dxv-registered:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+
+/* ===================================================================================================== */
+/* Register dialog (Figma Register Dialog 17972:143350): 480 wide, padding 32, title Alice 24, dark field borders, no close button      */
+/* ===================================================================================================== */
+.dxv-dialog {
+  gap: 24px;
+  padding: 32px;
+  border: 1px solid var(--border-subtle);
+}
+.dxv-dialog .k-panel__heading {
+  gap: 24px;
+}
+.dxv-dialog .k-panel__title {
+  font-size: 24px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-wrap: wrap;
+}
+.dxv-dialog .k-panel__foot {
+  gap: 12px;
+}
+.dxv-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.dxv-dialog .k-input {
+  border-color: var(--text-primary);
+}
+@media (max-width: 767px) {
+  .dxv-dialog {
+    padding: 10px 16px max(28px, env(safe-area-inset-bottom, 0px));
+  }
+}

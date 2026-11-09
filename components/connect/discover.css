@@ -15,8 +15,8 @@
 @media(max-width:1099px){.dx-rail{position:static;width:100%;max-height:none;overflow:visible}}
 .dx-sk{display:flex;flex-direction:column;gap:var(--dx-sec-gap)}
 .dx-empty{margin:0;font:400 16px/1.6 var(--font-sans);color:var(--text-secondary)}
-.dxe-head{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:var(--fd-head-gap)}
-.dxe-arrows{display:inline-flex;flex:none;gap:8px}
+.dxe-head{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:var(--fd-head-gap)}
+.dxe-arrows{position:relative;z-index:1;display:inline-flex;flex:none;gap:8px}
 .dxe-scroller{--dxe-bleed: 4px;position:relative;display:flex;gap:24px;margin:calc(var(--dxe-bleed) * -1);padding:var(--dxe-bleed);list-style:none;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-padding-inline:var(--dxe-bleed);scroll-snap-type:x proximity;scrollbar-width:none;mask-image:linear-gradient(to right,transparent 0,transparent var(--dxe-bleed),#000 var(--dxe-bleed),#000 calc(100% - var(--dxe-bleed)),transparent calc(100% - var(--dxe-bleed)))}
 .dxe-scroller::-webkit-scrollbar{display:none}
 .dxe-scroller:has(:focus-visible){mask-image:none}
@@ -95,14 +95,14 @@
 .dxi-row::-webkit-scrollbar{display:none}
 .dxi-row:has(:focus-visible){mask-image:none}
 .dxi-item{flex:1 0 228px;scroll-snap-align:start}
-.dxi-card{--dxi-end: .84;--dxi-white: #f9f9f9;position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;width:100%;height:320px;margin:0;padding:20px;border:0;overflow:hidden;background:var(--surface-inverse);color:var(--dxi-white);font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:--dxi-end .3s var(--ease-out)}
+.dxi-card{--dxi-end: .84;--dxi-white: #f9f9f9;position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;width:100%;height:320px;margin:0;padding:20px;border:0;overflow:hidden;background:var(--surface-inverse);color:var(--dxi-white);font:inherit;text-align:left;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:--dxi-end .3s var(--ease-out)}
 .dxi-photo{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:cover;-webkit-user-drag:none}
 .dxi-blur{position:absolute;left:0;right:0;bottom:0;height:220px;pointer-events:none}
 .dxi-blur i{position:absolute;inset:0}
 .dxi-blur i:nth-child(1){-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);-webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 21%);mask-image:linear-gradient(to bottom,transparent 0%,#000 21%)}
 .dxi-blur i:nth-child(2){-webkit-backdrop-filter:blur(3.7px);backdrop-filter:blur(3.7px);-webkit-mask-image:linear-gradient(to bottom,transparent 24%,#000 41%);mask-image:linear-gradient(to bottom,transparent 24%,#000 41%)}
 .dxi-blur i:nth-child(3){-webkit-backdrop-filter:blur(9.2px);backdrop-filter:blur(9.2px);-webkit-mask-image:linear-gradient(to bottom,transparent 44%,#000 93%);mask-image:linear-gradient(to bottom,transparent 44%,#000 93%)}
-.dxi-scrim{position:absolute;left:0;right:0;bottom:0;height:240px;background:linear-gradient(to bottom,#0d0a0800,#0d0a086b,rgb(13 10 8 / var(--dxi-end)));pointer-events:none}
+.dxi-scrim{position:absolute;left:0;right:0;bottom:0;height:240px;background:linear-gradient(to bottom,rgb(13 10 8 / 0) 0%,rgb(13 10 8 / .42) 50%,rgb(13 10 8 / var(--dxi-end)) 100%);pointer-events:none}
 .dxi-title,.dxi-desc,.dxi-action{position:relative}
 .dxi-title{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;font:400 24px/34px var(--font-serif);letter-spacing:0;overflow-wrap:break-word}
 .dxi-desc{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;font:400 14px/22px var(--font-sans);letter-spacing:.25px;opacity:.9}
@@ -221,3 +221,170 @@
 .dxs-rail-empty .fd-box__title{letter-spacing:0}
 .dxs-rail-empty__text{margin:0;font:400 14px/22px var(--font-sans);letter-spacing:.3px;color:var(--text-secondary)}
 .dxs-rail-empty .fd-link{align-self:flex-start;line-height:22px}
+
+/* 8 Nov update: the destinations Discover leads to (copied verbatim from the design's discover, explore, interests, foryou and recs css). */
+/* The photo and name of the match card are a link to the profile: same look as before, the name underlines on hover */
+.dx-rail a.fd-slide__who {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .dx-rail a.fd-slide__who:hover .fd-slide__name {
+    text-decoration: underline;
+  }
+}
+.dx-rail a.fd-slide__who:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Figma 11.1 and 11.66 to 11.73 draw the two rail cards a little tighter than the community feed's version (line heights 160%, 16 between the
+   header and the rows, rows 81 tall, dark chevrons, "(2)" in the title colour, dots 8 apart, counter 12/500). Scoped here so Community Home keeps its own. */
+.dx-rail > .fd-box {
+  padding: 24px; /* plus the 1 px stroke: contents start 25 from the edge, 310 wide */
+}
+.dx-rail .fd-circles {
+  gap: 16px;
+}
+.dx-rail .fd-box__title {
+  letter-spacing: 0;
+}
+.dx-rail .fd-box__count {
+  color: inherit;
+}
+.dx-rail .fd-circle {
+  min-height: 81px;
+  padding: 12px 0;
+}
+.dx-rail .fd-circle__text {
+  gap: 2px;
+}
+.dx-rail .fd-circle__name {
+  font-size: 16px;
+  line-height: 1.6;
+}
+.dx-rail .fd-circle__meta {
+  line-height: 1.6;
+  letter-spacing: 0.25px;
+}
+.dx-rail .fd-circle__chev {
+  color: var(--text-primary);
+}
+.dx-rail .fd-slide__id {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dx-rail .fd-slide__name {
+  line-height: 1.6;
+}
+.dx-rail .fd-slide__role {
+  line-height: 1.6;
+  letter-spacing: 0.25px;
+}
+.dx-rail .fd-dots {
+  margin-inline: -4px;
+}
+.dx-rail .fd-dot {
+  padding: 0 4px;
+}
+.dx-rail .fd-match__count {
+  font: 500 12px/1.6 var(--font-sans);
+  letter-spacing: 0.5px;
+}
+/* The header row leads to Explore all (Figma 11.1 wires the row; no label, no hover look is drawn). The link is the title, stretched over the row. */
+.dxe-headlink {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.dxe-headlink::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.fd-page .dxe-headlink:focus-visible {
+  outline: none;
+  border-radius: 0;
+}
+.fd-page .dxe-headlink:focus-visible::after {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+}
+/* registered so the scrim can fade between its strengths; it must inherit, the card sets it and the scrim reads it */
+@property --dxi-end {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0.84;
+}
+/* ===================================================================================================== */
+/* All interests (Figma 11.68): the twelve cards in a grid of four, 228 x 320, 24 apart                       */
+/* ===================================================================================================== */
+.dxi-grid {
+  /* four of 228 fill the 984 column; a narrower column drops to three or two, a wider one lets the cards grow */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(204px, 1fr));
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dxi-grid > li {
+  min-width: 0;
+}
+
+/* The maker row is a link to the profile, above the control that covers the card (z-index 1, like the footer actions) */
+.dxf-maker--link {
+  position: relative;
+  z-index: 1;
+  width: fit-content;
+  max-width: 100%;
+  text-decoration: none;
+}
+@media (hover: hover) {
+  .dxf-maker--link:hover .dxf-maker__name {
+    color: var(--text-primary);
+    text-decoration: underline;
+  }
+}
+.fd-page .dxf-maker--link:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+a.dxr-who {
+  text-decoration: none;
+}
+
+/* ===================================================================================================== */
+/* Explore all (Figma 11.66): the same five cards in a grid of three, 312 wide, rows 48 apart                  */
+/* ===================================================================================================== */
+.dxe-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 48px 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dxe-grid > li {
+  min-width: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dxe-grid > li {
+    animation: rise 1.1s var(--ease-out) backwards;
+    animation-delay: calc(var(--i, 0) * 0.07s);
+  }
+}
+@media (max-width: 1099px) {
+  .dxe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 599px) {
+  .dxe-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

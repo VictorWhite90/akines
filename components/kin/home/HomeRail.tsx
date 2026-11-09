@@ -11,12 +11,16 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 import { FdAvatar, photoSrc } from "./parts";
 
-/** The design's right column on Community Home and Connect Discover: your circles and a match to meet. */
-export default function HomeRail({ circles, className = "fd-rail" }: { circles: Circle[]; className?: string }) {
+/**
+ * The design's right column on Community Home and Connect Discover: your circles and a match to meet.
+ * `profileHref` is optional: where it returns a path, the photo and name of that slide are one link to it (Connect Discover links
+ * them to the person's profile). Community Home does not pass it, so there the slide is unchanged.
+ */
+export default function HomeRail({ circles, className = "fd-rail", profileHref }: { circles: Circle[]; className?: string; profileHref?: (id: PersonId) => string | undefined }) {
   return (
     <aside className={className} aria-label="Your circles and a match">
       <Circles circles={circles} />
-      <Match />
+      <Match profileHref={profileHref} />
     </aside>
   );
 }
@@ -45,7 +49,7 @@ function Circles({ circles }: { circles: Circle[] }) {
 }
 
 const MAX = 10, SWIPE = 40;
-function Match() {
+function Match({ profileHref }: { profileHref?: (id: PersonId) => string | undefined }) {
   const list = MATCHES.slice(0, MAX);
   const n = list.length;
   const [i, setI] = useState(0);
@@ -88,10 +92,11 @@ function Match() {
             const p = PEOPLE[m.id as PersonId];
             return (
               <div key={m.id} className="fd-slide" role="group" aria-roledescription="slide" aria-label={`${k + 1} of ${n}`} inert={k !== i}>
-                <div className="fd-slide__who">
-                  <FdAvatar id={m.id as PersonId} size={56} />
-                  <div className="fd-slide__id"><p className="fd-slide__name" id={`fd-name-${m.id}`}>{p.name}</p><p className="fd-slide__role">{p.role} · {p.city}</p></div>
-                </div>
+                {(() => {
+                  const who = <><FdAvatar id={m.id as PersonId} size={56} /><div className="fd-slide__id"><p className="fd-slide__name" id={`fd-name-${m.id}`}>{p.name}</p><p className="fd-slide__role">{p.role} · {p.city}</p></div></>;
+                  const href = profileHref?.(m.id as PersonId);
+                  return href ? <Link className="fd-slide__who fd-slide__who--link" href={href} draggable={false}>{who}</Link> : <div className="fd-slide__who">{who}</div>;
+                })()}
                 <p className="fd-slide__quote">{`“${m.reason}”`}</p>
               </div>
             );

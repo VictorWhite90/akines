@@ -1,0 +1,198 @@
+/*
+ * Connect / Discover destinations: the list pages (Explore all 11.66, For you 11.67, All interests 11.68, Interest 11.69, Events 11.70,
+ * All suggestions 11.72), the back link and the pieces shared with the Event page (11.71) and the profiles (11.73). Prefix dxl-.
+ * Figma numbers at 1512: the page is the Discover frame (Feed: 56 above, Body: gap 40, side padding 64, Column 984, Rail 360). The
+ * column holds one section: Page head (Back link 22, 24, header 72 = 118), then the filters and the cards, 32 apart (Explore all: 40).
+ */
+
+/* ===================================================================================================== */
+/* Section and page head                                                                                 */
+/* ===================================================================================================== */
+.dxl-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  min-width: 0;
+}
+.dxl-section--wide {
+  gap: 40px;
+}
+.dxl-head {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
+/* The title block is the section header of the feed: Alice 32 over a 16 support line, 8 apart (72 high) */
+.dxl-head .fd-head__copy {
+  gap: 8px;
+}
+
+/* Back link (Figma Back Link 17209:14005): arrow and a semibold label, 10 apart, 22 high; underlined on hover, the arrow steps back */
+.dxl-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  width: fit-content;
+  color: var(--text-primary);
+  font: 600 14px/1.6 var(--font-sans);
+  letter-spacing: 0.25px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.dxl-back svg {
+  flex: none;
+  transition: translate 0.4s var(--ease-out);
+}
+@media (hover: hover) {
+  .dxl-back:hover span {
+    text-decoration: underline;
+  }
+  .dxl-back:hover svg {
+    translate: -3px 0;
+  }
+}
+.dxl-back:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Search field of Explore all: 640 wide (the kit Search Field, 56 high). Plain: there are no search results designed. */
+.dxl-search {
+  width: 640px;
+  max-width: 100%;
+}
+
+/* ===================================================================================================== */
+/* No results (Figma Section Empty with an action, 984 x 146)                                            */
+/* ===================================================================================================== */
+.dxn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px;
+  border-block: 1px solid var(--border-subtle);
+  text-align: center;
+}
+.dxn__text {
+  margin: 0;
+  font: 400 14px/22px var(--font-sans);
+  letter-spacing: 0.25px;
+  color: var(--text-secondary);
+}
+@media (max-width: 767px) {
+  .dxn {
+    padding: 32px 20px;
+  }
+}
+
+/* ===================================================================================================== */
+/* Pills that replace a button once pressed (Connect Button "Requested", Say Hello Button "Sent", Register "Registered")        */
+/* ===================================================================================================== */
+/* 382 x 48 in the 440 side panels: muted ground, a check and the new state, centred. Same look as the pill on the cards, full width. */
+.dxl-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  color: var(--text-primary);
+  font: 600 14px/1.6 var(--font-sans);
+  letter-spacing: 0.25px;
+  white-space: nowrap;
+}
+.dxl-pill svg {
+  flex: none;
+}
+
+/* Side panels of the Event page and the profiles (Figma Actions panel, Privacy panel, What to bring panel): 440 wide, 28 padding */
+.dxl-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+  background: var(--surface-default);
+  border: 1px solid var(--border-default);
+  min-width: 0;
+}
+.dxl-panel--tight {
+  gap: 12px;
+}
+.dxl-eyebrow {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 500 12px/1.6 var(--font-sans);
+  letter-spacing: 1.7px;
+  text-transform: uppercase;
+}
+.dxl-panel__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dxl-panel__head svg {
+  flex: none;
+}
+.dxl-note {
+  margin: 0;
+  color: var(--text-secondary);
+  font: 400 14px/1.6 var(--font-sans);
+  letter-spacing: 0.25px;
+}
+.dxl-note--plain {
+  letter-spacing: 0;
+}
+
+/* A section of a detail page (About, Interests): a hairline above, 36 above and below, 20 between the label and the content */
+.dxl-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 36px 0;
+  border-top: 1px solid var(--border-default);
+}
+.dxl-body {
+  margin: 0;
+  color: var(--text-primary);
+  font: 400 16px/1.6 var(--font-sans);
+}
+
+/* Tag pills: 7 and 14 padding, 1 px stroke, Medium 13 */
+.dxl-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dxl-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border: 1px solid var(--border-default);
+  border-radius: 999px;
+  color: var(--text-primary);
+  font: 500 13px/1.6 var(--font-sans);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dxl-back svg {
+    transition: none;
+  }
+}
+
+/* The search field is a plain field: the browser's own clear button is not part of the design */
+.dxl-search input::-webkit-search-cancel-button,
+.dxl-search input::-webkit-search-decoration {
+  display: none;
+  -webkit-appearance: none;
+}
