@@ -6,6 +6,14 @@
 .fl-page .cw-pagehead__title,.fl-empty .k-empty__title{white-space:pre-line}
 .fl-sec{display:flex;flex-direction:column;gap:16px}
 .fl-browser{display:flex;flex-direction:column;gap:20px}
+/* Search files: the search icon (a second way to search, Enter is the first) and Clear, a 32 px cross 13 px from the right edge */
+.fl-search{display:block;margin:0}
+.fl-search__go{display:inline-flex;cursor:pointer}
+.fl-search .k-input__icon--right{margin-right:12px}
+.fl-clear{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;margin:0;padding:0;border:0;border-radius:50%;background:transparent;color:var(--text-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color .2s ease-out}
+@media(hover:hover){.fl-clear:hover{background:var(--surface-muted)}}
+.fl-clear:active{background:var(--surface-muted)}
+.app .fl-clear:focus-visible{outline:2px solid var(--text-primary);outline-offset:2px;border-radius:50%}
 .fl-cats{display:flex;flex-wrap:wrap;gap:8px}
 .fl-cat{display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;margin:0;padding:9px 16px;border:1px solid var(--border-default);border-radius:999px;background:var(--surface-default);color:var(--text-primary);font:500 14px/22px var(--font-sans);white-space:nowrap;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:border-color .2s ease-out,background-color .2s ease-out,color .2s ease-out}
 .fl-cat svg{flex:none}

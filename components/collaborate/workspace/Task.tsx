@@ -3,13 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { FileText } from "lucide-react";
 import Button from "@/components/kin/Button";
-import { Field, Input } from "@/components/kin/Field";
-import { Modal } from "@/components/kin/Overlay";
+import { Field, Input, Textarea } from "@/components/kin/Field";
+import { Drawer, Modal } from "@/components/kin/Overlay";
 import { toast } from "@/components/kin/Toast";
 import { ME } from "@/lib/collab/me";
 import { threadHref, useThreads } from "@/lib/collab/conversations";
-import { dueLong, milestoneCount, TASK_STATUSES, useTasks, type TaskStatus, type WorkItem } from "@/lib/collab/tasks";
-import { AVAILABILITY_TEXT, AVAILABILITY_TONE, useWorkspace, type WorkspaceMember } from "@/lib/collab/workspace";
+import { dueLong, milestoneCount, TASK_STATUSES, useTasks, type TaskEdit, type TaskStatus, type WorkItem } from "@/lib/collab/tasks";
+import { AVAILABILITY_TEXT, AVAILABILITY_TONE, milestonesOf, useWorkspace, type WorkspaceMember } from "@/lib/collab/workspace";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { CtxBlock, PageHead, WorkspaceFrame } from "./Frame";
 import { milestoneHref } from "./Overview";
@@ -19,9 +19,12 @@ import "../styles/tasks.css";
 import "../styles/conversations.css";
 
 /*
- * One task, mirrored from the product design (tk-detail in ../styles/tasks.css, cv-* for its comments): what it
+ * One task, mirrored from the product design (tk-* in ../styles/tasks.css): what it
  * is, who is on it, its details, completion criteria, files and comments; Request review while it is in progress,
  * Complete task once it is in review. The context column shows the people on it, its milestone and conversation.
+ * Edit task opens the Edit task slide-out (title, description, responsible, due date, milestone): a task without a
+ * title shows "Add a title to continue." and is not saved; Save changes shows "Task updated." The state-* routes
+ * open it with the slide-out showing, in its Needs attention state, or just saved.
  */
 
 const nameOf = (id: PersonId) => PEOPLE[id]?.name ?? "A member";
@@ -65,19 +68,61 @@ function RequestDialog({ open, onClose, reviewer, members, onRequest }: { open: 
   );
 }
 
+/** Composer: the field takes the ink border on focus, Send turns primary once something is typed. */
 function Composer({ onSend }: { onSend: (text: string) => void }) {
   const [text, setText] = useState("");
   const field = useRef<HTMLTextAreaElement>(null);
   const ok = text.trim().length > 0;
+  // the field grows with what is typed (92 px at least, as in the design)
   useEffect(() => { const el = field.current; if (el) { el.style.height = "auto"; el.style.height = `${el.scrollHeight + 2}px`; } }, [text]);
   return (
-    <form className="cv-composer" onSubmit={(e) => { e.preventDefault(); if (!ok) return; onSend(text.trim()); setText(""); field.current?.focus(); }} noValidate>
-      <textarea ref={field} className="cv-composer__field" rows={1} value={text} placeholder="Add a comment." aria-label="Add a comment" onChange={(e) => setText(e.target.value)} />
-      <div className="cv-composer__actions">
-        <div className="cv-composer__refs"><CwLink>Attach file</CwLink><CwLink>Link task</CwLink><CwLink>Link decision</CwLink></div>
+    <form className="tk-composer" onSubmit={(e) => { e.preventDefault(); if (!ok) return; onSend(text.trim()); setText(""); field.current?.focus(); }} noValidate>
+      <textarea ref={field} className="tk-composer__field" rows={1} value={text} placeholder="Add a comment." aria-label="Add a comment" onChange={(e) => setText(e.target.value)} />
+      <div className="tk-composer__actions">
+        <div className="tk-composer__refs"><CwLink>Attach file</CwLink><CwLink>Link task</CwLink><CwLink>Link decision</CwLink></div>
         <Button type="submit" variant={ok ? "primary" : "secondary"} disabled={!ok}>Send</Button>
       </div>
     </form>
+  );
+}
+
+const filled = (v: string) => (v.trim() ? "tk-filled" : undefined);
+
+/**
+ * Slide-out: Edit task, 480 wide from the right: the EDIT TASK label with the close button, the headline, five fields
+ * and Save changes with Cancel. Needs attention: without a title it shows "Add a title to continue." and does not save.
+ * `invalid` opens it in that state (the title emptied).
+ */
+function EditTask({ open, t, invalid, members, milestones, onClose, onSave }: { open: boolean; t: WorkItem; invalid?: boolean; members: WorkspaceMember[]; milestones: { id: string; title: string }[]; onClose: () => void; onSave: (e: TaskEdit) => void }) {
+  const title = useRef<HTMLInputElement>(null);
+  const start = () => ({ title: invalid ? "" : t.title, description: t.description ?? "", who: withYou(t.owner), due: dueLong(t), milestone: t.milestone?.title ?? "" });
+  const [f, setF] = useState(start);
+  const [tried, setTried] = useState(Boolean(invalid));
+  const [wasOpen, setWasOpen] = useState(open);
+  // every opening starts again from the task
+  if (open !== wasOpen) { setWasOpen(open); if (open) { setF(start()); setTried(Boolean(invalid)); } }
+  const set = (k: keyof ReturnType<typeof start>) => (e: { target: { value: string } }) => setF((s) => ({ ...s, [k]: e.target.value }));
+  const save = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!f.title.trim()) { setTried(true); title.current?.focus(); return; }
+    const q = f.milestone.trim().toLowerCase();
+    const ms = q ? milestones.find((m) => m.title.toLowerCase().includes(q) || q.includes(m.title.toLowerCase())) : undefined;
+    onSave({ title: f.title.trim(), description: f.description.trim(), owner: memberByName(f.who, members), due: !f.due.trim() || f.due.trim() === dueLong(t) ? t.dueText : f.due.trim(), milestone: ms?.id });
+  };
+  return (
+    <Drawer open={open} onClose={onClose} eyebrow="EDIT TASK" label="Edit this task" flush className="cd-slide"
+      footer={<><Button type="submit" form="tk-edit-form">Save changes</Button><Button variant="secondary" onClick={onClose}>Cancel</Button></>}>
+      <form id="tk-edit-form" className="tk-edit" onSubmit={save} noValidate>
+        <h2 className="tk-edit__title">Edit this task</h2>
+        <Field label="Task title" error={tried && !f.title.trim() ? "Add a title to continue." : undefined}>
+          <Input ref={title} className={filled(f.title)} value={f.title} placeholder="For example, Write the interview summary" onChange={set("title")} />
+        </Field>
+        <Field label="Description"><Textarea className={filled(f.description)} rows={3} value={f.description} onChange={set("description")} /></Field>
+        <Field label="Responsible"><Input className={filled(f.who)} value={f.who} onChange={set("who")} /></Field>
+        <Field label="Due date"><Input className={filled(f.due)} value={f.due} onChange={set("due")} /></Field>
+        <Field label="Milestone"><Input className={filled(f.milestone)} value={f.milestone} onChange={set("milestone")} /></Field>
+      </form>
+    </Drawer>
   );
 }
 
@@ -124,11 +169,16 @@ function Context({ projectId, t, items }: { projectId: string; t: WorkItem; item
   );
 }
 
-export default function Task({ projectId, slug }: { projectId: string; slug: string }) {
+const UPDATED = "Task updated. Everyone on it has been told.";
+
+export default function Task({ projectId, slug, state }: { projectId: string; slug: string; /** The state-* routes: the Edit task slide-out open, in Needs attention, or just saved. */ state?: "edit" | "invalid" | "updated" }) {
   const ws = useWorkspace(projectId);
   const tasks = useTasks(ws.project, ws.collab);
   const [requesting, setRequesting] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [editing, setEditing] = useState(state === "edit" || state === "invalid");
+  // state-task-updated: the toast shows when the page opens (it stays longer so it can be looked at)
+  useEffect(() => { if (state === "updated") toast.show({ message: UPDATED, duration: 8000 }); }, [state]);
   if (!ws.project) return <WorkspaceFrame projectId={projectId} active="tasks">{null}</WorkspaceFrame>;
   const p = ws.project;
   const t = tasks.get(slug);
@@ -176,7 +226,7 @@ export default function Task({ projectId, slug }: { projectId: string; slug: str
                 <StatusMenu current={t.status} onPick={pick} />
               </TaskPop>
             ) : changeStatus()}
-            <CwLink>Edit task</CwLink>
+            <CwLink onClick={() => setEditing(true)}>Edit task</CwLink>
           </div>
         </PageHead>
 
@@ -217,16 +267,16 @@ export default function Task({ projectId, slug }: { projectId: string; slug: str
           <Over as="h3">COMMENTS ({t.comments.length})</Over>
           <div className="tk-thread">
             {t.comments.length ? (
-              <ol className="cv-msgs" aria-label="Comments">
+              <ol className="tk-msgs" aria-label="Comments">
                 {t.comments.map((c, i) => (
-                  <li key={i} className="cv-msg">
+                  <li key={i} className="tk-msg">
                     <Initials initials={initialsOf(nameOf(c.by))} size={36} tone="muted" />
-                    <div className="cv-msg__body">
-                      <div className="cv-msg__head">
-                        <span className="cv-msg__who"><span className="cv-msg__name">{nameOf(c.by)}</span><span className="cv-msg__time">{when(c.at)}</span></span>
-                        <button type="button" className="cv-msg__reply" aria-label={`Reply to ${nameOf(c.by)}`}>Reply</button>
+                    <div className="tk-msg__body">
+                      <div className="tk-msg__head">
+                        <span className="tk-msg__who"><span className="tk-msg__name">{nameOf(c.by)}</span><span className="tk-msg__time">{when(c.at)}</span></span>
+                        <button type="button" className="tk-msg__reply" aria-label={`Reply to ${nameOf(c.by)}`}>Reply</button>
                       </div>
-                      <p className="cv-msg__text">{c.text}</p>
+                      <p className="tk-msg__text">{c.text}</p>
                     </div>
                   </li>
                 ))}
@@ -236,6 +286,8 @@ export default function Task({ projectId, slug }: { projectId: string; slug: str
           </div>
         </section>
       </div>
+      <EditTask open={editing} t={t} invalid={state === "invalid"} members={ws.members} milestones={milestonesOf(p)} onClose={() => setEditing(false)}
+        onSave={(e) => { tasks.editTask(t, e); setEditing(false); toast.show({ message: UPDATED, duration: 2500 }); }} />
       <RequestDialog open={requesting} onClose={() => setRequesting(false)} reviewer={withYou(reviewer)} members={ws.members} onRequest={request} />
     </WorkspaceFrame>
   );

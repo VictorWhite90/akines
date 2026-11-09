@@ -118,11 +118,43 @@ a.tk-tab:active .tk-tab__rule{background:var(--text-primary);transform:none;tran
 .tk-file__name{font:500 14px/1.5 var(--font-sans);color:var(--text-primary);overflow-wrap:anywhere}
 .tk-file__meta{font:400 12px/1.5 var(--font-sans);color:var(--text-secondary)}
 .tk-thread{display:flex;flex-direction:column;gap:24px;padding:24px;background:var(--surface-default);border:1px solid var(--border-subtle)}
-.tk-thread .cv-msgs{padding:0}
-.tk-thread .cv-msg__text{line-height:23px}
-.tk-thread .cv-composer{margin-top:0;padding:0;border-top:0}
+.tk-msgs{display:flex;flex-direction:column;gap:24px;margin:0;padding:0;list-style:none}
+/* Comment (Figma 17972:163437): portrait 36, 14 to the text column, name 14 / 20 semibold, time 12, text 15 on whole 23 px lines */
+.tk-msg{display:flex;align-items:flex-start;gap:14px;min-width:0}
+.tk-msg__body{display:flex;flex:1 1 0;flex-direction:column;gap:8px;min-width:0}
+.tk-msg__head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:20px}
+.tk-msg__who{display:flex;align-items:baseline;gap:10px;min-width:0}
+.tk-msg__name{color:var(--text-primary);font:600 14px/20px var(--font-sans)}
+.tk-msg__time{color:var(--text-secondary);font:400 12px/17px var(--font-sans)}
+.tk-msg__text{margin:0;color:var(--text-primary);font:400 15px/23px var(--font-sans);overflow-wrap:anywhere}
+/* Reply shows on hover and keyboard focus only; it has no destination in the design */
+.tk-msg__reply{padding:0;color:var(--text-primary);font:600 14px/20px var(--font-sans);letter-spacing:.25px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;opacity:0;transition:opacity .3s ease-out}
+.tk-msg__reply:focus-visible{opacity:1;outline:2px solid var(--text-primary);outline-offset:3px;border-radius:2px}
+@media(hover:hover){.tk-msg:hover .tk-msg__reply{opacity:1}}
+/* Comment composer (Figma 17385:14191): a 92 px square field, then the reference links at the left and Send at the right */
+.tk-composer{display:flex;flex-direction:column;gap:14px}
+.tk-composer__field{display:block;box-sizing:border-box;width:100%;min-height:92px;margin:0;padding:16px;background:var(--surface-default);border:1px solid var(--border-default);border-radius:0;color:var(--text-primary);font:400 15px/23px var(--font-sans);resize:none;outline:0;transition:border-color .3s ease-out,box-shadow .3s ease-out}
+.tk-composer__field::placeholder{color:var(--text-placeholder);opacity:1}
+/* Focus: the 1 px border plus an inset 1 px ring make the 2 px ink border without moving the text */
+.tk-composer__field:focus,.app .tk-composer__field:focus-visible{outline:0;border-color:var(--text-primary);box-shadow:inset 0 0 0 1px var(--text-primary)}
+.tk-composer__actions{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.tk-composer__refs{display:flex;flex-wrap:wrap;align-items:center;gap:0 20px}
 .tk-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
 .k-input.tk-filled{border-color:var(--text-primary)}
+/* Slide-out: Edit task (Figma Slide-out Form 17972:147077). The shell is the Conversation panel's: a header without a rule (16 / 16 / 12 / 32),
+   the label at 12 px with 0.12em, a 36 ghost close button with a small cross, and a footer with 20 above, 28 below and 12 between the two buttons. */
+.cd-slide:has(.tk-edit) .k-panel__head{padding:16px 16px 12px 32px;border-bottom:0}
+.cd-slide:has(.tk-edit) .k-panel__eyebrow{line-height:16px;letter-spacing:.12em}
+.cd-slide:has(.tk-edit) .k-panel__close{width:36px;height:36px;border-color:transparent}
+.cd-slide:has(.tk-edit) .k-panel__close svg{width:16px;height:16px;stroke-width:2.25}
+@media(hover:hover){.cd-slide:has(.tk-edit) .k-panel__close:hover{background:var(--action-subtle-hover);border-color:transparent}}
+.cd-slide:has(.tk-edit) .k-panel__foot{padding:20px 32px 28px}
+/* the body: 8 above, 24 below, 32 at the sides, 18 between the headline and the fields */
+.tk-edit{display:flex;flex-direction:column;gap:18px;padding:8px 32px 24px}
+.tk-edit__title{margin:0;font:400 32px/38px var(--font-serif);color:var(--text-primary)}
+/* Description is a Line Field of three lines (112 high) */
+.tk-edit .k-textarea__el{min-height:112px;padding:16px 20px;resize:none}
+.k-textarea.tk-filled .k-textarea__el{border-color:var(--text-primary)}
 @media(max-width:1279px){.tk-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:767px){.tk-board{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:767px){.tk-heads{display:none}}

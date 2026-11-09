@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, CircleCheck, CloudOff, Eye, FileText, MessageSquare, Palette, PanelLeft, RefreshCw, RotateCcwClock, type LucideIcon } from "lucide-react";
+import { ChevronRight, CircleAlert, CircleCheck, CloudOff, Eye, FileText, MessageSquare, Palette, PanelLeft, RefreshCw, RotateCcwClock, type LucideIcon } from "lucide-react";
 import Button, { IconButton } from "@/components/kin/Button";
 import { faceSrc } from "@/components/kin/home/parts";
 import { WORKSPACE_PAGES, type useWorkspace } from "@/lib/collab/workspace";
-import { accessOf, initialsOf, nameOf, presenceSummary, versionTime, type LivePerson, type Version } from "@/lib/collab/live";
+import { accessOf, editedAt, initialsOf, nameOf, presenceSummary, versionTime, type LivePerson, type Version } from "@/lib/collab/live";
 import { ME } from "@/lib/collab/me";
 import type { PersonId } from "@/lib/data/people";
 import "../styles/art-workspace.css";
@@ -14,18 +14,19 @@ import "../styles/art-workspace.css";
 /*
  * The frame both full-screen workspace tools share, mirrored from the product design (art-workspace.css, tw-):
  * the top bar (project menu, breadcrumb, tool chip, title, save status, who is here, version history, comments,
- * Share), its two popovers (the project menu and People in this workspace), the status banners and the version
- * history list. The canvas and the document fill it (ArtWorkspace, ResearchWorkspace).
+ * Share), its popovers (the project menu, People in this workspace, and the save status under the pill), the
+ * status banners and the version history list. The canvas and the document fill it (ArtWorkspace, ResearchWorkspace).
  */
 
 export type Ws = ReturnType<typeof useWorkspace>;
-/** What the status pill says: saved, saving a change, offline, reconnecting, or a read-only preview. */
-export type ToolState = "saved" | "saving" | "lost" | "reconnecting" | "versionHistory";
-const STATUS: Record<ToolState, { tone: "saved" | "saving" | "lost" | "reconnecting" | "view"; label: string; icon: LucideIcon }> = {
+/** What the status pill says: saved, saving a change, offline, reconnecting, a save that failed, or a read-only preview. */
+export type ToolState = "saved" | "saving" | "lost" | "reconnecting" | "failed" | "versionHistory";
+const STATUS: Record<ToolState, { tone: "saved" | "saving" | "lost" | "reconnecting" | "failed" | "view"; label: string; icon: LucideIcon }> = {
   saved: { tone: "saved", label: "All changes saved", icon: CircleCheck },
   saving: { tone: "saving", label: "Saving changes", icon: RefreshCw },
   lost: { tone: "lost", label: "Connection lost", icon: CloudOff },
   reconnecting: { tone: "reconnecting", label: "Reconnecting", icon: RefreshCw },
+  failed: { tone: "failed", label: "Could not save", icon: CircleAlert },
   versionHistory: { tone: "view", label: "View only", icon: Eye },
 };
 
@@ -47,9 +48,14 @@ export function LiveAvatar({ who, state }: { who: PersonId; state: LivePerson["s
   );
 }
 
-/** Saving: a change shows "Saving changes" for a moment, then "All changes saved". Offline shows "Connection lost". */
-export function useToolState() {
+/**
+ * Saving: a change shows "Saving changes" for a moment, then "All changes saved". Offline shows "Connection lost".
+ * A save that fails shows "Could not save" until Try again (`failed` starts the tool in that state).
+ */
+export function useToolState(failed = false) {
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState(failed);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const [net, setNet] = useState<"online" | "lost" | "reconnecting">("online");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   useEffect(() => {
@@ -61,27 +67,30 @@ export function useToolState() {
     window.addEventListener("online", on);
     return () => { window.removeEventListener("offline", off); window.removeEventListener("online", on); clearTimeout(timer.current); };
   }, []);
+  const save = () => { setError(false); setSaving(true); clearTimeout(timer.current); timer.current = setTimeout(() => { setSaving(false); setSavedAt(Date.now()); }, 1500); };
   return {
     net,
     saving,
+    failed: error,
+    /** When this visit last saved a change. */
+    savedAt,
     /** Show a change being saved. */
-    save: () => { setSaving(true); clearTimeout(timer.current); timer.current = setTimeout(() => setSaving(false), 1500); },
+    save,
     retry: () => { setNet("reconnecting"); window.setTimeout(() => setNet(navigator.onLine ? "online" : "lost"), 3000); },
   };
 }
 
-function Status({ state }: { state: ToolState }) {
+function Status({ state, onToggle, expanded }: { state: ToolState; onToggle?: () => void; expanded?: boolean }) {
   const s = STATUS[state];
-  return (
-    <span className="tw-status" data-tone={s.tone} role="status">
-      <Ico icon={s.icon} className="tw-status__icon" />
-      <span className="tw-status__label">{s.label}</span>
-    </span>
-  );
+  const body = <><Ico icon={s.icon} className="tw-status__icon" /><span className="tw-status__label">{s.label}</span></>;
+  // with a save status popover the pill is the button that opens it
+  return onToggle
+    ? <button type="button" className="tw-status" data-tone={s.tone} aria-haspopup="dialog" aria-expanded={Boolean(expanded)} onClick={onToggle}>{body}</button>
+    : <span className="tw-status" data-tone={s.tone} role="status">{body}</span>;
 }
 
 /** A popover under the top bar: focus moves in, Escape or a click outside closes it, focus returns. */
-export function Pop({ onClose, label, className, children }: { onClose: () => void; label: string; className?: string; children: React.ReactNode }) {
+export function Pop({ onClose, label, className, kind, children }: { onClose: () => void; label: string; className?: string; kind?: string; children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
   const close = useRef(onClose);
   useEffect(() => { close.current = onClose; });
@@ -95,8 +104,56 @@ export function Pop({ onClose, label, className, children }: { onClose: () => vo
   return (
     <>
       <div className="tw-scrim" onClick={onClose} aria-hidden="true" />
-      <div ref={ref} className={["tw-pop", className].filter(Boolean).join(" ")} role="dialog" aria-label={label} tabIndex={-1}>{children}</div>
+      <div ref={ref} className={["tw-pop", className].filter(Boolean).join(" ")} data-kind={kind} role="dialog" aria-label={label} tabIndex={-1}>{children}</div>
     </>
+  );
+}
+
+/** The save status popover follows the pill: Saved, Saving, Offline, Could not save. Reconnecting and a version preview have none. */
+type SaveKind = "saved" | "saving" | "offline" | "failed";
+const SAVE_KIND_OF: Partial<Record<ToolState, SaveKind>> = { saved: "saved", saving: "saving", lost: "offline", failed: "failed" };
+const SAVE_ICON: Record<SaveKind, LucideIcon> = { saved: CircleCheck, saving: RefreshCw, offline: CloudOff, failed: CircleAlert };
+const SAVE_COPY = {
+  saved: { title: "All changes saved", note: "Autosave is on", now: "Save now", history: "Version history" },
+  saving: { title: "Saving your changes", note: "Autosave is on" },
+  offline: { title: "Working offline", note: "Your changes are saved on this device and will sync when you are back online." },
+  failed: { title: "We could not save your changes.", retry: "Try again" },
+};
+/** "Last saved just now" after a save in the last minute, otherwise when the latest version was saved. */
+export const lastSaved = (savedAt: number | null, latest?: number) => {
+  const at = Math.max(savedAt ?? 0, latest ?? 0);
+  return !at || Date.now() - at < 60_000 ? "Last saved just now" : `Last saved ${editedAt(at)}`;
+};
+/** What the save status popover shows and does. */
+export type SaveInfo = { last: string; onSaveNow: () => void; onHistory: () => void; onRetry: () => void };
+
+/** Save Status Popover: a 320 wide card 8 px under the pill, closed by a click outside, the pill or Escape. */
+function SavePop({ kind, info, onClose }: { kind: SaveKind; info: SaveInfo; onClose: () => void }) {
+  const c = SAVE_COPY[kind];
+  return (
+    <Pop onClose={onClose} label="Save status" className="tw-pop--save" kind={kind}>
+      <div className="tw-save__head">
+        <Ico icon={SAVE_ICON[kind]} size={20} className="tw-save__icon" />
+        <h2 className="tw-save__title">{c.title}</h2>
+      </div>
+      {kind === "saved" ? (
+        <>
+          <div className="tw-save__details"><p>{info.last}</p><p>{SAVE_COPY.saved.note}</p></div>
+          <hr className="tw-save__rule" />
+          <div className="tw-save__actions">
+            <Button variant="secondary" size="sm" onClick={() => { onClose(); info.onSaveNow(); }}>{SAVE_COPY.saved.now}</Button>
+            <a href="#version-history" className="tw-save__link" onClick={(e) => { e.preventDefault(); onClose(); info.onHistory(); }}>{SAVE_COPY.saved.history}</a>
+          </div>
+        </>
+      ) : null}
+      {kind === "saving" || kind === "offline" ? <div className="tw-save__details"><p>{SAVE_COPY[kind].note}</p></div> : null}
+      {kind === "failed" ? (
+        <>
+          <hr className="tw-save__rule" />
+          <div className="tw-save__actions"><Button size="sm" onClick={() => { onClose(); info.onRetry(); }}>{SAVE_COPY.failed.retry}</Button></div>
+        </>
+      ) : null}
+    </Pop>
   );
 }
 
@@ -206,14 +263,18 @@ export function VersionList({ versions, selected, onSelect }: { versions: Versio
 }
 
 /** The full-screen tool: top bar and popovers around the tool's body. */
-export function ToolFrame({ ws, kind, state, title, people, history, onHistory, comments, onComments, children, overlays }: {
+export function ToolFrame({ ws, kind, state, title, people, history, onHistory, comments, onComments, save, saveOpen: initialSave, children, overlays }: {
   ws: Ws; kind: "art" | "research"; state: ToolState; title: string; people: LivePerson[];
   /** Version history is open. */ history: boolean; onHistory: () => void;
   /** The comments control: pressed when the comments are showing. */ comments: boolean; onComments: () => void;
+  /** The save status popover's controls (without it the pill has no popover). */ save?: SaveInfo;
+  /** The save status popover is open when the tool opens (the Could not save state). */ saveOpen?: boolean;
   children: React.ReactNode; overlays?: React.ReactNode;
 }) {
   const [menu, setMenu] = useState(false);
   const [who, setWho] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(Boolean(initialSave));
+  const saveKind = save ? SAVE_KIND_OF[state] : undefined;
   const shown = people.filter((p) => p.state !== "away");
   const avatars = shown.slice(0, 3);
   const more = people.length - avatars.length;
@@ -229,7 +290,12 @@ export function ToolFrame({ ws, kind, state, title, people, history, onHistory, 
         <span className="tw-chip"><Ico icon={kind === "research" ? FileText : Palette} /><span>{kind === "research" ? "Research Workspace" : "Digital Art Workspace"}</span></span>
         <div className="tw-title">
           <h1 className="tw-title__text">{title}</h1>
-          <Status state={state} />
+          {save && saveKind ? (
+            <span className="tw-statuswrap">
+              <Status state={state} onToggle={() => setSaveOpen((o) => !o)} expanded={saveOpen} />
+              {saveOpen ? <SavePop kind={saveKind} info={save} onClose={() => setSaveOpen(false)} /> : null}
+            </span>
+          ) : <Status state={state} />}
         </div>
         <div className="tw-actions">
           <button type="button" className="tw-presence" onClick={() => setWho((o) => !o)} aria-haspopup="dialog" aria-expanded={who} aria-label={`People in this workspace, ${shown.length} here now`}>

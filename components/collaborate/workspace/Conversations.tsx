@@ -313,7 +313,8 @@ function InfoPanel({ projectId, t, members, files, open, onClose }: { projectId:
   );
 }
 
-function StartModal({ open, placeholder, onClose, onStart }: { open: boolean; placeholder: string; onClose: () => void; onStart: (v: { kind: ThreadKind; title: string; message: string }) => void }) {
+/** Start a conversation (also used from the Collaborate lists, as in the design). */
+export function StartModal({ open, placeholder, onClose, onStart }: { open: boolean; placeholder: string; onClose: () => void; onStart: (v: { kind: ThreadKind; title: string; message: string }) => void }) {
   const [type, setType] = useState<(typeof THREAD_TYPES)[number]>("Work");
   const [title, setTitle] = useState(""), [message, setMessage] = useState("");
   // eslint-disable-next-line react-hooks/set-state-in-effect -- a fresh form each time it opens

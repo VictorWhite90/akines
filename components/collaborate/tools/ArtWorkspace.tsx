@@ -7,7 +7,7 @@ import { faceSrc, photoSrc } from "@/components/kin/home/parts";
 import { useCanvas, layerDetail, type Canvas, type Layer, type Pin } from "@/lib/collab/canvas";
 import { clock24, firstName, initialsOf, nameOf, type Version } from "@/lib/collab/live";
 import { toast } from "@/components/kin/Toast";
-import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, useToolState, viewingTitle, type ToolState, type Ws } from "./ToolFrame";
+import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, useToolState, viewingTitle, type ToolState, type Ws } from "./ToolFrame";
 import "../styles/art-workspace-panels.css";
 // For the reply field (tr-thread__field), which the canvas thread borrows from the document.
 import "../styles/research-workspace.css";
@@ -163,9 +163,9 @@ function LayerRow({ layer, selected, onToggle }: { layer: Layer; selected: boole
   return layer.hidden ? <div className="ta-layer" data-hidden aria-label={`${layer.name}, hidden`}>{inner}</div> : <button type="button" className="ta-layer" data-selected={selected || undefined} aria-pressed={selected} onClick={onToggle}>{inner}</button>;
 }
 
-export default function ArtWorkspace({ ws }: { ws: Ws }) {
+export default function ArtWorkspace({ ws, failed }: { ws: Ws; failed?: boolean }) {
   const { canvas, reply, resolve, restore } = useCanvas(ws.project);
-  const tool = useToolState();
+  const tool = useToolState(failed);
   const [history, setHistory] = useState(false);
   const [thread, setThread] = useState(false);
   const [pin2, setPin2] = useState(false);
@@ -175,7 +175,7 @@ export default function ArtWorkspace({ ws }: { ws: Ws }) {
   const [preview, setPreview] = useState<Version | null>(null);
   if (!canvas) return null;
 
-  const state: ToolState = tool.net !== "online" ? tool.net : history ? "versionHistory" : tool.saving ? "saving" : "saved";
+  const state: ToolState = tool.net !== "online" ? tool.net : history ? "versionHistory" : tool.saving ? "saving" : tool.failed ? "failed" : "saved";
   const banner = bannerFor(state);
   const live = !history;
   const pins = canvas.pins.filter((p) => !p.resolved);
@@ -188,6 +188,8 @@ export default function ArtWorkspace({ ws }: { ws: Ws }) {
     <ToolFrame ws={ws} kind="art" state={state} title={canvas.title} people={canvas.presence}
       history={history} onHistory={openHistory}
       comments={thread} onComments={() => { if (history) setHistory(false); setThread((t) => !t && !!pin1); }}
+      // with a comment thread open the pill has no popover, as in the design
+      save={thread ? undefined : { last: lastSaved(tool.savedAt, canvas.versions[0]?.at), onSaveNow: tool.save, onHistory: openHistory, onRetry: tool.save }} saveOpen={failed}
       overlays={<>
         {brushOpen ? (
           <Pop onClose={() => setBrushOpen(false)} label="Brush library" className="ta-pop ta-pop--brush">

@@ -9,7 +9,7 @@ import { useDocument, type Block, type Doc, type DocThread, type Part } from "@/
 import { clock24, editedAt, firstName, initialsOf, nameOf, type Version } from "@/lib/collab/live";
 import { ME } from "@/lib/collab/me";
 import type { PersonId } from "@/lib/data/people";
-import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, useToolState, viewingTitle, type ToolState, type Ws } from "./ToolFrame";
+import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, useToolState, viewingTitle, type ToolState, type Ws } from "./ToolFrame";
 import "../styles/research-workspace.css";
 
 /*
@@ -179,9 +179,9 @@ function Comments({ doc, onReply, onResolve }: { doc: Doc; onReply: (id: string,
   );
 }
 
-export default function ResearchWorkspace({ ws }: { ws: Ws }) {
+export default function ResearchWorkspace({ ws, failed }: { ws: Ws; failed?: boolean }) {
   const { doc, reply, resolve, restore } = useDocument(ws.project);
-  const tool = useToolState();
+  const tool = useToolState(failed);
   const [mode, setMode] = useState<(typeof MODES)[number]>("Editing");
   const [style, setStyle] = useState("h2");
   const [styleOpen, setStyleOpen] = useState(false);
@@ -189,14 +189,15 @@ export default function ResearchWorkspace({ ws }: { ws: Ws }) {
   const [preview, setPreview] = useState<Version | null>(null);
   if (!doc) return null;
 
-  const state: ToolState = tool.net !== "online" ? tool.net : history ? "versionHistory" : tool.saving ? "saving" : "saved";
+  const state: ToolState = tool.net !== "online" ? tool.net : history ? "versionHistory" : tool.saving ? "saving" : tool.failed ? "failed" : "saved";
   const banner = bannerFor(state);
   const picked = preview ?? doc.versions[Math.min(2, doc.versions.length - 1)];
   const toggleHistory = () => { setHistory((h) => !h); setPreview(null); };
+  const save = { last: lastSaved(tool.savedAt, doc.versions[0]?.at), onSaveNow: tool.save, onHistory: toggleHistory, onRetry: tool.save };
 
   return (
     <ToolFrame ws={ws} kind="research" state={state} title={doc.title} people={doc.presence}
-      history={history} onHistory={toggleHistory} comments={!history} onComments={() => setHistory(false)}
+      history={history} onHistory={toggleHistory} comments={!history} onComments={() => setHistory(false)} save={save} saveOpen={failed}
       overlays={styleOpen ? (
         <Pop onClose={() => setStyleOpen(false)} label="Text style" className="tr-pop--style">
           <ul className="tr-styles" role="menu">

@@ -19,6 +19,9 @@ import { milestonesOf } from "@/lib/collab/workspace";
  * plain task) is kept as task details, shaped like the resource it will become:
  *   PATCH /collab/projects/:id/tasks/:taskId  ← { priority, milestone, description, support, review }
  * Status changes, criteria and comments go through useCollab, so they reach the backend.
+ * Edit task (the design's Edit task slide-out) changes the title, the responsible person, the due date, the
+ * description and the milestone: editTask sends that as one TaskEdit, the body of the same PATCH. Until useCollab
+ * can rename a task or a deliverable, the title, owner and due are kept here as an overlay (TaskDetails.edit).
  */
 
 export type TaskStatus = "Not started" | "In progress" | "In review" | "Completed";
@@ -37,7 +40,12 @@ export type TaskDetails = {
   reviewer?: PersonId;
   criteria?: { id: string; title: string; done: boolean }[];
   comments?: { by: PersonId; text: string; at: number }[];
+  /** What Edit task changed on the project's own fields, until useCollab can save them. */
+  edit?: { title?: string; owner?: PersonId; due?: string };
 };
+
+/** What the Edit task form saves: PATCH /collab/projects/:id/tasks/:taskId ← TaskEdit. */
+export type TaskEdit = { title: string; description: string; owner: PersonId; due: string; milestone?: string };
 
 export type WorkItem = {
   id: string;
@@ -162,10 +170,13 @@ export function useTasks(project: Project | undefined, collab: Collab) {
       ...project.tasks.map((t) => ({ base: fromTask(t, details[keyOf(t.id, t.title)] ?? {}, project), extra: details[keyOf(t.id, t.title)] ?? {} })),
     ];
     const seen = new Set<string>();
-    return raw.map(({ base, extra }) => {
-      let slug = slugOf(base.title) || base.id;
-      if (seen.has(slug)) slug = `${slug}-${base.id}`;
+    return raw.map(({ base: raw, extra }) => {
+      // The address stays the one of the first title, so an edited task keeps its page.
+      let slug = slugOf(raw.title) || raw.id;
+      if (seen.has(slug)) slug = `${slug}-${raw.id}`;
       seen.add(slug);
+      const e = extra.edit;
+      const base = e ? { ...raw, title: e.title ?? raw.title, owner: e.owner ?? raw.owner, ...(e.due !== undefined ? { dueText: e.due, dueAt: parseDue(e.due) } : {}) } : raw;
       const ms = milestonesOf(project);
       // Without milestones of its own, a deliverable is its own milestone (see milestonesOf).
       const milestone = ms.find((m) => m.id === extra.milestone) ?? (!project.milestones.length && base.kind === "deliverable" ? ms.find((m) => m.id === base.id) : undefined);
@@ -174,9 +185,11 @@ export function useTasks(project: Project | undefined, collab: Collab) {
   }, [project, details, keyOf]);
 
   const patch = useCallback((item: Pick<WorkItem, "id" | "title">, next: TaskDetails | ((d: TaskDetails) => TaskDetails)) => {
-    const k = keyOf(item.id, item.title);
+    // details are filed under the project's own title (an edited title is only an overlay)
+    const own = project ? [...(project.deliverables ?? []), ...project.tasks].find((x) => x.id === item.id)?.title : undefined;
+    const k = keyOf(item.id, own ?? item.title);
     setDetails((cur) => ({ ...cur, [k]: typeof next === "function" ? next(cur[k] ?? {}) : { ...cur[k], ...next } }));
-  }, [keyOf, setDetails]);
+  }, [keyOf, setDetails, project]);
 
   const act = collab.project;
   return {
@@ -212,6 +225,11 @@ export function useTasks(project: Project | undefined, collab: Collab) {
       if (!project) return;
       if (t.kind === "deliverable") act.commentDeliverable(project.id, t.id, text);
       else patch(t, (d) => ({ ...d, comments: [...(d.comments ?? []), { by: ME, text, at: Date.now() }] }));
+    },
+    /** Saves the Edit task form. */
+    editTask: (t: WorkItem, input: TaskEdit) => {
+      if (!project) return;
+      patch(t, (d) => ({ ...d, description: input.description || undefined, milestone: input.milestone ?? d.milestone, edit: { title: input.title, owner: input.owner, due: input.due } }));
     },
     create: (input: { title: string; who: PersonId; due: string; description?: string; milestone?: string }) => {
       if (!project) return;

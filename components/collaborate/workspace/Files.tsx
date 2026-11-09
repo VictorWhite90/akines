@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { FileText, Image as ImageIcon, Layers, Link2, NotebookText, Search, Shapes, Upload } from "lucide-react";
+import { FileText, Image as ImageIcon, Layers, Link2, NotebookText, Search, Shapes, Upload, X } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { Field, Input } from "@/components/kin/Field";
 import { Empty, Modal } from "@/components/kin/Overlay";
@@ -20,6 +20,11 @@ import "../styles/files.css";
  * The project workspace's Files page, mirrored from the product design (classes fl-* in ../styles/files.css):
  * search, categories, every file with the work and milestone it supports, and the upload and new-document
  * dialogs. Files come from the project's studio and deliverable proof, plus what the team adds (lib/collab/files).
+ *
+ * Search and categories (design 12.19 and 12.37: Search focused, Search results, Filtered: <category>, No results).
+ * The list shows all files, the results of a search, or one category. Typing alone keeps the whole list; Enter or
+ * the search icon shows the results; Clear, All or emptying the field go back. A category is one choice at a time,
+ * clears the search, and choosing it again goes back to All.
  */
 
 const ICONS: Record<FileIcon, typeof FileText> = { text: FileText, image: ImageIcon, notes: NotebookText, shapes: Shapes, layers: Layers, link: Link2 };
@@ -148,14 +153,81 @@ function CreateModal({ open, onClose, onCreate }: { open: boolean; onClose: () =
   );
 }
 
-function Categories({ picked, onToggle }: { picked: string[]; onToggle: (c: string) => void }) {
+function Categories({ isOn, onPick }: { isOn: (c: string) => boolean; onPick: (c: string) => void }) {
   return (
     <div className="fl-cats" role="group" aria-label="Categories">
       {FILE_CATEGORIES.map((c) => {
-        const on = picked.includes(c);
-        return <button key={c} type="button" className="fl-cat" aria-pressed={on} onClick={() => onToggle(c)}>{on ? <IconCheck size={14} sw={1.6} /> : null}<span>{c}</span></button>;
+        const on = isOn(c);
+        return <button key={c} type="button" className="fl-cat" aria-pressed={on} onClick={() => onPick(c)}>{on ? <IconCheck size={14} sw={1.6} /> : null}<span>{c}</span></button>;
       })}
     </div>
+  );
+}
+
+/** Search files: the search icon, the value and Clear (a 32 px cross, shown once something is typed). */
+function SearchField({ value, onChange, onSubmit, onClear }: { value: string; onChange: (v: string) => void; onSubmit: () => void; onClear: () => void }) {
+  const input = useRef<HTMLInputElement>(null);
+  const has = value.length > 0;
+  return (
+    <form className="fl-search" role="search" onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
+      <Input
+        ref={input}
+        className={has ? "fl-filled" : undefined}
+        // the icon is the second way to search (Enter is the first), so it stays out of the tab order
+        iconLeft={<span className="fl-search__go" onClick={onSubmit}><Search size={20} strokeWidth={1.5} aria-hidden focusable={false} /></span>}
+        iconRight={has ? <button type="button" className="fl-clear" aria-label="Clear search" onClick={() => { onClear(); input.current?.focus(); }}><X size={20} strokeWidth={1.5} aria-hidden focusable={false} /></button> : undefined}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Search files"
+        aria-label="Search files"
+        autoComplete="off"
+        enterKeyHint="search"
+      />
+    </form>
+  );
+}
+
+/** Every word typed has to be in the file name, in any case. */
+const matchesName = (name: string, query: string) => { const n = name.toLowerCase(); return query.toLowerCase().split(/\s+/).filter(Boolean).every((w) => n.includes(w)); };
+type Browse = { kind: "all" } | { kind: "search"; query: string } | { kind: "category"; category: FileCategory };
+const ALL: Browse = { kind: "all" };
+
+/** The search field, the category chips and the list (or its No results and empty category blocks). */
+function FileBrowser({ projectId, files, onUpload }: { projectId: string; files: ProjectFile[]; onUpload: () => void }) {
+  const [draft, setDraft] = useState("");
+  const [browse, setBrowse] = useState<Browse>(ALL);
+  const submit = () => { const q = draft.trim(); setBrowse(q ? { kind: "search", query: q } : ALL); };
+  const change = (v: string) => { setDraft(v); if (!v.trim() && browse.kind === "search") setBrowse(ALL); };
+  const clear = () => { setDraft(""); if (browse.kind === "search") setBrowse(ALL); };
+  const pick = (c: string) => {
+    setDraft("");
+    if (c === "All") setBrowse(ALL);
+    else setBrowse((b) => (b.kind === "category" && b.category === c ? ALL : { kind: "category", category: c as FileCategory }));
+  };
+  const isOn = (c: string) => (browse.kind === "category" ? browse.category === c : c === "All");
+  const shown = files.filter((f) => (browse.kind === "search" ? matchesName(f.name, browse.query) : browse.kind === "category" ? f.category === browse.category : true));
+  const label = browse.kind === "search"
+    ? `${shown.length} ${shown.length === 1 ? "file" : "files"} for '${browse.query}'`
+    : browse.kind === "category" ? `${browse.category} (${shown.length})` : `ALL FILES (${shown.length})`;
+  return (
+    <section className="fl-browser" data-m="up" aria-label="File browser">
+      <SearchField value={draft} onChange={change} onSubmit={submit} onClear={clear} />
+      <Categories isOn={isOn} onPick={pick} />
+      {shown.length === 0 ? (
+        <div aria-live="polite">
+          {browse.kind === "search" ? (
+            <Empty className="cw-empty fl-empty" title={`No files match '${browse.query}'`} text="Try a different word, or clear the search to see all your files." action={<Button onClick={clear}>Clear search</Button>} />
+          ) : (
+            <Empty className="cw-empty fl-empty" title={`No ${browse.kind === "category" ? browse.category.toLowerCase() : "files"} yet.`} text="Add documents, references and resources for your team." action={<Button onClick={onUpload}>Upload file</Button>} />
+          )}
+        </div>
+      ) : (
+        <div className="fl-list">
+          <div className="fl-list__head"><h2 className="fl-list__label" aria-live="polite">{label}</h2></div>
+          <ul className="fl-rows" aria-label="Files">{shown.map((f) => <li key={f.id}><FileRow f={f} href={fileHref(projectId, f)} /></li>)}</ul>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -163,22 +235,9 @@ export default function Files({ projectId }: { projectId: string }) {
   const { ws, files, add, remove } = useProjectFiles(projectId);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [picked, setPicked] = useState<string[]>(["All"]);
-  const shown = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return files.filter((f) => (picked.includes("All") || picked.includes(f.category)) && (!q || `${f.name} ${fileMeta(f)} ${f.work?.text ?? ""}`.toLowerCase().includes(q)));
-  }, [files, picked, query]);
   if (!ws.project) return null;
   const project = ws.project;
   const empty = files.length === 0;
-  // Choosing a category leaves All; clearing every category goes back to All.
-  const toggle = (c: string) => setPicked((cur) => {
-    if (c === "All") return ["All"];
-    const next = cur.includes(c) ? cur.filter((x) => x !== c) : [...cur.filter((x) => x !== "All"), c];
-    return next.length ? next : ["All"];
-  });
-  const label = picked.includes("All") ? "ALL FILES" : picked.join(", ").toUpperCase();
 
   const head = (
     <PageHead label="FILES" title={"Everything the project\nis built on."} lead="Shared documents, references and materials in one place.">
@@ -218,14 +277,7 @@ export default function Files({ projectId }: { projectId: string }) {
     <WorkspaceFrame projectId={projectId} active="files" rail="full">
       <div className="fl-page">
         {head}
-        <section className="fl-browser" data-m="up" aria-label="File browser">
-          <Input iconLeft={<Search size={20} strokeWidth={1.5} aria-hidden focusable={false} />} placeholder="Search files" aria-label="Search files" autoComplete="off" value={query} onChange={(e) => setQuery(e.target.value)} />
-          <Categories picked={picked} onToggle={toggle} />
-          <div className="fl-list">
-            <div className="fl-list__head"><h2 className="fl-list__label">{label} ({shown.length})</h2></div>
-            <ul className="fl-rows" aria-label="Files">{shown.map((f) => <li key={f.id}><FileRow f={f} href={fileHref(projectId, f)} /></li>)}</ul>
-          </div>
-        </section>
+        <FileBrowser projectId={projectId} files={files} onUpload={() => setUploadOpen(true)} />
       </div>
       {dialogs}
     </WorkspaceFrame>
