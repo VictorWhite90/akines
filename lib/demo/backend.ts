@@ -263,8 +263,9 @@ route("GET", "profile/interests", () => ok(["Tech", "Football", "Books", "Food",
 route("GET", "profile/username-available", (_m, q) => {
   const name = (q.get("username") ?? "").trim();
   const taken = Object.values(load().users).some((u) => u.user_id !== me() && u.username?.toLowerCase() === name.toLowerCase());
-  const valid = /^[A-Za-z0-9_]{3,30}$/.test(name);
-  return ok({ username: name, available: valid && !taken, reason: !valid ? "Use 3 to 30 letters, numbers or underscores." : taken ? "That username is taken." : null });
+  const valid = /^[A-Za-z0-9_.]{3,30}$/.test(name);
+  const base = name.toLowerCase().replace(/[^a-z0-9._]/g, "").slice(0, 22) || "member";
+  return ok({ username: name, available: valid && !taken, reason: !valid ? "Use 3 to 30 letters, numbers, dots or underscores." : taken ? "That username is taken." : null, suggestions: valid && !taken ? [] : [`${base}_`, `${base}24`, `the.${base}`] });
 });
 route("GET", "profile/devices", () => ok([{ device_id: "this-device", device: "This browser (demo)", ip_address: null, created_at: now(), last_seen_at: now(), is_current: true }]));
 route("POST", "profile/devices/sign-out-others", () => ok({ signed_out: 0 }));
@@ -690,7 +691,21 @@ export async function demoAuth<T>(action: string, body: Record<string, unknown> 
   };
   switch (action) {
     case "login": {
-      if (!String(body.email ?? "").includes("@") || !String(body.password ?? "")) return fail(400, "Enter your email and password.") as ApiResult<T>;
+      if (!String(body.identifier ?? body.email ?? "").trim() || !String(body.password ?? "")) return fail(400, "Enter your mobile number, username or email, and your password.") as ApiResult<T>;
+      return signIn();
+    }
+    // The design's Join: a code to an email or mobile number, then a username and password.
+    case "signup-start": {
+      const contact = String(body.contact ?? "").trim();
+      const email = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact);
+      s.pending = email ? { email: contact.toLowerCase() } : { phone_number: contact };
+      save();
+      return ok({ contact, channel: email ? "email" : "sms", expires_in_minutes: 10 }, "We sent a 6-digit code. (Demo: any 6 digits work.)") as ApiResult<T>;
+    }
+    case "signup-verify":
+      return /^\d{6}$/.test(String(body.otp ?? "")) ? (ok({ signup_token: "demo", expires_in_minutes: 30 }, "Valid OTP.") as ApiResult<T>) : (fail(400, "That code doesn't match. Check it and try again.", "otp") as ApiResult<T>);
+    case "signup-complete": {
+      s.pending = { ...(s.pending ?? {}), username: String(body.username ?? "").replace(/^@/, "").toLowerCase() };
       return signIn();
     }
     case "guest":

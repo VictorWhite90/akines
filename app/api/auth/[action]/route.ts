@@ -5,8 +5,12 @@ import { clearSession, COOKIE, django, sameOrigin, setSession, type Envelope, ty
  * Auth endpoints for the web app. Each forwards to the Django auth API and, when Django returns tokens,
  * moves them into HttpOnly cookies and strips them from the response the browser receives.
  *
- *   POST /api/auth/login          {email, password}       → signed in, or {twoFactor: true}
- *   POST /api/auth/register       {email, password}       → code sent to the email
+ *   POST /api/auth/login            {identifier, password}  → signed in, or {redirect_to_2fa: true}
+ *                                   (identifier: mobile number, username or email)
+ *   POST /api/auth/signup-start     {contact}               → code sent to that email or mobile number
+ *   POST /api/auth/signup-verify    {contact, otp}          → {signup_token}
+ *   POST /api/auth/signup-complete  {signup_token, username, password, intent?} → signed in
+ *   POST /api/auth/register         {email, phone_number, date_of_birth, password} → code sent (older Join)
  *   POST /api/auth/verify-email   {email, otp}            → signed in
  *   POST /api/auth/resend-email   {email}
  *   POST /api/auth/verify-2fa     {email, otp}            → signed in
@@ -18,6 +22,9 @@ import { clearSession, COOKIE, django, sameOrigin, setSession, type Envelope, ty
  */
 const ROUTES: Record<string, string> = {
   login: "auth/login",
+  "signup-start": "auth/signup/start",
+  "signup-verify": "auth/signup/verify",
+  "signup-complete": "auth/signup/complete",
   register: "auth/register",
   "verify-email": "auth/verify-otp/email",
   "resend-email": "auth/resend-otp/email",

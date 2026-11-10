@@ -18,6 +18,8 @@ export type MyProfile = {
   cover_photo: string | null;
   location: string;
   website: string;
+  /** Why they joined ("What brings you here today?"): one of the reason ids in lib/data/community INTENTS, or "". */
+  intent?: string;
   created_at: string;
 };
 
@@ -43,7 +45,7 @@ export const account = {
   updateProfile: (changes: Partial<MyProfile>) => api.put<MyProfile>("profile/", changes),
   interests: () => api.get<Interest[]>("profile/interests"),
   usernameAvailable: (username: string) =>
-    api.get<{ username: string; available: boolean; reason: string | null }>(`profile/username-available?username=${encodeURIComponent(username)}`),
+    api.get<{ username: string; available: boolean; reason: string | null; suggestions?: string[] }>(`profile/username-available?username=${encodeURIComponent(username)}`),
 
   devices: () => api.get<Device[]>("profile/devices"),
   signOutDevice: (deviceId: string) => api.del(`profile/devices/${encodeURIComponent(deviceId)}`),

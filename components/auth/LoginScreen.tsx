@@ -20,7 +20,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabi
 
 /**
  * Sign in, as the product design draws it: a panel over the landing page (full screen on phones).
- * Talks to the Akines API exactly as before: email and password, then a code when the account needs one.
+ * Signs in with a mobile number, username or email and the password, then a code when the account needs one.
  */
 export default function LoginScreen({ signedOut = false, sessionEnded = false }: { signedOut?: boolean; sessionEnded?: boolean }) {
   const router = useRouter();
@@ -96,13 +96,13 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
 
   const submit = async () => {
     if (busy) return;
-    const mail = email.trim().toLowerCase();
+    const mail = email.trim();
     const otp = code.replace(/\D/g, "");
     const needId = view === "login" || view === "forgot";
     const needPw = view === "login" || view === "reset";
     const needCode = view === "verify" || view === "2fa" || view === "reset";
     const next = {
-      id: needId ? (!mail ? "Enter your email." : /^\S+@\S+\.\S+$/.test(mail) ? null : "Enter the email you signed up with.") : null,
+      id: needId ? (!mail ? "Enter your mobile number, username or email." : null) : null,
       pw: needPw ? (!password ? (view === "reset" ? "Create a password." : "Enter your password.") : view === "reset" && !STRONG.test(password) ? STRONG_HINT : null) : null,
       code: needCode ? (otp.length < 6 ? "Enter the 6-digit code." : null) : null,
     };
@@ -115,23 +115,24 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
     setBusy(true);
     try {
       if (view === "login") {
-        const r = await auth<{ redirect_to_2fa?: boolean; redirect_to_verify_email?: boolean; user?: Member }>("login", { email: mail, password });
-        if (!r.ok) { setErr({ id: null, pw: r.message || "That password doesn't match this account.", code: null }); pwRef.current?.focus(); return; }
+        const r = await auth<{ redirect_to_2fa?: boolean; redirect_to_verify_email?: boolean; user?: Member }>("login", { identifier: mail, password });
+        // A wrong password and an unknown account read the same, as the design says it.
+        if (!r.ok) { setErr({ id: null, pw: r.status === 400 ? "That password doesn't match this account." : r.message, code: null }); pwRef.current?.focus(); return; }
         if (r.data?.redirect_to_verify_email) return switchTo("verify", `Confirm your email first: we sent a 6-digit code to ${mail}.`);
         if (r.data?.redirect_to_2fa) return switchTo("2fa", `We sent a 6-digit code to ${mail}.`);
         return signedIn(r.data ?? {});
       }
       if (view === "verify" || view === "2fa") {
-        const r = await auth<{ user?: Member }>(view === "verify" ? "verify-email" : "verify-2fa", { email: mail, otp });
+        const r = await auth<{ user?: Member }>(view === "verify" ? "verify-email" : "verify-2fa", { identifier: mail, otp });
         return r.ok ? signedIn(r.data ?? {}) : setErr({ id: null, pw: null, code: r.message || "That code doesn't match. Check it and try again." });
       }
       if (view === "forgot") {
-        const r = await auth("forgot", { email: mail });
-        return r.ok ? switchTo("reset", `If ${mail} has an account, we've sent it a 6-digit code.`) : setErr({ id: r.message, pw: null, code: null });
+        const r = await auth("forgot", { identifier: mail });
+        return r.ok ? switchTo("reset", `If ${mail} has an account, we've sent a 6-digit code to its email or mobile number.`) : setErr({ id: r.message, pw: null, code: null });
       }
-      const v = await auth("verify-reset", { email: mail, otp });
+      const v = await auth("verify-reset", { identifier: mail, otp });
       if (!v.ok) return setErr({ id: null, pw: null, code: v.message });
-      const r = await auth("reset", { email: mail, password });
+      const r = await auth("reset", { identifier: mail, password });
       return r.ok ? switchTo("login", "Password changed. Log in with your new password.") : setErr({ id: null, pw: r.message, code: null });
     } finally {
       setBusy(false);
@@ -139,7 +140,7 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
   };
 
   const resend = async () => {
-    const r = await auth(view === "2fa" ? "resend-2fa" : view === "verify" ? "resend-email" : "forgot", { email: email.trim().toLowerCase() });
+    const r = await auth(view === "2fa" ? "resend-2fa" : view === "verify" ? "resend-email" : "forgot", { identifier: email.trim() });
     setNotice(r.ok ? `A new code is on its way to ${email.trim()}.` : null);
     if (!r.ok) setErr((x) => ({ ...x, code: r.message }));
   };
@@ -168,7 +169,7 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
             {view !== "login" && notice && !(view === "verify" || view === "2fa" || view === "reset") ? <p className="au-helper" data-tone="success" role="status">{notice}</p> : null}
             {view === "login" && notice ? <p className="au-helper" role="status">{notice}</p> : null}
             {(view === "login" || view === "forgot") && (
-              <AuField label="Email" value={email} inputRef={idRef} placeholder="you@example.com" inputMode="email" autoComplete="username" message={err.id ?? undefined} onChange={(v) => { setEmail(v); if (err.id) setErr((x) => ({ ...x, id: null })); }} />
+              <AuField label="Mobile number, username or email" value={email} inputRef={idRef} placeholder="e.g. @ndegoyit or 0803 123 4567" inputMode="email" autoComplete="username" message={err.id ?? undefined} onChange={(v) => { setEmail(v); if (err.id) setErr((x) => ({ ...x, id: null })); }} />
             )}
             {(view === "verify" || view === "2fa" || view === "reset") && codeField}
             {(view === "login" || view === "reset") && (
