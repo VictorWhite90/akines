@@ -55,7 +55,7 @@ export default function Rail() {
           <Link href="/studio"><Icon name="studio" className="g" />My studio</Link>
           <Link href="/profile"><ProfileCircle size={18} color="currentColor" className="g" />Your profile</Link>
           <Link href="/settings"><Setting2 size={18} color="currentColor" className="g" />Settings</Link>
-          <Link href="/about"><InfoCircle size={18} color="currentColor" className="g" />About Akines</Link>
+          <Link href="/landing"><InfoCircle size={18} color="currentColor" className="g" />About Akines</Link>
           <Link href="/login?signout=1"><LogoutCurve size={18} color="currentColor" className="g" />Sign out</Link>
         </div>
       </div>

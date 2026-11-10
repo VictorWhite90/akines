@@ -39,7 +39,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/wellbeing", label: "Wellbeing", glyph: "wellbeing" },
       { href: "/dna", label: "Creative DNA", glyph: "dna" },
-      { href: "/about", label: "About Akines", glyph: "about" },
+      { href: "/landing", label: "About Akines", glyph: "about" },
     ],
   },
 ];
@@ -135,7 +135,7 @@ export const PAGE_TITLES: [string, string][] = [
   ["/profile", "Profile"],
   ["/settings", "Settings"],
   ["/u/", "Profile"],
-  ["/about", "About Akines"],
+  ["/landing", "About Akines"],
   ["/pages", "All pages"],
 ];
 

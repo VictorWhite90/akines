@@ -3,15 +3,15 @@ import { DEMO } from "@/lib/demo/mode";
 
 /**
  * Who sees what, decided on the server before any page renders:
- * - Visitors without an account only reach the public pages (About, sign-up, log-in, invite links); everything else sends them to About.
- * - Signed-in members skip About, log-in and sign-up and go straight to Home.
+ * - Visitors without an account only reach the public pages (About, sign-up, log-in, invite links); everything else sends them to the landing page.
+ * - Signed-in members skip the landing page, log-in and sign-up and go straight to Home.
  * - Demo (preview) builds: a link straight to any page opens it, signed in as the demo guest, so reviewers can
  *   share and open page links directly, the bare address included. The landing page is at /landing.
  */
 const PUBLIC = ["/landing", "/about", "/about/philosophy", "/login", "/signup"];
 const PUBLIC_PREFIX = ["/circles/join/"];
 // Pages a signed-in member has no reason to see. /login stays reachable for its post-sign-in steps (?step=…).
-const MEMBERS_SKIP = ["/about", "/signup"];
+const MEMBERS_SKIP = ["/landing", "/signup"];
 
 export function proxy(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
@@ -38,7 +38,7 @@ export function proxy(req: NextRequest) {
   }
   if (!signedIn && !isPublic) {
     const url = req.nextUrl.clone();
-    url.pathname = "/about";
+    url.pathname = "/landing";
     url.search = "";
     return NextResponse.redirect(url);
   }

@@ -40,7 +40,7 @@ export default function DataSection() {
       localStorage.removeItem(SESSION_KEY);
       sessionStorage.removeItem("ak:me");
     } catch {}
-    window.location.replace("/about");
+    window.location.replace("/landing");
   };
 
   return (

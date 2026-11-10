@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
       { source: "/collaborate/applications", destination: "/collaborate/contributions", permanent: false },
       { source: "/collaborate/review/:id*", destination: "/collaborate/my-projects", permanent: false },
       { source: "/collaborate/new", destination: "/collaborate/start", permanent: false },
+      // The old About page and its philosophy page: the design's landing page tells that story now.
+      { source: "/about", destination: "/landing", permanent: false },
+      { source: "/about/philosophy", destination: "/landing", permanent: false },
       { source: "/collaborate/calls/:id/apply", destination: "/collaborate/projects/:id/interest", permanent: false },
       { source: "/collaborate/calls/:id", destination: "/collaborate/projects/:id", permanent: false },
     ];

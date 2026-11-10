@@ -25,7 +25,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
     const signedIn = isSignedIn();
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the browser session once per route
     setGate(signedIn ? "in" : "out");
-    if (!signedIn && !open) router.replace("/about");
+    if (!signedIn && !open) router.replace("/landing");
   }, [pathname, open, router]);
   useEffect(() => { recordRoute(pathname); }, [pathname]);
 

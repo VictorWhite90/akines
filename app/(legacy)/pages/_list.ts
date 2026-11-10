@@ -12,8 +12,6 @@ export const PAGE_GROUPS: PageGroup[] = [
     id: "start", title: "Start: before signing in", blurb: "What a new visitor sees first.",
     pages: [
       { path: "/landing", title: "Landing page", what: "The editorial landing page", isNew: true },
-      { path: "/about", title: "About Akines", what: "About Akines, with the hero video" },
-      { path: "/about/philosophy", title: "Core philosophy", what: "Why Akines exists" },
       { path: "/login", title: "Log in", what: "Includes “Preview as guest”" },
       { path: "/signup", title: "Sign up", what: "Create an account, step by step" },
     ],

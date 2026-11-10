@@ -170,7 +170,7 @@ const ACCOUNT = [
   { label: "View profile", href: "/profile", Icon: User },
   { label: "Complete your profile", href: "/profile/work", Icon: UserCheck },
   { label: "Settings", href: "/settings", Icon: Settings },
-  { label: "Help", href: "/about", Icon: CircleHelp },
+  { label: "Help", href: "/landing", Icon: CircleHelp },
 ];
 function AvatarCircle({ name, photo, lg }: { name: string; photo?: string | null; lg?: boolean }) {
   return (

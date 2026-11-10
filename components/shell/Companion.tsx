@@ -70,7 +70,7 @@ const PLACES: Go[] = [
   { path: "/collaborate/collaborators", label: "Explore collaborators" }, { path: "/collaborate/discover", label: "Discover projects" }, { path: "/collaborate/my-projects", label: "Open a project" },
   { path: "/kindred", label: "Discover people" }, { path: "/studio", label: "My Studio" }, { path: "/store", label: "My Store" },
   { path: "/stories", label: "Stories" }, { path: "/studios", label: "Studio Visits" }, { path: "/wellbeing", label: "Wellbeing" },
-  { path: "/journal", label: "My journal" }, { path: "/settings", label: "Settings" }, { path: "/signup", label: "Join Akines" }, { path: "/about", label: "About Akines" },
+  { path: "/journal", label: "My journal" }, { path: "/settings", label: "Settings" }, { path: "/signup", label: "Join Akines" }, { path: "/landing", label: "About Akines" },
 ];
 const place = (p: string) => PLACES.find((x) => x.path === p);
 
@@ -90,8 +90,8 @@ const RULES: { test: RegExp; text: string; go?: string[] }[] = [
   { test: /\b(stor(y|ies)|studio|visit|heritage|legacy)\b/i, text: "Explore has stories from members and studio visits, a good place to wander.", go: ["/stories", "/studios"] },
   { test: /\b(care|support|anxious|stress|sad|low|overwhelm|lonely|tired|burn(t|ed)? ?out)\b/i, text: "I am sorry it feels heavy. Wellbeing has a private check-in and a breathing room, just for you. If you feel unsafe, please contact your local emergency services or someone you trust.", go: ["/wellbeing"] },
   { test: /\b(message|chat with|dm|inbox)\b/i, text: "Messages holds your conversations. You can pick one up where you left off.", go: ["/messages"] },
-  { test: /\b(help|contact|problem|issue|bug|not working)\b/i, text: "Settings covers your account. For anything else, About Akines has the details.", go: ["/settings", "/about"] },
-  { test: /\b(what is|what's|about|who are|tell me about)\b.*\b(akines|this)\b|\bakines\b.*\b(what|about)\b/i, text: "Akines helps you find people you can genuinely know, trust and create with. Less scrolling, more belonging.", go: ["/about"] },
+  { test: /\b(help|contact|problem|issue|bug|not working)\b/i, text: "Settings covers your account. For anything else, About Akines has the details.", go: ["/settings", "/landing"] },
+  { test: /\b(what is|what's|about|who are|tell me about)\b.*\b(akines|this)\b|\bakines\b.*\b(what|about)\b/i, text: "Akines helps you find people you can genuinely know, trust and create with. Less scrolling, more belonging.", go: ["/landing"] },
   { test: /\b(thank|thanks)\b/i, text: "Any time. I am here whenever you want to talk something through." },
 ];
 function reply(q: string): { text: string; go: Go[] } {
