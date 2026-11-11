@@ -11,7 +11,4 @@ next-env.d.ts
 /public/01 - akine/
 
 # Backend secrets
-backend/.env
-backend/.venv/
-backend/staticfiles/
 __pycache__/
