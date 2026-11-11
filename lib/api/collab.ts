@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { useMyRooms } from "@/components/rooms/MyRooms";
+import { useMyRooms } from "@/lib/collab/myRooms";
 import { pickedFile } from "@/components/collab/FileParts";
 import { account } from "@/lib/api/account";
 import { chat, newClientId, type ChatCard, type ChatMessage } from "@/lib/api/chat";
@@ -729,7 +729,7 @@ export function useRemoteCollab() {
         blurb: `A private working session for the ${p.title} team.`, seated: [ME], photo: p.photo, tag: "Collaboration", mine: true, visibility: "private",
       };
       setRooms((cur) => [room, ...cur]);
-      const href = `/rooms/${room.id}?demo=start`;
+      const href = "/connect/rooms"; // Rooms are not designed yet: their Coming soon page
       // The team hears about it in the project's own chat (never the browser's km:* stores).
       if (p.convoId) {
         const card: ChatCard = { type: "invite", invite: "project", title: room.title.slice(0, 120), detail: room.blurb.slice(0, 300), href };

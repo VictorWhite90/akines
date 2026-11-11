@@ -25,10 +25,10 @@ const first = (id: PersonId) => PEOPLE[id]?.name.split(" ")[0] ?? "";
 function useCards(): HCard[] {
   const { all } = useBanters();
   const pools: Record<Kind, HCard[]> = {
-    banter: all.filter((b) => !b.closed).map((b) => ({ id: `b-${b.id}`, kind: "banter", tag: TAG.banter, title: b.prompt, meta: `${b.replies.length + 1} people talking · Banter`, image: b.image ?? photoSrc(b.photo ?? "talkGroup"), href: `/banter/${b.id}` })),
-    live: [...ROOMS].sort((a, b) => (a.status === "live" ? -1 : b.status === "live" ? 1 : 0)).map((r) => ({ id: `r-${r.id}`, kind: "live", tag: TAG.live, title: r.title, meta: `${r.status === "live" ? `${r.seated.length} in the room` : r.when} · Hosted by ${first(r.host)}`, image: photoSrc(r.photo), href: `/rooms/${r.id}` })),
-    game: GAMES.map((g) => ({ id: `g-${g.id}`, kind: "game", tag: TAG.game, title: g.name, meta: `${g.players} players · ${g.minutes} min`, image: photoSrc(g.photo), href: `/play/${g.id}` })),
-    activity: allActivities().sort((a, b) => dayDistance(a.when) - dayDistance(b.when)).map((a) => ({ id: `a-${a.circleId}-${a.id}`, kind: "activity", tag: TAG.activity, title: a.title, meta: `${a.when} · ${a.where}`, image: photoSrc(a.photo), href: "/activities" })),
+    banter: all.filter((b) => !b.closed).map((b) => ({ id: `b-${b.id}`, kind: "banter", tag: TAG.banter, title: b.prompt, meta: `${b.replies.length + 1} people talking · Banter`, image: b.image ?? photoSrc(b.photo ?? "talkGroup"), href: "/community/banter" })),
+    live: [...ROOMS].sort((a, b) => (a.status === "live" ? -1 : b.status === "live" ? 1 : 0)).map((r) => ({ id: `r-${r.id}`, kind: "live", tag: TAG.live, title: r.title, meta: `${r.status === "live" ? `${r.seated.length} in the room` : r.when} · Hosted by ${first(r.host)}`, image: photoSrc(r.photo), href: "/connect/rooms" })),
+    game: GAMES.map((g) => ({ id: `g-${g.id}`, kind: "game", tag: TAG.game, title: g.name, meta: `${g.players} players · ${g.minutes} min`, image: photoSrc(g.photo), href: "/connect" })),
+    activity: allActivities().sort((a, b) => dayDistance(a.when) - dayDistance(b.when)).map((a) => ({ id: `a-${a.circleId}-${a.id}`, kind: "activity", tag: TAG.activity, title: a.title, meta: `${a.when} · ${a.where}`, image: photoSrc(a.photo), href: "/connect/activities" })),
   };
   const used: Record<Kind, number> = { banter: 0, live: 0, game: 0, activity: 0 };
   return ORDER.map((k) => pools[k][used[k]++]).filter(Boolean);

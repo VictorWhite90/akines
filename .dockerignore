@@ -7,7 +7,6 @@ node_modules
 .DS_Store
 # Not part of the web app
 backend
-_legacy
 docs
 akines-landing
 akines-landing-handoff.md

@@ -1,4 +1,7 @@
-import type { Match } from "@/components/home/IntroCard";
+import type { PersonId } from "./people";
+
+/** One suggested person, with the reason for it stated plainly. */
+export type Match = { id: PersonId; reason: string; signals: string[]; opener: string; ask?: string };
 
 /** "People whose creative journeys complement yours": each with a stated reason. */
 export const MATCHES: Match[] = [

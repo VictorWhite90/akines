@@ -31,9 +31,9 @@ export const eventPath = (id: string) => `/connect/events/${id}`;
 export const first = (id: string) => PEOPLE[id as PersonId]?.name.split(" ")[0] ?? "";
 
 export const EXPLORE: { id: string; title: string; text: string; image: string; href?: string }[] = [
-  { id: "people", title: "People", text: "Artists, creators and kindred spirits.", image: "/kin/discover/ngozi.jpg", href: "/kindred" },
-  { id: "circles", title: "Circles", text: "Communities and shared interests.", image: "/kin/discover/kincircle.jpg", href: "/circles" },
-  { id: "stores", title: "Artworks & Stores", text: "Original work that's made-to-order.", image: "/kin/discover/explore-stores.jpg", href: "/shop" },
+  { id: "people", title: "People", text: "Artists, creators and kindred spirits.", image: "/kin/discover/ngozi.jpg", href: "/collaborate/collaborators" },
+  { id: "circles", title: "Circles", text: "Communities and shared interests.", image: "/kin/discover/kincircle.jpg", href: "/connect/kincircle" },
+  { id: "stores", title: "Artworks & Stores", text: "Original work that's made-to-order.", image: "/kin/discover/explore-stores.jpg", href: "/make-sell" },
   { id: "projects", title: "Projects", text: "Collaborations and creative builds.", image: "/kin/discover/zine.jpg", href: "/collaborate/discover" },
   { id: "events", title: "Events", text: "Talks, workshops and gatherings.", image: "/kin/discover/event-workshop.jpg", href: PATHS.events },
 ];
@@ -56,7 +56,7 @@ export type ItemCard = { kind: "project" | "studio" | "story" | "event"; id: str
 export type Card = PersonCard | CircleCard | ArtCard | ItemCard;
 
 export const personCard = (p: Person): PersonCard => ({ kind: "person", id: `person-${p.id}`, person: p.id, name: p.name, image: faceSrc(p.id as PersonId, 640) ?? p.photo ?? undefined, identity: [p.role, p.city].filter(Boolean).join(" · "), text: p.about, href: profilePath(p.id) });
-export const circleCard = (c: Circle): CircleCard => ({ kind: "circle", id: `circle-${c.id}`, circle: c.id, name: c.name, image: photoSrc(c.photo), meta: `${c.members} members · ${c.active} active`, text: c.blurb, href: `/circles/${c.id}` });
+export const circleCard = (c: Circle): CircleCard => ({ kind: "circle", id: `circle-${c.id}`, circle: c.id, name: c.name, image: photoSrc(c.photo), meta: `${c.members} members · ${c.active} active`, text: c.blurb, href: "/connect/kincircle" });
 export const eventCard = (e: ConnectEvent): ItemCard => ({ kind: "event", id: `event-${e.id}`, tag: eventTag(e), title: e.title, text: e.summary, meta: eventMeta(e), image: photoSrc(e.photo), action: "View event", href: eventPath(e.id) });
 
 /** Every card kind, from our data. */
@@ -65,10 +65,10 @@ export function useCardLists() {
   const products = sortProducts(useAllProducts(), "new");
   const people = allPeople.filter((p) => p.id !== ME.id).map(personCard);
   const circles = CIRCLES.filter((c) => !c.joined).map(circleCard);
-  const art: ArtCard[] = products.slice(0, 1).map((p) => ({ kind: "artwork", id: `artwork-${p.id}`, tag: p.category.toUpperCase(), title: p.title, maker: p.seller, makerHref: profilePath(p.seller), price: `$${p.price.toLocaleString()}`, edition: p.unique ? "1 of 1" : `${p.stock} available`, image: photoSrc(p.photos[0]), href: `/shop/${p.id}` }));
+  const art: ArtCard[] = products.slice(0, 1).map((p) => ({ kind: "artwork", id: `artwork-${p.id}`, tag: p.category.toUpperCase(), title: p.title, maker: p.seller, makerHref: profilePath(p.seller), price: `$${p.price.toLocaleString()}`, edition: p.unique ? "1 of 1" : `${p.stock} available`, image: photoSrc(p.photos[0]), href: "/make-sell" }));
   const projects: ItemCard[] = calls.filter((c) => !c.postedByMe).map((c) => ({ kind: "project", id: `project-${c.id}`, tag: "PROJECT", title: c.title, text: c.summary, meta: `${PEOPLE[c.host]?.name ?? c.org} · ${c.teamSize} people`, image: photoSrc(c.photo), action: "View project", href: `/collaborate/projects/${c.id}` }));
-  const studios: ItemCard[] = STUDIOS.map((v) => ({ kind: "studio", id: `studio-${v.id}`, tag: "STUDIO VISIT", title: `${first(v.artist)}'s studio`, text: v.blurb, meta: `${v.place} · ${v.when}`, image: photoSrc(v.photo), action: "Request a visit", href: `/studios/${v.id}` }));
-  const stories: ItemCard[] = STORIES.map((s) => ({ kind: "story", id: `story-${s.id}`, tag: "STORY", title: s.title, text: s.excerpt, meta: `By ${PEOPLE[s.by]?.name ?? "a member"}`, image: photoSrc(s.photo), action: "Read story", href: `/stories/${s.id}` }));
+  const studios: ItemCard[] = STUDIOS.map((v) => ({ kind: "studio", id: `studio-${v.id}`, tag: "STUDIO VISIT", title: `${first(v.artist)}'s studio`, text: v.blurb, meta: `${v.place} · ${v.when}`, image: photoSrc(v.photo), action: "Request a visit", href: "/explore/studio-visits" }));
+  const stories: ItemCard[] = STORIES.map((s) => ({ kind: "story", id: `story-${s.id}`, tag: "STORY", title: s.title, text: s.excerpt, meta: `By ${PEOPLE[s.by]?.name ?? "a member"}`, image: photoSrc(s.photo), action: "Read story", href: "/explore/stories" }));
   const events = EVENTS.map(eventCard);
   return { people, circles, art, projects, studios, stories, events, calls };
 }

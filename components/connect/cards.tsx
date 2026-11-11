@@ -8,7 +8,7 @@ import { useJoined } from "@/components/circles/useJoined";
 import { faceSrc, photoSrc } from "@/components/kin/home/parts";
 import { profilePath } from "@/lib/connect/profiles";
 import type { Interest } from "@/lib/connect/interests";
-import type { Match } from "@/components/home/IntroCard";
+import type { Match } from "@/lib/data/matches";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { first, interestPath, type Card, type EXPLORE } from "./data";
 import { useDiscoverState, type RecStatus } from "./state";

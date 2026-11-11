@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight2 } from "iconsax-reactjs";
-import Avatar from "@/components/ui/Avatar";
-import DateOfBirth from "@/components/ui/DateOfBirth";
+import { ChevronRight } from "lucide-react";
+import Avatar from "@/components/kin/Avatar";
+import Button from "@/components/kin/Button";
+import { Field, Input } from "@/components/kin/Field";
 import { useMe } from "@/components/shell/MemberContext";
 import { account, fullName, type MyProfile } from "@/lib/api/account";
-import { Notice, Status, useLoad } from "./useLoad";
+import BirthDate from "./BirthDate";
+import { Block, Notice, Status, useLoad } from "./useLoad";
 
 /** Private account details. Public profile fields (name, photo, bio...) are edited on the profile page. */
 export default function PersonalSection() {
@@ -74,40 +76,43 @@ export default function PersonalSection() {
   };
 
   return (
-    <div className="st-stack">
-      <Link href="/profile" className="kh-card st-card st-profile-link">
+    <div className="ch-set__stack">
+      <Link href="/profile" className="ch-set__profile">
         <Avatar person={{ name: fullName(p), photo: p.profile_photo }} size={48} />
-        <span>
-          <b>{fullName(p)}</b>
-          <small>{p.username ? `@${p.username} · ` : ""}Your name, photos, bio and interests are edited on your profile</small>
+        <span className="ch-set__rowtext">
+          <span className="ch-set__rowtitle">{fullName(p)}</span>
+          <span className="ch-set__rowdesc">{p.username ? `@${p.username} · ` : ""}Your name, photos, bio and interests are edited on your profile</span>
         </span>
-        <ArrowRight2 size={18} color="currentColor" />
+        <ChevronRight size={20} strokeWidth={1.5} aria-hidden />
       </Link>
 
-      <form className="cm-form kh-card st-card" onSubmit={save} noValidate>
-        <h3>Private details</h3>
-        <p className="st-lead">Only you can see these. They're never shown on your profile.</p>
-        <div className="cm-field">
-          <label htmlFor="st-phone">Mobile number <small>One account per number</small></label>
-          <input id="st-phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setPendingPhone(null); }} aria-invalid={notice?.field === "phone_number" ? true : undefined} placeholder="0803 123 4567" />
-        </div>
-        {pendingPhone ? (
-          <div className="cm-field">
-            <label htmlFor="st-phone-code">Code sent to {pendingPhone} <small>Expires in 10 minutes</small></label>
-            <input id="st-phone-code" inputMode="numeric" autoComplete="one-time-code" maxLength={7} value={code} placeholder="123 456" onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void confirmPhone(); } }} aria-invalid={notice?.field === "phone_code" ? true : undefined} />
-            <button type="button" className="kh-btn st-save" onClick={() => void confirmPhone()} disabled={saving}>Confirm number</button>
+      <Block title="Private details" text="Only you can see these. They're never shown on your profile.">
+        <form className="ch-set__fields" onSubmit={save} noValidate>
+          <Field label="Mobile number" hint="One account per number">
+            <Input id="st-phone" type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setPendingPhone(null); }} invalid={notice?.field === "phone_number"} placeholder="0803 123 4567" />
+          </Field>
+          {pendingPhone ? (
+            <>
+              <Field label={`Code sent to ${pendingPhone}`} hint="Expires in 10 minutes">
+                <Input id="st-phone-code" inputMode="numeric" autoComplete="one-time-code" maxLength={7} value={code} placeholder="123 456" onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void confirmPhone(); } }} invalid={notice?.field === "phone_code"} />
+              </Field>
+              <div className="ch-set__acts"><Button variant="secondary" onClick={() => void confirmPhone()} disabled={saving}>Confirm number</Button></div>
+            </>
+          ) : null}
+          <div className="k-field">
+            <label className="k-field__label" htmlFor="st-dob" id="st-dob-label">Date of birth</label>
+            <BirthDate id="st-dob" value={dob} onChange={setDob} minAge={18} disabled={!!p.date_of_birth} invalid={notice?.field === "date_of_birth"} />
+            <p className="k-field__msg">{p.date_of_birth ? "Can't be changed" : "Can only be set once"}</p>
           </div>
-        ) : null}
-        <div className="cm-field">
-          <label htmlFor="st-dob" id="st-dob-label">Date of birth <small>{p.date_of_birth ? "Can't be changed" : "Can only be set once"}</small></label>
-          <DateOfBirth id="st-dob" value={dob} onChange={setDob} minAge={18} disabled={!!p.date_of_birth} invalid={notice?.field === "date_of_birth"} />
-        </div>
-        <dl className="st-facts">
-          <div><dt>Email</dt><dd>{p.email ?? "None"}</dd></div>
-        </dl>
-        <Notice text={notice?.text ?? null} tone={notice?.tone} />
-        <button className="kh-btn primary st-save" type="submit" disabled={saving}>{saving ? "Saving…" : "Save"}</button>
-      </form>
+          <div className="ch-set__list">
+            <div className="ch-set__row">
+              <div className="ch-set__rowtext"><span className="ch-set__rowtitle">Email</span><span className="ch-set__rowdesc">{p.email ?? "None"}</span></div>
+            </div>
+          </div>
+          <Notice text={notice?.text ?? null} tone={notice?.tone} />
+          <div className="ch-set__acts"><Button type="submit" arrow="right" disabled={saving}>{saving ? "Saving…" : "Save"}</Button></div>
+        </form>
+      </Block>
     </div>
   );
 }

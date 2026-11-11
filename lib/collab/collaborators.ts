@@ -637,7 +637,7 @@ export const collabHref = (id: string) => ({
   why: `/collaborate/collaborators/${id}/why-this-match`,
 });
 /** Where a person's profile is: their collaborator profile when they are recommended to you, otherwise their Akines profile. */
-export const profileHref = (id: string) => (sampleCollaborator(id) ? collabHref(id).profile : `/profile/${id}`);
+export const profileHref = (id: string) => (sampleCollaborator(id) ? collabHref(id).profile : `/connect/people/${id}`);
 /** The page of the introduction you sent to someone; the Not now one has its own address, as in the design. */
 export const requestHref = (to: string, status: IntroStatus = "pending") => `/collaborate/introduction-requests/${to}${status === "notnow" ? "/not-now" : ""}`;
 export const CC = {

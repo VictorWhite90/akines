@@ -38,17 +38,17 @@ const VERSIONS: Record<"a" | "b" | "c" | "d", SectionName[]> = {
 };
 const VERSION_KEY = "ak:feed-version";
 const HEAD: Record<SectionName, { title: string; support: string; link?: { label: string; href: string } }> = {
-  explore: { title: "These might resonate with you.", support: "Discover stories, ideas, and conversations worth your time.", link: { label: "Explore all", href: "/stories" } },
-  kincircle: { title: "Your circles' feed.", support: "What people are sharing in the circles you've joined.", link: { label: "Explore all", href: "/circles" } },
-  banter: { title: "Conversations worth joining.", support: "Open conversations happening across Akines right now.", link: { label: "Open Banter", href: "/banter" } },
-  rooms: { title: "Rooms open now.", support: "Drop in, listen, or speak when you are ready.", link: { label: "See all rooms", href: "/rooms" } },
-  activities: { title: "Things to do together.", support: "Small, easy ways to meet people through making.", link: { label: "See all activities", href: "/activities" } },
+  explore: { title: "These might resonate with you.", support: "Discover stories, ideas, and conversations worth your time.", link: { label: "Explore all", href: "/explore" } },
+  kincircle: { title: "Your circles' feed.", support: "What people are sharing in the circles you've joined.", link: { label: "Explore all", href: "/connect/kincircle" } },
+  banter: { title: "Conversations worth joining.", support: "Open conversations happening across Akines right now.", link: { label: "Open Banter", href: "/community/banter" } },
+  rooms: { title: "Rooms open now.", support: "Drop in, listen, or speak when you are ready.", link: { label: "See all rooms", href: "/connect/rooms" } },
+  activities: { title: "Things to do together.", support: "Small, easy ways to meet people through making.", link: { label: "See all activities", href: "/connect/activities" } },
   collaborate: { title: "Projects looking for you.", support: "Open projects that match your interests and skills.", link: { label: "Discover projects", href: "/collaborate/discover" } },
-  shop: { title: "Fresh from the makers.", support: "Original work and made-to-order pieces, sold by the people who made them.", link: { label: "Shop all", href: "/shop" } },
-  studios: { title: "Step inside the studio.", support: "Live, virtual, 360° or VR. Talk to the maker directly.", link: { label: "Visit studios", href: "/studios" } },
-  stories: { title: "Witness the journey.", support: "Living journals and the legacy every artwork carries.", link: { label: "Open journals", href: "/journal" } },
+  shop: { title: "Fresh from the makers.", support: "Original work and made-to-order pieces, sold by the people who made them.", link: { label: "Shop all", href: "/explore" } },
+  studios: { title: "Step inside the studio.", support: "Live, virtual, 360° or VR. Talk to the maker directly.", link: { label: "Visit studios", href: "/explore/studio-visits" } },
+  stories: { title: "Witness the journey.", support: "Living journals and the legacy every artwork carries.", link: { label: "Open journals", href: "/explore/stories" } },
   wellbeing: { title: "A quiet moment.", support: "How is your creative energy today? Only you can see your answer." },
-  dna: { title: "Your creative DNA.", support: "Traits that shape how you make, and the people who share them.", link: { label: "See your full DNA", href: "/dna" } },
+  dna: { title: "Your creative DNA.", support: "Traits that shape how you make, and the people who share them.", link: { label: "See your full DNA", href: "/care/creative-dna" } },
 };
 const FIRST = "fd-first";
 const first = (id: PersonId) => PEOPLE[id]?.name.split(" ")[0] ?? "";
@@ -103,7 +103,7 @@ function SectionBody({ name }: { name: SectionName }) {
   const products = sortProducts(useAllProducts(), "new").slice(0, 3);
   switch (name) {
     case "explore":
-      return <Cards cards={STORIES.slice(0, 3).map((s) => ({ id: s.id, href: `/stories/${s.id}`, image: photoSrc(s.photo), title: s.title, text: s.excerpt, left: `${s.reflections} felt this`, right: s.voice ? `Voice ${s.voice}` : `${s.read} read` }))} />;
+      return <Cards cards={STORIES.slice(0, 3).map((s) => ({ id: s.id, href: "/explore/stories", image: photoSrc(s.photo), title: s.title, text: s.excerpt, left: `${s.reflections} felt this`, right: s.voice ? `Voice ${s.voice}` : `${s.read} read` }))} />;
     case "kincircle":
       return <FeedPosts />;
     case "banter":
@@ -113,7 +113,7 @@ function SectionBody({ name }: { name: SectionName }) {
             const people = [b.by, ...b.replies.map((r) => r.by)].filter((v, i, a) => a.indexOf(v) === i).slice(0, 3) as PersonId[];
             const live = !b.closed;
             return (
-              <Link key={b.id} className="fd-banter" href={`/banter/${b.id}`}>
+              <Link key={b.id} className="fd-banter" href="/community/banter">
                 <p className="fd-banter__tag">{live ? <span className="fd-banter__dot" aria-hidden /> : null}{live ? "BANTER · LIVE" : "BANTER · OPEN"}</p>
                 <h3 className="fd-banter__title">{b.prompt}</h3>
                 <p className="fd-banter__text">{b.replies[0]?.text ?? b.audienceLabel}</p>
@@ -127,9 +127,9 @@ function SectionBody({ name }: { name: SectionName }) {
         </div>
       );
     case "rooms":
-      return <Cards cards={[...ROOMS].sort((a, b) => (a.status === "live" ? -1 : b.status === "live" ? 1 : 0)).slice(0, 3).map((r) => ({ id: r.id, href: `/rooms/${r.id}`, image: photoSrc(r.photo), tag: r.status === "live" ? "LIVE NOW" : r.when.toUpperCase(), title: r.title, text: r.blurb, left: `${r.seated.length} ${r.status === "live" ? "in the room" : "going"}`, right: `Hosted by ${first(r.host)}` }))} />;
+      return <Cards cards={[...ROOMS].sort((a, b) => (a.status === "live" ? -1 : b.status === "live" ? 1 : 0)).slice(0, 3).map((r) => ({ id: r.id, href: "/connect/rooms", image: photoSrc(r.photo), tag: r.status === "live" ? "LIVE NOW" : r.when.toUpperCase(), title: r.title, text: r.blurb, left: `${r.seated.length} ${r.status === "live" ? "in the room" : "going"}`, right: `Hosted by ${first(r.host)}` }))} />;
     case "activities":
-      return <Cards cards={allActivities().sort((a, b) => dayDistance(a.when) - dayDistance(b.when)).slice(0, 3).map((a) => ({ id: a.circleId + a.id, href: "/activities", image: photoSrc(a.photo), tag: a.when.toUpperCase(), title: a.title, text: a.blurb, left: a.where, right: `${a.going.length} going` }))} />;
+      return <Cards cards={allActivities().sort((a, b) => dayDistance(a.when) - dayDistance(b.when)).slice(0, 3).map((a) => ({ id: a.circleId + a.id, href: "/connect/activities", image: photoSrc(a.photo), tag: a.when.toUpperCase(), title: a.title, text: a.blurb, left: a.where, right: `${a.going.length} going` }))} />;
     case "collaborate":
       return <Cards cards={calls.filter((c) => !c.postedByMe).slice(0, 3).map((c) => ({ id: c.id, href: `/collaborate/projects/${c.id}`, image: photoSrc(c.photo), tag: `LOOKING FOR: ${c.roles[0]?.toUpperCase() ?? "COLLABORATORS"}`, title: c.title, text: c.summary, left: `${c.teamSize} collaborators`, right: c.closesInDays <= 0 ? "Closing today" : `Closes in ${c.closesInDays} days` }))} />;
     case "shop":
@@ -137,7 +137,7 @@ function SectionBody({ name }: { name: SectionName }) {
         <div className="fd-row" data-m="stagger">
           {products.map((p) => (
             <article key={p.id} className="fd-card fd-product">
-              <Link className="fd-product__link" href={`/shop/${p.id}`}>
+              <Link className="fd-product__link" href="/explore">
                 <FdPhoto src={photoSrc(p.photos[0])} className="fd-card__photo" />
                 <p className="fd-card__tag">{p.category.toUpperCase()}</p>
                 <h3 className="fd-card__title fd-product__title">{p.title}</h3>
@@ -145,7 +145,7 @@ function SectionBody({ name }: { name: SectionName }) {
               <div className="fd-product__maker"><FdAvatar id={p.seller} size={24} /><span>{PEOPLE[p.seller]?.name ?? "A member"}</span></div>
               <div className="fd-product__buy">
                 <p className="fd-product__price"><span>${p.price.toLocaleString()}</span></p>
-                <Button variant="secondary" href={`/shop/${p.id}`} aria-label={`Buy ${p.title}`}>Buy</Button>
+                <Button variant="secondary" href="/explore" aria-label={`Buy ${p.title}`}>Buy</Button>
               </div>
               <span className="fd-card__rule" aria-hidden />
             </article>
@@ -153,9 +153,9 @@ function SectionBody({ name }: { name: SectionName }) {
         </div>
       );
     case "studios":
-      return <Cards cards={STUDIOS.slice(0, 3).map((v) => ({ id: v.id, href: `/studios/${v.id}`, image: photoSrc(v.photo), tag: v.mode.toUpperCase(), title: `${PEOPLE[v.artist].name}'s studio`, text: v.blurb, left: v.place }))} />;
+      return <Cards cards={STUDIOS.slice(0, 3).map((v) => ({ id: v.id, href: "/explore/studio-visits", image: photoSrc(v.photo), tag: v.mode.toUpperCase(), title: `${PEOPLE[v.artist].name}'s studio`, text: v.blurb, left: v.place }))} />;
     case "stories":
-      return <Cards cards={JOURNAL.filter((j) => j.photo).slice(0, 3).map((j) => ({ id: j.id, href: `/profile/${j.by}`, image: photoSrc(j.photo!), tag: j.kind === "work" ? "WORK JOURNAL" : "LIFE JOURNAL", title: j.title, text: j.text, left: `By ${first(j.by)}`, right: j.date }))} />;
+      return <Cards cards={JOURNAL.filter((j) => j.photo).slice(0, 3).map((j) => ({ id: j.id, href: "/explore/stories", image: photoSrc(j.photo!), tag: j.kind === "work" ? "WORK JOURNAL" : "LIFE JOURNAL", title: j.title, text: j.text, left: `By ${first(j.by)}`, right: j.date }))} />;
     case "dna": {
       const faces: PersonId[][] = [["amara", "kwame", "leila"], ["efua", "ayo", "amara"], ["kwame", "leila", "efua"]];
       return (
@@ -167,7 +167,7 @@ function SectionBody({ name }: { name: SectionName }) {
               <p className="fd-trait__text">{t.blurb}</p>
               <div className="fd-trait__foot">
                 <div className="fd-trait__people"><FdFaces ids={faces[i]} /><span>{t.value}% of your DNA</span></div>
-                <FdLink href="/dna">See who shares it</FdLink>
+                <FdLink href="/care/creative-dna">See who shares it</FdLink>
               </div>
             </article>
           ))}

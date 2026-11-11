@@ -136,7 +136,7 @@ function ProfileProgress({ compact = false }: { compact?: boolean }) {
               const t = PART_TEXT[p.id] ?? { text: "", Icon: Sparkles };
               return (
                 <li key={p.id}>
-                  <Link href="/profile/work" className="pp-row" onClick={() => setOpen(false)}>
+                  <Link href="/profile/complete" className="pp-row" onClick={() => setOpen(false)}>
                     <span className="pp-ico"><t.Icon size={20} strokeWidth={1.5} /></span>
                     <span className="pp-txt"><span className="pp-t">{p.label}</span><span className="pp-s">{t.text}</span></span>
                     <ChevronRight size={16} strokeWidth={1.5} className="pp-go" aria-hidden />
@@ -168,9 +168,9 @@ function ProfileProgress({ compact = false }: { compact?: boolean }) {
 /* ---- Account menu ---- */
 const ACCOUNT = [
   { label: "View profile", href: "/profile", Icon: User },
-  { label: "Complete your profile", href: "/profile/work", Icon: UserCheck },
+  { label: "Complete your profile", href: "/profile/complete", Icon: UserCheck },
   { label: "Settings", href: "/settings", Icon: Settings },
-  { label: "Help", href: "/landing", Icon: CircleHelp },
+  { label: "Help", href: "/help", Icon: CircleHelp },
 ];
 function AvatarCircle({ name, photo, lg }: { name: string; photo?: string | null; lg?: boolean }) {
   return (
@@ -229,14 +229,14 @@ function NotificationsPanel({ open, onClose, onRead }: { open: boolean; onClose:
     <Modal open={open} onClose={onClose} title="Notifications" hideClose flush width={400} className="ch-notif">
       <div className="ch-notif__list">
         {items === null ? <p className="ch-row__desc" style={{ padding: "16px 24px" }}>Loading…</p> : items.length === 0 ? <p className="ch-row__desc" style={{ padding: "16px 24px" }}>Nothing new. Notifications appear here.</p> : items.slice(0, 8).map((n) => (
-          <button key={n.id} type="button" className="ch-row" onClick={() => go(n.link || "/notifications")}>
+          <button key={n.id} type="button" className="ch-row" onClick={() => (n.link ? go(n.link) : onClose())}>
             {n.actor ? <Avatar person={{ name: [n.actor.first_name, n.actor.last_name].filter(Boolean).join(" ") || n.actor.username || "Member", photo: n.actor.profile_photo }} size={44} /> : null}
             <span className="ch-row__text"><span className="ch-row__title">{n.text}</span><span className="ch-row__desc">{when(n.created_at)}</span></span>
             <span className="ch-row__chev"><ChevronRight size={16} strokeWidth={1.5} aria-hidden /></span>
           </button>
         ))}
       </div>
-      <button type="button" className="ch-tlink ch-notif__pref" onClick={() => go("/notifications")}>See all notifications</button>
+      <button type="button" className="ch-tlink ch-notif__pref" onClick={() => go("/settings")}>Notification preferences</button>
     </Modal>
   );
 }

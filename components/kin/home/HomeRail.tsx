@@ -30,12 +30,12 @@ function Circles({ circles }: { circles: Circle[] }) {
     <section className="fd-box fd-circles" aria-labelledby="fd-circles-title">
       <div className="fd-box__head">
         <h2 className="fd-box__title" id="fd-circles-title">Your circles <span className="fd-box__count">({circles.length})</span></h2>
-        <Link className="fd-link" href="/circles">See all</Link>
+        <Link className="fd-link" href="/connect/kincircle">See all</Link>
       </div>
       <ul className="fd-circles__list">
         {circles.map((c) => (
           <li key={c.id}>
-            <Link className="fd-circle" href={`/circles/${c.id}`}>
+            <Link className="fd-circle" href="/connect/kincircle">
               {/* eslint-disable-next-line @next/next/no-img-element -- circle photo */}
               <span className="fd-circle__photo"><img className="cover" src={photoSrc(c.photo)} alt="" loading="lazy" decoding="async" draggable={false} /></span>
               <span className="fd-circle__text"><span className="fd-circle__name">{c.name}</span><span className="fd-circle__meta">{c.members} members · {c.active} active</span></span>
@@ -62,7 +62,7 @@ function Match({ profileHref }: { profileHref?: (id: PersonId) => string | undef
       <section className="fd-box fd-match fd-match--empty" aria-labelledby="fd-match-title">
         <h2 className="fd-box__title" id="fd-match-title">You two would get along</h2>
         <p className="fd-match__nothing">Nothing to suggest today. Check back tomorrow.</p>
-        <Link className="fd-link" href="/settings/privacy">Update recommendation preferences</Link>
+        <Link className="fd-link" href="/settings/explanations">Update recommendation preferences</Link>
       </section>
     );
   }
@@ -104,7 +104,7 @@ function Match({ profileHref }: { profileHref?: (id: PersonId) => string | undef
         </div>
       </div>
       <div className="fd-match__side">
-        <Link className="fd-link fd-match__why" href="/kindred">Why this match?</Link>
+        <Link className="fd-link fd-match__why" href="/collaborate/collaborators/why-this-match">Why this match?</Link>
         <div className="fd-match__slot">
           {sent ? (
             <p className="fd-match__sent" role="status"><CircleCheck size={20} strokeWidth={1.5} aria-hidden /><span>Hello sent to {firstName}. We will let you know when they reply.</span></p>

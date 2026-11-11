@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { account, fullName } from "@/lib/api/account";
+import Avatar from "@/components/kin/Avatar";
+import Button from "@/components/kin/Button";
 import { Notice, Status, useLoad } from "./useLoad";
 
 export default function BlockedSection() {
@@ -33,23 +35,25 @@ export default function BlockedSection() {
   };
 
   return (
-    <div className="cm-form">
-      <p className="st-lead">Blocked members can&apos;t see your profile or contact you, and you won&apos;t see theirs. They aren&apos;t told.</p>
+    <div className="ch-set__stack">
+      <p className="ch-set__blocktext">Blocked members can&apos;t see your profile or contact you, and you won&apos;t see theirs. They aren&apos;t told.</p>
       {blocks.data.length === 0 ? (
-        <p className="kh-none">You haven&apos;t blocked anyone.</p>
+        <p className="ch-set__rowdesc">You haven&apos;t blocked anyone.</p>
       ) : (
-        <ul className="st-list">
+        <div className="ch-set__list">
           {blocks.data.map((m) => (
-            <li key={m.user_id}>
-              <span className="st-initial" aria-hidden>{fullName(m).charAt(0)}</span>
-              <span><b>{fullName(m)}</b><small>@{m.username}</small></span>
-              {m.username && <button className="kh-btn outline sm" onClick={() => unblock(m.username!)}>Unblock</button>}
-            </li>
+            <div key={m.user_id} className="ch-set__row">
+              <div className="ch-set__rowlead">
+                <Avatar person={{ name: fullName(m) }} size={40} />
+                <div className="ch-set__rowtext"><span className="ch-set__rowtitle">{fullName(m)}</span><span className="ch-set__rowdesc">@{m.username}</span></div>
+              </div>
+              {m.username && <Button variant="secondary" size="sm" onClick={() => unblock(m.username!)}>Unblock</Button>}
+            </div>
           ))}
-        </ul>
+        </div>
       )}
       {more && blocks.data.length >= 10 * page ? (
-        <button className="kh-btn outline sm" onClick={() => void loadMore()} disabled={loadingMore}>{loadingMore ? "Loading…" : "Show more"}</button>
+        <div className="ch-set__acts"><Button variant="secondary" size="sm" onClick={() => void loadMore()} disabled={loadingMore}>{loadingMore ? "Loading…" : "Show more"}</Button></div>
       ) : null}
       <Notice text={notice?.text ?? null} tone={notice?.tone} />
     </div>

@@ -26,36 +26,36 @@ type Intention = { label: string; headline: string; items: Item[] };
 
 const INTENTIONS: Intention[] = [
   { label: "I want some company.", headline: "Some company, whenever you are ready.", items: [
-    { title: "Rooms open now", text: "Drop in, listen, or speak when you are ready.", meta: "Anytime", href: "/rooms" },
-    { title: "Banter", text: "One question and a small chat that fades or grows.", meta: "Today", href: "/banter" },
-    { title: "Things to do together", text: "Small, easy ways to meet people nearby.", meta: "This week", href: "/activities" },
+    { title: "Rooms open now", text: "Drop in, listen, or speak when you are ready.", meta: "Anytime", href: "/connect/rooms" },
+    { title: "Banter", text: "One question and a small chat that fades or grows.", meta: "Today", href: "/community/banter" },
+    { title: "Things to do together", text: "Small, easy ways to meet people nearby.", meta: "This week", href: "/connect/activities" },
   ] },
   { label: "I want to collaborate.", headline: "People and projects to build with.", items: [
     { title: "Discover projects", text: "Projects looking for someone with your skills.", meta: "Collaborate", href: "/collaborate/discover" },
     { title: "Start a project", text: "Say what you are making and who you need.", meta: "Step by step", href: "/collaborate/start" },
-    { title: "Discover people", text: "People whose work complements yours.", meta: "Introductions", href: "/kindred" },
+    { title: "Discover people", text: "People whose work complements yours.", meta: "Introductions", href: "/connect/discover/suggestions" },
   ] },
   { label: "I want to meet someone new.", headline: "Someone new, for a good reason.", items: [
-    { title: "Discover people", text: "Introductions that come with a reason.", meta: "Introduction", href: "/kindred" },
-    { title: "KinCircle", text: "A small group you return to.", meta: "KinCircle", href: "/circles" },
-    { title: "Banter", text: "A question everyone can answer.", meta: "Today", href: "/banter" },
+    { title: "Discover people", text: "Introductions that come with a reason.", meta: "Introduction", href: "/connect/discover/suggestions" },
+    { title: "KinCircle", text: "A small group you return to.", meta: "KinCircle", href: "/connect/kincircle" },
+    { title: "Banter", text: "A question everyone can answer.", meta: "Today", href: "/community/banter" },
   ] },
   { label: "I want to talk to a friend.", headline: "Time with someone you know.", items: [
     { title: "Messages", text: "Pick up a conversation where you left off.", meta: "Conversation", href: "/messages" },
-    { title: "Cliqs", text: "The few people you want to hear from.", meta: "Your people", href: "/cliqs" },
+    { title: "KinCircle", text: "The few people you want to hear from.", meta: "Your people", href: "/connect/kincircle" },
   ] },
   { label: "I want to play.", headline: "Time to play.", items: [
-    { title: "Play Together", text: "Games with people who like to laugh.", meta: "Tonight", href: "/play" },
-    { title: "Make a game", text: "Create one for your people.", meta: "About 5 min", href: "/play/new" },
+    { title: "Activities", text: "Games and things to do with people who like to laugh.", meta: "Tonight", href: "/connect/activities" },
+    { title: "Rooms open now", text: "Drop in and see who is around.", meta: "Anytime", href: "/connect/rooms" },
   ] },
   { label: "I need encouragement.", headline: "A little encouragement.", items: [
     { title: "Message someone I trust", text: "Send a note to someone who knows you well.", meta: "Private", href: "/messages" },
     { title: "Reflect privately", text: "Write down how things are, just for you.", meta: "Only you", href: "/wellbeing/reflect" },
-    { title: "Stories", text: "From members, in their own words.", meta: "Read", href: "/stories" },
+    { title: "Stories and Legacy", text: "From members, in their own words.", meta: "Read", href: "/explore/stories" },
   ] },
   { label: "I want to offer help.", headline: "A way to be useful.", items: [
     { title: "Opportunities", text: "Projects that could use what you do.", meta: "Collaboration", href: "/collaborate/opportunities" },
-    { title: "Start a KinCircle", text: "Gather people around a shared purpose.", meta: "KinCircle", href: "/circles/new" },
+    { title: "Start a KinCircle", text: "Gather people around a shared purpose.", meta: "KinCircle", href: "/connect/kincircle" },
   ] },
   { label: "I want quiet company.", headline: "Quiet company, close by.", items: [
     { title: "Quiet company", text: "Be in a calm room with others. No talking needed.", meta: "Anytime", href: "/wellbeing/quiet" },
@@ -64,13 +64,14 @@ const INTENTIONS: Intention[] = [
 ];
 
 const PLACES: Go[] = [
-  { path: "/", label: "Community Home" }, { path: "/messages", label: "Messages" }, { path: "/banter", label: "Banter" },
-  { path: "/circles", label: "KinCircle" }, { path: "/rooms", label: "Rooms" }, { path: "/activities", label: "Activities" },
-  { path: "/play", label: "Play Together" }, { path: "/collaborate", label: "Collaborate" }, { path: "/collaborate/start", label: "Start a project" },
+  { path: "/", label: "Community Home" }, { path: "/messages", label: "Messages" }, { path: "/community/banter", label: "Banter" },
+  { path: "/connect", label: "Connect" }, { path: "/connect/kincircle", label: "KinCircle" }, { path: "/connect/rooms", label: "Rooms" }, { path: "/connect/activities", label: "Activities" },
+  { path: "/collaborate", label: "Collaborate" }, { path: "/collaborate/start", label: "Start a project" },
   { path: "/collaborate/collaborators", label: "Explore collaborators" }, { path: "/collaborate/discover", label: "Discover projects" }, { path: "/collaborate/my-projects", label: "Open a project" },
-  { path: "/kindred", label: "Discover people" }, { path: "/studio", label: "My Studio" }, { path: "/store", label: "My Store" },
-  { path: "/stories", label: "Stories" }, { path: "/studios", label: "Studio Visits" }, { path: "/wellbeing", label: "Wellbeing" },
-  { path: "/journal", label: "My journal" }, { path: "/settings", label: "Settings" }, { path: "/signup", label: "Join Akines" }, { path: "/landing", label: "About Akines" },
+  { path: "/connect/discover/suggestions", label: "Discover people" }, { path: "/make-sell", label: "Make and Sell" }, { path: "/make-sell/store", label: "My Store" },
+  { path: "/make-sell/journal", label: "My Journal" }, { path: "/explore", label: "Explore" }, { path: "/explore/stories", label: "Stories" }, { path: "/explore/studio-visits", label: "Studio visits" },
+  { path: "/care", label: "Care" }, { path: "/wellbeing/reflect", label: "Reflect privately" },
+  { path: "/settings", label: "Settings" }, { path: "/help", label: "Help" }, { path: "/signup", label: "Join Akines" }, { path: "/landing", label: "About Akines" },
 ];
 const place = (p: string) => PLACES.find((x) => x.path === p);
 
@@ -82,15 +83,15 @@ const RULES: { test: RegExp; text: string; go?: string[] }[] = [
   { test: /\b(start|begin|launch|new)\b.*\bproject\b|\bproject\b.*\b(start|begin|idea)\b/i, text: "Starting a project takes a few short questions about what you want to make and who you would like beside you. You can save it and come back.", go: ["/collaborate/start", "/collaborate/collaborators", "/collaborate/my-projects"] },
   { test: /\b(collaborat\w*|co-?found\w*|partners?|teammates?|find (a )?(maker|person|people))\b/i, text: "Collaborate is where projects and people meet. You can start your own, look for collaborators, or see open projects that could use another pair of hands.", go: ["/collaborate/collaborators", "/collaborate/discover"] },
   { test: /\b(open projects?|discover)\b/i, text: "Discover projects lists open projects you could join. Each one shows what is needed and who is already in.", go: ["/collaborate/discover"] },
-  { test: /\bbanter\b/i, text: "Banter starts with one question. You can listen quietly or join in.", go: ["/banter"] },
-  { test: /\b(kin ?circle|circle|gathering)\b/i, text: "A KinCircle is a small group around something you care about, so it stays personal.", go: ["/circles"] },
-  { test: /\b(room|quiet|calm)\b/i, text: "Rooms are open spaces to be with others. Some are for talking, and some are calm rooms where no talking is needed.", go: ["/rooms"] },
-  { test: /\b(activit|game|play|workshop)\b/i, text: "Activities and games are shared things to do together.", go: ["/activities", "/play"] },
-  { test: /\b(sell|shop|store|buy|journal)\b/i, text: "Make and Sell is where members share and sell their work, with a journal for the stories behind it.", go: ["/store", "/journal"] },
-  { test: /\b(stor(y|ies)|studio|visit|heritage|legacy)\b/i, text: "Explore has stories from members and studio visits, a good place to wander.", go: ["/stories", "/studios"] },
-  { test: /\b(care|support|anxious|stress|sad|low|overwhelm|lonely|tired|burn(t|ed)? ?out)\b/i, text: "I am sorry it feels heavy. Wellbeing has a private check-in and a breathing room, just for you. If you feel unsafe, please contact your local emergency services or someone you trust.", go: ["/wellbeing"] },
+  { test: /\bbanter\b/i, text: "Banter starts with one question. You can listen quietly or join in.", go: ["/community/banter"] },
+  { test: /\b(kin ?circle|circle|gathering)\b/i, text: "A KinCircle is a small group around something you care about, so it stays personal.", go: ["/connect/kincircle"] },
+  { test: /\b(room|quiet|calm)\b/i, text: "Rooms are open spaces to be with others. Some are for talking, and some are calm rooms where no talking is needed.", go: ["/connect/rooms"] },
+  { test: /\b(activit|game|play|workshop)\b/i, text: "Activities and games are shared things to do together.", go: ["/connect/activities"] },
+  { test: /\b(sell|shop|store|buy|journal)\b/i, text: "Make and Sell is where members share and sell their work, with a journal for the stories behind it.", go: ["/make-sell/store", "/make-sell/journal"] },
+  { test: /\b(stor(y|ies)|studio|visit|heritage|legacy)\b/i, text: "Explore has stories from members and studio visits, a good place to wander.", go: ["/explore/stories", "/explore/studio-visits"] },
+  { test: /\b(care|support|anxious|stress|sad|low|overwhelm|lonely|tired|burn(t|ed)? ?out)\b/i, text: "I am sorry it feels heavy. Reflect privately is a quiet place to write, just for you. If you feel unsafe, please contact your local emergency services or someone you trust.", go: ["/care", "/wellbeing/reflect"] },
   { test: /\b(message|chat with|dm|inbox)\b/i, text: "Messages holds your conversations. You can pick one up where you left off.", go: ["/messages"] },
-  { test: /\b(help|contact|problem|issue|bug|not working)\b/i, text: "Settings covers your account. For anything else, About Akines has the details.", go: ["/settings", "/landing"] },
+  { test: /\b(help|contact|problem|issue|bug|not working)\b/i, text: "Settings covers your account. For anything else, Help has the details.", go: ["/settings", "/help"] },
   { test: /\b(what is|what's|about|who are|tell me about)\b.*\b(akines|this)\b|\bakines\b.*\b(what|about)\b/i, text: "Akines helps you find people you can genuinely know, trust and create with. Less scrolling, more belonging.", go: ["/landing"] },
   { test: /\b(thank|thanks)\b/i, text: "Any time. I am here whenever you want to talk something through." },
 ];
@@ -135,7 +136,7 @@ const greeting = (name: string | null) => { const h = new Date().getHours(); con
 const quietPage = (p: string) => p === "/login" || p.startsWith("/signup");
 /** Pages with their own composer at the bottom: the launcher would sit on their Send button. Messages keeps it, as the design shows. */
 function hasComposer(p: string) {
-  return p.includes("/events/") || p.includes("/check-in/") || p.startsWith("/circles/community/") || p.startsWith("/collaborate/projects/") || /^\/(circles\/(?!new$)[^/]+|rooms\/(?!new$)[^/]+|banter\/(?!classic|now|new)[^/]+|banter\/now\/[^/]+)$/.test(p);
+  return p.includes("/events/") || p.startsWith("/collaborate/projects/");
 }
 
 let seq = 0;

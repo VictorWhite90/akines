@@ -3,13 +3,12 @@ import { DEMO } from "@/lib/demo/mode";
 
 /**
  * Who sees what, decided on the server before any page renders:
- * - Visitors without an account only reach the public pages (About, sign-up, log-in, invite links); everything else sends them to the landing page.
+ * - Visitors without an account only reach the public pages (the landing page, sign-in and join); everything else sends them to the landing page.
  * - Signed-in members skip the landing page, log-in and sign-up and go straight to Home.
  * - Demo (preview) builds: a link straight to any page opens it, signed in as the demo guest, so reviewers can
  *   share and open page links directly, the bare address included. The landing page is at /landing.
  */
-const PUBLIC = ["/landing", "/about", "/about/philosophy", "/login", "/signup"];
-const PUBLIC_PREFIX = ["/circles/join/"];
+const PUBLIC = ["/landing", "/login", "/signup"];
 // Pages a signed-in member has no reason to see. /login stays reachable for its post-sign-in steps (?step=…).
 const MEMBERS_SKIP = ["/landing", "/signup"];
 
@@ -23,7 +22,7 @@ export function proxy(req: NextRequest) {
   }
   // Demo builds have no backend: the in-browser demo marks the session with the readable ak_in flag instead.
   const signedIn = DEMO ? req.cookies.get("ak_in")?.value === "1" : Boolean(req.cookies.get("ak_refresh")?.value);
-  const isPublic = PUBLIC.includes(pathname) || PUBLIC_PREFIX.some((p) => pathname.startsWith(p));
+  const isPublic = PUBLIC.includes(pathname);
 
   // The steps after log-in (?step=…) need a session.
   if (!signedIn && pathname === "/login" && searchParams.get("step")) {

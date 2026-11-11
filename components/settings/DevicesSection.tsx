@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Mobile, Monitor } from "iconsax-reactjs";
+import { Monitor, Smartphone } from "lucide-react";
+import Button from "@/components/kin/Button";
+import { Tag } from "@/components/kin/Chip";
 import { account, type Device } from "@/lib/api/account";
 import { Notice, Status, useLoad } from "./useLoad";
 
@@ -43,24 +45,26 @@ export default function DevicesSection() {
   };
 
   return (
-    <div className="cm-form">
-      <p className="st-lead">If you see a device you don&apos;t recognise, sign it out and change your password.</p>
-      <ul className="st-list">
+    <div className="ch-set__stack">
+      <p className="ch-set__blocktext">If you see a device you don&apos;t recognise, sign it out and change your password.</p>
+      <div className="ch-set__list">
         {devices.data.map((d) => {
-          const Icon = isPhone(d) ? Mobile : Monitor;
+          const Icon = isPhone(d) ? Smartphone : Monitor;
           return (
-            <li key={d.device_id}>
-              <Icon size={22} color="currentColor" />
-              <span>
-                <b>{d.device}{d.is_current && <em className="st-tag">This device</em>}</b>
-                <small>{d.is_current ? "Active now" : when(d.last_seen_at)}{d.ip_address ? ` · ${d.ip_address}` : ""}</small>
-              </span>
-              {!d.is_current && <button className="kh-btn outline sm" onClick={() => signOut(d)} disabled={busy !== null}>{busy === d.device_id ? "Signing out…" : "Sign out"}</button>}
-            </li>
+            <div key={d.device_id} className="ch-set__row">
+              <div className="ch-set__rowlead">
+                <span className="ch-set__rowicon" aria-hidden><Icon size={22} strokeWidth={1.5} /></span>
+                <div className="ch-set__rowtext">
+                  <span className="ch-set__rowtitle">{d.device}{d.is_current && <> <Tag tone="success">This device</Tag></>}</span>
+                  <span className="ch-set__rowdesc">{d.is_current ? "Active now" : when(d.last_seen_at)}{d.ip_address ? ` · ${d.ip_address}` : ""}</span>
+                </div>
+              </div>
+              {!d.is_current && <Button variant="secondary" size="sm" onClick={() => signOut(d)} disabled={busy !== null}>{busy === d.device_id ? "Signing out…" : "Sign out"}</Button>}
+            </div>
           );
         })}
-      </ul>
-      {others.length > 1 && <button className="kh-btn outline st-save" onClick={signOutOthers} disabled={busy !== null}>{busy === "all" ? "Signing out…" : "Sign out of all other devices"}</button>}
+      </div>
+      {others.length > 1 && <div className="ch-set__acts"><Button variant="secondary" onClick={signOutOthers} disabled={busy !== null}>{busy === "all" ? "Signing out…" : "Sign out of all other devices"}</Button></div>}
       <Notice text={notice?.text ?? null} tone={notice?.tone} />
     </div>
   );

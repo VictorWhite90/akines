@@ -1,54 +1,7 @@
-export type NavItem = { href: string; label: string; glyph: string; badge?: string };
-export type NavGroup = { label?: string; items: NavItem[] };
-
-/** The rail is grouped by what a member is doing, so nothing feels scattered. */
-export const NAV_GROUPS: NavGroup[] = [
-  { items: [{ href: "/", label: "Community home", glyph: "home" }] },
-  {
-    label: "Connect",
-    items: [
-      { href: "/kindred", label: "Discover people", glyph: "people" },
-      { href: "/banter", label: "Banter", glyph: "banter", badge: "2 live" },
-      { href: "/circles", label: "KinCircle", glyph: "circle" },
-      { href: "/cliqs", label: "Cliqs", glyph: "cliq" },
-      { href: "/rooms", label: "Presence rooms", glyph: "live", badge: "3 live" },
-      { href: "/play", label: "Play Together", glyph: "play" },
-      { href: "/activities", label: "Activities", glyph: "▦" },
-      { href: "/collaborate", label: "Collaborate", glyph: "collaborate", badge: "12 open" },
-      { href: "/messages", label: "KinMessage", glyph: "message" },
-    ],
-  },
-  {
-    label: "Make & sell",
-    items: [
-      { href: "/studio", label: "My studio", glyph: "studio" },
-      { href: "/journal", label: "My journal", glyph: "journal" },
-      { href: "/store", label: "My store", glyph: "store" },
-    ],
-  },
-  {
-    label: "Explore",
-    items: [
-      { href: "/shop", label: "Marketplace", glyph: "□" },
-      { href: "/studios", label: "Open doors", glyph: "open-doors" },
-      { href: "/stories", label: "Stories", glyph: "stories" },
-    ],
-  },
-  {
-    label: "Care",
-    items: [
-      { href: "/wellbeing", label: "Wellbeing", glyph: "wellbeing" },
-      { href: "/dna", label: "Creative DNA", glyph: "dna" },
-      { href: "/landing", label: "About Akines", glyph: "about" },
-    ],
-  },
-];
-
-export const NAV: NavItem[] = NAV_GROUPS.flatMap((g) => g.items);
-
 /**
  * The app header (components/kin/Header.tsx): six sections as icons, and the pages of the open section
- * as tabs beneath. Same places as NAV_GROUPS, arranged the way the product design arranges them.
+ * as tabs beneath, at the product design's paths (akines-landing src/app-shell/nav-model.ts). Pages the design
+ * has not designed yet are Coming soon pages (components/kin/ComingSoon.tsx).
  */
 export type SectionKey = "home" | "connect" | "collaborate" | "make" | "explore" | "care";
 /** A tab, and other paths that should show it as the current one. */
@@ -57,20 +10,18 @@ export type Section = { key: SectionKey; label: string; href: string; tabs: Sect
 
 export const SECTIONS: Section[] = [
   // The design keeps Messages, Settings, the three care screens and your collaborations inside Community Home.
-  { key: "home", label: "Community Home", href: "/", tabs: [], also: ["/notifications", "/messages", "/settings", "/wellbeing/quiet", "/wellbeing/reflect", "/wellbeing/support", "/community/collaborations"] },
+  { key: "home", label: "Community Home", href: "/", tabs: [], also: ["/messages", "/settings", "/wellbeing/quiet", "/wellbeing/reflect", "/wellbeing/support", "/community/collaborations", "/community/banter"] },
   {
     key: "connect",
     label: "Connect",
     href: "/connect",
-    // The design's Connect tabs. Cliqs, Play Together and the older Discover (/kindred) stay in Connect without a tab.
     tabs: [
       { href: "/connect", label: "Discover" },
-      { href: "/circles", label: "KinCircle" },
-      { href: "/rooms", label: "Rooms" },
-      { href: "/banter", label: "Banter" },
-      { href: "/activities", label: "Activities" },
+      { href: "/connect/kincircle", label: "KinCircle" },
+      { href: "/connect/rooms", label: "Rooms" },
+      { href: "/connect/banter", label: "Banter" },
+      { href: "/connect/activities", label: "Activities" },
     ],
-    also: ["/kindred", "/cliqs", "/play"],
   },
   {
     key: "collaborate",
@@ -89,30 +40,30 @@ export const SECTIONS: Section[] = [
   {
     key: "make",
     label: "Make & Sell",
-    href: "/studio",
+    href: "/make-sell",
     tabs: [
-      { href: "/studio", label: "My Studio" },
-      { href: "/journal", label: "My Journal" },
-      { href: "/store", label: "My Store" },
+      { href: "/make-sell", label: "My Studio" },
+      { href: "/make-sell/journal", label: "My Journal" },
+      { href: "/make-sell/store", label: "My Store" },
     ],
   },
   {
     key: "explore",
     label: "Explore",
-    href: "/shop",
+    href: "/explore",
     tabs: [
-      { href: "/shop", label: "Shop Art" },
-      { href: "/studios", label: "Studio Visits" },
-      { href: "/stories", label: "Stories and Legacy" },
+      { href: "/explore", label: "Shop Art" },
+      { href: "/explore/studio-visits", label: "Studio Visits" },
+      { href: "/explore/stories", label: "Stories and Legacy" },
     ],
   },
   {
     key: "care",
     label: "Care",
-    href: "/wellbeing",
+    href: "/care",
     tabs: [
-      { href: "/wellbeing", label: "Creative Wellbeing" },
-      { href: "/dna", label: "Creative DNA" },
+      { href: "/care", label: "Creative Wellbeing" },
+      { href: "/care/creative-dna", label: "Creative DNA" },
     ],
   },
 ];
@@ -131,14 +82,10 @@ export function sectionOf(pathname: string): { section: Section | null; tab: Sec
 /** Pages that live outside the six sections, named for the phone header. */
 export const PAGE_TITLES: [string, string][] = [
   ["/messages", "Messages"],
-  ["/notifications", "Notifications"],
+  ["/profile/complete", "Complete your profile"],
   ["/profile", "Profile"],
   ["/settings", "Settings"],
-  ["/u/", "Profile"],
-  ["/landing", "About Akines"],
+  ["/help", "Help"],
   ["/pages", "All pages"],
 ];
 
-export function isActive(pathname: string, href: string) {
-  return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
-}

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowRight, CircleCheck, ShieldCheck } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { Chip, Tag } from "@/components/kin/Chip";
@@ -68,7 +69,7 @@ export function ExplanationsSection() {
               {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
               <span className="ch-av" style={{ width: 48, height: 48 }}>{src ? <img src={src} alt="" /> : null}</span>
               <div className="ch-why__text"><span className="ch-why__title">Why {first} was suggested</span><span className="ch-why__desc">{m.reason}</span></div>
-              <a className="ch-tlink" href="/kindred">See the full reason</a>
+              <Link className="ch-tlink" href="/collaborate/collaborators/why-this-match">See the full reason</Link>
             </div>
           );
         })}

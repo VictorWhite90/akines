@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect } from "react";
-import { useMyRooms } from "@/components/rooms/MyRooms";
+import { useMyRooms } from "@/lib/collab/myRooms";
 import type { Room } from "@/lib/data/community";
 import type { Convo, KMsg } from "@/lib/data/kinmessage";
 import { CONVOS } from "@/lib/data/kinmessage";
@@ -400,7 +400,7 @@ function useLocalCollab({ engine = false }: { engine?: boolean } = {}) {
       };
       setRooms((cur) => [room, ...cur]);
       editProject(p.id, (x) => { x.rooms.unshift(room.id); log(x, ME, ritual ? `Started a ${ritual.toLowerCase()}` : "Started a live working session"); });
-      return `/rooms/${room.id}?demo=start`;
+      return "/connect/rooms";
     },
     /** A message in the project's chat (the same thread as in KinMessage); a teammate answers in the demo. */
     send: (p: Project, text: string) => {

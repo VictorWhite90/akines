@@ -8,8 +8,8 @@ import type { BanterNow } from "@/lib/data/banter";
 import { PEOPLE } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 
-/** The product design's Banter page (classes in components/kin/community.css): what it is, who is there, then join. */
-export default function BanterIntro({ session, onJoin }: { session: BanterNow; onJoin: () => void }) {
+/** The product design's Banter page (Community Home, /community/banter) (classes in components/kin/community.css): what it is, who is there, then join. */
+export default function BanterIntro({ session }: { session: BanterNow }) {
   const [reminded, setReminded] = useLocal<string[]>("ak:banter-reminders", []);
   const host = PEOPLE[session.host];
   const others = session.people.filter((p) => p !== session.host);
@@ -21,7 +21,7 @@ export default function BanterIntro({ session, onJoin }: { session: BanterNow; o
     <div className="ch-page">
       <div className="ch-split">
         <div className="ch-split__main">
-          <Link href="/banter" className="ch-tlink">Back to Banter</Link>
+          <Link href="/" className="ch-tlink">Back to Community Home</Link>
           <p className="ch-label">Banter · {session.context}</p>
           <h1 className="ch-split__title" data-m="words">{session.topic}</h1>
           <p className="ch-split__desc">An open conversation. Listen first, or join in when you feel like it.</p>
@@ -41,11 +41,9 @@ export default function BanterIntro({ session, onJoin }: { session: BanterNow; o
             {["A short prompt from the host", "Open conversation, with no pressure to speak", "A quiet minute to close"].map((t) => <li key={t}><Check size={16} strokeWidth={1.5} aria-hidden /><span>{t}</span></li>)}
           </ul>
           <div className="ch-acts ch-acts--col">
-            {session.live ? (
-              <Button iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={onJoin}>Join Banter</Button>
-            ) : on ? (
+            {on ? (
               <>
-                <p className="ch-confirm" aria-live="polite"><CircleCheck size={20} strokeWidth={1.5} aria-hidden /><span>You are in. We will remind you before it starts.</span></p>
+                <p className="ch-confirm" aria-live="polite"><CircleCheck size={20} strokeWidth={1.5} aria-hidden /><span>{session.live ? "You are in. The conversation is open now." : "You are in. We will remind you before it starts."}</span></p>
                 <button type="button" className="ch-tlink" onClick={() => setReminded(reminded.filter((x) => x !== session.id))}>Leave Banter</button>
               </>
             ) : (

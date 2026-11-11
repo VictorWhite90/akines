@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { account } from "@/lib/api/account";
 import { STRONG, STRONG_HINT } from "@/components/auth/LoginScreen";
-import { Notice, Status, useLoad } from "./useLoad";
+import Button from "@/components/kin/Button";
+import { Tag } from "@/components/kin/Chip";
+import { Field, Input } from "@/components/kin/Field";
+import { Block, Notice, Status, useLoad } from "./useLoad";
 
 export default function SecuritySection() {
   const profile = useLoad(account.profile);
   return (
-    <div className="st-stack">
+    <div className="ch-set__stack">
       <PasswordForm />
       {profile.data ? (
         <TwoStep enabled={profile.data.is_2fa_set} email={profile.data.email} onChange={(on) => profile.setData({ ...profile.data!, is_2fa_set: on })} />
@@ -42,20 +45,18 @@ function PasswordForm() {
   };
 
   return (
-    <form className="cm-form kh-card st-card" onSubmit={submit} noValidate>
-      <h3>Change password</h3>
-      <div className="cm-field">
-        <label htmlFor="st-pw-now">Current password</label>
-        <input id="st-pw-now" type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} aria-invalid={tried && !current ? true : undefined} />
-      </div>
-      <div className="cm-field">
-        <label htmlFor="st-pw-new">New password</label>
-        <input id="st-pw-new" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} aria-invalid={tried && weak ? true : undefined} />
-        <span className={tried && weak ? "cm-err" : "cm-small"}>{STRONG_HINT}</span>
-      </div>
-      <Notice text={notice?.text ?? null} tone={notice?.tone} />
-      <button className="kh-btn primary st-save" type="submit" disabled={busy}>{busy ? "Changing…" : "Change password"}</button>
-    </form>
+    <Block title="Change password">
+      <form className="ch-set__fields" onSubmit={submit} noValidate>
+        <Field label="Current password">
+          <Input id="st-pw-now" type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} invalid={tried && !current} />
+        </Field>
+        <Field label="New password" hint={tried && weak ? undefined : STRONG_HINT} error={tried && weak ? STRONG_HINT : undefined}>
+          <Input id="st-pw-new" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} />
+        </Field>
+        <Notice text={notice?.text ?? null} tone={notice?.tone} />
+        <div className="ch-set__acts"><Button type="submit" disabled={busy}>{busy ? "Changing…" : "Change password"}</Button></div>
+      </form>
+    </Block>
   );
 }
 
@@ -87,24 +88,21 @@ function TwoStep({ enabled, email, onChange }: { enabled: boolean; email: string
   };
 
   return (
-    <div className="cm-form kh-card st-card">
-      <h3>Two-step verification <em className={`st-tag${enabled ? " on" : ""}`}>{enabled ? "On" : "Off"}</em></h3>
-      <p className="st-lead">When it&apos;s on, logging in also needs a code we email you, so a stolen password alone isn&apos;t enough.</p>
+    <Block title="Two-step verification" tag={<Tag tone={enabled ? "success" : "neutral"}>{enabled ? "On" : "Off"}</Tag>} text={<>When it&apos;s on, logging in also needs a code we email you, so a stolen password alone isn&apos;t enough.</>}>
       {stage === "code" ? (
-        <form onSubmit={confirm} className="cm-form" noValidate>
-          <div className="cm-field">
-            <label htmlFor="st-2fa">6-digit code</label>
-            <input id="st-2fa" inputMode="numeric" autoComplete="one-time-code" maxLength={7} value={code} onChange={(e) => setCode(e.target.value)} className="st-code" />
+        <form onSubmit={confirm} className="ch-set__fields" noValidate>
+          <Field label="6-digit code">
+            <Input id="st-2fa" inputMode="numeric" autoComplete="one-time-code" maxLength={7} value={code} onChange={(e) => setCode(e.target.value)} />
+          </Field>
+          <div className="ch-set__acts">
+            <Button type="submit" disabled={busy || code.replace(/\D/g, "").length !== 6}>{enabled ? "Turn off" : "Turn on"}</Button>
+            <Button variant="secondary" onClick={() => { setStage("idle"); setNotice(null); }}>Cancel</Button>
           </div>
-          <span className="st-row">
-            <button className="kh-btn primary" type="submit" disabled={busy || code.replace(/\D/g, "").length !== 6}>{enabled ? "Turn off" : "Turn on"}</button>
-            <button className="kh-btn outline" type="button" onClick={() => { setStage("idle"); setNotice(null); }}>Cancel</button>
-          </span>
         </form>
       ) : (
-        <button className={`kh-btn ${enabled ? "outline" : "primary"} st-save`} onClick={sendCode} disabled={busy}>{busy ? "Sending code…" : enabled ? "Turn off two-step verification" : "Turn on two-step verification"}</button>
+        <div className="ch-set__acts"><Button variant={enabled ? "secondary" : "primary"} onClick={sendCode} disabled={busy}>{busy ? "Sending code…" : enabled ? "Turn off two-step verification" : "Turn on two-step verification"}</Button></div>
       )}
       <Notice text={notice?.text ?? null} tone={notice?.tone} />
-    </div>
+    </Block>
   );
 }

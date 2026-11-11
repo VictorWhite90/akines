@@ -11,7 +11,7 @@ import Toaster from "./Toast";
 import { ViewTransitions } from "./ViewTransitions";
 import { useReveal } from "./useReveal";
 
-const PUBLIC = ["/landing", "/login", "/signup", "/about", "/about/philosophy", "/welcome"];
+const PUBLIC = ["/landing", "/login", "/signup"];
 /** Full-screen tools in the design (a project's canvas or document, and its meetings): signed in, but no header or Create AI. */
 const FULL = /^\/collaborate\/my-projects\/[^/]+\/(workspace|meet)(\/|$)/;
 
@@ -19,7 +19,7 @@ const FULL = /^\/collaborate\/my-projects\/[^/]+\/(workspace|meet)(\/|$)/;
 export default function Shell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const open = PUBLIC.includes(pathname) || pathname.startsWith("/circles/join/");
+  const open = PUBLIC.includes(pathname);
   const [gate, setGate] = useState<"checking" | "in" | "out">("checking");
   useEffect(() => {
     const signedIn = isSignedIn();

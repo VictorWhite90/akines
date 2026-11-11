@@ -10,8 +10,8 @@ export const LINKS = {
   signIn: '/login',
   /** Join Akines and the primary "Find my kind of connection" CTAs. */
   join: '/signup',
-  /** Long-form philosophy page ("Explore the Akines philosophy", "Understand our approach"). */
-  philosophy: '/about/philosophy',
+  /** "Explore the Akines philosophy", "Understand our approach": the long-form page is not designed yet, so the landing's own philosophy section. */
+  philosophy: '#philosophy',
   /** Contact. TODO: replace with a mailto: or contact page. Scrolls to the footer for now. */
   contact: '#contact',
   /** Legal and trust pages. TODO: none of these routes exist yet. */

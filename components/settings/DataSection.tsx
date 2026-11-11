@@ -4,7 +4,9 @@ import { useState } from "react";
 import { account } from "@/lib/api/account";
 import { auth } from "@/lib/api/client";
 import { SESSION_KEY } from "@/lib/session";
-import { Notice } from "./useLoad";
+import Button from "@/components/kin/Button";
+import { Field, Input } from "@/components/kin/Field";
+import { Block, Notice } from "./useLoad";
 
 export default function DataSection() {
   const [busy, setBusy] = useState<"export" | "delete" | null>(null);
@@ -44,35 +46,29 @@ export default function DataSection() {
   };
 
   return (
-    <div className="st-stack">
-      <div className="cm-form kh-card st-card">
-        <h3>Download your data</h3>
-        <p className="st-lead">A copy of everything Akines holds about you: your profile, settings, devices, blocked members and account activity.</p>
-        <button className="kh-btn outline st-save" onClick={download} disabled={busy !== null}>{busy === "export" ? "Preparing…" : "Download my data"}</button>
-      </div>
+    <div className="ch-set__stack">
+      <Block title="Download your data" text="A copy of everything Akines holds about you: your profile, settings, devices, blocked members and account activity.">
+        <div className="ch-set__acts"><Button variant="secondary" onClick={download} disabled={busy !== null}>{busy === "export" ? "Preparing…" : "Download my data"}</Button></div>
+      </Block>
 
-      <div className="cm-form kh-card st-card st-danger">
-        <h3>Delete your account</h3>
-        <p className="st-lead">This erases your profile, contact details, photo and interests straight away and signs you out everywhere. It can&apos;t be undone. You can sign up again later with the same email and number.</p>
+      <Block danger title="Delete your account" text={<>This erases your profile, contact details, photo and interests straight away and signs you out everywhere. It can&apos;t be undone. You can sign up again later with the same email and number.</>}>
         {confirming ? (
-          <form className="cm-form" onSubmit={remove} noValidate>
-            <div className="cm-field">
-              <label htmlFor="st-del-pw">Your password</label>
-              <input id="st-del-pw" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <form className="ch-set__fields" onSubmit={remove} noValidate>
+            <Field label="Your password">
+              <Input id="st-del-pw" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+            </Field>
+            <Field label="Type DELETE to confirm">
+              <Input id="st-del-type" autoCapitalize="characters" value={typed} onChange={(e) => setTyped(e.target.value)} />
+            </Field>
+            <div className="ch-set__acts">
+              <Button variant="danger" type="submit" disabled={busy !== null || !password || typed.trim().toUpperCase() !== "DELETE"}>{busy === "delete" ? "Deleting…" : "Delete my account"}</Button>
+              <Button variant="secondary" onClick={() => { setConfirming(false); setPassword(""); setTyped(""); }}>Cancel</Button>
             </div>
-            <div className="cm-field">
-              <label htmlFor="st-del-type">Type DELETE to confirm</label>
-              <input id="st-del-type" autoCapitalize="characters" value={typed} onChange={(e) => setTyped(e.target.value)} />
-            </div>
-            <span className="st-row">
-              <button className="kh-btn st-delete" type="submit" disabled={busy !== null || !password || typed.trim().toUpperCase() !== "DELETE"}>{busy === "delete" ? "Deleting…" : "Delete my account"}</button>
-              <button className="kh-btn outline" type="button" onClick={() => { setConfirming(false); setPassword(""); setTyped(""); }}>Cancel</button>
-            </span>
           </form>
         ) : (
-          <button className="kh-btn outline st-save st-danger-btn" onClick={() => setConfirming(true)}>Delete my account…</button>
+          <div className="ch-set__acts"><Button variant="danger" onClick={() => setConfirming(true)}>Delete my account…</Button></div>
         )}
-      </div>
+      </Block>
       <Notice text={notice?.text ?? null} tone={notice?.tone} />
     </div>
   );

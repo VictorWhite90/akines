@@ -65,18 +65,56 @@ const nextConfig: NextConfig = {
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store" }] },
     ];
   },
-  // The older Collaborate pages, now the design's: open calls are projects, applications are contributions.
   async redirects() {
+    const to = (source: string, destination: string) => ({ source, destination, permanent: false });
     return [
-      { source: "/applications", destination: "/collaborate/contributions", permanent: false },
-      { source: "/collaborate/applications", destination: "/collaborate/contributions", permanent: false },
-      { source: "/collaborate/review/:id*", destination: "/collaborate/my-projects", permanent: false },
-      { source: "/collaborate/new", destination: "/collaborate/start", permanent: false },
-      // The old About page and its philosophy page: the design's landing page tells that story now.
-      { source: "/about", destination: "/landing", permanent: false },
-      { source: "/about/philosophy", destination: "/landing", permanent: false },
-      { source: "/collaborate/calls/:id/apply", destination: "/collaborate/projects/:id/interest", permanent: false },
-      { source: "/collaborate/calls/:id", destination: "/collaborate/projects/:id", permanent: false },
+      // The older Collaborate pages, now the design's: open calls are projects, applications are contributions.
+      to("/applications", "/collaborate/contributions"),
+      to("/collaborate/applications", "/collaborate/contributions"),
+      to("/collaborate/review/:id*", "/collaborate/my-projects"),
+      to("/collaborate/new", "/collaborate/start"),
+      to("/collaborate/calls/:id/apply", "/collaborate/projects/:id/interest"),
+      to("/collaborate/calls/:id", "/collaborate/projects/:id"),
+      // Our earlier screens are gone. Their old addresses (bookmarks, shared links, notification links) open the
+      // design's page where there is one, and the matching Coming soon page where the design has none yet.
+      // Connect
+      to("/banter/now/:id", "/community/banter/:id"),
+      to("/banter/:path*", "/connect/banter"),
+      to("/circles/:path*", "/connect/kincircle"),
+      to("/rooms/:path*", "/connect/rooms"),
+      to("/activities/:path*", "/connect/activities"),
+      to("/kindred", "/connect"),
+      to("/cliqs/:path*", "/connect"),
+      to("/play/:path*", "/connect"),
+      // Make & Sell
+      to("/studio/:path*", "/make-sell"),
+      to("/studios/me", "/make-sell"),
+      to("/journal/:path*", "/make-sell/journal"),
+      to("/store/:path*", "/make-sell/store"),
+      // Explore
+      to("/shop/:path*", "/explore"),
+      to("/marketplace/:path*", "/explore"),
+      to("/studios/:path*", "/explore/studio-visits"),
+      to("/stories/:path*", "/explore/stories"),
+      // Care (the three care screens of Community Home, /wellbeing/quiet, /reflect and /support, stay)
+      to("/wellbeing", "/care"),
+      to("/dna/:path*", "/care/creative-dna"),
+      // You
+      to("/profile/work", "/profile/complete"),
+      to("/profile/:id((?!complete$)[^/]+)", "/connect/people/:id"),
+      to("/u/:username*", "/profile"),
+      to("/notifications", "/"),
+      // Earlier pages and experiments
+      to("/about/:path*", "/landing"),
+      to("/welcome", "/"),
+      to("/community", "/"),
+      to("/community/classic", "/"),
+      to("/concept", "/"),
+      to("/pilot", "/"),
+      to("/atelier/:path*", "/"),
+      to("/constellation", "/"),
+      to("/layouts/:path*", "/"),
+      to("/kin-preview/:path*", "/"),
     ];
   },
   // Development only: locally stored uploads (/media/...) live on the Django server. Production photos are S3 URLs,

@@ -82,7 +82,7 @@ export const CONVOS: Convo[] = [
     msgs: [
       { id: "m1", from: "wanjiru", at: "09:20", kind: "photo", photo: "studioBusy", text: "Three lesson plans for week one. Which one would a 14-year-old enjoy?" },
       { id: "m2", from: "efua", at: "09:31", kind: "text", text: "The second. They build something in the first ten minutes." },
-      { id: "m3", from: "nandi", at: "09:40", kind: "invite", invite: "meetup", title: "Parents' meeting before we start", detail: "Thursday · 18:00 · Presence Room · 6 seats", href: "/rooms" },
+      { id: "m3", from: "nandi", at: "09:40", kind: "invite", invite: "meetup", title: "Parents' meeting before we start", detail: "Thursday · 18:00 · Presence Room · 6 seats", href: "/connect/rooms" },
       { id: "m4", from: "fatou", at: "09:48", kind: "poll", question: "What do we teach first?", options: ["A simple website", "A small game", "A chatbot"], votes: [3, 2, 1] },
     ],
   },
@@ -99,7 +99,7 @@ export const CONVOS: Convo[] = [
     msgs: [
       { id: "k1", from: "ayo", at: "Yesterday", kind: "text", text: "Got the promotion! Starting Monday." },
       { id: "k2", from: "thandi", at: "Yesterday", kind: "text", text: "Finally! This deserves a game night.", react: ["🎉", "💛"] },
-      { id: "k3", from: "thandi", at: "Yesterday", kind: "invite", invite: "game", title: "Two truths and a story", detail: "Sunday · 18:00 · Live play · 5 players", href: "/play/two-truths" },
+      { id: "k3", from: "thandi", at: "Yesterday", kind: "invite", invite: "game", title: "Two truths and a story", detail: "Sunday · 18:00 · Live play · 5 players", href: "/connect/activities" },
     ],
   },
   {
@@ -144,7 +144,7 @@ export const CONVOS: Convo[] = [
     memories: [],
     msgs: [
       { id: "l1", from: "leila", at: "Sun", kind: "text", text: "Introduced through Akines! You're both building something of your own, apparently. Coffee when I'm in Lagos?" },
-      { id: "l2", from: "leila", at: "Sun", kind: "invite", invite: "banter", title: "What's the best advice you ignored?", detail: "A private Banter between you two", href: "/banter" },
+      { id: "l2", from: "leila", at: "Sun", kind: "invite", invite: "banter", title: "What's the best advice you ignored?", detail: "A private Banter between you two", href: "/community/banter" },
     ],
   },
 ];
