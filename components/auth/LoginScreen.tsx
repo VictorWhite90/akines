@@ -43,6 +43,10 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
   const [show, setShow] = useState(false);
   const [err, setErr] = useState<{ id: string | null; pw: string | null; code: string | null }>({ id: null, pw: null, code: null });
   const [busy, setBusy] = useState(false);
+  /** From login when two-step is on: proves the password step, so only this screen can finish with the code. */
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
+  /** From a confirmed reset code: lets this screen set the new password (kept for a retry if the password is refused). */
+  const [resetToken, setResetToken] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(sessionEnded ? "You were signed out of this device. Log in again to continue." : null);
   const [providerNote, setProviderNote] = useState<string | null>(null);
 
@@ -81,6 +85,8 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
     setNotice(message);
     setCode("");
     if (v !== "login") setPassword("");
+    if (v !== "2fa") setMfaToken(null);
+    if (v !== "reset") setResetToken(null);
   };
 
   const signedIn = (data: { user?: Member }) => {
@@ -115,24 +121,38 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
     setBusy(true);
     try {
       if (view === "login") {
-        const r = await auth<{ redirect_to_2fa?: boolean; redirect_to_verify_email?: boolean; user?: Member }>("login", { identifier: mail, password });
+        const r = await auth<{ redirect_to_2fa?: boolean; redirect_to_verify_email?: boolean; mfa_token?: string; user?: Member }>("login", { identifier: mail, password });
         // A wrong password and an unknown account read the same, as the design says it.
         if (!r.ok) { setErr({ id: null, pw: r.status === 400 ? "That password doesn't match this account." : r.message, code: null }); pwRef.current?.focus(); return; }
         if (r.data?.redirect_to_verify_email) return switchTo("verify", `Confirm your email first: we sent a 6-digit code to ${mail}.`);
-        if (r.data?.redirect_to_2fa) return switchTo("2fa", `We sent a 6-digit code to ${mail}.`);
+        if (r.data?.redirect_to_2fa) {
+          switchTo("2fa", `We sent a 6-digit code to ${mail}.`);
+          setMfaToken(r.data.mfa_token ?? null);
+          return;
+        }
         return signedIn(r.data ?? {});
       }
       if (view === "verify" || view === "2fa") {
-        const r = await auth<{ user?: Member }>(view === "verify" ? "verify-email" : "verify-2fa", { identifier: mail, otp });
+        const r = view === "verify"
+          ? await auth<{ user?: Member }>("verify-email", { identifier: mail, otp })
+          : await auth<{ user?: Member }>("verify-2fa", { mfa_token: mfaToken, otp });
+        // The two-step sign-in expired (10 minutes): start again from the password.
+        if (!r.ok && view === "2fa" && r.status === 401) return switchTo("login", r.message);
         return r.ok ? signedIn(r.data ?? {}) : setErr({ id: null, pw: null, code: r.message || "That code doesn't match. Check it and try again." });
       }
       if (view === "forgot") {
         const r = await auth("forgot", { identifier: mail });
         return r.ok ? switchTo("reset", `If ${mail} has an account, we've sent a 6-digit code to its email or mobile number.`) : setErr({ id: r.message, pw: null, code: null });
       }
-      const v = await auth("verify-reset", { identifier: mail, otp });
-      if (!v.ok) return setErr({ id: null, pw: null, code: v.message });
-      const r = await auth("reset", { identifier: mail, password });
+      let token = resetToken;
+      if (!token) {
+        const v = await auth<{ reset_token?: string }>("verify-reset", { identifier: mail, otp });
+        if (!v.ok || !v.data?.reset_token) return setErr({ id: null, pw: null, code: v.ok ? "Something went wrong. Please try again." : v.message });
+        token = v.data.reset_token;
+        setResetToken(token);
+      }
+      const r = await auth("reset", { reset_token: token, password });
+      if (!r.ok && /expired/i.test(r.message)) { setResetToken(null); return setErr({ id: null, pw: null, code: r.message }); }
       return r.ok ? switchTo("login", "Password changed. Log in with your new password.") : setErr({ id: null, pw: r.message, code: null });
     } finally {
       setBusy(false);
@@ -140,7 +160,10 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
   };
 
   const resend = async () => {
-    const r = await auth(view === "2fa" ? "resend-2fa" : view === "verify" ? "resend-email" : "forgot", { identifier: email.trim() });
+    const r = view === "2fa"
+      ? await auth("resend-2fa", { mfa_token: mfaToken })
+      : await auth(view === "verify" ? "resend-email" : "forgot", { identifier: email.trim() });
+    if (view === "reset" && r.ok) setResetToken(null);
     setNotice(r.ok ? `A new code is on its way to ${email.trim()}.` : null);
     if (!r.ok) setErr((x) => ({ ...x, code: r.message }));
   };

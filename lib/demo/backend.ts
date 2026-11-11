@@ -710,12 +710,8 @@ export async function demoAuth<T>(action: string, body: Record<string, unknown> 
     }
     case "guest":
       return signIn();
-    case "register": {
-      const { email, first_name, last_name, phone_number, date_of_birth } = body as Record<string, string>;
-      s.pending = { email, first_name, last_name, phone_number, date_of_birth };
-      save();
-      return ok(null, "We sent a 6-digit code to your email. (Demo: any 6 digits work.)") as ApiResult<T>;
-    }
+    case "verify-reset":
+      return /^\d{6}$/.test(String(body.otp ?? "")) ? (ok({ reset_token: "demo" }, "Valid OTP.") as ApiResult<T>) : (fail(400, "That code doesn't match. Check it and try again.", "otp") as ApiResult<T>);
     case "verify-email":
     case "verify-2fa":
       return /^\d{6}$/.test(String(body.otp ?? "")) ? signIn() : (fail(400, "Enter the 6-digit code.", "otp") as ApiResult<T>);

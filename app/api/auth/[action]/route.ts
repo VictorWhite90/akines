@@ -1,23 +1,22 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { clearSession, COOKIE, django, sameOrigin, setSession, type Envelope, type Tokens } from "@/lib/api/server";
+import { clearSession, COOKIE, django, MAX_JSON_BYTES, readBodyCapped, sameOrigin, setSession, type Envelope, type Tokens } from "@/lib/api/server";
 
 /**
  * Auth endpoints for the web app. Each forwards to the Django auth API and, when Django returns tokens,
  * moves them into HttpOnly cookies and strips them from the response the browser receives.
  *
- *   POST /api/auth/login            {identifier, password}  → signed in, or {redirect_to_2fa: true}
+ *   POST /api/auth/login            {identifier, password}  → signed in, or {redirect_to_2fa: true, mfa_token}
  *                                   (identifier: mobile number, username or email)
  *   POST /api/auth/signup-start     {contact}               → code sent to that email or mobile number
  *   POST /api/auth/signup-verify    {contact, otp}          → {signup_token}
- *   POST /api/auth/signup-complete  {signup_token, username, password, intent?} → signed in
- *   POST /api/auth/register         {email, phone_number, date_of_birth, password} → code sent (older Join)
- *   POST /api/auth/verify-email   {email, otp}            → signed in
- *   POST /api/auth/resend-email   {email}
- *   POST /api/auth/verify-2fa     {email, otp}            → signed in
- *   POST /api/auth/resend-2fa     {email}
- *   POST /api/auth/forgot         {email}                 → reset code sent
- *   POST /api/auth/verify-reset   {email, otp}
- *   POST /api/auth/reset          {email, password}
+ *   POST /api/auth/signup-complete  {signup_token, username, password, age_confirmed, intent?} → signed in
+ *   POST /api/auth/verify-email   {identifier, otp}       → signed in (accounts from the older sign-up)
+ *   POST /api/auth/resend-email   {identifier}
+ *   POST /api/auth/verify-2fa     {mfa_token, otp}        → signed in (mfa_token comes from login)
+ *   POST /api/auth/resend-2fa     {mfa_token}
+ *   POST /api/auth/forgot         {identifier}            → reset code sent
+ *   POST /api/auth/verify-reset   {identifier, otp}       → {reset_token}
+ *   POST /api/auth/reset          {reset_token, password}
  *   POST /api/auth/logout
  */
 const ROUTES: Record<string, string> = {
@@ -25,7 +24,6 @@ const ROUTES: Record<string, string> = {
   "signup-start": "auth/signup/start",
   "signup-verify": "auth/signup/verify",
   "signup-complete": "auth/signup/complete",
-  register: "auth/register",
   "verify-email": "auth/verify-otp/email",
   "resend-email": "auth/resend-otp/email",
   "verify-2fa": "auth/verify-otp/2fa",
@@ -52,7 +50,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ act
   const target = ROUTES[action];
   if (!target) return NextResponse.json({ success: false, message: "Not found." }, { status: 404 });
 
-  const payload = await req.text();
+  // Sign-in bodies are a few fields: anything past the JSON cap is refused before it reaches Django.
+  const read = await readBodyCapped(req, MAX_JSON_BYTES);
+  if (!read.ok) return NextResponse.json({ success: false, message: read.status === 413 ? "That request is too large." : "That request couldn't be read." }, { status: read.status });
+  const payload = new TextDecoder().decode(read.body);
   const { status, body } = await django<SignedIn>(target, { method: "POST", body: payload || "{}", req });
 
   const data = body.data;

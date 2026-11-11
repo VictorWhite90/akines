@@ -7,6 +7,10 @@ import { Notice, Status, useLoad } from "./useLoad";
 export default function BlockedSection() {
   const blocks = useLoad(account.blocks);
   const [notice, setNotice] = useState<{ text: string; tone: "ok" | "bad" } | null>(null);
+  // The list comes a page (10) at a time; a full page means there may be more.
+  const [page, setPage] = useState(1);
+  const [more, setMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   if (!blocks.data) return <Status loading={blocks.loading} error={blocks.error} onRetry={blocks.reload} />;
 
@@ -15,6 +19,17 @@ export default function BlockedSection() {
     if (!r.ok) return setNotice({ text: r.message, tone: "bad" });
     blocks.setData(blocks.data!.filter((m) => m.username !== username));
     setNotice({ text: `@${username} is unblocked.`, tone: "ok" });
+  };
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    const r = await account.blocks(page + 1);
+    setLoadingMore(false);
+    if (!r.ok) return setNotice({ text: r.message, tone: "bad" });
+    const seen = new Set(blocks.data!.map((m) => m.user_id));
+    blocks.setData([...blocks.data!, ...r.data.filter((m) => !seen.has(m.user_id))]);
+    setPage(page + 1);
+    if (r.data.length < 10) setMore(false);
   };
 
   return (
@@ -33,6 +48,9 @@ export default function BlockedSection() {
           ))}
         </ul>
       )}
+      {more && blocks.data.length >= 10 * page ? (
+        <button className="kh-btn outline sm" onClick={() => void loadMore()} disabled={loadingMore}>{loadingMore ? "Loading…" : "Show more"}</button>
+      ) : null}
       <Notice text={notice?.text ?? null} tone={notice?.tone} />
     </div>
   );

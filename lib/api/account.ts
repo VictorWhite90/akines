@@ -7,7 +7,7 @@ export type MyProfile = {
   last_name: string;
   username: string | null;
   email: string;
-  phone_number: string;
+  phone_number: string | null;
   bio: string;
   date_of_birth: string | null;
   interests: string[];
@@ -51,8 +51,13 @@ export const account = {
   signOutDevice: (deviceId: string) => api.del(`profile/devices/${encodeURIComponent(deviceId)}`),
   signOutOtherDevices: () => api.post<{ signed_out: number }>("profile/devices/sign-out-others"),
 
-  blocks: () => api.get<PublicMember[]>("profile/blocks"),
+  /** A page of blocked members (backend paginates; up to 10 per page). */
+  blocks: (page = 1) => api.get<PublicMember[]>(`profile/blocks?page=${page}`),
   unblock: (username: string) => api.del(`profile/blocks/${encodeURIComponent(username)}`),
+
+  /** A code goes to the new number; the number changes only once confirmPhoneChange gets that code. */
+  requestPhoneChange: (phone_number: string) => api.post<{ phone_number: string; expires_in_minutes: number }>("profile/phone", { phone_number }),
+  confirmPhoneChange: (otp: string) => api.post<{ phone_number: string }>("profile/phone/verify", { otp }),
 
   changePassword: (old_password: string, new_password: string) => api.post("profile/settings/password", { old_password, new_password }),
   sendTwoStepCode: () => api.post("profile/settings/2fa", { status: true }),

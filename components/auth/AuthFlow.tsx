@@ -166,7 +166,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
     setBusy(true);
     setFailure(null);
     if (!(await checkHandle(h))) { setBusy(false); return; }
-    const r = await auth<{ user?: Member }>("signup-complete", { signup_token: signupToken, username: h, password });
+    const r = await auth<{ user?: Member }>("signup-complete", { signup_token: signupToken, username: h, password, age_confirmed: age });
     setBusy(false);
     if (!r.ok) {
       if (/username/i.test(r.message) && /exist|taken/i.test(r.message)) { await checkHandle(h); return; }
