@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { auth, type Member } from "@/lib/api/client";
 import { DEMO } from "@/lib/demo/mode";
+import { handOff, handoffDone, takeHandoff, type GoogleSignup } from "@/lib/google";
 import { previewAsGuest, rememberMember, signOut } from "@/lib/session";
 import Logo from "@/components/kin/Logo";
+import GoogleButton from "./GoogleButton";
 import { AuField, AuSubmit, IconClose, OrRule, Provider, ShowToggle } from "./parts";
 import "./auth.css";
 
@@ -16,7 +18,8 @@ export const STRONG_HINT = "Use at least 12 characters, with upper and lower cas
 
 type View = "login" | "verify" | "2fa" | "forgot" | "reset";
 const EXIT_MS = 280;
-const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])';
+// iframe: Google's button (GoogleButton lays it over the design's, which is then inert).
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), iframe, [tabindex]:not([tabindex="-1"])';
 
 /**
  * Sign in, as the product design draws it: a panel over the landing page (full screen on phones).
@@ -48,7 +51,20 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
   /** From a confirmed reset code: lets this screen set the new password (kept for a retry if the password is refused). */
   const [resetToken, setResetToken] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(sessionEnded ? "You were signed out of this device. Log in again to continue." : null);
-  const [providerNote, setProviderNote] = useState<string | null>(null);
+  const [providerNote, setProviderNote] = useState<{ text: string; tone?: "error" } | null>(null);
+  const [googleBusy, setGoogleBusy] = useState(false);
+
+  // A two-step member who continued with Google on Join: ask for the code here.
+  useEffect(() => {
+    const pending = takeHandoff("2fa");
+    if (!pending) return;
+    /* eslint-disable react-hooks/set-state-in-effect -- picks up the hand-off once, after the panel opens */
+    setEmail(pending.identifier);
+    setView("2fa");
+    setNotice(`We sent a 6-digit code to ${pending.identifier}.`);
+    setMfaToken(pending.mfa_token);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
 
   /** Close: the panel slides out, then the landing page. */
   const close = useCallback((after?: () => void) => {
@@ -67,7 +83,7 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") { e.preventDefault(); close(); return; }
       if (e.key !== "Tab" || !root.current) return;
-      const list = Array.from(root.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((n) => n.offsetParent !== null);
+      const list = Array.from(root.current.querySelectorAll<HTMLElement>(FOCUSABLE)).filter((n) => n.offsetParent !== null && !n.closest("[inert]"));
       if (!list.length) return;
       const a = list[0], z = list[list.length - 1], cur = document.activeElement;
       if (e.shiftKey && (cur === a || !root.current.contains(cur))) { e.preventDefault(); z.focus(); }
@@ -85,11 +101,12 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
     setNotice(message);
     setCode("");
     if (v !== "login") setPassword("");
-    if (v !== "2fa") setMfaToken(null);
+    if (v !== "2fa") { setMfaToken(null); handoffDone("2fa"); }
     if (v !== "reset") setResetToken(null);
   };
 
   const signedIn = (data: { user?: Member }) => {
+    handoffDone("2fa");
     if (data.user) rememberMember(data.user);
     close(() => { router.replace("/"); router.refresh(); });
   };
@@ -159,6 +176,29 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
     }
   };
 
+  /** Continue with Google: signs in, asks for the two-step code, or (new to Akines) continues in Join. */
+  const continueWithGoogle = async (credential: string) => {
+    if (busy || googleBusy) return;
+    setProviderNote(null);
+    setGoogleBusy(true);
+    const r = await auth<{ redirect_to_2fa?: boolean; mfa_token?: string; identifier?: string; needs_signup?: boolean; user?: Member } & Partial<GoogleSignup>>("google", { credential });
+    setGoogleBusy(false);
+    if (!r.ok) return setProviderNote({ text: r.message, tone: "error" });
+    const data = r.data ?? {};
+    if (data.needs_signup && data.signup_token && data.email) {
+      handOff("signup", { signup_token: data.signup_token, email: data.email, suggested_username: data.suggested_username, first_name: data.first_name });
+      return close(() => router.push("/signup"));
+    }
+    if (data.redirect_to_2fa) {
+      const to = data.identifier ?? "";
+      setEmail(to);
+      switchTo("2fa", `We sent a 6-digit code to ${to}.`);
+      setMfaToken(data.mfa_token ?? null);
+      return;
+    }
+    return signedIn(data);
+  };
+
   const resend = async () => {
     const r = view === "2fa"
       ? await auth("resend-2fa", { mfa_token: mfaToken })
@@ -213,10 +253,10 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
               <div className="au-social-block" data-dim={busy ? "" : undefined}>
                 <OrRule />
                 <div className="au-providers">
-                  <Provider provider="google" onClick={() => setProviderNote("Signing in with Google isn't available yet. Use your email and password.")} />
-                  <Provider provider="apple" onClick={() => setProviderNote("Signing in with Apple isn't available yet. Use your email and password.")} />
+                  <GoogleButton busy={googleBusy} onCredential={(c) => void continueWithGoogle(c)} onNotice={(text) => setProviderNote({ text })} unavailable="Signing in with Google isn't available yet. Use your email and password." />
+                  <Provider provider="apple" onClick={() => setProviderNote({ text: "Signing in with Apple isn't available yet. Use your email and password." })} />
                 </div>
-                {providerNote && <p className="au-helper" role="status">{providerNote}</p>}
+                {providerNote && <p className="au-helper" data-tone={providerNote.tone} role={providerNote.tone === "error" ? "alert" : "status"}>{providerNote.text}</p>}
               </div>
               <p className="au-prompt">
                 <span>Don&apos;t have an account?</span>

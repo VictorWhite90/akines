@@ -118,8 +118,8 @@ export function AuSubmit({ label, onClick, loading, looksDisabled, type = "butto
   return <Button type={type} full className={className} loading={loading} looksDisabled={looksDisabled} iconRight={<IconArrow />} onClick={onClick ? () => onClick() : undefined}>{label}</Button>;
 }
 
-export function Provider({ provider, loading, onClick }: { provider: "google" | "apple"; loading?: boolean; onClick?: () => void }) {
-  return <Button variant="secondary" full className="au-social" loading={loading} icon={provider === "google" ? <GoogleMark /> : <AppleMark />} onClick={() => onClick?.()}>{provider === "google" ? "Continue with Google" : "Continue with Apple"}</Button>;
+export function Provider({ provider, loading, onClick, label }: { provider: "google" | "apple"; loading?: boolean; onClick?: () => void; label?: string }) {
+  return <Button variant="secondary" full className="au-social" loading={loading} icon={provider === "google" ? <GoogleMark /> : <AppleMark />} onClick={() => onClick?.()}>{label ?? (provider === "google" ? "Continue with Google" : "Continue with Apple")}</Button>;
 }
 
 export function OrRule() {

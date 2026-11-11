@@ -22,17 +22,21 @@ function liveOrigin() {
   }
 }
 
+// Continue with Google: Google Identity Services (lib/google.ts) is allowed only when a client ID is built in.
+// Its script, button iframe, styles and calls all live under https://accounts.google.com/gsi/.
+const google = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? " https://accounts.google.com/gsi/" : "";
+
 // Next's own hydration scripts are inline, hence 'unsafe-inline' for scripts; everything else is locked to our origin.
 // Images and media come from S3/CDN and the sample-content CDNs, so any https source is allowed for those only.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${production ? "" : " 'unsafe-eval'"}`,
-  "style-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${production ? "" : " 'unsafe-eval'"}${google}`,
+  `style-src 'self' 'unsafe-inline'${google}`,
   "img-src 'self' data: blob: https:",
   "media-src 'self' blob: https:",
   "font-src 'self' data:",
-  `connect-src 'self' ${liveOrigin()}${production ? "" : " ws: http://localhost:*"}`.trim(),
-  "frame-src 'none'",
+  `connect-src 'self' ${liveOrigin()}${production ? "" : " ws: http://localhost:*"}${google}`.trim(),
+  google ? `frame-src${google}` : "frame-src 'none'",
   "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
@@ -49,6 +53,12 @@ const securityHeaders = [
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
 ];
 
+/**
+ * Pages with a Google button: Google's sign-in popup must be able to hand the credential back to this window, which
+ * "same-origin" would cut off (Google documents "same-origin-allow-popups"). Other pages keep "same-origin".
+ */
+const GOOGLE_PAGES = ["/login", "/signup", "/settings/:path*"];
+
 const nextConfig: NextConfig = {
   // Self-hosted: a small server bundle (server.js + only the node_modules it needs) for the Docker image.
   output: "standalone",
@@ -61,6 +71,7 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },
+      ...(google ? GOOGLE_PAGES.map((source) => ({ source, headers: [{ key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" }] })) : []),
       // API answers are per member: never stored by a browser or proxy cache.
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store" }] },
     ];

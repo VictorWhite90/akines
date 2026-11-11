@@ -68,7 +68,9 @@ const profileShape = (u: DemoUser) => ({
   user_id: u.user_id, first_name: u.first_name, last_name: u.last_name, username: u.username, email: u.email, phone_number: u.phone_number,
   bio: u.bio, date_of_birth: u.date_of_birth, interests: u.interests, message_permission: u.message_permission, show_in_search: u.show_in_search,
   is_2fa_set: u.is_2fa_set, profile_photo: u.profile_photo, cover_photo: u.cover_photo, location: u.location, website: u.website, created_at: u.created_at,
+  google: { linked: !!u.google_email, email: u.google_email ?? null }, has_password: true,
 });
+const googleShape = (u: DemoUser) => ({ google: { linked: !!u.google_email, email: u.google_email ?? null }, has_password: true });
 
 function setSignedIn(on: boolean) {
   load().session = on ? ME_ID : null;
@@ -283,6 +285,18 @@ route("DELETE", "profile/blocks/:username", (m) => {
   return ok("Unblocked.");
 });
 route("POST", "profile/settings/password", () => ok("Password changed successfully."));
+// Continue with Google (demo): linking pretends with the member's own email; no Google account is involved.
+route("POST", "profile/google", () => {
+  const u = user(me())!;
+  u.google_email = u.email;
+  return ok(googleShape(u), "Google is linked. You can now log in with Google.");
+});
+route("DELETE", "profile/google", () => {
+  const u = user(me())!;
+  if (!u.google_email) return fail(400, "Google isn't linked to your account.");
+  u.google_email = null;
+  return ok(googleShape(u), "Google is unlinked from your account.");
+});
 route("POST", "profile/settings/2fa", () => ok("A code has been sent to your email. (Demo: any 6 digits.)"));
 route("PUT", "profile/settings/2fa", () => {
   const u = user(me())!;
@@ -709,6 +723,9 @@ export async function demoAuth<T>(action: string, body: Record<string, unknown> 
       return signIn();
     }
     case "guest":
+    // Continue with Google in the demo: signs in as the demo guest (no Google account is involved).
+    case "google":
+    case "google-complete":
       return signIn();
     case "verify-reset":
       return /^\d{6}$/.test(String(body.otp ?? "")) ? (ok({ reset_token: "demo" }, "Valid OTP.") as ApiResult<T>) : (fail(400, "That code doesn't match. Check it and try again.", "otp") as ApiResult<T>);

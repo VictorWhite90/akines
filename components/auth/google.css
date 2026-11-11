@@ -1,0 +1,16 @@
+/* Continue with Google (GoogleButton.tsx): Google's own button lies invisibly over the design's, at the same size.
+   The design's hover and focus are drawn on ours while the pointer or keyboard is on Google's. */
+.au-gis{position:relative;display:block;width:100%}
+.au-gis__face{display:block}
+.au-gis .au-social .k-btn__icon svg{width:20px;height:20px}
+.au-gis__slot{position:absolute;inset:0;z-index:1;overflow:hidden;border-radius:999px;opacity:.0001;pointer-events:none}
+.au-gis[data-ready] .au-gis__slot{pointer-events:auto}
+.au-gis__google{width:max-content;transform-origin:0 0}
+@media(hover:hover){
+  .au-gis[data-ready]:hover .k-btn--live{color:var(--k-hfg)}
+  .au-gis[data-ready]:hover .k-btn--live:before{transform:none}
+  .au-gis[data-ready]:hover .k-btn--live:after{opacity:1}
+}
+.au-gis[data-ready]:has(iframe:focus-visible) .k-btn{outline:2px solid var(--k-focus);outline-offset:2px;box-shadow:0 0 0 2px var(--border-focus);border-radius:999px}
+/* Settings: the Link Google button at a button's width, not the whole block's. */
+.ch-set__google .au-gis{width:min(100%,320px)}

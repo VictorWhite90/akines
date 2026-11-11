@@ -10,6 +10,10 @@ import { clearSession, COOKIE, django, MAX_JSON_BYTES, readBodyCapped, sameOrigi
  *   POST /api/auth/signup-start     {contact}               → code sent to that email or mobile number
  *   POST /api/auth/signup-verify    {contact, otp}          → {signup_token}
  *   POST /api/auth/signup-complete  {signup_token, username, password, age_confirmed, intent?} → signed in
+ *   POST /api/auth/google          {credential}            → signed in, {redirect_to_2fa: true, mfa_token}, or
+ *                                   {needs_signup: true, signup_token, email, suggested_username} (new to Akines)
+ *                                   (credential: the Google ID token from Google Identity Services)
+ *   POST /api/auth/google-complete {signup_token, username, age_confirmed, intent?} → signed in
  *   POST /api/auth/verify-email   {identifier, otp}       → signed in (accounts from the older sign-up)
  *   POST /api/auth/resend-email   {identifier}
  *   POST /api/auth/verify-2fa     {mfa_token, otp}        → signed in (mfa_token comes from login)
@@ -24,6 +28,8 @@ const ROUTES: Record<string, string> = {
   "signup-start": "auth/signup/start",
   "signup-verify": "auth/signup/verify",
   "signup-complete": "auth/signup/complete",
+  google: "auth/google",
+  "google-complete": "auth/google/complete",
   "verify-email": "auth/verify-otp/email",
   "resend-email": "auth/resend-otp/email",
   "verify-2fa": "auth/verify-otp/2fa",

@@ -20,8 +20,14 @@ export type MyProfile = {
   website: string;
   /** Why they joined ("What brings you here today?"): one of the reason ids in lib/data/community INTENTS, or "". */
   intent?: string;
+  /** Continue with Google: whether a Google account is linked, and its email. */
+  google?: { linked: boolean; email: string | null };
+  /** False for accounts made with Google until a password is set (Forgot password). */
+  has_password?: boolean;
   created_at: string;
 };
+
+export type GoogleLink = { google: { linked: boolean; email: string | null }; has_password: boolean };
 
 export type Interest = { slug: string; name: string };
 
@@ -62,6 +68,9 @@ export const account = {
   changePassword: (old_password: string, new_password: string) => api.post("profile/settings/password", { old_password, new_password }),
   sendTwoStepCode: () => api.post("profile/settings/2fa", { status: true }),
   toggleTwoStep: (otp: string) => api.put<{ is_2fa_set: boolean }>("profile/settings/2fa", { otp }),
+  /** Links the Google account behind a GIS credential (the password confirms it's the member, when they have one). */
+  linkGoogle: (credential: string, password?: string) => api.post<GoogleLink>("profile/google", { credential, ...(password ? { password } : {}) }),
+  unlinkGoogle: () => api.del<GoogleLink>("profile/google"),
 
   uploadPhoto: (photo: Blob) => {
     const form = new FormData();

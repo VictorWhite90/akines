@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { auth, type Member } from "@/lib/api/client";
 import { account } from "@/lib/api/account";
+import { handOff, handoffDone, takeHandoff, type GoogleSignup } from "@/lib/google";
 import { rememberChoices, rememberMember } from "@/lib/session";
 import { INTENTS } from "@/lib/data/community";
 import Logo from "@/components/kin/Logo";
+import GoogleButton from "./GoogleButton";
 import { STRONG, STRONG_HINT } from "./LoginScreen";
 import { AgeCheck, AuField, AuSubmit, IconTick, Meter, OrRule, Progress, Provider, ShowToggle, StepHeader, type Strength } from "./parts";
 import "./auth.css";
@@ -17,6 +19,8 @@ type Mode = "login" | "signup";
  * Join, as the product design draws it: five steps on an ivory page. An email or mobile number, the 6-digit code
  * sent to it, then a username and password (the account is created here), the reason, and welcome. The backend's
  * signup/start, signup/verify and signup/complete follow the same order; the reason is saved on the account.
+ * Continue with Google skips the first two: Google confirmed the email, so Join opens at the username step with that
+ * email shown (no password), and auth/google/complete creates the account.
  */
 type Step = "email" | "code" | "account" | "reason" | "welcome";
 const STEPS: Record<Mode, Step[]> = { signup: ["email", "code", "account", "reason", "welcome"], login: ["reason", "welcome"] };
@@ -73,6 +77,9 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   const [reasonErr, setReasonErr] = useState(false);
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  // Continue with Google: the sign-up Google started (its token and the email Google confirmed).
+  const [google, setGoogle] = useState<GoogleSignup | null>(null);
+  const [googleBusy, setGoogleBusy] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const firstInput = useRef<HTMLInputElement>(null);
   const timers = useRef<number[]>([]);
@@ -81,14 +88,27 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   useEffect(() => {
     if (steps.indexOf(step) > 0) document.title = `${TITLE[step]} | Akines`;
   }, [step, steps]);
+  // A new person who continued with Google on the sign-in panel: pick up at the username step.
+  useEffect(() => {
+    if (mode !== "signup") return;
+    const pending = takeHandoff("signup");
+    if (!pending) return;
+    /* eslint-disable react-hooks/set-state-in-effect -- picks up the hand-off once, after the page opens */
+    setGoogle(pending);
+    setHandle(pending.suggested_username ?? "");
+    setStep("account");
+    setArrived(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [mode]);
   useEffect(() => {
     if (!arrived) return;
     if (step === "reason" || step === "welcome") heading.current?.focus({ preventScroll: true });
     else firstInput.current?.focus();
   }, [arrived, step]);
 
-  const go = (s: Step) => {
-    const swap = () => { setStep(s); setArrived(true); setLeaving(false); setFailure(null); window.scrollTo(0, 0); };
+  /** Moves to a step; `message` is shown there (e.g. why Join went back to the first step). */
+  const go = (s: Step, message: string | null = null) => {
+    const swap = () => { setStep(s); setArrived(true); setLeaving(false); setFailure(message); window.scrollTo(0, 0); };
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return swap();
     setLeaving(true);
     timers.current.push(window.setTimeout(swap, EXIT_MS));
@@ -102,7 +122,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
   const lvl = strength(password);
   const accountErr = {
     handle: handleState === "missing" ? "Choose a username." : handleState === "invalid" ? "Use 3 to 20 letters, numbers, underscores or dots." : handleState === "taken" ? "That username is taken." : undefined,
-    password: tried && !password ? "Create a password." : tried && !STRONG.test(password) ? STRONG_HINT : undefined,
+    password: google ? undefined : tried && !password ? "Create a password." : tried && !STRONG.test(password) ? STRONG_HINT : undefined,
     age: tried && !age,
   };
 
@@ -159,21 +179,52 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
     return true;
   };
 
+  /** Continue with Google on step 1: signs a member in, or carries on here at the username step. */
+  const continueWithGoogle = async (credential: string) => {
+    if (busy || googleBusy) return;
+    setFailure(null);
+    setGoogleBusy(true);
+    const r = await auth<{ redirect_to_2fa?: boolean; mfa_token?: string; identifier?: string; needs_signup?: boolean; user?: Member } & Partial<GoogleSignup>>("google", { credential });
+    setGoogleBusy(false);
+    if (!r.ok) { setFailure(r.message); return; }
+    const data = r.data ?? {};
+    if (data.needs_signup && data.signup_token && data.email) {
+      setGoogle({ signup_token: data.signup_token, email: data.email, suggested_username: data.suggested_username, first_name: data.first_name });
+      setHandle(data.suggested_username ?? "");
+      setTried(false);
+      setTaken(null);
+      go("account");
+      return;
+    }
+    // Already a member: two-step members finish on the sign-in panel; everyone else is in.
+    if (data.redirect_to_2fa && data.mfa_token) {
+      handOff("2fa", { mfa_token: data.mfa_token, identifier: data.identifier ?? "" });
+      router.push("/login");
+      return;
+    }
+    rememberMember(data.user ?? {});
+    router.replace("/");
+    router.refresh();
+  };
+
   const submitAccount = async () => {
     if (busy) return;
     setTried(true);
-    if (!HANDLE.test(h) || isTaken || !STRONG.test(password) || !age) return;
+    if (!HANDLE.test(h) || isTaken || (!google && !STRONG.test(password)) || !age) return;
     setBusy(true);
     setFailure(null);
     if (!(await checkHandle(h))) { setBusy(false); return; }
-    const r = await auth<{ user?: Member }>("signup-complete", { signup_token: signupToken, username: h, password, age_confirmed: age });
+    const r = google
+      ? await auth<{ user?: Member }>("google-complete", { signup_token: google.signup_token, username: h, age_confirmed: age })
+      : await auth<{ user?: Member }>("signup-complete", { signup_token: signupToken, username: h, password, age_confirmed: age });
     setBusy(false);
     if (!r.ok) {
       if (/username/i.test(r.message) && /exist|taken/i.test(r.message)) { await checkHandle(h); return; }
-      if (/expired|start again/i.test(r.message)) { setContactErr(null); setFailure(r.message); go("email"); return; }
+      if (/expired|start again/i.test(r.message) || (google && r.status === 409)) { handoffDone("signup"); setGoogle(null); setContactErr(null); go("email", r.message); return; }
       setFailure(r.message);
       return;
     }
+    if (google) handoffDone("signup");
     rememberMember(r.data?.user ?? {});
     go("reason");
   };
@@ -216,7 +267,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                 </div>
                 <OrRule />
                 <div className="au-providers">
-                  <Provider provider="google" onClick={() => setFailure("Joining with Google isn't available yet. Use your email or mobile number.")} />
+                  <GoogleButton busy={googleBusy} onCredential={(c) => void continueWithGoogle(c)} onNotice={setFailure} unavailable="Joining with Google isn't available yet. Use your email or mobile number." />
                   <Provider provider="apple" onClick={() => setFailure("Joining with Apple isn't available yet. Use your email or mobile number.")} />
                 </div>
                 {failure && <p className="au-helper" role="status">{failure}</p>}
@@ -245,9 +296,10 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
           {step === "account" && (
             <div className="au-card" data-step="3">
               <Progress step={3} />
-              <StepHeader eyebrow="Almost there" title="Make it yours." headingRef={heading}>Choose a username and a password to finish.</StepHeader>
+              <StepHeader eyebrow="Almost there" title="Make it yours." headingRef={heading}>{google ? "Choose a username to finish. You'll log in with Google." : "Choose a username and a password to finish."}</StepHeader>
               <form className="au-flow au-flow--account" noValidate onSubmit={(e) => { e.preventDefault(); void submitAccount(); }}>
                 {failure && <p className="au-msg" role="alert"><span>{failure}</span></p>}
+                {google && <AuField label="Email" value={google.email} readOnly verified helper="Confirmed by Google." helperTone="success" />}
                 <AuField
                   label="Username" value={handle} inputRef={firstInput} placeholder="@username" autoComplete="username"
                   verified={handleState === "ok"} message={accountErr.handle}
@@ -264,7 +316,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                     </div>
                   ) : null}
                 />
-                <AuField label="Password" value={password} type={show ? "text" : "password"} placeholder="Enter at least 12 characters" autoComplete="new-password" verified={lvl === "strong"} message={accountErr.password} action={<ShowToggle shown={show} onToggle={() => setShow((s) => !s)} />} onChange={setPassword} below={<Meter level={lvl} label={lvl === "okay" && !STRONG.test(password) ? "Add upper and lower case letters, a number and a symbol." : undefined} />} />
+                {!google && <AuField label="Password" value={password} type={show ? "text" : "password"} placeholder="Enter at least 12 characters" autoComplete="new-password" verified={lvl === "strong"} message={accountErr.password} action={<ShowToggle shown={show} onToggle={() => setShow((s) => !s)} />} onChange={setPassword} below={<Meter level={lvl} label={lvl === "okay" && !STRONG.test(password) ? "Add upper and lower case letters, a number and a symbol." : undefined} />} />}
                 <AgeCheck checked={age} onChange={setAge} error={accountErr.age} />
                 <AuSubmit label="Create my account" type="submit" loading={busy} />
               </form>

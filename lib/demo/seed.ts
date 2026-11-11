@@ -6,6 +6,8 @@ export type DemoUser = {
   email: string; phone_number: string; bio: string; location: string; website: string; cover_photo: string | null;
   date_of_birth: string | null; interests: string[]; message_permission: "everyone" | "circles" | "nobody";
   show_in_search: boolean; is_2fa_set: boolean; created_at: string;
+  /** Settings, Continue with Google: the linked Google email (demo only pretends). */
+  google_email?: string | null;
 };
 export type DemoCommunity = {
   id: string; slug: string; name: string; tagline: string; about: string; category: string; area: string; city: string;
