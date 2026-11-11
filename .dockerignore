@@ -1,0 +1,18 @@
+.git
+.next
+node_modules
+.env*
+!.env.example
+*.tsbuildinfo
+.DS_Store
+# Not part of the web app
+backend
+_legacy
+docs
+akines-landing
+akines-landing-handoff.md
+akines-motion
+README.md
+# Raw design exports and archives (some are 100+ MB)
+public/01 - akine
+**/*.zip

@@ -1,3 +1,7 @@
+> **OBSOLETE: do not deploy or develop this folder.** It is an early prototype API kept for reference only.
+> The Akines API is the separate repository `akines-backend` (Django, `/Users/mac/akines-backend`), which the web app
+> calls through `AKINES_API_URL`. Nothing in this web app uses this folder, and the web app's Docker image excludes it.
+
 # Akines API (Django)
 
 Django 5.2 LTS, Django REST Framework, PostgreSQL, Redis. Python 3.12.
