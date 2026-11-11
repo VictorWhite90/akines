@@ -1,3 +1,5 @@
+import { collabApi, peopleFull } from "@/lib/api/collab";
+import { DEMO } from "@/lib/demo/mode";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { listOf, type DiscoverProject } from "./projects";
 
@@ -110,13 +112,29 @@ export type MemberPage = {
 
 const POSSESSIVE: Record<Pronoun, string> = { she: "her", he: "his", they: "their" };
 
+/**
+ * Outside the demo: what the member's published work profile shares (GET work/people/<id>), asked for the first
+ * time their page opens. Someone who hasn't published one gets the limited page.
+ */
+function remoteProfile(id: PersonId): MemberProfile | undefined {
+  if (DEMO) return undefined;
+  collabApi.person(id);
+  const p = peopleFull[id];
+  if (!p) return undefined;
+  return {
+    pronoun: "they", headline: p.headline, keySkills: p.skills.slice(0, 3), about: p.about,
+    experience: p.projects.map((x) => ({ title: x.title, detail: [x.role, x.kind, x.year].filter(Boolean).join(", ") })),
+    skills: p.skills, interests: [], preferences: p.experience ? [{ label: "Experience", value: p.experience }] : [], contributions: [],
+  };
+}
+
 /** The member as the project's page shows them; undefined if they are not on its team. */
 export function memberPage(id: PersonId, project: DiscoverProject): MemberPage | undefined {
   const person = PEOPLE[id];
   const onTeam = project.team.find((t) => t.id === id);
   if (!person || !onTeam) return undefined;
   const first = person.name.split(" ")[0]!;
-  const profile = MEMBER_PROFILES[id];
+  const profile = MEMBER_PROFILES[id] ?? remoteProfile(id);
   const pro = profile?.pronoun ?? "they";
   const kind = id === project.ownerId ? "owner" : "team";
   const looking = listOf(project.roles.map((r) => `${/^[aeiou]/i.test(r) ? "an" : "a"} ${r.toLowerCase()}`));

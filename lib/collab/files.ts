@@ -1,6 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
+import { toast } from "@/components/kin/Toast";
+import { aliasOf, mutate, realId, teamwork, tempId, useResource, type ApiComment, type ApiTeamFile } from "@/lib/api/teamwork";
+import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
 import { ME } from "@/lib/collab/me";
 import { fileSize } from "@/lib/collab/proof";
@@ -11,11 +14,14 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 /*
  * A project's files, as the design's Files pages show them (components/collaborate/workspace/Files, FileView).
  * Most come from the project itself: its studio (images and notes, with their comments) and the proof attached to
- * each deliverable (files, links, images, notes). Files added from the Files page, and comments on proof, are
- * their own resource until the backend has one:
- *   GET  /collab/projects/:id/files                    → ProjectFile[] (studio and proof included)
- *   POST /collab/projects/:id/files                    ← { name, category, work, milestone } (upload or new document)
- *   POST /collab/projects/:id/files/:fid/comments      ← { text }
+ * each deliverable (files, links, images, notes). Files added from the Files page, and comments on them and on proof,
+ * are their own resource (lib/api/teamwork.ts, /api/v1/teamwork/projects/:id/…):
+ *   GET    files                       → page of team files (?category=, ?search=), with their latest comments
+ *   POST   files/upload  (multipart)   ← file, category?, work?, milestone?  (checked and stored by the backend)
+ *   POST   files                       ← { name, category, work, milestone }  (a new document entry)
+ *   DELETE files/:fid                  (the person who added it, or the host)
+ *   POST   files/:fid/comments         ← { text }
+ *   GET    files/proof-comments        → { proofId: comments }      POST proof/:proofId/comments ← { text }
  * Comments on studio items go to the studio itself (useCollab's project.comment).
  */
 
@@ -137,8 +143,10 @@ export const fileMeta = (f: ProjectFile) => [f.type === "Link" && f.url ? `Link,
 /** Two letters for the owner badge. */
 export const initialsOf = (id: PersonId) => nameOf(id).split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
 
+type AddInput = { name: string; category: FileCategory; work?: string; milestone?: string; doc?: boolean; /** The picked file (needed on the backend). */ file?: File };
+
 /** A project's files, and what the member can add. */
-export function useFiles(p: Project | undefined, workHref: (d: Deliverable) => string | undefined) {
+function useLocalFiles(p: Project | undefined, workHref: (d: Deliverable) => string | undefined) {
   const [store, setStore, ready] = useLocal<Store>(KEY, { added: [], comments: {} });
   const files = useMemo(() => (p ? filesOf(p, store, workHref) : []), [p, store, workHref]);
   const pid = p?.id ?? "";
@@ -146,8 +154,10 @@ export function useFiles(p: Project | undefined, workHref: (d: Deliverable) => s
     ready,
     files,
     get: (slug: string) => files.find((f) => f.slug === slug || f.id === slug),
-    add: (input: { name: string; category: FileCategory; work?: string; milestone?: string; doc?: boolean }) => {
-      const a: Added = { ...input, id: newId("file"), projectId: pid, by: ME, at: Date.now() };
+    add: (input: AddInput) => {
+      const { file, ...rest } = input;
+      void file;
+      const a: Added = { ...rest, id: newId("file"), projectId: pid, by: ME, at: Date.now() };
       setStore((cur) => ({ ...cur, added: [...cur.added, a] }));
       return a.id;
     },
@@ -159,3 +169,86 @@ export function useFiles(p: Project | undefined, workHref: (d: Deliverable) => s
     }),
   };
 }
+
+// ── On the backend ──────────────────────────────────────────────────────────────────────────
+
+type Remote = { added: ApiTeamFile[]; proof: Record<string, ApiComment[]> };
+const NONE: Remote = { added: [], proof: {} };
+const CATEGORY_SET = new Set<string>(FILE_CATEGORIES);
+const person = (id: string | null) => (id ?? "akines") as PersonId;
+const commentFromApi = (c: ApiComment): FileComment => ({ id: String(c.id), by: person(c.by), text: c.text, at: Date.parse(c.at) });
+
+function teamFileOut(f: ApiTeamFile): ProjectFile {
+  const image = f.type?.startsWith("image/");
+  const t = f.kind === "document" ? { type: "Document", typeLong: "Shared document", icon: "text" as const }
+    : image ? { type: "Image", typeLong: "Image", icon: "image" as const } : byExt(f.name);
+  const category = (CATEGORY_SET.has(f.category) && f.category !== "All" ? f.category : "Other materials") as FileCategory;
+  return {
+    ...t, category, id: f.id, slug: slugOf(f.name), name: f.name, by: person(f.by), at: Date.parse(f.at), about: f.about || undefined,
+    size: f.size ?? undefined, url: f.url ?? undefined, src: image ? f.url ?? undefined : undefined,
+    work: f.work ? { text: f.work } : undefined, milestone: f.milestone ? { text: f.milestone } : undefined,
+    comments: (f.comments ?? []).map(commentFromApi), source: { kind: "added" },
+  };
+}
+
+function useRemoteFiles(p: Project | undefined, workHref: (d: Deliverable) => string | undefined) {
+  const pid = p?.id ?? "";
+  const key = pid ? `tw:files:${pid}` : null;
+  const loaded = useResource<Remote>(key, async () => {
+    const [added, proof] = await Promise.all([teamwork.files(pid), teamwork.proofComments(pid)]);
+    return added && proof ? { added, proof } : undefined;
+  });
+  const store = loaded ?? NONE;
+  const files = useMemo(() => {
+    if (!p) return [];
+    const comments = Object.fromEntries(Object.entries(store.proof).map(([proofId, list]) => [`${p.id}/${proofId}`, list.map(commentFromApi)]));
+    const out = [...filesOf(p, { added: [], comments }, workHref), ...store.added.map(teamFileOut)];
+    // Unique addresses across both.
+    const seen = new Map<string, number>();
+    for (const f of out) {
+      const base = f.slug;
+      const n = seen.get(base) ?? 0;
+      seen.set(base, n + 1);
+      f.slug = n ? `${base}-${n + 1}` : base;
+    }
+    return out.sort((a, b) => b.at - a.at);
+  }, [p, store, workHref]);
+  const set = (fn: (r: Remote) => Remote) => { if (key) mutate<Remote>(key, (cur) => fn(cur ?? NONE)); };
+  const put = (f: ApiTeamFile | undefined, was?: string) => set((r) => ({ ...r, added: f ? [f, ...r.added.filter((x) => x.id !== f.id && x.id !== was)] : r.added.filter((x) => x.id !== was) }));
+  return {
+    ready: loaded !== undefined,
+    files,
+    get: (slug: string) => files.find((f) => f.slug === slug || f.id === slug || f.id === aliasOf(slug)),
+    add: (input: AddInput) => {
+      const extra = { category: input.category, work: input.work, milestone: input.milestone };
+      if (!input.doc && !input.file) {
+        toast.show({ message: "Choose the file again, then upload it.", duration: 4000 });
+        return "";
+      }
+      const made = input.doc || !input.file ? teamwork.createDocument(pid, { name: input.name, ...extra }) : teamwork.uploadFile(pid, input.file, extra);
+      const id = tempId("file", made.then((f) => f?.id));
+      const now = new Date().toISOString();
+      put({ id, kind: input.doc ? "document" : "upload", name: input.name, category: input.category, about: "", work: input.work ?? "", milestone: input.milestone ?? "",
+        by: ME, at: now, updated_at: now, url: null, size: input.file?.size ?? null, type: input.file?.type ?? null, comments: [] });
+      void made.then((f) => put(f, id));
+      return id;
+    },
+    remove: (id: string) => {
+      set((r) => ({ ...r, added: r.added.filter((x) => x.id !== id && x.id !== aliasOf(id)) }));
+      void realId(id).then((real) => { if (real) void teamwork.removeFile(pid, real); });
+    },
+    /** A comment on a file that is not a studio item: a team file, or proof on a piece of work. */
+    comment: (fileId: string, text: string) => {
+      const real = aliasOf(fileId);
+      if (store.added.some((x) => x.id === real)) {
+        void teamwork.commentFile(pid, real, text).then((f) => f && put(f));
+        return;
+      }
+      void teamwork.commentProof(pid, real, text).then((c) => {
+        if (c) set((r) => ({ ...r, proof: { ...r.proof, [c.proof_id]: [...(r.proof[c.proof_id] ?? []), c] } }));
+      });
+    },
+  };
+}
+
+export const useFiles: typeof useLocalFiles = DEMO ? useLocalFiles : useRemoteFiles;

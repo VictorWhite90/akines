@@ -1,5 +1,6 @@
 "use client";
 
+import { remoteCall } from "@/lib/api/collab";
 import { ME } from "./me";
 import type { Application, CollabCall, Project } from "./types";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
@@ -91,8 +92,19 @@ const TYPE_BY_FIELD: Record<string, ProjectType> = { Tech: "Application", Media:
 const CATS_BY_FIELD: Record<string, SkillCat> = { Design: "Design", Tech: "Engineering", Media: "Film and sound", Arts: "Design", Community: "Community", Business: "Research", Food: "Community" };
 
 /** A call's profile: its own, or what its fields and timeline say. */
+/** The profile a host gave their call (outside the demo), in the shape the screens read. */
+function remoteProfile(callId: string): CallProfile | undefined {
+  const p = remoteCall(callId)?.profile;
+  if (!p) return undefined;
+  return {
+    stage: p.stage as ProjectStage, type: p.type as ProjectType, commitment: p.commitment,
+    commitmentCat: (p.commitment_cat ?? "flexible") as CommitmentCat, rhythm: p.rhythm || undefined, openTo: p.open_to || undefined,
+    needs: p.needs, skillCats: p.skill_cats as SkillCat[] | undefined, skillTags: p.skill_tags, progress: p.progress,
+  };
+}
+
 export function profileOf(call: CollabCall): CallProfile {
-  const own = CALL_PROFILES[call.id];
+  const own = CALL_PROFILES[call.id] ?? remoteProfile(call.id);
   if (own) return own;
   const span = call.timeline.at(-1);
   return {

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { collabApi, useRemoteExtras, type RemoteExtras, type TaskPatch } from "@/lib/api/collab";
+import { DEMO } from "@/lib/demo/mode";
 import { useLocal } from "@/lib/useLocal";
 import { ME } from "@/lib/collab/me";
 import type { useCollab } from "@/lib/collab/useCollab";
@@ -157,10 +159,50 @@ export const sortTasks = (items: WorkItem[]) => [...items.filter((t) => t.status
 
 type Collab = ReturnType<typeof useCollab>;
 
+const PRIORITY_IN: Record<string, Priority> = { high: "High", medium: "Medium", low: "Low" };
+const priorityOut = (p?: Priority) => (p ? (p.toLowerCase() as "high" | "medium" | "low") : undefined);
+const STATUS_OUT: Record<TaskStatus, "todo" | "doing" | "review" | "done"> = { "Not started": "todo", "In progress": "doing", "In review": "review", Completed: "done" };
+
+/** Outside the demo, a project's task details are the backend's (tasks, and the extras on deliverables). */
+function serverDetails(pid: string, x: RemoteExtras["projects"][string] | undefined): Record<string, TaskDetails> {
+  const out: Record<string, TaskDetails> = {};
+  for (const t of x?.tasks ?? []) {
+    out[`${pid}/${t.id}`] = {
+      priority: PRIORITY_IN[t.priority], milestone: t.milestone_id ?? undefined, description: t.description || undefined,
+      support: (t.support ?? undefined) as PersonId | undefined, review: t.status === "review", reviewer: (t.reviewer ?? undefined) as PersonId | undefined,
+      criteria: t.criteria, comments: t.comments.map((c) => ({ by: c.by as PersonId, text: c.text, at: Date.parse(c.at) })),
+    };
+  }
+  for (const d of x?.deliverables ?? []) {
+    out[`${pid}/${d.id}`] = {
+      priority: d.priority ? PRIORITY_IN[d.priority] : undefined, milestone: d.milestone_id ?? undefined,
+      description: d.description || undefined, support: (d.support ?? undefined) as PersonId | undefined,
+    };
+  }
+  return out;
+}
+
+/** What changed between two task details, as the backend's fields. */
+function changes(before: TaskDetails, after: TaskDetails, kind: WorkItem["kind"]): TaskPatch {
+  const body: TaskPatch = {};
+  if (after.priority !== before.priority && after.priority) body.priority = priorityOut(after.priority);
+  if (after.milestone !== before.milestone) body.milestone_id = after.milestone ?? null;
+  if (after.description !== before.description) body.description = after.description ?? "";
+  if (after.support !== before.support) body.support_id = after.support ?? null;
+  if (kind === "task") {
+    if (after.reviewer !== before.reviewer) body.reviewer_id = after.reviewer ?? null;
+    if (JSON.stringify(after.criteria ?? []) !== JSON.stringify(before.criteria ?? [])) body.criteria = after.criteria ?? [];
+  }
+  return body;
+}
+
 /** A project's tasks, and what the member can do with them. */
 export function useTasks(project: Project | undefined, collab: Collab) {
-  const [details, setDetails] = useLocal<Record<string, TaskDetails>>("ak:collab-task-details:v1", SEED);
+  const [localDetails, setDetails] = useLocal<Record<string, TaskDetails>>("ak:collab-task-details:v1", DEMO ? SEED : {});
+  const remote = useRemoteExtras();
   const pid = project?.id ?? "";
+  const server = useMemo(() => (DEMO || !pid ? null : serverDetails(pid, remote.projects[pid])), [remote, pid]);
+  const details = server ?? localDetails;
   const keyOf = useCallback((id: string, title?: string) => (details[`${pid}/${id}`] ? `${pid}/${id}` : title && details[`${pid}/~${title}`] ? `${pid}/~${title}` : `${pid}/${id}`), [details, pid]);
 
   const items = useMemo<WorkItem[]>(() => {
@@ -188,8 +230,18 @@ export function useTasks(project: Project | undefined, collab: Collab) {
     // details are filed under the project's own title (an edited title is only an overlay)
     const own = project ? [...(project.deliverables ?? []), ...project.tasks].find((x) => x.id === item.id)?.title : undefined;
     const k = keyOf(item.id, own ?? item.title);
+    if (server && project) {
+      const before = server[k] ?? {};
+      const after = typeof next === "function" ? next(before) : { ...before, ...next };
+      const isTask = project.tasks.some((x) => x.id === item.id);
+      const body = changes(before, after, isTask ? "task" : "deliverable");
+      if (!Object.keys(body).length) return;
+      if (isTask) void collabApi.editTask(project.id, item.id, body);
+      else void collabApi.editDeliverable(project.id, item.id, body as Parameters<typeof collabApi.editDeliverable>[2]);
+      return;
+    }
     setDetails((cur) => ({ ...cur, [k]: typeof next === "function" ? next(cur[k] ?? {}) : { ...cur[k], ...next } }));
-  }, [keyOf, setDetails, project]);
+  }, [keyOf, setDetails, project, server]);
 
   const act = collab.project;
   return {
@@ -199,6 +251,10 @@ export function useTasks(project: Project | undefined, collab: Collab) {
     /** Moves a task to a status. Returns false when our model can't make that move for the member. */
     setStatus: (t: WorkItem, status: TaskStatus): boolean => {
       if (!project || t.status === status) return false;
+      if (t.kind === "task" && server) {
+        void collabApi.editTask(project.id, t.id, { status: STATUS_OUT[status] });
+        return true;
+      }
       if (t.kind === "task") {
         patch(t, (d) => ({ ...d, review: status === "In review" }));
         act.moveTask(project.id, t.id, status === "Not started" ? "todo" : status === "Completed" ? "done" : "doing");
@@ -214,7 +270,9 @@ export function useTasks(project: Project | undefined, collab: Collab) {
     requestReview: (t: WorkItem, reviewer: PersonId, note: string) => {
       if (!project) return;
       if (t.kind === "deliverable") act.submitDeliverable(project.id, t.id, note);
-      else { patch(t, (d) => ({ ...d, review: true, reviewer })); act.moveTask(project.id, t.id, "doing"); if (note) patch(t, (d) => ({ ...d, comments: [...(d.comments ?? []), { by: ME, text: note, at: Date.now() }] })); }
+      else if (server) {
+        void collabApi.editTask(project.id, t.id, { status: "review", reviewer_id: reviewer }).then((ok) => { if (ok && note) void collabApi.commentTask(project.id, t.id, note); });
+      } else { patch(t, (d) => ({ ...d, review: true, reviewer })); act.moveTask(project.id, t.id, "doing"); if (note) patch(t, (d) => ({ ...d, comments: [...(d.comments ?? []), { by: ME, text: note, at: Date.now() }] })); }
     },
     toggleCriterion: (t: WorkItem, id: string) => {
       if (!project) return;
@@ -224,15 +282,26 @@ export function useTasks(project: Project | undefined, collab: Collab) {
     comment: (t: WorkItem, text: string) => {
       if (!project) return;
       if (t.kind === "deliverable") act.commentDeliverable(project.id, t.id, text);
+      else if (server) void collabApi.commentTask(project.id, t.id, text);
       else patch(t, (d) => ({ ...d, comments: [...(d.comments ?? []), { by: ME, text, at: Date.now() }] }));
     },
     /** Saves the Edit task form. */
     editTask: (t: WorkItem, input: TaskEdit) => {
       if (!project) return;
+      if (server) {
+        const body = { title: input.title, owner_id: input.owner, due: input.due, description: input.description, ...(input.milestone !== undefined ? { milestone_id: input.milestone || null } : {}) };
+        if (t.kind === "task") void collabApi.editTask(project.id, t.id, body);
+        else void collabApi.editDeliverable(project.id, t.id, body);
+        return;
+      }
       patch(t, (d) => ({ ...d, description: input.description || undefined, milestone: input.milestone ?? d.milestone, edit: { title: input.title, owner: input.owner, due: input.due } }));
     },
     create: (input: { title: string; who: PersonId; due: string; description?: string; milestone?: string }) => {
       if (!project) return;
+      if (server) {
+        void collabApi.addTask(project.id, { title: input.title, owner_id: input.who, due: input.due, description: input.description ?? "", milestone_id: input.milestone ?? null, priority: "medium" });
+        return;
+      }
       act.addTask(project.id, { title: input.title, who: input.who, due: input.due });
       // The new task's id is made by the store, so its details are filed under its title until it has one.
       setDetails((cur) => ({ ...cur, [`${project.id}/~${input.title}`]: { priority: "Medium", milestone: input.milestone, description: input.description || undefined } }));

@@ -171,6 +171,13 @@ export function useRemoteWork() {
       emit({ wp: { ...snap.wp, publishedAt: Date.parse(r.data.published_at ?? "") || Date.now() } });
       return true;
     },
+    /** Takes the profile off view (it stays, ready to publish again). */
+    unpublish: async () => {
+      const r = await api.post<ApiProfile>("work/profile/unpublish");
+      if (!r.ok) { emit({ save: "error", message: r.message }); return false; }
+      emit({ wp: { ...snap.wp, publishedAt: undefined } });
+      return true;
+    },
     get: (id: string) => snap.pieces.find((p) => p.id === real(id)),
     add: (p: Omit<Piece, "id" | "createdAt">): Piece => {
       const temp: Piece = { ...p, id: `tmp-${Date.now().toString(36)}`, createdAt: Date.now() };

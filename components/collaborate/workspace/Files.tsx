@@ -251,7 +251,7 @@ export default function Files({ projectId }: { projectId: string }) {
     <>
       <UploadModal open={uploadOpen} project={project} onClose={() => setUploadOpen(false)} onUpload={({ file, work, milestone }) => {
         setUploadOpen(false);
-        const id = add({ name: file.name, category: categoryOf(file.name), work: work.trim() || undefined, milestone: milestone.trim() || undefined });
+        const id = add({ file, name: file.name, category: categoryOf(file.name), work: work.trim() || undefined, milestone: milestone.trim() || undefined });
         toast.show({ message: "File uploaded. It is in Files now.", actionLabel: "Undo", duration: TOAST_MS, onAction: () => remove(id) });
       }} />
       <CreateModal open={createOpen} onClose={() => setCreateOpen(false)} onCreate={({ title, category }) => {

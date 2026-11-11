@@ -1,6 +1,9 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { collabApi, type ApiInvitation, type ApiJoinRequest } from "@/lib/api/collab";
+import { DEMO } from "@/lib/demo/mode";
+import { registerPerson } from "@/lib/data/people";
 import { newId, useLocal } from "@/lib/useLocal";
 import { ME } from "@/lib/collab/me";
 import type { Decision } from "@/lib/collab/decisions";
@@ -57,7 +60,8 @@ const USED: Record<string, Partial<Record<PersonId, string[]>>> = {
   "garki-clinic-booking": { amara: ["Product design", "Prototyping"], kwame: ["Backend engineering", "APIs"], chidi: ["Frontend engineering", "Android testing"], wanjiru: ["Portrait photography"], leila: ["Plain-language writing"] },
   "market-light": { wanjiru: ["Portrait photography", "Photo editing"], amara: ["Product design"], efua: ["Interviewing", "Captions"] },
 };
-export const skillsOf = (id: PersonId) => SKILLS[id] ?? [];
+/** Sample skills in the demo; outside it, what the member's published work profile lists. */
+export const skillsOf = (id: PersonId) => SKILLS[id] ?? (DEMO ? [] : collabApi.person(id)?.skills ?? []);
 export const usedSkills = (projectId: string, id: PersonId) => USED[projectId]?.[id] ?? [];
 
 const HOUR = 3_600_000, DAY = 24 * HOUR;
@@ -72,8 +76,76 @@ function seed(): JoinRequest[] {
 const KEY = "ak:collab-team:v1";
 type Store = { requests: JoinRequest[]; invitations: Invitation[] };
 
-/** A project's requests and invitations, and what the team can do with them. */
+/* ---------- Outside the demo: the backend's requests and invitations ---------- */
+
+const REQUEST_STATUS: Record<ApiJoinRequest["status"], JoinRequestStatus> = { pending: "pending", accepted: "accepted", not_now: "dismissed", withdrawn: "dismissed" };
+function requestFromApi(r: ApiJoinRequest): JoinRequest {
+  const name = `${r.person.first_name} ${r.person.last_name}`.trim() || r.person.username || "A member";
+  registerPerson({ id: r.person.user_id, name, role: r.person.headline ?? "", city: "", presence: "open", about: "", photo: r.person.profile_photo });
+  return {
+    id: r.id, projectId: r.workspace_id, person: r.person.user_id as PersonId, role: r.person.headline ?? "", wants: r.role, message: r.message,
+    sentAt: Date.parse(r.sent_at), status: REQUEST_STATUS[r.status], decidedAt: r.decided_at ? Date.parse(r.decided_at) : undefined, reply: r.reply || undefined,
+  };
+}
+const invitationFromApi = (i: ApiInvitation): Invitation => ({
+  id: i.id, projectId: i.workspace_id, to: `${i.to.first_name} ${i.to.last_name}`.trim() || i.to.username || "A member", role: i.role,
+  message: i.message, sentAt: Date.parse(i.sent_at), by: i.by.user_id as PersonId,
+});
+
+function useRemoteTeam(projectId: string) {
+  const [store, setStore] = useState<Store & { ready: boolean }>({ requests: [], invitations: [], ready: false });
+  /** Invitations sent from this screen, by the id shown until the server's comes back (for Undo). */
+  const pendingIds = useRef(new Map<string, Promise<ApiInvitation | null>>());
+  const load = useCallback(async () => {
+    if (!projectId) return;
+    const [requests, invitations] = await Promise.all([collabApi.requests(projectId), collabApi.invitations(projectId)]);
+    setStore({
+      ready: true,
+      requests: requests.ok ? requests.items.map(requestFromApi) : [],
+      invitations: invitations.ok ? invitations.items.filter((i) => i.status === "sent").map(invitationFromApi) : [],
+    });
+  }, [projectId]);
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- loads the project's lists when it opens
+  useEffect(() => { void load(); }, [load]);
+  const replace = (r: ApiJoinRequest | null) => {
+    if (r) setStore((cur) => ({ ...cur, requests: cur.requests.map((x) => (x.id === r.id ? requestFromApi(r) : x)) }));
+  };
+  const requests = store.requests;
+  return {
+    ready: store.ready,
+    pending: requests.filter((r) => r.status === "pending").sort((a, b) => b.sentAt - a.sentAt),
+    joined: requests.filter((r) => r.status === "accepted").sort((a, b) => (a.decidedAt ?? 0) - (b.decidedAt ?? 0)),
+    latest: requests.filter((r) => r.status !== "pending").sort((a, b) => (b.decidedAt ?? 0) - (a.decidedAt ?? 0))[0],
+    invitations: store.invitations,
+    accept: (id: string) => void collabApi.decideRequest(projectId, id, "accept").then(replace),
+    notNow: (id: string, reply: string) => void collabApi.decideRequest(projectId, id, "not-now", reply.trim()).then(replace),
+    reopen: (id: string) => void collabApi.decideRequest(projectId, id, "reopen").then(replace),
+    invite: (input: Pick<Invitation, "to" | "role" | "message">) => {
+      const shown: Invitation = { ...input, id: newId("inv"), projectId, sentAt: Date.now(), by: ME };
+      setStore((cur) => ({ ...cur, invitations: [...cur.invitations, shown] }));
+      const sent = collabApi.invite(projectId, input);
+      pendingIds.current.set(shown.id, sent);
+      void sent.then((i) => setStore((cur) => ({
+        ...cur, invitations: i ? cur.invitations.map((x) => (x.id === shown.id ? invitationFromApi(i) : x)) : cur.invitations.filter((x) => x.id !== shown.id),
+      })));
+      return shown;
+    },
+    uninvite: (id: string) => {
+      setStore((cur) => ({ ...cur, invitations: cur.invitations.filter((i) => i.id !== id) }));
+      const sending = pendingIds.current.get(id);
+      void (sending ? sending.then((i) => i && collabApi.withdrawInvitation(projectId, i.id)) : collabApi.withdrawInvitation(projectId, id));
+    },
+  };
+}
+
+/** A project's requests and invitations, and what the team can do with them: the backend's outside the demo. */
 export function useTeam(projectId: string) {
+  // DEMO is fixed for a build, so the same hook runs on every render.
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return DEMO ? useLocalTeam(projectId) : useRemoteTeam(projectId);
+}
+
+function useLocalTeam(projectId: string) {
   const [all, setAll, ready] = useLocal<Store>(KEY, { requests: seed(), invitations: [] });
   const requests = useMemo(() => all.requests.filter((r) => r.projectId === projectId), [all.requests, projectId]);
   const pending = useMemo(() => requests.filter((r) => r.status === "pending").sort((a, b) => b.sentAt - a.sentAt), [requests]);

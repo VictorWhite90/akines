@@ -4,13 +4,14 @@ import { useSyncExternalStore } from "react";
 import { useMyRooms } from "@/components/rooms/MyRooms";
 import { pickedFile } from "@/components/collab/FileParts";
 import { account } from "@/lib/api/account";
-import { chat, newClientId, type ChatMessage } from "@/lib/api/chat";
+import { chat, newClientId, type ChatCard, type ChatMessage } from "@/lib/api/chat";
 import { api } from "@/lib/api/client";
+import { DEMO } from "@/lib/demo/mode";
 import { fileOut, mediaIdFor, pieceFromApi, uploadWorkFile, type ApiMedia, type ApiProject } from "@/lib/api/work";
 import { ME, setMe } from "@/lib/collab/me";
 import type {
   AppStage, Application, CallMaterial, Charter, Checkin, CollabCall, Deliverable, Field, JourneyStage, ProofFile, ProofItem,
-  ProofLink, Project, Proposal, Tool, WorkKind,
+  ProofLink, Project, Proposal, Task, Tool, WorkKind,
 } from "@/lib/collab/types";
 import type { Room } from "@/lib/data/community";
 import type { PhotoKey } from "@/lib/data/images";
@@ -28,18 +29,50 @@ import { newId } from "@/lib/useLocal";
 
 // ── What the backend sends ──────────────────────────────────────────────────────────────────
 
-type ApiPerson = { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null; headline?: string };
+type ApiPerson = {
+  user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null; headline?: string;
+  /** From their published work profile, where the backend sends them (applicants, team members). */
+  skills?: string[]; experience?: string;
+};
+/** The project behind a call (lib/collab/projects.ts CallProfile, in the backend's words). */
+export type ApiCallProfile = {
+  stage: string; type: string; commitment: string; commitment_cat?: string; rhythm?: string; open_to?: string;
+  needs?: Record<string, string>; skill_cats?: string[]; skill_tags?: string[]; progress?: { title: string; detail: string }[];
+};
+type ApiOffer = { role: string; fee: string; start: string; hours?: string; note?: string };
+export type ApiTask = {
+  id: string; title: string; owner: string; support: string | null; reviewer: string | null; due: string;
+  status: "todo" | "doing" | "review" | "done"; priority: "high" | "medium" | "low"; milestone_id: string | null;
+  description: string; criteria: { id: string; title: string; done: boolean }[]; done_at: string | null; created_at: string;
+  by: string | null; comments: { by: string; text: string; at: string }[];
+};
+type ApiMilestone = { id: string; title: string; due: string; done: boolean; done_at: string | null };
+export type ApiInvitation = {
+  id: string; workspace_id: string; to: ApiPerson; by: ApiPerson; role: string; message: string;
+  status: "sent" | "accepted" | "declined" | "withdrawn"; sent_at: string; answered_at: string | null;
+  workspace?: { id: string; title: string; summary: string };
+};
+export type ApiJoinRequest = {
+  id: string; workspace_id: string; person: ApiPerson; role: string; message: string;
+  status: "pending" | "accepted" | "not_now" | "withdrawn"; reply: string; sent_at: string; decided_at: string | null;
+};
+export type ApiDraft = {
+  id: string; title: string; description: string; answers: unknown; brief: Record<string, string>; workspace: string | null;
+  at: string; updated_at: string;
+};
+export type MySettings = { notify_prefs: { review: boolean; decisions: boolean; conversations: boolean; milestones: boolean }; read: string[] };
 type ApiCall = {
   id: string; host: ApiPerson; org: string; org_kind: string; title: string; summary: string; about: string; city: string;
   where: "in_person" | "remote" | "hybrid"; photo: string | null; roles: string[]; fields: Field[]; level: string; fee: string;
   rights: string; selection: string; team_size: number; timeline: { label: string; when: string }[]; closes_on: string;
   closes_in_days: number; status: "open" | "closed"; is_verified: boolean; created_at: string; hosted_by_me: boolean;
-  my_application: string | null; application_count?: number;
+  my_application: string | null; application_count?: number; closed_at?: string | null; profile?: ApiCallProfile | null; saved?: boolean; updated_at?: string;
 };
 type ApiApplication = {
   id: string; call_id: string; applicant: ApiPerson; role: string; statement: string; availability: string; links: ProofLink[];
   projects: ApiProject[]; files: ApiMedia[]; stage: string; slot: string; slots_offered: string[]; feedback: string;
-  offer: { role: string; fee: string; start: string } | null; history: { stage: string; note: string; at: string }[];
+  offer: ApiOffer | null; history: { stage: string; note: string; at: string }[];
+  slots_message?: string; decline_reason?: string; previous_stage?: string | null; undo_until?: string | null;
   created_at: string; workspace_id: string | null; tags?: string[]; rating?: number | null; notes?: { text: string; at: string }[];
   call?: ApiCall;
 };
@@ -50,7 +83,8 @@ type ApiProposal = {
 type ApiProof = { id: number; kind: ProofItem["kind"]; title: string; url: string; text: string; file: { id: number; name: string; size: number | null; type: string | null } | null; by: string; at: string };
 type ApiDeliverable = {
   id: string; title: string; owner: string; approver: string; due: string; share: number | null; status: Deliverable["status"];
-  steps: Deliverable["steps"]; approved_at: string | null; proof: ApiProof[]; thread: { by: string; kind: Deliverable["thread"][number]["kind"]; text: string; at: string }[];
+  steps: Deliverable["steps"]; approved_at: string | null; proof: ApiProof[];
+  priority?: "high" | "medium" | "low"; milestone_id?: string | null; description?: string; support?: string | null; thread: { by: string; kind: Deliverable["thread"][number]["kind"]; text: string; at: string }[];
 };
 /** A list's page (every collab list is paged): pass `server_time` back as ?updated_since= to get only what changed. */
 type ApiPage<T> = { results: T[]; page: number; page_size: number; has_more: boolean; server_time: string };
@@ -60,7 +94,7 @@ type ApiWorkspace = {
   id: string; title: string; summary: string; host: string; kind: WorkKind | ""; stage: JourneyStage; budget: number;
   call_id: string | null; proposal_id: string | null; conversation_id: string | null; photo: string | null;
   members: (ApiPerson & { role: string; contribution: string; signed_at: string | null })[]; signed_at: string | null; created_at: string;
-  charter_version: number;
+  charter_version: number; needs?: string; open_to_join?: boolean; tasks?: ApiTask[]; milestones?: ApiMilestone[]; me?: MySettings;
   charter: { credit: string; ownership: string; decisions: string; expenses: string; uses: string; exit_terms: string; split: Record<string, number>; version: number };
   deliverables: ApiDeliverable[]; checkins: { id: number; by: string; done: string; next: string; stuck: string; at: string }[];
   tools: { id: number; label: string; url: string; kind: Tool["kind"] }[]; ledger: { by: string | null; text: string; at: string }[];
@@ -82,7 +116,20 @@ const MATERIALS: CallMaterial[] = [
 ];
 
 /** Puts a member in the people registry, so the screens can show their name and photo by id. */
+/**
+ * What the backend keeps that the shared types (lib/collab/types.ts) don't carry: the extras the review, team, task and
+ * member screens read through `useRemoteExtras` (lib/collab/*.ts, outside the demo).
+ */
+export type RemoteExtras = {
+  apps: Record<string, { slotsMessage?: string; offer?: ApiOffer; before?: AppStage; undoUntil?: number; declineReason?: string }>;
+  calls: Record<string, { status: "open" | "closed"; closedAt?: number; profile?: ApiCallProfile | null; saved: boolean }>;
+  projects: Record<string, { needs: string; openToJoin: boolean; me?: MySettings; tasks: ApiTask[]; deliverables: ApiDeliverable[]; milestones: ApiMilestone[] }>;
+  people: Record<string, { skills: string[]; experience: string }>;
+};
+const extras: RemoteExtras = { apps: {}, calls: {}, projects: {}, people: {} };
+
 function who(p: ApiPerson): PersonId {
+  if (p.skills || p.experience) extras.people[p.user_id] = { skills: p.skills ?? [], experience: p.experience ?? "" };
   registerPerson({
     id: p.user_id, name: `${p.first_name} ${p.last_name}`.trim() || p.username || "A member", role: p.headline ?? "",
     city: "", presence: "open", about: "", photo: p.profile_photo,
@@ -92,6 +139,8 @@ function who(p: ApiPerson): PersonId {
 const id = (userId: string | null) => (userId ?? "akines") as PersonId;
 
 function callFromApi(c: ApiCall): CollabCall {
+  const closedAt = c.status === "closed" ? time(c.closed_at) ?? time(c.updated_at) ?? time(c.created_at) : undefined;
+  extras.calls[c.id] = { status: c.status, closedAt, profile: c.profile, saved: !!c.saved };
   return {
     id: c.id, title: c.title, host: who(c.host), org: c.org, orgKind: c.org_kind, city: c.city, where: WHERE[c.where] ?? "In person",
     photo: coverFor(c.photo, c.fields), summary: c.summary, about: c.about, roles: c.roles, fields: c.fields, level: c.level, fee: c.fee,
@@ -104,6 +153,10 @@ const stageFromApi = (s: string) => (s === "not_selected" ? "not-selected" : s) 
 
 function appFromApi(a: ApiApplication): Application {
   const pieces: Piece[] = a.projects.map(pieceFromApi);
+  extras.apps[a.id] = {
+    slotsMessage: a.slots_message || undefined, offer: a.offer ?? undefined, declineReason: a.decline_reason || undefined,
+    before: a.previous_stage ? stageFromApi(a.previous_stage) : undefined, undoUntil: time(a.undo_until),
+  };
   return {
     id: a.id, callId: a.call_id, applicant: who(a.applicant), role: a.role, works: pieces.map((p) => p.id), pieces,
     links: a.links, files: a.files.map((f) => fileOut(f, "sample")), statement: a.statement, availability: a.availability,
@@ -141,8 +194,14 @@ function deliverableFromApi(d: ApiDeliverable): Deliverable {
   };
 }
 
+const TASK_STATUS: Record<ApiTask["status"], Task["status"]> = { todo: "todo", doing: "doing", review: "doing", done: "done" };
+
 function projectFromApi(w: ApiWorkspace): Project {
   const members = w.members.map((m) => ({ id: who(m), role: m.role, contribution: m.contribution }));
+  extras.projects[w.id] = {
+    needs: w.needs ?? "", openToJoin: !!w.open_to_join, me: w.me, tasks: w.tasks ?? [], deliverables: w.deliverables,
+    milestones: w.milestones ?? [],
+  };
   const charter: Charter = {
     credit: w.charter.credit, ownership: w.charter.ownership, decisions: w.charter.decisions, expenses: w.charter.expenses,
     uses: w.charter.uses, exit: w.charter.exit_terms, split: w.charter.split as Charter["split"],
@@ -151,8 +210,10 @@ function projectFromApi(w: ApiWorkspace): Project {
   return {
     id: w.id, title: w.title, summary: w.summary, photo: coverFor(w.photo), host: id(w.host), callId: w.call_id ?? undefined,
     proposalId: w.proposal_id ?? undefined, members, stage: w.stage, createdAt: Date.parse(w.created_at), charter,
-    // The backend doesn't keep these parts of the demo workspace (yet): the idea board, tasks, presenting and expenses.
-    tasks: [], milestones: [], studio: [], present: { what: "", where: "", when: "", checklist: [] },
+    tasks: (w.tasks ?? []).map((t) => ({ id: t.id, title: t.title, who: id(t.owner), due: t.due, status: TASK_STATUS[t.status] })),
+    milestones: (w.milestones ?? []).map((m) => ({ id: m.id, title: m.title, due: m.due, done: m.done })),
+    // The backend doesn't keep these parts of the demo workspace (yet): the idea board, presenting and expenses.
+    studio: [], present: { what: "", where: "", when: "", checklist: [] },
     budget: { total: w.budget, currency: "₦", expenses: [], paidOut: [] },
     ledger: w.ledger.map((e) => ({ at: Date.parse(e.at), who: (e.by ? id(e.by) : "akines") as Project["ledger"][number]["who"], what: e.text })).sort((a, b) => a.at - b.at),
     kind: w.kind || undefined, tools: w.tools.map((t) => ({ id: String(t.id), label: t.label, url: t.url, kind: t.kind })),
@@ -182,13 +243,18 @@ type Snapshot = {
   saved: string[];
   /** The last thing that didn't save, shown as a notice (components/collab/Notice.tsx). */
   notice?: string;
+  x: RemoteExtras;
 };
-const SAVED_KEY = "co:saved";
-const readSaved = (): string[] => { try { return JSON.parse(localStorage.getItem(SAVED_KEY) ?? "[]"); } catch { return []; } };
-const START: Snapshot = { ready: false, calls: [], hosted: [], extra: [], mine: [], desk: [], proposals: [], projects: [], threads: {}, saved: [] };
+const START: Snapshot = { ready: false, calls: [], hosted: [], extra: [], mine: [], desk: [], proposals: [], projects: [], threads: {}, saved: [], x: extras };
 let snap = START;
 const subs = new Set<() => void>();
-const emit = (next: Partial<Snapshot>) => { snap = { ...snap, ...next }; subs.forEach((f) => f()); };
+/** Every change hands the screens a fresh snapshot, extras included (they're filled while mapping what came back). */
+const emit = (next: Partial<Snapshot>) => {
+  const x = { apps: { ...extras.apps }, calls: { ...extras.calls }, projects: { ...extras.projects }, people: { ...extras.people } };
+  const saved = Object.entries(extras.calls).filter(([, c]) => c.saved).map(([callId]) => callId);
+  snap = { ...snap, saved, ...next, x };
+  subs.forEach((f) => f());
+};
 const fail = (message: string) => emit({ notice: message });
 const upsert = <T extends { id: string }>(list: T[], item: T) => (list.some((x) => x.id === item.id) ? list.map((x) => (x.id === item.id ? item : x)) : [item, ...list]);
 
@@ -280,7 +346,6 @@ async function start() {
   if (!me.ok) { started = false; return emit({ ready: true, notice: me.message }); }
   setMe(me.data.user_id);
   registerPerson({ id: me.data.user_id, name: `${me.data.first_name} ${me.data.last_name}`.trim() || "You", role: "", city: me.data.location, presence: "open", about: me.data.bio, photo: me.data.profile_photo });
-  snap = { ...snap, saved: readSaved() };
   await refresh();
   setInterval(() => { if (subs.size && document.visibilityState === "visible") void refresh(); }, 30_000);
   document.addEventListener("visibilitychange", () => { if (subs.size && document.visibilityState === "visible") void refresh(); });
@@ -354,6 +419,7 @@ async function saveWorkspace(req: Promise<Awaited<ReturnType<typeof api.post<Api
 const wsPost = (workspaceId: string, rest: string, body?: unknown) => saveWorkspace(api.post<ApiWorkspace>(ws(workspaceId, rest), body));
 const wsPut = (workspaceId: string, rest: string, body?: unknown) => saveWorkspace(api.put<ApiWorkspace>(ws(workspaceId, rest), body));
 const wsDel = (workspaceId: string, rest: string) => saveWorkspace(api.del<ApiWorkspace>(ws(workspaceId, rest)));
+const wsPatch = (workspaceId: string, rest: string, body?: unknown) => saveWorkspace(api.patch<ApiWorkspace>(ws(workspaceId, rest), body));
 const dPath = (dId: string, rest = "") => `/deliverables/${encodeURIComponent(dId)}${rest}`;
 /** Shows the change straight away, before the server answers (it replaces it either way). */
 const optimistic = (workspaceId: string, fn: (p: Project) => void) => {
@@ -382,6 +448,149 @@ async function fetchCall(callId: string) {
   const r = await api.get<ApiCall>(`collab/calls/${encodeURIComponent(callId)}`);
   if (r.ok) emit({ extra: upsert(snap.extra, callFromApi(r.data)) });
 }
+
+// ── The redesign's calls, applications and project pages (outside the demo) ──────────────────
+
+const callPath = (callId: string, rest = "") => `collab/calls/${encodeURIComponent(callId)}${rest}`;
+async function saveCall(req: ReturnType<typeof api.post<ApiCall>>) {
+  const r = await req;
+  if (!r.ok) { fail(r.message); return null; }
+  const c = callFromApi(r.data);
+  emit(c.postedByMe ? { hosted: upsert(snap.hosted, c) } : { calls: snap.calls.some((x) => x.id === c.id) ? upsert(snap.calls, c) : snap.calls });
+  return c;
+}
+const decide = (appId: string, body: Record<string, unknown>) => saveApp(appPath(appId, "decision"), body, "desk");
+
+/** Fields a task edit sends (PATCH workspaces/<id>/tasks/<taskId>). */
+export type TaskPatch = Partial<{
+  title: string; owner_id: string; due: string; priority: "high" | "medium" | "low"; milestone_id: string | null;
+  description: string; support_id: string | null; reviewer_id: string | null; status: ApiTask["status"];
+  criteria: { id: string; title: string; done: boolean }[];
+}>;
+
+/** Every remote action the feature hooks use; each updates the shared snapshot with what the server answered. */
+export const collabApi = {
+  closeCall: (callId: string) => saveCall(api.post<ApiCall>(callPath(callId, "/close"))),
+  reopenCall: (callId: string, closesOn?: string) => saveCall(api.post<ApiCall>(callPath(callId, "/reopen"), closesOn ? { closes_on: closesOn } : {})),
+  editCall: (callId: string, fields: Record<string, unknown>) => saveCall(api.put<ApiCall>(callPath(callId), fields)),
+  toggleSave: async (callId: string) => {
+    const on = !extras.calls[callId]?.saved;
+    if (extras.calls[callId]) { extras.calls[callId] = { ...extras.calls[callId], saved: on }; emit({}); }
+    const r = await (on ? api.put<ApiCall>(callPath(callId, "/save")) : api.del<ApiCall>(callPath(callId, "/save")));
+    if (!r.ok) { if (extras.calls[callId]) extras.calls[callId] = { ...extras.calls[callId], saved: !on }; return fail(r.message); }
+    callFromApi(r.data);
+    emit({});
+  },
+  /** Starts the call's project with people from the shortlist; resolves to the new project's id ("" if it didn't). */
+  startProject: async (callId: string, applicationIds: string[], keepOpen: boolean) => {
+    const r = await api.post<{ workspace_id: string; call: ApiCall }>(callPath(callId, "/start-project"), { application_ids: applicationIds, keep_open: keepOpen });
+    if (!r.ok) { fail(r.message); return ""; }
+    callFromApi(r.data.call);
+    await refresh();
+    return r.data.workspace_id;
+  },
+  /** New times to talk (shortlisted, before the talk), with a message. */
+  reofferTimes: (appId: string, slots: string[], message: string) => decide(appId, { action: "reoffer_times", slots, message }),
+  /** Sends the offer (after the talk: a booked talk counts as had), or changes the one already sent. */
+  sendOffer: async (appId: string, terms: { role: string; hours: string; start: string; note: string }) => {
+    const stage = snap.desk.find((a) => a.id === appId)?.stage;
+    if (stage === "shortlisted" && !(await decide(appId, { action: "conversation_done" }))) return null;
+    return decide(appId, { action: stage === "offer" ? "edit_offer" : "offer", offer_role: terms.role, offer_hours: terms.hours, offer_start: terms.start, offer_note: terms.note });
+  },
+  /** Times to talk: shortlists them with these times, or offers new ones if they're already shortlisted. */
+  proposeTimes: (appId: string, slots: string[], message: string) => {
+    const stage = snap.desk.find((a) => a.id === appId)?.stage;
+    return decide(appId, { action: stage === "submitted" || stage === "viewed" ? "shortlist" : "reoffer_times", slots, message });
+  },
+  rescindOffer: (appId: string, message = "") => decide(appId, { action: "rescind_offer", message }),
+  notNow: (appId: string, feedback: string, reason?: string) => decide(appId, { action: "decline", feedback, ...(reason ? { reason } : {}) }),
+  undoNotNow: (appId: string) => decide(appId, { action: "undo_decline" }),
+  /** The applicant turns an offer down, saying why. */
+  declineOffer: (appId: string, reason?: string, message = "") => saveApp(appPath(appId, "action"), { action: "decline_offer", ...(reason ? { reason } : {}), message }, "mine"),
+
+  details: (pid: string, fields: { title?: string; summary?: string; needs?: string; open_to_join?: boolean }) => wsPatch(pid, "/details", fields),
+  mySettings: async (pid: string, body: { notify_prefs?: Partial<MySettings["notify_prefs"]>; read?: string[] }) => {
+    const r = await api.put<MySettings>(ws(pid, "/me"), body);
+    if (!r.ok) return fail(r.message);
+    const p = extras.projects[pid];
+    if (p) { extras.projects[pid] = { ...p, me: r.data }; emit({}); }
+  },
+  leave: async (pid: string, newHostId?: string) => {
+    const r = await api.post(ws(pid, "/leave"), newHostId ? { new_host_id: newHostId } : {});
+    if (!r.ok) { fail(r.message); return false; }
+    emit({ projects: snap.projects.filter((p) => p.id !== pid) });
+    return true;
+  },
+  removeMember: (pid: string, userId: string) => wsDel(pid, `/members/${encodeURIComponent(userId)}`),
+  invitations: (pid: string) => allPages<ApiInvitation>(`collab/workspaces/${encodeURIComponent(pid)}/invitations`),
+  invite: async (pid: string, input: { to: string; role: string; message: string }) => {
+    const r = await api.post<ApiInvitation>(ws(pid, "/invitations"), input);
+    if (!r.ok) { fail(r.message); return null; }
+    return r.data;
+  },
+  withdrawInvitation: async (pid: string, invitationId: string) => {
+    const r = await api.del<ApiInvitation>(ws(pid, `/invitations/${encodeURIComponent(invitationId)}`));
+    if (!r.ok) fail(r.message);
+    return r.ok;
+  },
+  myInvitations: () => allPages<ApiInvitation>("collab/invitations?status=sent"),
+  answerInvitation: async (invitationId: string, accept: boolean) => {
+    const r = await api.post<ApiInvitation>(`collab/invitations/${encodeURIComponent(invitationId)}/${accept ? "accept" : "decline"}`);
+    if (!r.ok) { fail(r.message); return null; }
+    if (accept) await refresh();
+    return r.data;
+  },
+  requests: (pid: string) => allPages<ApiJoinRequest>(`collab/workspaces/${encodeURIComponent(pid)}/requests`),
+  askToJoin: async (pid: string, role: string, message: string) => {
+    const r = await api.post<ApiJoinRequest>(ws(pid, "/requests"), { role, message });
+    if (!r.ok) { fail(r.message); return null; }
+    return r.data;
+  },
+  decideRequest: async (pid: string, requestId: string, action: "accept" | "not-now" | "reopen", message = "") => {
+    const r = await api.post<ApiJoinRequest>(ws(pid, `/requests/${encodeURIComponent(requestId)}/${action}`), { message });
+    if (!r.ok) { fail(r.message); return null; }
+    if (action === "accept") { const p = await loadWorkspace(pid); if (p) emit({ projects: upsert(snap.projects, p) }); }
+    return r.data;
+  },
+  addTask: (pid: string, body: TaskPatch & { title: string; owner_id: string }) => wsPost(pid, "/tasks", body),
+  editTask: (pid: string, taskId: string, body: TaskPatch) => wsPatch(pid, `/tasks/${encodeURIComponent(taskId)}`, body),
+  deleteTask: (pid: string, taskId: string) => wsDel(pid, `/tasks/${encodeURIComponent(taskId)}`),
+  commentTask: (pid: string, taskId: string, text: string) => wsPost(pid, `/tasks/${encodeURIComponent(taskId)}/comments`, { text }),
+  editDeliverable: (pid: string, dId: string, body: Partial<{ title: string; owner_id: string; due: string; priority: string; milestone_id: string | null; description: string; support_id: string | null }>) =>
+    wsPut(pid, dPath(dId), body),
+  drafts: () => allPages<ApiDraft>("collab/drafts"),
+  saveDraft: async (draftId: string, body: Omit<ApiDraft, "id" | "updated_at">) => {
+    const r = await api.put<ApiDraft>(`collab/drafts/${encodeURIComponent(draftId)}`, body);
+    if (!r.ok) fail(r.message);
+    return r.ok ? r.data : null;
+  },
+  deleteDraft: async (draftId: string) => {
+    const r = await api.del(`collab/drafts/${encodeURIComponent(draftId)}`);
+    return r.ok;
+  },
+  /** A member's skills and experience line, from their published work profile (cached; screens re-read on arrival). */
+  person: (userId: string) => {
+    if (!extras.people[userId] && !askedPeople.has(userId)) {
+      askedPeople.add(userId);
+      void api.get<{ skills: string[]; experience: string; headline: string; about: string; projects: { title: string; kind: string; role: string; year: number }[] }>(`work/people/${encodeURIComponent(userId)}`)
+        .then((r) => { if (r.ok) { extras.people[userId] = { skills: r.data.skills, experience: r.data.experience }; peopleFull[userId] = r.data; emit({}); } });
+    }
+    return extras.people[userId];
+  },
+};
+const askedPeople = new Set<string>();
+/** The whole work-profile summary of members whose page was opened. */
+export const peopleFull: Record<string, { headline: string; about: string; skills: string[]; experience: string; projects: { title: string; kind: string; role: string; year: number }[] }> = {};
+
+const noSubscribe = () => () => {};
+/** The extras for the review, team, task and member screens; subscribing starts the shared store (never in the demo). */
+export function useRemoteExtras(): RemoteExtras {
+  return useSyncExternalStore(DEMO ? noSubscribe : subscribe, () => snap.x, () => START.x);
+}
+/** What the backend keeps about a call beyond the shared CollabCall type (status, when it closed, its project profile). */
+export const remoteCall = (callId: string) => extras.calls[callId];
+/** What a member's work profile says (skills, experience), when the backend has sent it. */
+export const remotePerson = (userId: string) => extras.people[userId];
 
 type ApplyInput = Pick<Application, "callId" | "role" | "works" | "links" | "files" | "statement" | "availability" | "materials">;
 type CallInput = Omit<CollabCall, "id" | "host" | "postedByMe" | "verified">;
@@ -494,11 +703,17 @@ export function useRemoteCollab() {
     removeTool: (pid: string, toolId: string) => void wsDel(pid, `/tools/${toolId}`),
     checkin: (pid: string, c: Pick<Checkin, "done" | "next" | "stuck">) => void wsPost(pid, "/checkins", { done: c.done, next: c.next, stuck: c.stuck ?? "" }),
     preserve: (pid: string) => void wsPost(pid, "/stage", { stage: 6 }),
-    // Not kept by the backend yet (the idea board, tasks, presenting, expenses and payouts): say so, change nothing.
-    addTask: notYet,
-    moveTask: notYet,
-    toggleMilestone: notYet,
-    addMilestone: notYet,
+    addTask: (pid: string, task: Omit<Task, "id" | "status">) => void collabApi.addTask(pid, { title: task.title, owner_id: task.who, due: task.due }),
+    moveTask: (pid: string, taskId: string, status: Task["status"]) => {
+      optimistic(pid, (p) => { const t = p.tasks.find((x) => x.id === taskId); if (t) t.status = status; });
+      void collabApi.editTask(pid, taskId, { status });
+    },
+    toggleMilestone: (pid: string, mId: string) => {
+      const m = snap.projects.find((x) => x.id === pid)?.milestones.find((x) => x.id === mId);
+      if (m) void wsPatch(pid, `/milestones/${encodeURIComponent(mId)}`, { done: !m.done });
+    },
+    addMilestone: (pid: string, title: string, due: string) => void wsPost(pid, "/milestones", { title, due }),
+    // Not kept by the backend yet (the idea board, presenting, expenses and payouts): say so, change nothing.
     addStudio: notYet,
     comment: notYet,
     tagStudio: notYet,
@@ -514,7 +729,17 @@ export function useRemoteCollab() {
         blurb: `A private working session for the ${p.title} team.`, seated: [ME], photo: p.photo, tag: "Collaboration", mine: true, visibility: "private",
       };
       setRooms((cur) => [room, ...cur]);
-      return `/rooms/${room.id}?demo=start`;
+      const href = `/rooms/${room.id}?demo=start`;
+      // The team hears about it in the project's own chat (never the browser's km:* stores).
+      if (p.convoId) {
+        const card: ChatCard = { type: "invite", invite: "project", title: room.title.slice(0, 120), detail: room.blurb.slice(0, 300), href };
+        void chat.send(p.convoId, { body: `${room.title}: starting now.`, card, client_id: newClientId() }).then((r) => {
+          if (!r.ok) return fail(r.message);
+          const m = msgFromApi(r.data);
+          if (m) emit({ threads: { ...snap.threads, [p.convoId]: [...(snap.threads[p.convoId] ?? []).filter((x) => x.id !== m.id), m] } });
+        });
+      }
+      return href;
     },
     send: async (p: Project, text: string) => {
       if (!p.convoId) return fail("This project has no chat yet.");
@@ -536,15 +761,12 @@ export function useRemoteCollab() {
     ready: s.ready, state: { v: 1 as const, calls: allCalls, applications: apps, projects: s.projects, proposals: s.proposals, saved: s.saved },
     calls: allCalls, apps, projects: s.projects, proposals: s.proposals, myApps: s.mine, hostedCalls: s.hosted, call,
     appFor: (callId: string) => s.mine.find((a) => a.callId === callId && a.stage !== "withdrawn"),
-    toggleSave: (callId: string) => {
-      const saved = snap.saved.includes(callId) ? snap.saved.filter((x) => x !== callId) : [...snap.saved, callId];
-      try { localStorage.setItem(SAVED_KEY, JSON.stringify(saved)); } catch { /* private mode: kept for this visit */ }
-      emit({ saved });
-    },
+    /** Saved calls are kept on the server, so they follow the member to any device. */
+    toggleSave: (callId: string) => void collabApi.toggleSave(callId),
     apply, postCall, setAppStage,
     pickSlot: (appId: string, slot: string) => void saveApp(appPath(appId, "action"), { action: "pick_slot", slot }, "mine"),
     withdraw: (appId: string) => void saveApp(appPath(appId, "action"), { action: "withdraw" }, "mine"),
-    declineOffer: (appId: string) => void saveApp(appPath(appId, "action"), { action: "decline_offer" }, "mine"),
+    declineOffer: (appId: string, reason?: string, message?: string) => void collabApi.declineOffer(appId, reason, message ?? ""),
     /** Accepting puts you in the workspace; resolves to its id (empty if it didn't go through). */
     acceptOffer: async (appId: string) => {
       const a = await saveApp(appPath(appId, "action"), { action: "accept_offer" }, "mine");

@@ -90,10 +90,10 @@ export default function MeetingCall({ projectId }: { projectId: string }) {
   const chatBtn = useRef<HTMLButtonElement>(null);
   const opened = useRef(false);
 
-  const { session, startNow } = cast.next;
+  const { session, startNow, join } = cast.next;
   const ready = !!cast.project;
-  // Joining the call starts the session if it was only planned.
-  useEffect(() => { if (ready && session.status !== "ongoing") startNow(); }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Joining the call starts the session if it was only planned, or records you as in it if it's already on.
+  useEffect(() => { if (!ready) return; if (session.status === "ongoing") join(); else startNow(); }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { media.markJoined(); media.clearScreenNote(); void media.request(); }, []);
   useEffect(() => {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;

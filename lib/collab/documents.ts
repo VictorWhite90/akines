@@ -1,20 +1,26 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { toast } from "@/components/kin/Toast";
+import { mutate, teamwork, useResource, type ApiTool } from "@/lib/api/teamwork";
+import { DEMO } from "@/lib/demo/mode";
 import { useLocal, newId } from "@/lib/useLocal";
 import { ME } from "@/lib/collab/me";
 import type { Project } from "@/lib/collab/types";
 import type { PersonId } from "@/lib/data/people";
-import { ago, clock24, daysAgo, presenceFor, type LivePerson, type Thread, type Version } from "@/lib/collab/live";
+import { ago, clock24, daysAgo, presenceFor, threadFromApi, versionFromApi, versionNumber, type LivePerson, type Thread, type Version } from "@/lib/collab/live";
 
 /*
  * A project's shared document, as the product design's Research Workspace shows it (research-workspace.css, tr-):
  * an outline, the page, where collaborators are writing, comment threads on quoted text, and version history.
- * Our Project has no documents yet, so this is its own resource, shaped like the REST one it will become:
- *   GET  /collab/projects/:id/document                          → Doc
- *   POST /collab/projects/:id/document/comments/:id/replies     ← { text }
- *   POST /collab/projects/:id/document/comments/:id/resolve     ← { resolved }
- *   POST /collab/projects/:id/document/versions/:id/restore
+ * It is its own resource (lib/api/teamwork.ts, /api/v1/teamwork/projects/:id/…):
+ *   GET  document                                 → { title, version, content: { outline, blocks }, threads, versions }
+ *   PUT  document                                 ← { title?, content, base_version, note? }  (409 if someone saved since)
+ *   POST document/comments                        ← { text, quote, anchor: { tone } }
+ *   POST document/comments/:id/replies            ← { text }
+ *   POST document/comments/:id/resolve            ← { resolved }
+ *   POST document/versions/:n/restore             (saves that version's content as a new version)
+ * Until the team first saves, a project's document starts from its summary.
  * The page is kept as the design lays it out: blocks of lines, each line as written, with highlights for
  * comments, a collaborator's selection and cursor, and your caret. The demo keeps edits in the browser, seeded
  * with documents for the clinic booking and the Kubwa ride study; other projects start from their summary.
@@ -211,7 +217,7 @@ function seedDoc(project: Project, now: number): Doc {
 /** What a member has changed on a document, kept per project. */
 type Edits = { threads?: Record<string, Pick<Thread, "messages" | "resolved" | "resolvedBy">>; versions?: Version[] };
 
-export function useDocument(project: Project | undefined) {
+function useLocalDocument(project: Project | undefined) {
   const [all, setAll] = useLocal<Record<string, Edits>>("ak:collab-documents:v1", {});
   const id = project?.id ?? "";
   const edits = all[id];
@@ -228,5 +234,49 @@ export function useDocument(project: Project | undefined) {
     reply: (tid: string, text: string) => { const t = threadOf(tid); if (t) edit((e) => ({ ...e, threads: { ...e.threads, [tid]: { messages: [...t.messages, { who: ME, at: Date.now(), text }], resolved: t.resolved, resolvedBy: t.resolvedBy } } })); },
     resolve: (tid: string, resolved: boolean) => { const t = threadOf(tid); if (t) edit((e) => ({ ...e, threads: { ...e.threads, [tid]: { messages: t.messages, resolved, resolvedBy: resolved ? ME : undefined } } })); },
     restore: (v: Version) => edit((e) => ({ ...e, versions: [{ id: newId("v"), at: Date.now(), who: ME, what: `restored the ${clock24(v.at)} version` }, ...(e.versions ?? [])] })),
+    /** Saves the page (the demo keeps the seeded page). */
+    save: (content: Pick<Doc, "outline" | "blocks">, title?: string) => { void content; void title; },
+    /** Starts a comment thread on quoted text. */
+    comment: (text: string, quote: string, tone: "strong" | "soft" = "soft") => { void text; void quote; void tone; },
   };
 }
+
+// ── On the backend ──────────────────────────────────────────────────────────────────────────
+
+function docFromApi(project: Project, t: ApiTool | undefined): Doc {
+  const seed = seedDoc(project, SEEDED_AT);
+  const c = (t?.content ?? {}) as Partial<Pick<Doc, "outline" | "blocks">>;
+  const saved = !!t && t.version > 0;
+  return {
+    ...seed,
+    title: saved && t.title ? t.title : seed.title,
+    draft: saved ? t.version : seed.draft,
+    outline: saved && Array.isArray(c.outline) ? c.outline : seed.outline,
+    blocks: saved && Array.isArray(c.blocks) ? c.blocks : seed.blocks,
+    threads: t ? t.threads.map((x) => ({ ...threadFromApi(x), quote: x.quote, tone: x.anchor?.tone === "strong" ? "strong" as const : "soft" as const })) : [],
+    versions: t?.versions.length ? t.versions.map(versionFromApi) : seed.versions,
+    presence: presenceFor(project.members.map((m) => m.id), [], "Editing the summary"),
+  };
+}
+
+function useRemoteDocument(project: Project | undefined) {
+  const pid = project?.id ?? "";
+  const key = pid ? `tw:tool:document:${pid}` : null;
+  const tool = useResource<ApiTool>(key, () => teamwork.tool(pid, "document"), 15_000);
+  const doc = useMemo(() => (project ? docFromApi(project, tool) : undefined), [project, tool]);
+  const set = (t: ApiTool | undefined) => { if (t && key) mutate<ApiTool>(key, () => t); };
+  return {
+    doc,
+    reply: (tid: string, text: string) => void teamwork.replyTool(pid, "document", tid, text).then(set),
+    resolve: (tid: string, resolved: boolean) => void teamwork.resolveTool(pid, "document", tid, resolved).then(set),
+    restore: (v: Version) => {
+      const n = versionNumber(v);
+      if (n === null) { toast.show({ message: "Nothing has been saved yet, so there's no earlier version to go back to.", duration: 4000 }); return; }
+      void teamwork.restoreTool(pid, "document", n).then(set);
+    },
+    save: (content: Pick<Doc, "outline" | "blocks">, title?: string) => void teamwork.saveTool(pid, "document", { title, content, base_version: tool?.version ?? 0 }).then(set),
+    comment: (text: string, quote: string, tone: "strong" | "soft" = "soft") => void teamwork.commentTool(pid, "document", { text, quote, anchor: { tone } }).then(set),
+  };
+}
+
+export const useDocument: typeof useLocalDocument = DEMO ? useLocalDocument : useRemoteDocument;

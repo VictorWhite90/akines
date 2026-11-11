@@ -252,9 +252,10 @@ function useLocalCollab({ engine = false }: { engine?: boolean } = {}) {
     }
     return projectId;
   };
-  const declineOffer = (appId: string) => update((s) => {
+  /** Turns an offer down; `reason` (timing, fit, terms, other) and a message go to the host. */
+  const declineOffer = (appId: string, reason?: string, message?: string) => update((s) => {
     const a = s.applications.find((x) => x.id === appId)!;
-    a.stage = "withdrawn"; a.history.push({ stage: "withdrawn", at: Date.now(), note: "You turned down the offer." });
+    a.stage = "withdrawn"; a.history.push({ stage: "withdrawn", at: Date.now(), note: message?.trim() || (reason ? `You turned down the offer (${reason}).` : "You turned down the offer.") });
     return s;
   });
 

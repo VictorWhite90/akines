@@ -1,6 +1,8 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { collabApi, type ApiDraft } from "@/lib/api/collab";
+import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
 import type { WorkspaceKind } from "./workspace";
 
@@ -64,7 +66,74 @@ export function editedAgo(at: number, from = Date.now()) {
   return `Last edited ${ago}`;
 }
 
+const EMPTY_ANSWERS: DraftAnswers = { type: "", idea: "", q: { q1: "", q2: "", q3: "", q4: "" }, stage: "", needs: [] };
+function draftFromApi(d: ApiDraft): ProjectDraft {
+  const a = (d.answers ?? {}) as Partial<DraftAnswers>;
+  return {
+    id: d.id, title: d.title, description: d.description,
+    answers: { ...EMPTY_ANSWERS, ...a, q: { ...EMPTY_ANSWERS.q, ...(a.q ?? {}) } },
+    brief: d.brief ?? {}, workspace: (d.workspace ?? undefined) as WorkspaceKind | undefined, at: (d.at || "idea") as DraftAt,
+    updatedAt: Date.parse(d.updated_at),
+  };
+}
+const draftToApi = (d: ProjectDraft) => ({ title: d.title, description: d.description, answers: d.answers, brief: d.brief, workspace: d.workspace ?? null, at: d.at });
+
+/** Outside the demo: drafts are kept on the server (saved a moment after the member stops typing). */
+function useRemoteDrafts() {
+  const [list, setList] = useState<ProjectDraft[]>([]);
+  const [ready, setReady] = useState(false);
+  const timers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  useEffect(() => {
+    let live = true;
+    void collabApi.drafts().then((r) => { if (!live) return; if (r.ok) setList(r.items.map(draftFromApi)); setReady(true); });
+    return () => { live = false; };
+  }, []);
+  const push = useCallback((d: ProjectDraft, wait = 800) => {
+    const t = timers.current.get(d.id);
+    if (t) clearTimeout(t);
+    timers.current.set(d.id, setTimeout(() => { timers.current.delete(d.id); void collabApi.saveDraft(d.id, draftToApi(d)); }, wait));
+  }, []);
+  const drop = useCallback((id: string) => {
+    const t = timers.current.get(id);
+    if (t) { clearTimeout(t); timers.current.delete(id); }
+    void collabApi.deleteDraft(id);
+  }, []);
+  const drafts = [...list].sort((a, b) => b.updatedAt - a.updatedAt);
+  const save = useCallback((d: Omit<ProjectDraft, "id" | "updatedAt"> & { id?: string }) => {
+    const draft: ProjectDraft = { ...d, id: d.id ?? newId("draft"), updatedAt: Date.now() };
+    setList((cur) => [draft, ...cur.filter((x) => x.id !== draft.id)]);
+    push(draft);
+    return draft.id;
+  }, [push]);
+  const remove = useCallback((id: string) => {
+    const index = list.findIndex((x) => x.id === id);
+    if (index < 0) return null;
+    const draft = list[index];
+    setList((cur) => cur.filter((x) => x.id !== id));
+    drop(id);
+    return { draft, index };
+  }, [list, drop]);
+  const discard = useCallback((id: string) => { setList((cur) => cur.filter((x) => x.id !== id)); drop(id); }, [drop]);
+  const restore = useCallback((draft: ProjectDraft, index: number) => {
+    setList((cur) => {
+      if (cur.some((x) => x.id === draft.id)) return cur;
+      const next = [...cur];
+      next.splice(Math.min(index, next.length), 0, draft);
+      return next;
+    });
+    push(draft, 0);
+  }, [push]);
+  return { ready, drafts, get: (id: string) => list.find((x) => x.id === id), save, remove, discard, restore } as const;
+}
+
+/** The member's unfinished builders: the server's outside the demo, the browser's in it. */
 export function useDrafts() {
+  // DEMO is fixed for a build, so the same hook runs on every render.
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  return DEMO ? useLocalDrafts() : useRemoteDrafts();
+}
+
+function useLocalDrafts() {
   const [list, setList, ready] = useLocal<ProjectDraft[]>("ak:collab-drafts", SEED);
   const drafts = [...list].sort((a, b) => b.updatedAt - a.updatedAt);
   /** Creates or updates a draft; resolves to its id. */

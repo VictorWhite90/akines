@@ -1,22 +1,27 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { toast } from "@/components/kin/Toast";
+import { mutate, teamwork, useResource, type ApiTool } from "@/lib/api/teamwork";
+import { DEMO } from "@/lib/demo/mode";
 import { useLocal, newId } from "@/lib/useLocal";
 import { ME } from "@/lib/collab/me";
 import type { Project } from "@/lib/collab/types";
 import type { PersonId } from "@/lib/data/people";
 import { photoSrc } from "@/components/kin/home/parts";
-import { ago, clock24, daysAgo, presenceFor, type LivePerson, type Thread, type Version } from "@/lib/collab/live";
+import { ago, clock24, daysAgo, presenceFor, threadFromApi, versionFromApi, versionNumber, type LivePerson, type Thread, type Version } from "@/lib/collab/live";
 
 /*
  * A project's shared canvas, as the product design's Digital Art Workspace shows it (art-workspace*.css, tw-/ta-):
  * the artwork, its layers, the colour and brush in use, where collaborators are pointing, comment pins and the
- * version history. Our Project has no canvas yet, so this is its own resource, shaped like the REST one it will be:
- *   GET   /collab/projects/:id/canvas                       → Canvas
- *   PATCH /collab/projects/:id/canvas/layers/:layerId       ← { hidden }
- *   POST  /collab/projects/:id/canvas/comments/:id/replies  ← { text }
- *   POST  /collab/projects/:id/canvas/comments/:id/resolve
- *   POST  /collab/projects/:id/canvas/versions/:id/restore
+ * version history. It is its own resource (lib/api/teamwork.ts, /api/v1/teamwork/projects/:id/…):
+ *   GET  canvas                                  → { title, version, content: { art, size, layers, … }, threads, versions }
+ *   PUT  canvas                                  ← { title?, content, base_version, note? }  (a layer shown or hidden is
+ *                                                  a save of the layers; 409 if someone saved since)
+ *   POST canvas/comments                         ← { text, anchor: { x, y } }  (a pin)
+ *   POST canvas/comments/:id/replies             ← { text }
+ *   POST canvas/comments/:id/resolve             ← { resolved }
+ *   POST canvas/versions/:n/restore
  * The demo keeps edits in the browser, seeded with a canvas for Market Light; other making projects start from
  * their own cover photo.
  */
@@ -112,7 +117,7 @@ function seedCanvas(project: Project, now: number): Canvas {
 /** What a member has changed on a canvas, kept per project. */
 type Edits = { hidden?: Partial<Record<LayerId, boolean>>; pins?: Record<string, Pick<Thread, "messages" | "resolved" | "resolvedBy">>; versions?: Version[] };
 
-export function useCanvas(project: Project | undefined) {
+function useLocalCanvas(project: Project | undefined) {
   const [all, setAll] = useLocal<Record<string, Edits>>("ak:collab-canvas:v1", {});
   const id = project?.id ?? "";
   const edits = all[id];
@@ -134,5 +139,59 @@ export function useCanvas(project: Project | undefined) {
     reply: (pinId: string, text: string) => { const p = pinOf(pinId); if (p) edit((e) => ({ ...e, pins: { ...e.pins, [pinId]: { messages: [...p.messages, { who: ME, at: Date.now(), text }], resolved: p.resolved } } })); },
     resolve: (pinId: string, resolved: boolean) => { const p = pinOf(pinId); if (p) edit((e) => ({ ...e, pins: { ...e.pins, [pinId]: { messages: p.messages, resolved, resolvedBy: resolved ? ME : undefined } } })); },
     restore: (v: Version) => edit((e) => ({ ...e, versions: [{ id: newId("v"), at: Date.now(), who: ME, what: `restored the ${clock24(v.at)} version` }, ...(e.versions ?? [])] })),
+    /** Shows or hides a layer. */
+    setHidden: (layer: LayerId, hidden: boolean) => edit((e) => ({ ...e, hidden: { ...e.hidden, [layer]: hidden } })),
   };
 }
+
+// ── On the backend ──────────────────────────────────────────────────────────────────────────
+
+type CanvasContent = Pick<Canvas, "art" | "size" | "layers" | "colour" | "recent" | "brush" | "brushes">;
+
+function canvasFromApi(project: Project, t: ApiTool | undefined): Canvas {
+  const seed = seedCanvas(project, SEEDED_AT);
+  const saved = !!t && t.version > 0;
+  const c = (saved ? t.content ?? {} : {}) as Partial<CanvasContent>;
+  return {
+    ...seed,
+    title: saved && t.title ? t.title : seed.title,
+    art: typeof c.art === "string" ? c.art : seed.art,
+    size: c.size ?? seed.size,
+    layers: Array.isArray(c.layers) ? c.layers : seed.layers,
+    colour: typeof c.colour === "string" ? c.colour : seed.colour,
+    recent: Array.isArray(c.recent) ? c.recent : seed.recent,
+    brush: c.brush ?? seed.brush,
+    brushes: Array.isArray(c.brushes) ? c.brushes : seed.brushes,
+    cursors: [],
+    // The styles place two pins.
+    pins: t ? t.threads.map((x, i) => ({ ...threadFromApi(x), n: ((i % 2) + 1) as 1 | 2 })) : [],
+    versions: t?.versions.length ? t.versions.map(versionFromApi) : seed.versions,
+    presence: presenceFor(project.members.map((m) => m.id), [], "Editing the layers"),
+  };
+}
+
+function useRemoteCanvas(project: Project | undefined) {
+  const pid = project?.id ?? "";
+  const key = pid ? `tw:tool:canvas:${pid}` : null;
+  const tool = useResource<ApiTool>(key, () => teamwork.tool(pid, "canvas"), 15_000);
+  const canvas = useMemo(() => (project ? canvasFromApi(project, tool) : undefined), [project, tool]);
+  const set = (t: ApiTool | undefined) => { if (t && key) mutate<ApiTool>(key, () => t); };
+  return {
+    canvas,
+    reply: (pinId: string, text: string) => void teamwork.replyTool(pid, "canvas", pinId, text).then(set),
+    resolve: (pinId: string, resolved: boolean) => void teamwork.resolveTool(pid, "canvas", pinId, resolved).then(set),
+    restore: (v: Version) => {
+      const n = versionNumber(v);
+      if (n === null) { toast.show({ message: "Nothing has been saved yet, so there's no earlier version to go back to.", duration: 4000 }); return; }
+      void teamwork.restoreTool(pid, "canvas", n).then(set);
+    },
+    setHidden: (layer: LayerId, hidden: boolean) => {
+      if (!canvas) return;
+      const content: CanvasContent = { art: canvas.art, size: canvas.size, layers: canvas.layers.map((l) => (l.id === layer ? { ...l, hidden } : l)),
+        colour: canvas.colour, recent: canvas.recent, brush: canvas.brush, brushes: canvas.brushes };
+      void teamwork.saveTool(pid, "canvas", { title: canvas.title, content, base_version: tool?.version ?? 0, note: `${hidden ? "hid" : "showed"} a layer` }).then(set);
+    },
+  };
+}
+
+export const useCanvas: typeof useLocalCanvas = DEMO ? useLocalCanvas : useRemoteCanvas;

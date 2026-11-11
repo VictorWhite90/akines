@@ -1,6 +1,10 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import {
+  answerIntroduction, dismiss as dismissRemote, matchingSnapshot, saveIntention, sendIntroduction, setSaved, useMatchingStore,
+  useRemoteCollaboratorById, withdrawIntroduction,
+} from "@/lib/api/matching";
 import { ME } from "@/lib/collab/me";
 import { useCollab } from "@/lib/collab/useCollab";
 import { isMine, phaseOf } from "@/lib/collab/workspace";
@@ -12,17 +16,13 @@ import { newId, useLocal } from "@/lib/useLocal";
 
 /*
  * Collaborators: people recommended to work with, why, what you saved, and the introductions you asked for.
- * Shaped like the REST resources a backend would serve, so the screens don't change when it does:
- *   GET  /collab/collaborators?intention=&project=   → Collaborator[] (recommendations, with reasons)
- *   GET  /collab/collaborators/:id                   → Collaborator
- *   PUT  /collab/match-intention                     → MatchIntention
- *   GET|POST|DELETE /collab/saved-collaborators[/:id]
- *   GET|POST /collab/introductions                   → Introduction (the ones you sent)
- *   POST /collab/introductions/:id/withdraw           → Introduction (withdrawnAt set; it leaves your list)
- *   GET  /collab/introductions/incoming              → IncomingIntroduction[] (people who asked to meet you)
- *   POST /collab/introductions/incoming/:id/accept|not-now|reopen → IncomingIntroduction
- * Until those exist everything is kept in the browser. Recommendations are sample content in the demo only;
- * a real member sees none yet rather than people who aren't on Akines.
+ * A real build talks to the backend's matching app through lib/api/matching.ts (every route is listed there):
+ *   GET|PUT /matching/intention · GET /matching/recommendations · GET /matching/collaborators/:id
+ *   POST /matching/dismissals (DELETE to undo) · GET|POST|DELETE /matching/saved[/:id]
+ *   GET|POST /matching/introductions · POST /matching/introductions/:id/withdraw|restore (the sender)
+ *   GET /matching/introductions/incoming · POST /matching/introductions/:id/accept|not-now|reopen (the recipient)
+ * Recommendations there are computed from what members chose to share, with the reasons and where each one comes
+ * from. The demo (NEXT_PUBLIC_DEMO_MODE=1) keeps everything in the browser with the sample people below.
  */
 
 // ── Types ──
@@ -78,7 +78,7 @@ export type IncomingIntroduction = { id: string; from: PersonId; projectId: stri
 const P = { she: { subj: "she", obj: "her", poss: "her" }, he: { subj: "he", obj: "him", poss: "his" }, they: { subj: "they", obj: "them", poss: "their" } } as const;
 /** Pronouns of people we write sentences about who are not among the recommendations (the seeded introductions). */
 const PRONOUNS: Partial<Record<PersonId, Pronoun>> = { leila: "she", wanjiru: "she", nandi: "she" };
-export const pronounOf = (id: PersonId): Pronoun => SAMPLE.find((c) => c.id === id)?.pronoun ?? PRONOUNS[id] ?? "they";
+export const pronounOf = (id: PersonId): Pronoun => (DEMO ? SAMPLE.find((c) => c.id === id)?.pronoun ?? PRONOUNS[id] : matchingSnapshot().people[id]?.pronoun) ?? "they";
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 export const firstName = (id: PersonId) => PEOPLE[id].name.split(" ")[0];
 
@@ -321,15 +321,43 @@ export const INTENTIONS: { id: Intention; label: string; title: string; text: st
 
 // ── Hooks ──
 
-/** The matching step: intention, the project it's for, and preferences. */
-export function useMatching() {
+const NO_INTENTION: MatchIntention = { intention: "project", projectId: null, prefs: null, updatedAt: null };
+
+/** What the matching screens read for intention `m`: the project it's for, the preference rows and the chosen prefs. */
+function useMatchingContext(m: MatchIntention) {
   const c = useCollab();
-  const [m, setM] = useLocal<MatchIntention>("ak:collab-match", { intention: "project", projectId: null, prefs: null, updatedAt: null });
   const projects = matchProjects(c);
   // the chosen one, else the first open call you host, else a project you host, else any of yours
   const brief = projects.find((b) => b.id === m.projectId) ?? projects.find((b) => c.hostedCalls.some((x) => x.id === b.id)) ?? projects.find((b) => c.projects.some((p) => p.id === b.id && p.host === ME)) ?? projects[0] ?? null;
   const rows = prefRows(brief);
-  const prefs = m.prefs ?? defaultPrefs(rows);
+  return { brief, rows, prefs: m.prefs ?? defaultPrefs(rows), projects };
+}
+
+/** The matching step: intention, the project it's for, and preferences. */
+export const useMatching = DEMO ? useLocalMatching : useRemoteMatching;
+
+function useRemoteMatching() {
+  const s = useMatchingStore(["intention"]);
+  const m = s.intention ?? NO_INTENTION;
+  const { brief, rows, prefs, projects } = useMatchingContext(m);
+  const save = (next: Parameters<typeof saveIntention>[0]) => { void saveIntention(next, s.intention); };
+  return {
+    intention: m.intention, need: m.need ?? null, brief, rows, prefs, projects,
+    setNeed: (need: string) => save({ need, intention: "project" }),
+    setIntention: (intention: Intention) => save({ intention }),
+    setPrefs: (next: MatchPrefs) => save({ prefs: next }),
+    /** Match for another project (Change project); returns an undo. */
+    setProject: (projectId: string) => {
+      const before = m.projectId;
+      save({ projectId });
+      return () => { void saveIntention({ projectId: before }, matchingSnapshot().intention); };
+    },
+  };
+}
+
+function useLocalMatching() {
+  const [m, setM] = useLocal<MatchIntention>("ak:collab-match", NO_INTENTION);
+  const { brief, rows, prefs, projects } = useMatchingContext(m);
   return {
     intention: m.intention, need: m.need ?? null, brief, rows, prefs, projects,
     /** Matching for a need named elsewhere (Create AI): every need is help for a project, so the choice becomes "For a project". */
@@ -351,8 +379,22 @@ function useContributions(id: PersonId) {
   return projects.flatMap((p) => p.members.filter((m) => m.id === id).map((m) => ({ title: p.title, detail: `${m.role}, ${m.contribution.charAt(0).toLowerCase()}${m.contribution.slice(1)}. Shared with ${firstName(id)}’s consent.` })));
 }
 
-/** One collaborator, with contributions read from our projects. Null when not recommended to this member. */
-export function useCollaborator(id: string | undefined) {
+/** One collaborator. Null when not available to this member. */
+export const useCollaborator = DEMO ? useLocalCollaborator : useRemoteCollaborator;
+
+/** Shown for the moment a collaborator opened by address is loading (their name and photo come from PEOPLE). */
+const loadingCollaborator = (id: string): Collaborator => ({
+  id: id as PersonId, pronoun: "they", availability: "", keySkills: [], intro: "", compat: "", experience: "", preference: "", about: "",
+  experienceList: [], skills: [], interests: [], preferences: [], contributions: [], matchContext: "", reasons: [], ask: [], aligned: "",
+});
+
+function useRemoteCollaborator(id: string | undefined): Collaborator | null {
+  const c = useRemoteCollaboratorById(id);
+  return c === undefined && id ? loadingCollaborator(id) : c ?? null;
+}
+
+/** The demo: a sample person, with contributions read from our projects. */
+function useLocalCollaborator(id: string | undefined) {
   const base = SAMPLE.find((c) => c.id === id) ?? null;
   const fromProjects = useContributions((base?.id ?? "amara") as PersonId);
   if (!DEMO || !base) return null;
@@ -378,12 +420,24 @@ export function useCollaborator(id: string | undefined) {
 }
 
 /** The first recommendation: the person the design's single-person addresses (profile-preview, request…) show. */
-export const leadId = (): PersonId | null => (DEMO ? SAMPLE[0].id : null);
-export const collaboratorIds = (): PersonId[] => (DEMO ? SAMPLE.map((c) => c.id) : []);
-export const sampleCollaborator = (id: string) => SAMPLE.find((c) => c.id === id) ?? null;
+export const leadId = (): PersonId | null => (DEMO ? SAMPLE[0].id : matchingSnapshot().recs?.[0] ?? null);
+export const collaboratorIds = (): PersonId[] => (DEMO ? SAMPLE.map((c) => c.id) : matchingSnapshot().recs ?? []);
+/** A collaborator already known on this page (the demo's samples; or recommended, saved or opened from the API). */
+export const sampleCollaborator = (id: string): Collaborator | null => (DEMO ? SAMPLE.find((c) => c.id === id) : matchingSnapshot().people[id]) ?? null;
 
 /** Recommendations, without the people the member said weren't relevant. */
-export function useRecommendations() {
+export const useRecommendations = DEMO ? useLocalRecommendations : useRemoteRecommendations;
+
+function useRemoteRecommendations() {
+  const s = useMatchingStore(["recs"]);
+  return {
+    list: (s.recs ?? []).map((id) => s.people[id]).filter((c): c is Collaborator => !!c),
+    /** Returns an undo. */
+    dismiss: (id: PersonId) => dismissRemote(id),
+  };
+}
+
+function useLocalRecommendations() {
   const [dismissed, setDismissed] = useLocal<PersonId[]>("ak:collab-dismissed", []);
   const all = DEMO ? SAMPLE : [];
   return {
@@ -399,7 +453,27 @@ const subs = new Set<() => void>();
 const setSession = (next: PersonId[]) => { session = next; subs.forEach((f) => f()); };
 const useSession = () => useSyncExternalStore((f) => { subs.add(f); return () => { subs.delete(f); }; }, () => session, () => session);
 
-export function useSavedCollaborators() {
+export const useSavedCollaborators = DEMO ? useLocalSavedCollaborators : useRemoteSavedCollaborators;
+
+function useRemoteSavedCollaborators() {
+  const s = useMatchingStore(["saved"]);
+  const savedNow = useSession();
+  const saved = s.saved ?? [];
+  const change = (id: PersonId, on: boolean) => {
+    const before = { was: saved.includes(id), session };
+    setSaved(id, on);
+    setSession(on ? (session.includes(id) ? session : [...session, id]) : session.filter((x) => x !== id));
+    return () => { if (before.was !== on) setSaved(id, before.was); setSession(before.session); };
+  };
+  return {
+    saved, savedNow,
+    /** Both return an undo. */
+    save: (id: PersonId) => change(id, true),
+    unsave: (id: PersonId) => change(id, false),
+  };
+}
+
+function useLocalSavedCollaborators() {
   const [saved, setSaved] = useLocal<PersonId[]>("ak:collab-saved", SEED_SAVED);
   const savedNow = useSession();
   return {
@@ -420,7 +494,22 @@ export function useSavedCollaborators() {
   };
 }
 
-export function useIntroductions() {
+export const useIntroductions = DEMO ? useLocalIntroductions : useRemoteIntroductions;
+
+function useRemoteIntroductions() {
+  const s = useMatchingStore(["sent"]);
+  const list = (s.sent ?? []).filter((x) => !x.withdrawnAt);
+  return {
+    list, ready: s.sent !== null,
+    /** The one you sent to this person (withdrawn ones don't count). */
+    get: (to: string) => list.find((x) => x.to === to) ?? null,
+    send: (input: Pick<Introduction, "to" | "projectId" | "projectTitle" | "message">) => sendIntroduction(input),
+    /** Take back a request that is still pending: it leaves the list. Returns an undo that puts it back. */
+    withdraw: (id: string) => withdrawIntroduction(id),
+  };
+}
+
+function useLocalIntroductions() {
   const [all, setAll, ready] = useLocal<Introduction[]>("ak:collab-intros", SEED_INTROS);
   const list = all.filter((x) => !x.withdrawnAt);
   return {
@@ -501,7 +590,22 @@ export function requestPage(intro: Introduction, stage: IntroStatus = intro.stat
 // ── Introductions people asked of you ──
 
 /** People waiting for your answer, and what you answered. Accept and Not now each return an undo (back to waiting). */
-export function useIncomingIntroductions() {
+export const useIncomingIntroductions = DEMO ? useLocalIncomingIntroductions : useRemoteIncomingIntroductions;
+
+function useRemoteIncomingIntroductions() {
+  const s = useMatchingStore(["incoming"]);
+  const list = s.incoming ?? [];
+  return {
+    list, ready: s.incoming !== null,
+    waiting: list.filter((x) => x.status === "waiting"),
+    accept: (id: string) => answerIntroduction(id, "accepted"),
+    notNow: (id: string) => answerIntroduction(id, "notnow"),
+    /** Back to waiting (Undo). */
+    reopen: (id: string) => { answerIntroduction(id, "waiting"); },
+  };
+}
+
+function useLocalIncomingIntroductions() {
   const [list, setList, ready] = useLocal<IncomingIntroduction[]>("ak:collab-intros-in", SEED_INCOMING);
   const answer = (id: string, status: IncomingStatus) => {
     setList((cur) => cur.map((x) => (x.id === id ? { ...x, status, answeredAt: status === "waiting" ? undefined : Date.now() } : x)));

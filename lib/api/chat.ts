@@ -1,12 +1,26 @@
 import { api, upload } from "./client";
 import type { PostAuthor } from "./community";
 
+/**
+ * An invitation card (chat.v1.serializers.CardSerializer): the only structured message. `href` is a page of this
+ * app ("/…"), never another site; the backend refuses anything else.
+ */
+export type ChatCard = {
+  type: "invite";
+  invite: "meetup" | "banter" | "game" | "project";
+  title: string; // up to 120 characters
+  detail: string; // up to 300
+  href: string; // "" or a path, up to 200
+};
+
 /** One chat message as the backend returns it (chat.v1.serializers.MessageSerializer). */
 export type ChatMessage = {
   id: number;
-  kind: "text" | "image" | "system";
+  /** "card": an invitation; `card` holds it and `body` a plain-text version for previews. */
+  kind: "text" | "image" | "system" | "card";
   body: string;
   image: { id: number; url: string } | null;
+  card?: ChatCard | null;
   sender: PostAuthor | null;
   reply_to: { id: number; kind: string; is_removed: boolean; body: string; sender_name: string } | null;
   client_id: string;
@@ -26,6 +40,8 @@ export type Conversation = {
   unread_count: number;
   my_role: "admin" | "member" | null;
   about: { type: "circle"; circle_id: string; community_id: string; community_name: string } | null;
+  /** One-to-one chats: the other person (null once they've left). Group chats: null. */
+  peer?: PostAuthor | null;
   members?: ConversationMember[];
 };
 
@@ -53,7 +69,9 @@ export const chat = {
     if (opts.limit) q.set("limit", String(opts.limit));
     return api.get<MessagePage>(`chat/conversations/${id(conversationId)}/messages${q.size ? `?${q}` : ""}`);
   },
-  send: (conversationId: string, input: { body?: string; image_id?: number; reply_to?: number; client_id: string }) =>
+  /** Your one-to-one chat with a member (by user id): the existing one, or a new empty one. */
+  direct: (userId: string) => api.post<Conversation>("chat/direct", { user_id: userId }),
+  send: (conversationId: string, input: { body?: string; image_id?: number; reply_to?: number; card?: ChatCard; client_id: string }) =>
     api.post<ChatMessage>(`chat/conversations/${id(conversationId)}/messages`, input),
   remove: (conversationId: string, messageId: number) => api.del(`chat/conversations/${id(conversationId)}/messages/${messageId}`),
   read: (conversationId: string, messageId: number) =>

@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
+import { aliasOf, mutate, teamwork, tempId, useResource, type ApiDraft, type ApiSuggestion } from "@/lib/api/teamwork";
+import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
 import { ME } from "@/lib/collab/me";
 import type { Project } from "@/lib/collab/types";
@@ -17,9 +19,13 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
  *   Revenue       the agreed split and how costs are paid               (charter.split, expenses)
  *   Formal        optional legal templates (no terms of its own)
  * Signing the charter acknowledges every stage at once; changing a term asks everyone to sign again (a new version).
- * What the charter can't hold, new agreements the team drafts and suggested changes, is kept here, shaped like:
- *   POST /collab/projects/:id/agreements              ← { stage, title, description }
- *   POST /collab/projects/:id/agreements/suggestions  ← { stage, change, why }
+ * What the charter can't hold, new agreements the team drafts and suggested changes, is its own resource
+ * (lib/api/teamwork.ts, /api/v1/teamwork/projects/:id/…):
+ *   GET/POST agreements/drafts                 ← { stage, title, description }      DELETE agreements/drafts/:id
+ *   GET/POST agreements/suggestions            ← { stage, change, why, terms? }     DELETE (the author withdraws)
+ *   POST     agreements/suggestions/:id/answer ← { answer: accept | decline }  (the host; accepting new terms makes a
+ *            new version of the charter, so everyone signs again)
+ *   GET      agreements/versions               → the charter's versions
  */
 
 export type StageId = "intent" | "roles" | "contributions" | "ownership" | "revenue" | "formal";
@@ -105,7 +111,7 @@ export function agreementStages(p: Project, drafts: AgreementDraft[], base: stri
 
 const KEY = "ak:collab-agreements:v1";
 
-export function useAgreements(projectId: string) {
+function useLocalAgreements(projectId: string) {
   const [store, setStore] = useLocal<Store>(KEY, { drafts: [], suggestions: [] });
   const drafts = useMemo(() => store.drafts.filter((d) => d.projectId === projectId), [store, projectId]);
   const suggestions = useMemo(() => store.suggestions.filter((d) => d.projectId === projectId), [store, projectId]);
@@ -115,5 +121,44 @@ export function useAgreements(projectId: string) {
   const suggest = useCallback((input: { stage: StageId; change: string; why: string }) => {
     setStore((s) => ({ ...s, suggestions: [...s.suggestions, { ...input, id: newId("sg"), projectId, by: ME, at: Date.now() }] }));
   }, [projectId, setStore]);
-  return { drafts, suggestions, create, suggest };
+  const withdraw = useCallback((id: string) => setStore((s) => ({ ...s, suggestions: s.suggestions.filter((x) => x.id !== id) })), [setStore]);
+  /** The host answers a suggestion (in the demo it's simply closed). */
+  const answer = useCallback((id: string, a: "accept" | "decline") => { void a; withdraw(id); }, [withdraw]);
+  return { drafts, suggestions, create, suggest, withdraw, answer };
 }
+
+// ── On the backend ──────────────────────────────────────────────────────────────────────────
+
+const STAGE_IDS = new Set<string>(STAGES.map((s) => s.id));
+const stageOf = (s: string) => (STAGE_IDS.has(s) ? s : "ownership") as StageId;
+const person = (id: string | null) => (id ?? "akines") as PersonId;
+const draftFromApi = (projectId: string, d: ApiDraft): AgreementDraft => ({ id: d.id, projectId, stage: stageOf(d.stage), title: d.title, description: d.description, by: person(d.by), at: Date.parse(d.at) });
+const suggestionFromApi = (projectId: string, s: ApiSuggestion): ChangeSuggestion => ({ id: s.id, projectId, stage: stageOf(s.stage), change: s.change, why: s.why, by: person(s.by), at: Date.parse(s.at) });
+const NONE: Store = { drafts: [], suggestions: [] };
+
+function useRemoteAgreements(projectId: string) {
+  const key = projectId ? `tw:agreements:${projectId}` : null;
+  const store = useResource<Store>(key, async () => {
+    const [d, s] = await Promise.all([teamwork.drafts(projectId), teamwork.suggestions(projectId)]);
+    return d && s ? { drafts: d.map((x) => draftFromApi(projectId, x)), suggestions: s.map((x) => suggestionFromApi(projectId, x)) } : undefined;
+  }) ?? NONE;
+  const set = useCallback((fn: (s: Store) => Store) => { if (key) mutate<Store>(key, (cur = NONE) => fn(cur)); }, [key]);
+  const create = useCallback((input: { stage: StageId; title: string; description: string }) => {
+    const made = teamwork.createDraft(projectId, input);
+    const id = tempId("ag", made.then((d) => d?.id));
+    set((s) => ({ ...s, drafts: [...s.drafts, { ...input, id, projectId, by: ME, at: Date.now() }] }));
+    void made.then((d) => set((s) => ({ ...s, drafts: d ? s.drafts.map((x) => (x.id === id ? draftFromApi(projectId, d) : x)) : s.drafts.filter((x) => x.id !== id) })));
+  }, [projectId, set]);
+  const suggest = useCallback((input: { stage: StageId; change: string; why: string }) => {
+    const made = teamwork.suggest(projectId, input);
+    const id = tempId("sg", made.then((x) => x?.id));
+    set((s) => ({ ...s, suggestions: [...s.suggestions, { ...input, id, projectId, by: ME, at: Date.now() }] }));
+    void made.then((x) => set((s) => ({ ...s, suggestions: x ? s.suggestions.map((y) => (y.id === id ? suggestionFromApi(projectId, x) : y)) : s.suggestions.filter((y) => y.id !== id) })));
+  }, [projectId, set]);
+  const close = useCallback((id: string) => set((s) => ({ ...s, suggestions: s.suggestions.filter((x) => x.id !== id) })), [set]);
+  const withdraw = useCallback((id: string) => { close(id); void teamwork.withdrawSuggestion(projectId, aliasOf(id)); }, [projectId, close]);
+  const answer = useCallback((id: string, a: "accept" | "decline") => { close(id); void teamwork.answerSuggestion(projectId, aliasOf(id), a); }, [projectId, close]);
+  return { drafts: store.drafts, suggestions: store.suggestions, create, suggest, withdraw, answer };
+}
+
+export const useAgreements: typeof useLocalAgreements = DEMO ? useLocalAgreements : useRemoteAgreements;

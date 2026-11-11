@@ -1,3 +1,4 @@
+import type { ApiToolThread, ApiToolVersion } from "@/lib/api/teamwork";
 import { ME } from "@/lib/collab/me";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 
@@ -5,6 +6,9 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
  * What the two shared tools (the canvas in lib/collab/canvas.ts and the document in lib/collab/documents.ts) have in
  * common, as the product design shows it: who is in the tool right now, the versions it keeps, and the comment
  * threads on it. Both resources return these fields the same way, so the tool frame reads either.
+ * On the backend both are /api/v1/teamwork/projects/:id/{document,canvas} (lib/api/teamwork.ts): the content is saved
+ * as versions (a save names the version it started from, so nobody overwrites work they haven't seen), with comment
+ * threads beside it. Who is here right now isn't tracked yet: everyone but you shows as away.
  */
 
 /** What a person is doing in the tool right now. "away" has access but is not here. */
@@ -56,3 +60,14 @@ export function presenceSummary(people: LivePerson[]) {
 export function presenceFor(members: PersonId[], seeded: LivePerson[], youNote: string): LivePerson[] {
   return members.map((who) => seeded.find((p) => p.who === who) ?? (who === ME ? { who, state: "editing", note: youNote } : { who, state: "away", note: "Not here now" }));
 }
+
+// ── From the backend ────────────────────────────────────────────────────────────────────────
+
+const person = (id: string | null) => (id ?? "akines") as PersonId;
+export const threadFromApi = (t: ApiToolThread): Thread => ({
+  id: t.id, resolved: t.resolved || undefined, resolvedBy: t.resolved_by ? person(t.resolved_by) : undefined,
+  messages: t.messages.map((m) => ({ who: person(m.by), at: Date.parse(m.at), text: m.text })),
+});
+/** Versions are named "v<number>" so restoring one knows which to ask for. */
+export const versionFromApi = (v: ApiToolVersion): Version => ({ id: `v${v.number}`, at: Date.parse(v.at), who: person(v.by), what: v.note || "changes" });
+export const versionNumber = (v: Version) => { const m = /^v(\d+)$/.exec(v.id); return m ? Number(m[1]) : null; };

@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from "react";
 import { DEMO } from "@/lib/demo/mode";
+import { collabApi, useRemoteExtras } from "@/lib/api/collab";
 import { useLocal } from "@/lib/useLocal";
 import { ME } from "@/lib/collab/me";
 import { skillsOf } from "@/lib/collab/team";
@@ -169,6 +170,8 @@ export const listKey = (s: ReviewSource) => (s.callId ? `call:${s.callId}` : `pr
 
 export function useApplicants(source: ReviewSource) {
   const collab = useCollab();
+  // Outside the demo, times, offers, "not now" and closing the call are kept by the backend.
+  const remote = useRemoteExtras();
   const [store, setStore, storeReady] = useLocal<Store>(KEY, { extra: Object.fromEntries(Object.entries(DRAFTS).map(([k, draft]) => [k, { draft }])), closed: {}, compare: {}, apps: seedApps() });
   const key = listKey(source);
   const { callId, projectId } = source;
@@ -191,12 +194,15 @@ export function useApplicants(source: ReviewSource) {
     return [{
       id: a.id, person: a.applicant, name, first: name.split(" ")[0], role: p?.role ?? "", place: p?.city ?? "",
       applied: appliedAt ? dayMonth(appliedAt) : "", wants: a.role, availability: a.availability, message: a.statement,
-      short: a.statement.split(/(?<=\.)\s/)[0] ?? a.statement, skills: skillsOf(a.applicant), experience: EXPERIENCE[a.applicant],
+      short: a.statement.split(/(?<=\.)\s/)[0] ?? a.statement, skills: skillsOf(a.applicant),
+      experience: EXPERIENCE[a.applicant] ?? (remote.people[a.applicant]?.experience || undefined),
       status, stage: a.stage, talk: a.slot ? slotText(a.slot) : undefined,
       offerSent: at("offer") ? weekdayDate(at("offer")!) : undefined, joined: at("joined") ? weekdayDate(at("joined")!) : undefined,
-      slotsOffered: x.slotsOffered ?? a.slotsOffered ?? [], offer: x.offer, note, draft: x.draft ?? note, before: x.before, appliedAt,
+      slotsOffered: DEMO ? x.slotsOffered ?? a.slotsOffered ?? [] : a.slotsOffered ?? [],
+      offer: DEMO ? x.offer : termsOf(remote.apps[a.id]?.offer), note, draft: x.draft ?? note,
+      before: DEMO ? x.before : remote.apps[a.id]?.before, appliedAt,
     }];
-  }).sort((a, b) => a.appliedAt - b.appliedAt), [raw, store.extra]);
+  }).sort((a, b) => a.appliedAt - b.appliedAt), [raw, store.extra, remote]);
 
   const put = useCallback((id: string, e: Extra) => setStore((s) => ({ ...s, extra: { ...s.extra, [id]: { ...s.extra[id], ...e } } })), [setStore]);
   const setLocal = useCallback((id: string, fn: (a: Application) => Application) => setStore((s) => ({ ...s, apps: s.apps.map((a) => (a.id === id ? fn(a) : a)) })), [setStore]);
@@ -218,10 +224,12 @@ export function useApplicants(source: ReviewSource) {
     view: (id: string) => { if (raw.find((a) => a.id === id)?.stage === "submitted") stage(id, "viewed", { note: "You opened the application." }); },
     shortlist: (id: string) => stage(id, "shortlisted", { note: "You shortlisted them." }),
     proposeTimes: (id: string, slots: string[], message: string) => {
+      if (!DEMO && !isLocal(id)) { void collabApi.proposeTimes(id, slots, message.trim()); return; }
       put(id, { slotsOffered: slots, timesMessage: message.trim() || undefined });
       if (isLocal(id)) setLocal(id, (a) => ({ ...a, slotsOffered: slots }));
     },
     sendOffer: (id: string, terms: OfferTerms) => {
+      if (!DEMO && !isLocal(id)) { void collabApi.sendOffer(id, terms); return; }
       put(id, { offer: terms });
       stage(id, "offer", { note: `You offered them the ${terms.role} role.` });
       if (isLocal(id)) setLocal(id, (a) => ({ ...a, offer: { role: terms.role, fee: terms.hours, start: terms.start } }));
@@ -229,15 +237,23 @@ export function useApplicants(source: ReviewSource) {
     notNow: (id: string, message: string) => {
       const a = find(id);
       if (!a || a.status === "Not now") return undefined;
+      if (!DEMO && !isLocal(id)) {
+        void collabApi.notNow(id, message.trim() || `Thank you, ${a.first}. Now is not the right time for us to add someone.`);
+        return a.stage;
+      }
       put(id, { before: a.stage });
       stage(id, "not-selected", { feedback: message.trim() || `Thank you, ${a.first}. Now is not the right time for us to add someone.`, note: "You let them know: not now." });
       return a.stage;
     },
     /** Undo from the toast: put back the stage it had (works from a closure made before the change). */
-    restore: (id: string, before: AppStage) => { stage(id, before, { note: "You took your reply back." }); put(id, { before: undefined }); },
+    restore: (id: string, before: AppStage) => {
+      if (!DEMO && !isLocal(id)) { void collabApi.undoNotNow(id); return; }
+      stage(id, before, { note: "You took your reply back." }); put(id, { before: undefined });
+    },
     undoNotNow: (id: string) => {
       const a = find(id);
       if (!a || a.stage !== "not-selected") return;
+      if (!DEMO && !isLocal(id)) { void collabApi.undoNotNow(id); return; }
       stage(id, a.before ?? "viewed", { note: "You took your reply back." });
       put(id, { before: undefined });
     },
@@ -259,13 +275,29 @@ export function useApplicants(source: ReviewSource) {
     }),
     setCompare: (ids: string[]) => setStore((s) => ({ ...s, compare: { ...s.compare, [key]: ids.slice(0, COMPARE_MAX) } })),
     clearCompare: () => setStore((s) => ({ ...s, compare: { ...s.compare, [key]: [] } })),
-    closedAt: callId ? store.closed[callId] : undefined,
-    closeCall: () => { if (callId) setStore((s) => ({ ...s, closed: { ...s.closed, [callId]: Date.now() } })); },
-    reopenCall: () => { if (callId) setStore((s) => { const closed = { ...s.closed }; delete closed[callId]; return { ...s, closed }; }); },
+    closedAt: !callId ? undefined : DEMO ? store.closed[callId]
+      : remote.calls[callId]?.closedAt,
+    closeCall: () => {
+      if (!callId) return;
+      if (!DEMO) { void collabApi.closeCall(callId); return; }
+      setStore((s) => ({ ...s, closed: { ...s.closed, [callId]: Date.now() } }));
+    },
+    reopenCall: () => {
+      if (!callId) return;
+      if (!DEMO) { void collabApi.reopenCall(callId); return; }
+      setStore((s) => { const closed = { ...s.closed }; delete closed[callId]; return { ...s, closed }; });
+    },
+    /** Starts the call's project with the shortlisted people (outside the demo); resolves to its id. */
+    startProject: (ids: string[], keepOpen = false) => (callId && !DEMO ? collabApi.startProject(callId, ids, keepOpen) : Promise.resolve("")),
   };
 }
 
 export type Review = ReturnType<typeof useApplicants>;
+
+/** The backend's offer, as the Send offer form reads it. */
+function termsOf(o: { role: string; fee: string; start: string; hours?: string; note?: string } | undefined): OfferTerms | undefined {
+  return o ? { role: o.role, hours: o.hours || o.fee, start: o.start, note: o.note ?? "" } : undefined;
+}
 
 /** "Note state" of the Private Note: nothing typed, typed and not saved, or saved. */
 export function noteState(a: Pick<Applicant, "draft" | "note">): "empty" | "draft" | "saved" {
