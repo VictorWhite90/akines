@@ -52,11 +52,16 @@ type ApiDeliverable = {
   id: string; title: string; owner: string; approver: string; due: string; share: number | null; status: Deliverable["status"];
   steps: Deliverable["steps"]; approved_at: string | null; proof: ApiProof[]; thread: { by: string; kind: Deliverable["thread"][number]["kind"]; text: string; at: string }[];
 };
+/** A list's page (every collab list is paged): pass `server_time` back as ?updated_since= to get only what changed. */
+type ApiPage<T> = { results: T[]; page: number; page_size: number; has_more: boolean; server_time: string };
+/** The summary a project list sends; open one (GET workspaces/<id>) for the whole workspace. */
+type ApiWorkspaceSummary = { id: string; updated_at: string; charter_version: number };
 type ApiWorkspace = {
   id: string; title: string; summary: string; host: string; kind: WorkKind | ""; stage: JourneyStage; budget: number;
   call_id: string | null; proposal_id: string | null; conversation_id: string | null; photo: string | null;
   members: (ApiPerson & { role: string; contribution: string; signed_at: string | null })[]; signed_at: string | null; created_at: string;
-  charter: { credit: string; ownership: string; decisions: string; expenses: string; uses: string; exit_terms: string; split: Record<string, number> };
+  charter_version: number;
+  charter: { credit: string; ownership: string; decisions: string; expenses: string; uses: string; exit_terms: string; split: Record<string, number>; version: number };
   deliverables: ApiDeliverable[]; checkins: { id: number; by: string; done: string; next: string; stuck: string; at: string }[];
   tools: { id: number; label: string; url: string; kind: Tool["kind"] }[]; ledger: { by: string | null; text: string; at: string }[];
 };
@@ -187,26 +192,84 @@ const emit = (next: Partial<Snapshot>) => { snap = { ...snap, ...next }; subs.fo
 const fail = (message: string) => emit({ notice: message });
 const upsert = <T extends { id: string }>(list: T[], item: T) => (list.some((x) => x.id === item.id) ? list.map((x) => (x.id === item.id ? item : x)) : [item, ...list]);
 
+/** Every page of a list (up to `MAX_PAGES` of 50), or only what changed since `since`. */
+const MAX_PAGES = 10;
+async function allPages<T>(path: string, since?: string): Promise<{ ok: true; items: T[]; serverTime: string } | { ok: false }> {
+  const items: T[] = [];
+  let serverTime = "";
+  for (let page = 1; page <= MAX_PAGES; page++) {
+    const q = new URLSearchParams({ page: String(page), page_size: "50" });
+    if (since) q.set("updated_since", since);
+    const r = await api.get<ApiPage<T>>(`${path}${path.includes("?") ? "&" : "?"}${q}`);
+    if (!r.ok) return { ok: false };
+    items.push(...r.data.results);
+    if (page === 1) serverTime = r.data.server_time;
+    if (!r.data.has_more) break;
+  }
+  return { ok: true, items, serverTime };
+}
+
+/** When each list was last loaded (the server's clock), so the next refresh asks only for what changed. */
+const since: Record<string, string> = {};
+/** The agreement version each project was last seen at; signing says which one it signs. */
+const charterVersions = new Map<string, number>();
+const merge = <T extends { id: string }>(before: T[], changed: T[], fresh: boolean) =>
+  fresh ? changed : changed.reduce((list, item) => upsert(list, item), before);
+
+async function loadWorkspace(workspaceId: string) {
+  const r = await api.get<ApiWorkspace>(ws(workspaceId));
+  if (!r.ok) return null;
+  charterVersions.set(r.data.id, r.data.charter.version);
+  return projectFromApi(r.data);
+}
+
+/** A full reload now and then puts back what polling can't see (calls that passed their closing date, removed items). */
+const FULL_RELOAD_MS = 10 * 60_000;
+let lastFull = 0;
+
 async function refresh() {
+  if (Date.now() - lastFull > FULL_RELOAD_MS) {
+    for (const k of Object.keys(since)) delete since[k];
+    lastFull = Date.now();
+  }
+  const key = (name: string) => since[name];
   const [calls, hosted, mine, proposals, workspaces] = await Promise.all([
-    api.get<ApiCall[]>("collab/calls"), api.get<ApiCall[]>("collab/calls/hosted"), api.get<ApiApplication[]>("collab/applications/mine"),
-    api.get<ApiProposal[]>("collab/proposals"), api.get<ApiWorkspace[]>("collab/workspaces"),
+    allPages<ApiCall>("collab/calls", key("calls")), allPages<ApiCall>("collab/calls/hosted", key("hosted")),
+    allPages<ApiApplication>("collab/applications/mine", key("mine")), allPages<ApiProposal>("collab/proposals", key("proposals")),
+    allPages<ApiWorkspaceSummary>("collab/workspaces", key("workspaces")),
   ]);
-  const hostedCalls = hosted.ok ? hosted.data.map(callFromApi) : snap.hosted;
-  // The review desk: applications to every call I host.
-  const desks = await Promise.all(hostedCalls.map((c) => api.get<ApiApplication[]>(`collab/calls/${encodeURIComponent(c.id)}/applications`)));
-  const fromApps = mine.ok ? mine.data.flatMap((a) => (a.call ? [callFromApi(a.call)] : [])) : [];
+  const hostedCalls = hosted.ok ? merge(snap.hosted, hosted.items.map(callFromApi), !key("hosted")) : snap.hosted;
+  // The review desk: applications to every call I host (a poll includes withdrawn ones, which leave the desk).
+  const desks = await Promise.all(hostedCalls.map((c) => allPages<ApiApplication>(`collab/calls/${encodeURIComponent(c.id)}/applications`, key(`desk:${c.id}`))));
+  let desk = snap.desk;
+  desks.forEach((d, i) => {
+    if (!d.ok) return;
+    const callId = hostedCalls[i].id;
+    const changed = d.items.map(appFromApi);
+    desk = key(`desk:${callId}`) ? changed.reduce((list, a) => upsert(list, a), desk) : [...desk.filter((a) => a.callId !== callId), ...changed];
+    desk = desk.filter((a) => a.stage !== "withdrawn");
+    since[`desk:${callId}`] = d.serverTime;
+  });
+  // Projects: the list says which changed; each changed one is loaded whole.
+  let projects = snap.projects;
+  if (workspaces.ok) {
+    const loaded = (await Promise.all(workspaces.items.map((w) => loadWorkspace(w.id)))).filter((p): p is Project => !!p);
+    projects = merge(snap.projects, loaded, !key("workspaces"));
+  }
+  const fromApps = mine.ok ? mine.items.flatMap((a) => (a.call ? [callFromApi(a.call)] : [])) : [];
   emit({
     ready: true,
-    calls: calls.ok ? calls.data.map(callFromApi) : snap.calls,
+    calls: calls.ok ? merge(snap.calls, calls.items.map(callFromApi), !key("calls")) : snap.calls,
     hosted: hostedCalls,
     extra: [...fromApps, ...snap.extra.filter((x) => !fromApps.some((c) => c.id === x.id))],
-    mine: mine.ok ? mine.data.map(appFromApi) : snap.mine,
-    desk: desks.every((d) => d.ok) ? desks.flatMap((d) => (d.ok ? d.data.map(appFromApi) : [])) : snap.desk,
-    proposals: proposals.ok ? proposals.data.map(proposalFromApi) : snap.proposals,
-    projects: workspaces.ok ? workspaces.data.map(projectFromApi) : snap.projects,
+    mine: mine.ok ? merge(snap.mine, mine.items.map(appFromApi), !key("mine")) : snap.mine,
+    desk,
+    proposals: proposals.ok ? merge(snap.proposals, proposals.items.map(proposalFromApi), !key("proposals")) : snap.proposals,
+    projects,
     notice: [calls, hosted, mine, proposals, workspaces].some((r) => !r.ok) ? "Some of your collaboration didn't load. It will try again shortly." : snap.notice,
   });
+  ([["calls", calls], ["hosted", hosted], ["mine", mine], ["proposals", proposals], ["workspaces", workspaces]] as const)
+    .forEach(([name, r]) => { if (r.ok) since[name] = r.serverTime; });
 }
 
 let started = false;
@@ -283,6 +346,7 @@ const ws = (workspaceId: string, rest = "") => `collab/workspaces/${encodeURICom
 async function saveWorkspace(req: Promise<Awaited<ReturnType<typeof api.post<ApiWorkspace>>>>) {
   const r = await req;
   if (!r.ok) { fail(r.message); return null; }
+  charterVersions.set(r.data.id, r.data.charter.version);
   const p = projectFromApi(r.data);
   emit({ projects: upsert(snap.projects, p) });
   return p;
@@ -373,7 +437,17 @@ export function useRemoteCollab() {
   const notes = (appId: string, body: Record<string, unknown>) => void saveApp(appPath(appId, "notes"), body, "desk");
 
   const project = {
-    sign: (pid: string) => void wsPost(pid, "/sign"),
+    /** Signs the version of the agreement on screen; if it changed meanwhile, the newer one loads to read first. */
+    sign: async (pid: string) => {
+      const r = await api.post<ApiWorkspace>(ws(pid, "/sign"), { version: charterVersions.get(pid) ?? 1 });
+      if (!r.ok) {
+        fail(r.message);
+        if (r.status === 409) { const p = await loadWorkspace(pid); if (p) emit({ projects: upsert(snap.projects, p) }); }
+        return;
+      }
+      charterVersions.set(r.data.id, r.data.charter.version);
+      emit({ projects: upsert(snap.projects, projectFromApi(r.data)) });
+    },
     editCharter: (pid: string, field: keyof Omit<Charter, "split" | "signed" | "signedAt">, value: string) => {
       optimistic(pid, (p) => { p.charter[field] = value; p.charter.signed = []; p.charter.signedAt = undefined; });
       void wsPut(pid, "/charter", { [field === "exit" ? "exit_terms" : field]: value });
@@ -475,8 +549,8 @@ export function useRemoteCollab() {
     acceptOffer: async (appId: string) => {
       const a = await saveApp(appPath(appId, "action"), { action: "accept_offer" }, "mine");
       if (!a?.projectId) return "";
-      const r = await api.get<ApiWorkspace>(ws(a.projectId));
-      if (r.ok) emit({ projects: upsert(snap.projects, projectFromApi(r.data)) });
+      const p = await loadWorkspace(a.projectId);
+      if (p) emit({ projects: upsert(snap.projects, p) });
       return a.projectId;
     },
     addNote: (appId: string, text: string) => notes(appId, { note: text }),

@@ -22,6 +22,8 @@ type ApiProfile = {
   field: string; headline: string; level: string; about: string; skills: string[]; open_to: string[]; hours: string;
   rate: { amount: number | null; unit: string } | null; work_mode: string; area: string; languages: string[];
   links: ProofLink[]; cv: ApiMedia | null; published_at: string | null; updated_at?: string; projects: ApiProject[];
+  /** Who sees the CV on the public profile: "applications" (default: only hosts you apply to) or "everyone". */
+  cv_visibility?: "applications" | "everyone";
 };
 
 const LEVEL_TO_API: Record<string, string> = { "0–1 years": "0-1", "2–4 years": "2-4", "4+ years": "4+" };

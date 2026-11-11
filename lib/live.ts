@@ -19,6 +19,7 @@ const LIVE_URL = process.env.NEXT_PUBLIC_AKINES_LIVE_URL ?? "ws://localhost:8000
 const PING_EVERY_MS = 25_000;
 const MAX_BACKOFF_MS = 30_000;
 const CLOSE_SIGNED_OUT = 4401;
+const CLOSE_TOO_MANY = 4429; // too many connections or frames: wait the longest backoff before trying again
 
 let socket: WebSocket | null = null;
 let status: Status = DEMO ? "open" : "offline";
@@ -72,7 +73,7 @@ async function open() {
     clearInterval(pingTimer);
     setStatus("offline");
     // Signed out on the server: the next ticket request decides (it sends the member to log in if so).
-    if (users > 0) retry(e.code === CLOSE_SIGNED_OUT ? 0 : undefined);
+    if (users > 0) retry(e.code === CLOSE_SIGNED_OUT ? 0 : e.code === CLOSE_TOO_MANY ? MAX_BACKOFF_MS : undefined);
   };
   clearInterval(pingTimer);
   pingTimer = setInterval(() => send({ type: "ping" }), PING_EVERY_MS);
