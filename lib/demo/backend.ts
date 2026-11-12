@@ -10,7 +10,7 @@ import { demoBus } from "./bus";
 import { DEMO_COOKIE } from "./mode";
 import { ME_ID, seed, type DemoCircle, type DemoCommunity, type DemoMessage, type DemoPost, type DemoState, type DemoUser } from "./seed";
 
-const KEY = "ak:demo:v1";
+const KEY = "ak:demo:v3"; // v2: the product design's sample content (Nov 2026)
 let state: DemoState | null = null;
 
 function load(): DemoState {

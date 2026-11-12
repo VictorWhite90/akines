@@ -5,56 +5,32 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { Chip } from "@/components/kin/Chip";
-import { allActivities, dayDistance } from "@/components/activities/activities";
-import { useBanters } from "@/components/banter/useBanters";
-import { useJoined } from "@/components/circles/useJoined";
-import { useAllProducts } from "@/components/shop/useShop";
-import { useCollab } from "@/lib/collab/useCollab";
-import { CIRCLES, ROOMS, STUDIOS } from "@/lib/data/community";
-import { COLLECTOR_TYPES } from "@/lib/data/dna";
-import { JOURNAL } from "@/lib/data/journals";
-import { PEOPLE, type PersonId } from "@/lib/data/people";
-import { sortProducts } from "@/lib/data/shop";
-import { STORIES } from "@/lib/data/stories";
+import { toast } from "@/components/kin/Toast";
+import { DEMO } from "@/lib/demo/mode";
 import { useLocal } from "@/lib/useLocal";
+import {
+  ACTIVITY_CARDS, ARRANGEMENTS, BANTER_CARDS, BANTER_JOIN, EXPLORE_CARDS, HEADS, LOADING_MS, PRODUCTS, PROJECT_CARDS, ROOM_CARDS, SHOP_COPY,
+  STORY_CARDS, STUDIO_CARDS, TRAITS, TRAIT_LINK, TRAIT_META, WELLBEING, type FeedCard, type FeedKey, type FeedVersion,
+} from "./content";
 import FeedPosts from "./FeedPosts";
 import HomeHero from "./HomeHero";
 import HomeRail from "./HomeRail";
-import { ErrorPanel, FdAvatar, FdFaces, FdLink, FdPhoto, FeedSkeleton, SkeletonCards, photoSrc } from "./parts";
+import { ErrorPanel, FdAvatar, FdFaces, FdLink, FdPhoto, FeedSkeleton, SkeletonCards } from "./parts";
 import "./home.css";
 
 /*
  * Community Home, mirrored from the product design (classes in home.css): a row of what is happening now, a column
  * with your circles and a match, and a feed of six sections. Like the design, each visit shows
- * one of four feed versions, never the same one twice in a row. Every section reads our own data.
+ * one of four feed versions, never the same one twice in a row. All copy and photos are the design's (./content.ts).
  */
 
-type SectionName = "explore" | "kincircle" | "banter" | "rooms" | "activities" | "collaborate" | "shop" | "studios" | "stories" | "wellbeing" | "dna";
-const VERSIONS: Record<"a" | "b" | "c" | "d", SectionName[]> = {
-  a: ["explore", "kincircle", "banter", "stories", "studios", "shop"],
-  b: ["kincircle", "rooms", "collaborate", "activities", "wellbeing", "explore"],
-  c: ["collaborate", "dna", "rooms", "studios", "banter", "shop"],
-  d: ["stories", "studios", "wellbeing", "shop", "dna", "activities"],
-};
+type SectionName = FeedKey;
+const VERSIONS = Object.fromEntries(Object.entries(ARRANGEMENTS).map(([k, v]) => [k, v.sections])) as Record<FeedVersion, FeedKey[]>;
 const VERSION_KEY = "ak:feed-version";
-const HEAD: Record<SectionName, { title: string; support: string; link?: { label: string; href: string } }> = {
-  explore: { title: "These might resonate with you.", support: "Discover stories, ideas, and conversations worth your time.", link: { label: "Explore all", href: "/explore" } },
-  kincircle: { title: "Your circles' feed.", support: "What people are sharing in the circles you've joined.", link: { label: "Explore all", href: "/connect/kincircle" } },
-  banter: { title: "Conversations worth joining.", support: "Open conversations happening across Akines right now.", link: { label: "Open Banter", href: "/community/banter" } },
-  rooms: { title: "Rooms open now.", support: "Drop in, listen, or speak when you are ready.", link: { label: "See all rooms", href: "/connect/rooms" } },
-  activities: { title: "Things to do together.", support: "Small, easy ways to meet people through making.", link: { label: "See all activities", href: "/connect/activities" } },
-  collaborate: { title: "Projects looking for you.", support: "Open projects that match your interests and skills.", link: { label: "Discover projects", href: "/collaborate/discover" } },
-  shop: { title: "Fresh from the makers.", support: "Original work and made-to-order pieces, sold by the people who made them.", link: { label: "Shop all", href: "/explore" } },
-  studios: { title: "Step inside the studio.", support: "Live, virtual, 360° or VR. Talk to the maker directly.", link: { label: "Visit studios", href: "/explore/studio-visits" } },
-  stories: { title: "Witness the journey.", support: "Living journals and the legacy every artwork carries.", link: { label: "Open journals", href: "/explore/stories" } },
-  wellbeing: { title: "A quiet moment.", support: "How is your creative energy today? Only you can see your answer." },
-  dna: { title: "Your creative DNA.", support: "Traits that shape how you make, and the people who share them.", link: { label: "See your full DNA", href: "/care/creative-dna" } },
-};
+const HEAD = HEADS;
 const FIRST = "fd-first";
-const first = (id: PersonId) => PEOPLE[id]?.name.split(" ")[0] ?? "";
 
-type Card = { id: string; href: string; image: string; tag?: string; title: string; text: string; left?: string; right?: string };
-function Cards({ cards }: { cards: Card[] }) {
+function Cards({ cards }: { cards: FeedCard[] }) {
   return (
     <div className="fd-row fd-row--sub" data-m="stagger">
       {cards.map((c) => (
@@ -71,81 +47,69 @@ function Cards({ cards }: { cards: Card[] }) {
   );
 }
 
-const WELL = [
-  { id: "full", label: "Full", reply: "Lovely. Let it carry something small into the world." },
-  { id: "steady", label: "Steady", reply: "Steady is a good place to make from." },
-  { id: "low", label: "Low", reply: "Then be gentle. A walk or ten quiet minutes can be enough." },
-  { id: "empty", label: "Running on empty", reply: "Thank you for saying so. Rest counts as part of the work." },
-];
 function Wellbeing({ id }: { id?: string }) {
   const [mood, setMood] = useLocal<string | null>("ak:feed-wellbeing", null);
-  const reply = WELL.find((w) => w.id === mood)?.reply;
+  const reply = WELLBEING.options.find((w) => w.id === mood)?.reply;
   return (
     <section className="fd-section fd-well" id={id} data-feed-section="wellbeing" aria-labelledby="fd-title-wellbeing" data-m="up">
       <div className="fd-well__body">
-        <p className="fd-well__eyebrow">CREATIVE WELLBEING</p>
+        <p className="fd-well__eyebrow">{WELLBEING.eyebrow}</p>
         <h2 className="fd-well__title" id="fd-title-wellbeing">{HEAD.wellbeing.title}</h2>
         <p className="fd-well__support">{HEAD.wellbeing.support}</p>
         <div className="fd-well__chips" role="group" aria-label="How is your creative energy today?">
-          {WELL.map((w) => <Chip key={w.id} selected={mood === w.id} onClick={() => setMood(mood === w.id ? null : w.id)}>{w.label}</Chip>)}
+          {WELLBEING.options.map((w) => <Chip key={w.id} selected={mood === w.id} onClick={() => setMood(mood === w.id ? null : w.id)}>{w.label}</Chip>)}
         </div>
         <p className="fd-well__reply" aria-live="polite">{reply ? <span key={mood}>{reply}</span> : null}</p>
-        <FdLink href="/wellbeing/reflect">Reflect privately</FdLink>
+        <FdLink href={WELLBEING.link.href}>{WELLBEING.link.label}</FdLink>
       </div>
-      <FdPhoto src="/kin/home/quiet.jpg" className="fd-well__photo" />
+      <FdPhoto src={WELLBEING.image} className="fd-well__photo" />
     </section>
   );
 }
 
 function SectionBody({ name }: { name: SectionName }) {
-  const { calls } = useCollab();
-  const { all: banters } = useBanters();
-  const products = sortProducts(useAllProducts(), "new").slice(0, 3);
   switch (name) {
     case "explore":
-      return <Cards cards={STORIES.slice(0, 3).map((s) => ({ id: s.id, href: "/explore/stories", image: photoSrc(s.photo), title: s.title, text: s.excerpt, left: `${s.reflections} felt this`, right: s.voice ? `Voice ${s.voice}` : `${s.read} read` }))} />;
+      return <Cards cards={EXPLORE_CARDS} />;
     case "kincircle":
       return <FeedPosts />;
     case "banter":
       return (
         <div className="fd-row" data-m="stagger">
-          {banters.slice(0, 3).map((b) => {
-            const people = [b.by, ...b.replies.map((r) => r.by)].filter((v, i, a) => a.indexOf(v) === i).slice(0, 3) as PersonId[];
-            const live = !b.closed;
-            return (
-              <Link key={b.id} className="fd-banter" href="/community/banter">
-                <p className="fd-banter__tag">{live ? <span className="fd-banter__dot" aria-hidden /> : null}{live ? "BANTER · LIVE" : "BANTER · OPEN"}</p>
-                <h3 className="fd-banter__title">{b.prompt}</h3>
-                <p className="fd-banter__text">{b.replies[0]?.text ?? b.audienceLabel}</p>
-                <div className="fd-banter__foot">
-                  <div className="fd-banter__people"><FdFaces ids={people} /><span>{b.replies.length + 1} people talking</span></div>
-                  <span className="fd-link fd-link--static"><span>Join the conversation</span><ArrowRight size={16} strokeWidth={1.5} aria-hidden /></span>
-                </div>
-              </Link>
-            );
-          })}
+          {BANTER_CARDS.map((b) => (
+            <Link key={b.id} className="fd-banter" href={BANTER_JOIN.href}>
+              <p className="fd-banter__tag">{b.tag.endsWith("LIVE") ? <span className="fd-banter__dot" aria-hidden /> : null}{b.tag}</p>
+              <h3 className="fd-banter__title">{b.title}</h3>
+              <p className="fd-banter__text">{b.text}</p>
+              <div className="fd-banter__foot">
+                <div className="fd-banter__people"><FdFaces ids={b.faces} /><span>{b.talking}</span></div>
+                <span className="fd-link fd-link--static"><span>{BANTER_JOIN.label}</span><ArrowRight size={16} strokeWidth={1.5} aria-hidden /></span>
+              </div>
+            </Link>
+          ))}
         </div>
       );
     case "rooms":
-      return <Cards cards={[...ROOMS].sort((a, b) => (a.status === "live" ? -1 : b.status === "live" ? 1 : 0)).slice(0, 3).map((r) => ({ id: r.id, href: "/connect/rooms", image: photoSrc(r.photo), tag: r.status === "live" ? "LIVE NOW" : r.when.toUpperCase(), title: r.title, text: r.blurb, left: `${r.seated.length} ${r.status === "live" ? "in the room" : "going"}`, right: `Hosted by ${first(r.host)}` }))} />;
+      return <Cards cards={ROOM_CARDS} />;
     case "activities":
-      return <Cards cards={allActivities().sort((a, b) => dayDistance(a.when) - dayDistance(b.when)).slice(0, 3).map((a) => ({ id: a.circleId + a.id, href: "/connect/activities", image: photoSrc(a.photo), tag: a.when.toUpperCase(), title: a.title, text: a.blurb, left: a.where, right: `${a.going.length} going` }))} />;
+      return <Cards cards={ACTIVITY_CARDS} />;
     case "collaborate":
-      return <Cards cards={calls.filter((c) => !c.postedByMe).slice(0, 3).map((c) => ({ id: c.id, href: `/collaborate/projects/${c.id}`, image: photoSrc(c.photo), tag: `LOOKING FOR: ${c.roles[0]?.toUpperCase() ?? "COLLABORATORS"}`, title: c.title, text: c.summary, left: `${c.teamSize} collaborators`, right: c.closesInDays <= 0 ? "Closing today" : `Closes in ${c.closesInDays} days` }))} />;
+      // The design's "% match" is sample content: shown in preview only.
+      return <Cards cards={PROJECT_CARDS.map(({ match, ...c }) => ({ ...c, right: DEMO ? match : undefined }))} />;
     case "shop":
       return (
         <div className="fd-row" data-m="stagger">
-          {products.map((p) => (
+          {PRODUCTS.map((p) => (
             <article key={p.id} className="fd-card fd-product">
-              <Link className="fd-product__link" href="/explore">
-                <FdPhoto src={photoSrc(p.photos[0])} className="fd-card__photo" />
-                <p className="fd-card__tag">{p.category.toUpperCase()}</p>
+              <Link className="fd-product__link" href={SHOP_COPY.href}>
+                <FdPhoto src={p.image} className="fd-card__photo" />
+                <p className="fd-card__tag">{p.tag}</p>
                 <h3 className="fd-card__title fd-product__title">{p.title}</h3>
               </Link>
-              <div className="fd-product__maker"><FdAvatar id={p.seller} size={24} /><span>{PEOPLE[p.seller]?.name ?? "A member"}</span></div>
+              <div className="fd-product__maker"><FdAvatar src={p.face} size={24} /><span>{p.maker}</span></div>
               <div className="fd-product__buy">
-                <p className="fd-product__price"><span>${p.price.toLocaleString()}</span></p>
-                <Button variant="secondary" href="/explore" aria-label={`Buy ${p.title}`}>Buy</Button>
+                <p className="fd-product__price"><span>{p.price}</span>{p.edition ? <span className="fd-product__edition">{p.edition}</span> : null}</p>
+                <Button variant="secondary" onClick={() => toast.show({ message: SHOP_COPY.toast })} aria-label={`${SHOP_COPY.buy} ${p.title}`}>{SHOP_COPY.buy}</Button>
               </div>
               <span className="fd-card__rule" aria-hidden />
             </article>
@@ -153,27 +117,25 @@ function SectionBody({ name }: { name: SectionName }) {
         </div>
       );
     case "studios":
-      return <Cards cards={STUDIOS.slice(0, 3).map((v) => ({ id: v.id, href: "/explore/studio-visits", image: photoSrc(v.photo), tag: v.mode.toUpperCase(), title: `${PEOPLE[v.artist].name}'s studio`, text: v.blurb, left: v.place }))} />;
+      return <Cards cards={STUDIO_CARDS} />;
     case "stories":
-      return <Cards cards={JOURNAL.filter((j) => j.photo).slice(0, 3).map((j) => ({ id: j.id, href: "/explore/stories", image: photoSrc(j.photo!), tag: j.kind === "work" ? "WORK JOURNAL" : "LIFE JOURNAL", title: j.title, text: j.text, left: `By ${first(j.by)}`, right: j.date }))} />;
-    case "dna": {
-      const faces: PersonId[][] = [["amara", "kwame", "leila"], ["efua", "ayo", "amara"], ["kwame", "leila", "efua"]];
+      return <Cards cards={STORY_CARDS} />;
+    case "dna":
       return (
         <div className="fd-row" data-m="stagger">
-          {COLLECTOR_TYPES.slice(0, 3).map((t, i) => (
-            <article key={t.key} className="fd-trait">
-              <p className="fd-trait__eyebrow">TRAIT {String(i + 1).padStart(2, "0")}</p>
-              <h3 className="fd-trait__title">{t.label}</h3>
-              <p className="fd-trait__text">{t.blurb}</p>
+          {TRAITS.map((t) => (
+            <article key={t.id} className="fd-trait">
+              <p className="fd-trait__eyebrow">{t.eyebrow}</p>
+              <h3 className="fd-trait__title">{t.title}</h3>
+              <p className="fd-trait__text">{t.text}</p>
               <div className="fd-trait__foot">
-                <div className="fd-trait__people"><FdFaces ids={faces[i]} /><span>{t.value}% of your DNA</span></div>
-                <FdLink href="/care/creative-dna">See who shares it</FdLink>
+                <div className="fd-trait__people"><FdFaces ids={t.faces} /><span>{TRAIT_META}</span></div>
+                <FdLink href={TRAIT_LINK.href}>{TRAIT_LINK.label}</FdLink>
               </div>
             </article>
           ))}
         </div>
       );
-    }
     default:
       return null;
   }
@@ -233,9 +195,6 @@ function useVersion() {
   return view;
 }
 
-/** The loading state shows the skeletons this long, then the live feed (the design's LOADING_MS). */
-const LOADING_MS = 1500;
-
 export default function Home() {
   const view = useVersion();
   const v = view?.v ?? null, state = view?.state;
@@ -245,15 +204,13 @@ export default function Home() {
     const t = window.setTimeout(() => setSettled(true), LOADING_MS);
     return () => window.clearTimeout(t);
   }, [state]);
-  const { ids } = useJoined();
-  const joined = CIRCLES.filter((c) => ids.includes(c.id));
   const sections = v ? VERSIONS[v] : null;
   const ready = sections && (state !== "loading" || settled);
   return (
     <div className="fd-page" data-feed-version={v ?? undefined} data-feed-state={state}>
       <HomeHero />
       <div className="fd-layout">
-        <HomeRail circles={joined} empty={state === "empty"} />
+        <HomeRail empty={state === "empty"} />
         <div className="fd-feed">
           {ready ? sections.map((s, i) => <Section key={s} name={s} isFirst={i === 0} failing={state === "error" && s === "banter"} />) : <FeedSkeleton note={state === "loading"} />}
         </div>

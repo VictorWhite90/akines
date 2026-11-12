@@ -6,7 +6,7 @@ import { Check, Eye } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { faceSrc } from "@/components/kin/home/parts";
 import { profileOf, profilePath, type Profile } from "@/lib/connect/profiles";
-import { MATCHES } from "@/lib/data/matches";
+import { DEMO } from "@/lib/demo/mode";
 import type { PersonId } from "@/lib/data/people";
 import { first } from "./data";
 import { BackLink } from "./parts";
@@ -20,8 +20,8 @@ import "./profile.css";
  */
 
 const LOADING_MS = 1500;
-/** Where Loading ends, and Try again after it: the first suggestion's profile (the design goes to its first person). */
-const FALLBACK = MATCHES[0]?.id ?? "ayo";
+/** Where Loading ends, and Try again after it: the design's first person, Anaya Smith. */
+const FALLBACK = "anaya";
 
 function Done({ label }: { label: string }) {
   return <div className="dxl-pill"><Check size={16} strokeWidth={1.5} absoluteStrokeWidth aria-hidden focusable={false} /><span>{label}</span></div>;
@@ -31,7 +31,7 @@ function ProfileView({ profile }: { profile: Profile }) {
   const d = useDiscoverState();
   const name = first(profile.id) || profile.name.split(" ")[0];
   const nameId = `dxp-name-${profile.id}`;
-  const photo = faceSrc(profile.id as PersonId, 720) ?? profile.photo ?? undefined;
+  const photo = profile.portrait ?? faceSrc(profile.id as PersonId, 720) ?? profile.photo ?? undefined;
   return (
     <div className="dxp-body">
       <article className="dxp-main" aria-labelledby={nameId}>
@@ -42,6 +42,7 @@ function ProfileView({ profile }: { profile: Profile }) {
             {photo ? <img className="cover" src={photo} alt="" decoding="async" draggable={false} /> : null}
           </div>
           <div className="dxp-info">
+            {DEMO && profile.connections ? <p className="dxp-status"><span className="dxp-dot" aria-hidden="true" />{profile.connections}</p> : null}
             <h1 className="dxp-name" id={nameId}>{profile.name}</h1>
             <p className="dxp-role">{[profile.role, profile.city].filter(Boolean).join(" · ")}</p>
             {profile.intro ? <p className="dxp-intro">{profile.intro}</p> : null}

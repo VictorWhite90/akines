@@ -16,7 +16,7 @@ export default function WhyMatch({ id }: { id?: string }) {
   const [open, setOpen] = useState<OverlayKind | null>(null);
   if (!c) notFound();
   const p = PEOPLE[c.id], h = collabHref(c.id), w = wordsFor(c);
-  const src = photoOf(c.id, 800);
+  const src = c.photos?.wide ?? photoOf(c.id, 800);
   return (
     <>
       <div className="cc-page cc-why">

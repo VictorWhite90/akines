@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useDecisions } from "@/lib/collab/decisions";
 import { decisionHref, workHref } from "@/lib/collab/conversations";
 import { useNextSession } from "@/lib/collab/session";
-import { contributionsOf, creditsRow, skillsOf, usedSkills, type Contribution } from "@/lib/collab/team";
+import { contributionsOf, creditsRow, sampleMember, skillsOf, usedSkills, type Contribution } from "@/lib/collab/team";
 import { AVAILABILITY_TEXT, workspaceHref } from "@/lib/collab/workspace";
 import { cn } from "@/lib/cn";
 import { PageHead, WorkspaceFrame } from "./Frame";
@@ -65,7 +65,7 @@ export default function Member({ projectId, slug }: { projectId: string; slug: s
   const openTasks = p.tasks.filter((t) => t.who === m.id && t.status !== "done").length + owned.filter((d) => d.status !== "approved").length;
   const rows = contributionsOf(p, m.id, decisions.list, { work: (d) => workHref(projectId, d), decision: (d) => decisionHref(projectId, d) });
   const acknowledged = owned.filter((d) => d.status === "approved").length;
-  const since = rows.length ? short(rows[rows.length - 1]!.at) : null;
+  const since = rows.length ? short(Math.min(...rows.map((r) => r.at))) : null;
 
   // The last four weeks, this one included.
   const now = weekStart(today);
@@ -77,8 +77,9 @@ export default function Member({ projectId, slug }: { projectId: string; slug: s
   const sessionOn = session.status !== "none";
   const sessionTime = session.when.split(", ")[1] ?? session.time;
   const used = usedSkills(projectId, m.id);
-  const skills = skillsOf(m.id);
-  const fields = [
+  const skills = skillsOf(m.id, projectId);
+  const sample = sampleMember(projectId, m.id);
+  const fields = sample?.fields ?? [
     { label: "PROJECT ROLE", value: m.role },
     { label: "EXPECTED", value: m.contribution },
     owned.length ? { label: "RESPONSIBLE FOR", value: list(owned.map((d) => d.title)) } : null,
@@ -87,7 +88,7 @@ export default function Member({ projectId, slug }: { projectId: string; slug: s
   return (
     <WorkspaceFrame projectId={projectId} active="team" rail="full">
       <div className="mb-page">
-        <PageHead back={<><BackLink href={ws.href("team")}>Back to team</BackLink><span className="mb-avatar" aria-hidden>{m.initials}</span></>} label="TEAM MEMBER" title={m.you ? `${m.name} (you)` : m.name} lead={`${m.role}, ${lcFirst(m.contribution)}.`} />
+        <PageHead back={<><BackLink href={ws.href("team")}>Back to team</BackLink><span className="mb-avatar" aria-hidden>{m.initials}</span></>} label="TEAM MEMBER" title={m.you ? `${m.name} (you)` : m.name} lead={sample?.lead ?? `${m.role}, ${lcFirst(m.contribution.replace(/\.$/, ""))}.`} />
         <Metrics>
           <Metric label="OPEN TASKS" value={openTasks} caption="in this project" href={ws.href("tasks")} />
           <Metric label="CONTRIBUTIONS" value={rows.length} caption={since ? `since ${since}` : "none yet"} scrollTo="mb-history" />

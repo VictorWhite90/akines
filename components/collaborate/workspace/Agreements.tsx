@@ -125,7 +125,7 @@ function SuggestDialog({ open, onClose, onSuggest }: { open: boolean; onClose: (
     <Modal open={open} onClose={onClose} width={640} eyebrow="SUGGEST A CHANGE" title="What would you change?" description="Your team will see your suggestion. Nothing changes until everyone has acknowledged it."
       footer={<><Button type="submit" form="ag-suggest-form">Suggest change</Button><CwLink onClick={onClose}>Cancel</CwLink></>}>
       <form id="ag-suggest-form" className="cw-form" noValidate onSubmit={(e) => { e.preventDefault(); onSuggest({ change: change.trim(), why: why.trim() }); }}>
-        <Field label="What to change" hint="Describe the change in a sentence or two."><Input value={change} placeholder="For example, Leila also writes the Hausa reminders" onChange={(e) => setChange(e.target.value)} /></Field>
+        <Field label="What to change" hint="Describe the change in a sentence or two."><Input value={change} placeholder="For example, Ngozi also leads the interview questions" onChange={(e) => setChange(e.target.value)} /></Field>
         <Field label="Why" hint="Optional, but it helps the team decide."><Input value={why} placeholder="Help the team understand the reason" onChange={(e) => setWhy(e.target.value)} /></Field>
       </form>
     </Modal>
@@ -287,7 +287,7 @@ function StageBody({ projectId, stage }: { projectId: string; stage: StageId }) 
               return (
                 <li key={m.id} className="ag-tile">
                   <span className="ag-tile__av" aria-hidden>{initialsOf(name)}<i className={cn("ag-tile__dot", at !== undefined || p.charter.signed.includes(m.id) ? "ag-tile__dot--done" : "ag-tile__dot--waiting")} /></span>
-                  <span className="ag-tile__text"><span className="ag-tile__name">{name}{m.id === ME ? " (you)" : ""}</span><span className="ag-tile__role">{m.role}{m.id === p.host ? ", project owner" : ""}</span></span>
+                  <span className="ag-tile__text"><span className="ag-tile__name">{name}{m.id === ME ? " (you)" : ""}</span><span className="ag-tile__role">{m.id === p.host ? `${m.role.replace(/^owner and /i, "")}, project owner` : m.role}</span></span>
                   <span className="ag-tile__status">
                     <span className={cn("ag-tile__state", p.charter.signed.includes(m.id) && "is-done")}>{p.charter.signed.includes(m.id) ? "Acknowledged" : "Waiting"}</span>
                     <span className="ag-tile__when">{at ? shortDate(at) : "Not yet"}</span>

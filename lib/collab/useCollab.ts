@@ -10,14 +10,14 @@ import { useRemoteCollab } from "@/lib/api/collab";
 import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
 import { sampleProof } from "./proof";
-import { seedState } from "./seed";
+import { NGOZI_SLOTS, seedState } from "./seed";
 import { KITS, kindForFields } from "./kits";
 import { ME } from "./me";
 import type { AppStage, Application, CollabCall, CollabState, Charter, Checkin, Deliverable, JourneyStage, ProofItem, Project, Proposal, StudioItem, Task, Tool, WorkKind } from "./types";
 
 export { ME } from "./me";
-// v4: the clinic sample gained a bigger team, so older saved demos start fresh.
-const KEY = "co:v4";
+// v5: the design's sample projects and calls replaced ours, so older saved demos start fresh.
+const KEY = "co:v5";
 const DIRECT_IDS = new Set(CONVOS.filter((c) => c.kind === "direct").map((c) => c.id));
 const firstNameOf = (id: PersonId) => PEOPLE[id].name.split(" ")[0];
 const SEC = 1000;
@@ -41,7 +41,10 @@ export const STAGE_LABEL: Record<AppStage, { applicant: string; host: string }> 
   withdrawn: { applicant: "Withdrawn", host: "Withdrawn" },
 };
 
-const SLOTS = ["Tue 12 Nov · 10:00", "Wed 13 Nov · 14:30", "Thu 14 Nov · 16:00"];
+/** The talk times a host offers in the demo (the design's Slot Picker). */
+const SLOTS = NGOZI_SLOTS;
+/** The time a sample applicant picks (the design's Talk booked: Tue 10 Nov, 4:00 pm). */
+const PICKED = "Tue 10 Nov · 16:00";
 export const conversationSlots = () => SLOTS;
 
 function newCharter(members: PersonId[], signed: PersonId[] = []): Charter {
@@ -126,7 +129,7 @@ function useLocalCollab({ engine = false }: { engine?: boolean } = {}) {
         } else if (call.postedByMe) {
           // An applicant to my call, answering me.
           if (a.stage === "shortlisted" && !a.slot) {
-            a.slot = SLOTS[2]; a.history.push({ stage: "shortlisted", at: now, note: `${first(a.applicant)} picked ${a.slot}.` });
+            a.slot = PICKED; a.history.push({ stage: "shortlisted", at: now, note: `${first(a.applicant)} picked ${a.slot}.` });
           } else if (a.stage === "offer") {
             a.stage = "joined"; a.history.push({ stage: "joined", at: now, note: `${first(a.applicant)} accepted and joined the project.` });
             let p = s.projects.find((x) => x.callId === call.id);
@@ -231,7 +234,7 @@ function useLocalCollab({ engine = false }: { engine?: boolean } = {}) {
       const call = s.calls.find((c) => c.id === a.callId)!;
       let p = s.projects.find((x) => x.callId === call.id);
       if (!p) {
-        const team: PersonId[] = (["wanjiru", "kwame", "chidi", "tunde"] as PersonId[]).filter((x) => x !== call.host).slice(0, Math.max(0, Math.min(call.teamSize, 3) - 2));
+        const team: PersonId[] = (["adaeze", "tobi", "kunle", "funmi"] as PersonId[]).filter((x) => x !== call.host).slice(0, Math.max(0, Math.min(call.teamSize, 3) - 2));
         p = makeProject({
           title: call.title, summary: call.summary, photo: call.photo, host: call.host, callId: call.id, stage: 2, kind: kindForFields(call.fields),
           members: [{ id: call.host, role: "Host", contribution: `For ${call.org}` }, ...team.map((id, i) => ({ id, role: call.roles[(i + 1) % call.roles.length] ?? "Teammate", contribution: call.roles[(i + 1) % call.roles.length] ?? "Teammate" })), { id: ME, role: a.role, contribution: a.role }],
@@ -263,7 +266,7 @@ function useLocalCollab({ engine = false }: { engine?: boolean } = {}) {
   const postCall = async (call: Omit<CollabCall, "id" | "host" | "postedByMe" | "verified">) => {
     const id = `${call.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40)}-${Date.now().toString(36)}`;
     const now = Date.now();
-    const arrivals: [PersonId, number, string][] = [["chidi", 8, "I'd love to help and learn on a real project."], ["wanjiru", 20, "This is close to my own work. I have ideas already."], ["kwame", 40, "I can give two evenings a week and the weekend."]];
+    const arrivals: [PersonId, number, string][] = [["amina", 8, "I'd love to help and learn on a real project."], ["kunle", 20, "This is close to my own work. I have ideas already."], ["funmi", 40, "I can give two evenings a week and the weekend."]];
     update((s) => ({
       ...s,
       calls: [{ ...call, id, host: ME, postedByMe: true, verified: false }, ...s.calls],

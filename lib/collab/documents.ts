@@ -8,7 +8,7 @@ import { useLocal, newId } from "@/lib/useLocal";
 import { ME } from "@/lib/collab/me";
 import type { Project } from "@/lib/collab/types";
 import type { PersonId } from "@/lib/data/people";
-import { ago, clock24, daysAgo, presenceFor, threadFromApi, versionFromApi, versionNumber, type LivePerson, type Thread, type Version } from "@/lib/collab/live";
+import { clock24, daysAgo, on2026, presenceFor, threadFromApi, versionFromApi, versionNumber, type LivePerson, type Thread, type Version } from "@/lib/collab/live";
 
 /*
  * A project's shared document, as the product design's Research Workspace shows it (research-workspace.css, tr-):
@@ -23,7 +23,7 @@ import { ago, clock24, daysAgo, presenceFor, threadFromApi, versionFromApi, vers
  * Until the team first saves, a project's document starts from its summary.
  * The page is kept as the design lays it out: blocks of lines, each line as written, with highlights for
  * comments, a collaborator's selection and cursor, and your caret. The demo keeps edits in the browser, seeded
- * with documents for the clinic booking and the Kubwa ride study; other projects start from their summary.
+ * with the design's document for Career Guidance for Everyone; other projects start from their summary.
  */
 
 /** A run of text on a line: plain, highlighted for a comment, a collaborator's selection (cursor after it), or your caret. */
@@ -46,8 +46,8 @@ export type Doc = {
 };
 
 /**
- * Writes one line of the seed: "{soft:three states|c2}" marks text for thread c2, "{strong:…|c1}" likewise,
- * "{sel:…|chidi}" is Chidi's selection with his cursor after it, "{caret}" is your caret. "> " starts an indented line.
+ * Writes one line of the seed: "{soft:three states|cg-amara}" marks text for thread cg-amara, "{strong:…|cg-ayo}" likewise,
+ * "{sel:…|amara-obi}" is Amara's selection with his cursor after it, "{caret}" is your caret. "> " starts an indented line.
  */
 function line(src: string): Line {
   const cont = src.startsWith("> ");
@@ -81,125 +81,68 @@ const SEEDED_AT = Date.now();
 
 function seedDoc(project: Project, now: number): Doc {
   const members = project.members.map((m) => m.id);
-  if (project.id === "garki-clinic-booking") {
+  if (project.id === "career-guidance-for-everyone") {
+    // The design's Research Workspace (12.15), word for word. Its people are the design's: Amara Obi, Ayo Bello and Yusuf Danjuma.
     return {
       projectId: project.id,
-      title: "How patients book and wait at Garki Family Clinic",
+      title: "Career guidance needs of secondary school students",
       draft: 3,
       outline: [
         { label: "Executive summary", level: 1 }, { label: "Background", level: 1 }, { label: "Methods", level: 1 },
-        { label: "Findings", level: 1 }, { label: "Booking by phone", level: 2 }, { label: "Waiting times", level: 2 }, { label: "Reminders", level: 2 },
+        { label: "Findings", level: 1 }, { label: "Access to guidance", level: 2 }, { label: "Mentors and timing", level: 2 }, { label: "Parent voice", level: 2 },
         { label: "Recommendations", level: 1 }, { label: "References", level: 1 },
       ],
       blocks: [
         h("Executive summary"),
         p("first",
-          "This report looks at how patients at Garki Family Clinic book and wait",
-          "to be seen. It draws on a survey of {soft:212 patients|gc-c2} and interviews",
-          "with 9 nurses, doctors and reception staff.{caret}"),
+          "This report looks at how secondary school students in {soft:three states|cg-amara} find",
+          "and use career guidance. It draws on a survey of 1,240 students and",
+          "interviews with 36 teachers and parents.{caret}"),
         p("second",
-          "{strong:Most patients waited more than three hours,|gc-c1} and most said they",
-          "came early because they could not book a time. Patients who had a",
-          "reminder the day before were twice as likely to arrive on time."),
+          "{strong:Only 41% of students had met a career counsellor,|cg-ayo} and most said the first",
+          "time was in their final year. Students with a mentor outside school were",
+          "twice as likely to name a clear next step."),
         h("Findings"),
         p("first",
-          "1. Booking is uneven. {sel:Calls before 9 am went unanswered most days,|chidi} so",
-          "> patients queued at the gate instead."),
+          "1. Access is uneven. {sel:Urban schools were four times more likely|amara-obi} to host a",
+          "> career day than rural schools."),
         p("item",
-          "2. Timing matters. Patients seen before 11 am said the visit took half",
-          "> the time of an afternoon visit."),
-        p("item", "3. Reminders work. Most patients asked for an SMS the day before."),
+          "2. Timing matters. Guidance offered before Year 10 changed subject choices,",
+          "> not just university plans."),
+        p("item", "3. Parents want a voice. Most asked for a simple way to join sessions."),
         h("Recommendations"),
         p("first",
-          "Let patients book a time online, send an SMS reminder the day before, and",
-          "keep three walk-in slots each morning for patients without a phone."),
+          "Start guidance earlier, pair every school with a volunteer mentor, and give",
+          "parents a short, plain-language summary after each session."),
       ],
       threads: [
-        { id: "gc-c1", tone: "strong", quote: "Most patients waited more than three hours.", messages: [
-          { who: "ayo", at: ago(now, 52), text: "Can we cite the survey month here? The clinic board will ask." },
-          { who: ME, at: ago(now, 43), text: "Good catch. Adding the October survey now." },
+        { id: "cg-ayo", tone: "strong", quote: "Only 41% of students had met a career counsellor.", messages: [
+          { who: "ayo-bello", at: daysAgo(now, 0, 10, 42), text: "Can we cite the survey year here? Readers will ask." },
+          { who: "kemi", at: daysAgo(now, 0, 10, 51), text: "Good catch. Adding the 2025 survey now." },
         ] },
-        { id: "gc-c2", tone: "soft", quote: "212 patients", messages: [
-          { who: "kwame", at: ago(now, 52), text: "Say when the survey ran so readers do not wait for the methods section." },
+        { id: "cg-amara", tone: "soft", quote: "three states", messages: [
+          { who: "amara-obi", at: daysAgo(now, 0, 10, 42), text: "Name the states here so readers do not wait for the methods section." },
         ] },
-        { id: "gc-c0", tone: "soft", quote: "9 nurses, doctors and reception staff", resolved: true, resolvedBy: "leila", messages: [
-          { who: "leila", at: daysAgo(now, 1, 15, 5), text: "Is it 9 or 10? The notes list ten names." },
-          { who: ME, at: daysAgo(now, 1, 15, 30), text: "Nine. One interview was with the same nurse twice." },
+        // The design counts one resolved comment (resolved by Kemi) without showing it.
+        { id: "cg-resolved", tone: "soft", quote: "36 teachers and parents", resolved: true, resolvedBy: "kemi", messages: [
+          { who: "yusuf-danjuma", at: daysAgo(now, 1, 15, 5), text: "Is it 36 interviews in all, teachers and parents together?" },
+          { who: "kemi", at: daysAgo(now, 1, 15, 30), text: "Yes, 36 in all." },
         ] },
       ],
       versions: [
-        { id: "gc-v6", at: ago(now, 43), who: ME, what: "3 changes" },
-        { id: "gc-v5", at: ago(now, 130), who: "chidi", what: "12 changes" },
-        { id: "gc-v4", at: daysAgo(now, 1, 16, 20), who: "kwame", what: "5 changes" },
-        { id: "gc-v3", at: daysAgo(now, 1, 11, 2), who: ME, what: "20 changes" },
-        { id: "gc-v2", at: daysAgo(now, 4, 15, 40), who: "chidi", what: "8 changes" },
-        { id: "gc-v1", at: daysAgo(now, 5, 9, 30), who: ME, what: "first draft" },
+        { id: "cg-v6", at: daysAgo(now, 0, 10, 42), who: "kemi", what: "3 changes" },
+        { id: "cg-v5", at: daysAgo(now, 0, 9, 15), who: "amara-obi", what: "12 changes" },
+        { id: "cg-v4", at: daysAgo(now, 1, 16, 20), who: "ayo-bello", what: "5 changes" },
+        { id: "cg-v3", at: daysAgo(now, 1, 11, 2), who: "kemi", what: "20 changes" },
+        { id: "cg-v2", at: on2026(10, 12, 15, 40), who: "amara-obi", what: "8 changes" },
+        { id: "cg-v1", at: on2026(10, 11, 9, 30), who: "kemi", what: "first draft" },
       ],
-      presence: presenceFor(members, [
-        { who: ME, state: "editing", note: "Editing the executive summary" },
-        { who: "chidi", state: "editing", note: "Editing the findings" },
-        { who: "ayo", state: "commenting", note: "Commenting on the survey month" },
-      ], "Editing the executive summary"),
-    };
-  }
-  if (project.id === "kubwa-ride-final-year") {
-    return {
-      projectId: project.id,
-      title: "Shared rides on the Kubwa–campus route",
-      draft: 2,
-      outline: [
-        { label: "Executive summary", level: 1 }, { label: "Background", level: 1 }, { label: "Methods", level: 1 },
-        { label: "Findings", level: 1 }, { label: "Waiting times", level: 2 }, { label: "Ride timing", level: 2 }, { label: "Trust", level: 2 },
-        { label: "Recommendations", level: 1 }, { label: "References", level: 1 },
+      presence: [
+        { who: "kemi", state: "editing", note: "Editing the executive summary", access: "Owner" },
+        { who: "amara-obi", state: "editing", note: "Editing the findings", access: "Can edit" },
+        { who: "ayo-bello", state: "commenting", note: "Commenting on the survey year", access: "Can comment" },
+        { who: "yusuf-danjuma", state: "away", note: "Last seen yesterday", access: "View only" },
       ],
-      blocks: [
-        h("Executive summary"),
-        p("first",
-          "This report asks whether a shared-ride app could halve the morning wait",
-          "on the Kubwa–campus route. It draws on a survey of {soft:62 students|kr-c2} and",
-          "a two-week trial of a paper prototype with 14 riders.{caret}"),
-        p("second",
-          "{strong:Most students waited over 40 minutes for a bus,|kr-c1} and most said the",
-          "worst wait was on Monday mornings. Students who shared a ride with a",
-          "friend were twice as likely to reach the first lecture on time."),
-        h("Findings"),
-        p("first",
-          "1. Waits are uneven. {sel:Students at the far end of Kubwa waited longest|tunde} for",
-          "> a seat on the first bus."),
-        p("item",
-          "2. Timing matters. Rides leaving before 7 am were almost always full,",
-          "> while later rides ran half empty."),
-        p("item", "3. Trust comes first. Most riders asked to see the driver's photo first."),
-        h("Recommendations"),
-        p("first",
-          "Start with fixed morning pickups, show each driver's name and photo, and",
-          "let riders split the fare in the app before the ride begins."),
-      ],
-      threads: [
-        { id: "kr-c1", tone: "strong", quote: "Most students waited over 40 minutes for a bus.", messages: [
-          { who: "efua", at: ago(now, 52), text: "Can we cite the survey dates here? Examiners will ask." },
-          { who: "chidi", at: ago(now, 43), text: "Good catch. Adding the dates now." },
-        ] },
-        { id: "kr-c2", tone: "soft", quote: "62 students", messages: [
-          { who: ME, at: ago(now, 52), text: "Say how the 62 were chosen so readers do not wait for the methods section." },
-        ] },
-        { id: "kr-c0", tone: "soft", quote: "14 riders", resolved: true, resolvedBy: "chidi", messages: [
-          { who: "tunde", at: daysAgo(now, 1, 14, 10), text: "Two riders dropped out in week two. Is it still 14?" },
-          { who: "chidi", at: daysAgo(now, 1, 14, 40), text: "Yes, 14 started. The methods say how many finished." },
-        ] },
-      ],
-      versions: [
-        { id: "kr-v5", at: ago(now, 43), who: "chidi", what: "4 changes" },
-        { id: "kr-v4", at: ago(now, 180), who: "tunde", what: "survey results" },
-        { id: "kr-v3", at: daysAgo(now, 1, 16, 20), who: "wanjiru", what: "prototype notes" },
-        { id: "kr-v2", at: daysAgo(now, 3, 10, 15), who: "chidi", what: "9 changes" },
-        { id: "kr-v1", at: daysAgo(now, 6, 9, 30), who: "chidi", what: "first draft" },
-      ],
-      presence: presenceFor(members, [
-        { who: ME, state: "editing", note: "Reading the executive summary" },
-        { who: "tunde", state: "editing", note: "Editing the findings" },
-        { who: "efua", state: "commenting", note: "Commenting on the survey dates" },
-      ], "Reading the executive summary"),
     };
   }
   return {
@@ -218,7 +161,7 @@ function seedDoc(project: Project, now: number): Doc {
 type Edits = { threads?: Record<string, Pick<Thread, "messages" | "resolved" | "resolvedBy">>; versions?: Version[] };
 
 function useLocalDocument(project: Project | undefined) {
-  const [all, setAll] = useLocal<Record<string, Edits>>("ak:collab-documents:v1", {});
+  const [all, setAll] = useLocal<Record<string, Edits>>("ak:collab-documents:v2", {});
   const id = project?.id ?? "";
   const edits = all[id];
   const doc = useMemo<Doc | undefined>(() => {

@@ -31,6 +31,9 @@ export const REVIEW_STATUSES: ReviewStatus[] = ["New", "Shortlisted", "Talk book
 /** What the host offers (Modal:Send offer). */
 export type OfferTerms = { role: string; hours: string; start: string; note: string };
 
+/** Preview: the design's shortened request lines on the Interest requests band, where theirs differ from the first sentence. */
+const SHORT: Partial<Record<string, string>> = { chidi: "I connect schools, community groups and young people." };
+
 /** The design's status for an application's stage. A shortlisted person who picked a time has a talk booked. */
 export function statusOf(a: Pick<Application, "stage" | "slot">): ReviewStatus | null {
   switch (a.stage) {
@@ -82,17 +85,35 @@ export type Applicant = {
 
 /** Each person's experience line. A real build reads it from the person's work profile. */
 export const EXPERIENCE: Partial<Record<PersonId, string>> = {
-  thandi: "Teaches at a primary school and runs its parents' group.",
-  nandi: "Counsels families and hosts small listening rooms.",
-  tunde: "Ran the player and parent surveys for the Area 1 Youth League.",
-  zuri: "Organises community events, online and around real tables.",
-  fatou: "Runs a small kitchen and teaches cooking classes.",
-  chidi: "Edits his department's lecture recordings and a friend's football podcast.",
-  kwame: "Eight years of software, three of them editing a tech podcast.",
-  wanjiru: "Photographs people for magazines, families and small brands.",
-  leila: "Founded two companies, the first at 23.",
-  efua: "Records oral histories for a city archive.",
+  amina: "Researched career decisions of secondary school students in Lagos.",
+  kunle: "Built a homework help app used in secondary schools across Lagos and Ibadan.",
+  funmi: "Designed an after-school career curriculum for community learning centres.",
+  chidi: "Led a student mentorship network across eight schools in Enugu and Abuja.",
+  folake: "Wrote a series on Lagos market women for a community magazine.",
+  "tunde-bello": "Photographed trade routes between Ibadan and Lagos for a regional archive.",
+  ngozi: "Has written about informal trade for three years.",
+  chuka: "Photographs portraits and market scenes in Port Harcourt.",
+  "amara-okafor": "Writes long form pieces and edits them.",
 };
+
+/** The skills each sample applicant lists (the design's applicants/data.ts). A real build reads them from the work profile. */
+const SKILLS: Partial<Record<PersonId, string[]>> = {
+  amina: ["Career research", "Student interviews", "Survey design"],
+  kunle: ["Mobile development", "Low-bandwidth design", "APIs"],
+  funmi: ["Learning design", "Facilitation", "Content"],
+  chidi: ["Partnerships", "Student outreach", "Facilitation"],
+  folake: ["Feature writing", "Interviews", "Oral history"],
+  "tunde-bello": ["Street photography", "Portraits", "Photo editing"],
+  ngozi: ["Reporting", "Interviews", "Zine making"],
+  chuka: ["Portraits", "Market scenes", "Photo editing"],
+  "amara-okafor": ["Long form writing", "Interviews", "Editing"],
+};
+
+/** What the people who applied to an open call do, as the design's call list words it. */
+const ROLE_ON_CALL: Partial<Record<PersonId, string>> = DEMO ? { folake: "Writer", ngozi: "Writer", chuka: "Photographer", "amara-okafor": "Writer" } : {};
+
+/** Where an applicant is, when the list shows it: the design names the place only for the people who applied to an open call. */
+const CALL_PLACE: Partial<Record<PersonId, string>> = { folake: "Lagos", "tunde-bello": "Ibadan", ngozi: "Lagos", chuka: "Port Harcourt", "amara-okafor": "Abuja" };
 
 /* ------------------------------------------------------------------ dates and times */
 
@@ -142,27 +163,31 @@ type Store = {
 };
 
 export const COMPARE_MAX = 3;
-const KEY = "ak:collab-review:v1";
+const KEY = "ak:collab-review:v3";
 
 function seedApps(): Application[] {
   if (!DEMO) return [];
-  const now = Date.now();
-  const days = nextWeekdays(2);
-  const app = (projectId: string, who: PersonId, role: string, statement: string, availability: string, stage: AppStage, ago: number, more: Partial<Application> = {}): Application => ({
+  /** A fixed day of the story (November 2026), at noon. */
+  const nov = (day: number) => new Date(2026, 10, day, 12).getTime();
+  const app = (projectId: string, who: PersonId, role: string, statement: string, availability: string, stage: AppStage, day: number, more: Partial<Application> = {}): Application => ({
     id: `pa-${projectId}-${who}`, callId: "", projectId, applicant: who, role, works: [], statement, availability, materials: {}, stage,
-    history: [{ stage: "submitted", at: now - ago * DAY }, ...(stage !== "submitted" && stage !== "viewed" ? [{ stage, at: now - ago * DAY + DAY }] : [])],
+    history: [{ stage: "submitted", at: nov(day) }, ...(stage !== "submitted" && stage !== "viewed" ? [{ stage, at: nov(day) + DAY }] : [])],
     notes: [], tags: [], ...more,
   });
   return [
-    app("garki-clinic-booking", "thandi", "Tester", "I would like to test the booking screens with the parents at my school.", "Weekday afternoons", "submitted", 6),
-    app("garki-clinic-booking", "nandi", "Patient interviews", "I can talk with patients about the wait, and what would make booking feel safe.", "Open to new collaborations", "shortlisted", 5, { notes: [{ at: now - 2 * DAY, text: "Calm with patients. Ask how many interviews a week she can do." }] }),
-    app("garki-clinic-booking", "tunde", "Survey and data", "I ran the surveys for our league. I can collect what patients say in the waiting room.", "Available from next month", "conversation", 5, { slot: `${days[1]} · 16:00` }),
-    app("garki-clinic-booking", "zuri", "Community outreach", "I bring people together. I can help families in Garki hear that they can now book online.", "Available for new projects", "submitted", 4),
-    app("market-light", "zuri", "Launch organiser", "I would like to help bring the traders and their families to the launch.", "Weekends", "submitted", 3),
-    app("market-light", "fatou", "Launch food", "I would like to cook for the launch: food the traders sell, on their own plates.", "Available for new projects", "submitted", 2),
+    // Career Guidance for Everyone (12.45 Review applicants): Amina and Chidi new, Kunle shortlisted, Funmi's talk booked.
+    app("career-guidance-for-everyone", "amina", "Product Designer", "I would like to help shape the first screens students see.", "Available for new projects", "submitted", 2),
+    app("career-guidance-for-everyone", "kunle", "Software Engineer", "I build learning and community tools that work on the phones and connections students actually have.", "Open to new collaborations", "shortlisted", 3,
+      { notes: [{ at: nov(4), text: "Strong fit for the mobile build. Ask about offline use." }] }),
+    app("career-guidance-for-everyone", "funmi", "Learning Experience Designer", "I design learning journeys that help young people reflect on who they are and what they want to do.", "Available from next month", "shortlisted", 3,
+      { slot: "Tue 10 Nov · 16:00" }),
+    app("career-guidance-for-everyone", "chidi", "Community Partnerships Lead", "I connect schools, community groups and young people so good ideas reach the students who need them.", "Available for new projects", "submitted", 4),
+    // Adire Stories: Bisi's interest request (Team, 12.38).
+    app("adire-stories", "bisi-adeoye", "Illustrator", "I would like to help draw the resist patterns for the next plates.", "", "submitted", 3),
   ];
 }
-const DRAFTS: Record<string, string> = { "pa-garki-clinic-booking-tunde": "Good talk. Clear plan for the waiting room survey. Ready to make an offer." };
+/** Funmi's private note is being written (typed, not saved yet), as the design's slide-out shows it. */
+const DRAFTS: Record<string, string> = { "pa-career-guidance-for-everyone-funmi": "Good talk. Clear plan for the learning journeys. Ready to make an offer." };
 
 /** Which applications a list shows: a call's, or a project's (its call's, else the ones sent to the project). */
 export type ReviewSource = { callId?: string; projectId?: string };
@@ -192,9 +217,9 @@ export function useApplicants(source: ReviewSource) {
     const note = a.notes[0]?.text ?? "";
     const appliedAt = a.history[0]?.at ?? 0;
     return [{
-      id: a.id, person: a.applicant, name, first: name.split(" ")[0], role: p?.role ?? "", place: p?.city ?? "",
+      id: a.id, person: a.applicant, name, first: name.split(" ")[0], role: (callId ? ROLE_ON_CALL[a.applicant] : undefined) ?? p?.role ?? "", place: DEMO ? (callId ? CALL_PLACE[a.applicant] ?? "" : "") : p?.city ?? "",
       applied: appliedAt ? dayMonth(appliedAt) : "", wants: a.role, availability: a.availability, message: a.statement,
-      short: a.statement.split(/(?<=\.)\s/)[0] ?? a.statement, skills: skillsOf(a.applicant),
+      short: (DEMO ? SHORT[a.applicant] : undefined) ?? a.statement.split(/(?<=\.)\s/)[0] ?? a.statement, skills: (DEMO ? SKILLS[a.applicant] : undefined) ?? skillsOf(a.applicant),
       experience: EXPERIENCE[a.applicant] ?? (remote.people[a.applicant]?.experience || undefined),
       status, stage: a.stage, talk: a.slot ? slotText(a.slot) : undefined,
       offerSent: at("offer") ? weekdayDate(at("offer")!) : undefined, joined: at("joined") ? weekdayDate(at("joined")!) : undefined,
@@ -202,7 +227,7 @@ export function useApplicants(source: ReviewSource) {
       offer: DEMO ? x.offer : termsOf(remote.apps[a.id]?.offer), note, draft: x.draft ?? note,
       before: DEMO ? x.before : remote.apps[a.id]?.before, appliedAt,
     }];
-  }).sort((a, b) => a.appliedAt - b.appliedAt), [raw, store.extra, remote]);
+  }).sort((a, b) => a.appliedAt - b.appliedAt), [raw, store.extra, remote, callId]);
 
   const put = useCallback((id: string, e: Extra) => setStore((s) => ({ ...s, extra: { ...s.extra, [id]: { ...s.extra[id], ...e } } })), [setStore]);
   const setLocal = useCallback((id: string, fn: (a: Application) => Application) => setStore((s) => ({ ...s, apps: s.apps.map((a) => (a.id === id ? fn(a) : a)) })), [setStore]);

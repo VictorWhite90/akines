@@ -9,7 +9,7 @@ import { toast } from "@/components/kin/Toast";
 import { faceSrc } from "@/components/kin/home/parts";
 import { ME } from "@/lib/collab/me";
 import { useNextSession } from "@/lib/collab/session";
-import { skillsOf, useTeam } from "@/lib/collab/team";
+import { sampleMember, skillsOf, teamPhoto, useTeam } from "@/lib/collab/team";
 import { AVAILABILITY_TEXT, useWorkspace, workspaceHref, type Availability } from "@/lib/collab/workspace";
 import type { Project } from "@/lib/collab/types";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
@@ -48,7 +48,7 @@ export function useTeamPeople(projectId: string) {
     const p = ws.project;
     const base = ws.members.map((m) => {
       const contribution = p.members.find((x) => x.id === m.id)?.contribution ?? m.role;
-      const role = m.owner ? (/^(host|owner)$/i.test(m.role) ? "Owner" : `Owner and ${m.role}`) : m.role;
+      const role = m.owner ? (/^(host|owner)$/i.test(m.role) ? "Owner" : /^owner\b/i.test(m.role) ? m.role : `Owner and ${m.role}`) : m.role;
       return { id: m.id, name: m.name, initials: m.initials, role: m.role, cardRole: role, contribution, availability: m.availability, you: m.you, owner: m.owner };
     });
     const extra = team.joined.filter((r) => !base.some((b) => b.id === r.person)).map((r) => {
@@ -77,8 +77,8 @@ export function MemberPanel({ projectId, person, open, onClose }: { projectId: s
   useEffect(() => { if (person) setLast(person); }, [person]);
   const m = person ?? last;
   if (!m || !ws.project) return null;
-  const photo = faceSrc(m.id, 960);
-  const recent = recentOf(ws.project, m.id);
+  const photo = teamPhoto(projectId, m.id) ?? faceSrc(m.id, 960);
+  const recent = sampleMember(projectId, m.id)?.recent ?? recentOf(ws.project, m.id);
   return (
     <Drawer open={open} onClose={onClose} eyebrow="MEMBER" label={m.name} flush className="cd-slide" footer={<>
       {m.you ? null : <Button size="sm" href={`/messages/${m.id}`}>Message</Button>}
@@ -95,7 +95,7 @@ export function MemberPanel({ projectId, person, open, onClose }: { projectId: s
             <p className="cd-member__status"><Dot tone={TONE[m.availability]} size={7} />{AVAILABILITY_TEXT[m.availability]}</p>
           </div>
           <section className="cd-member__block"><p className="cw-over">ABOUT</p><p>{m.contribution}</p></section>
-          {skillsOf(m.id).length ? <section className="cd-member__block"><p className="cw-over">SKILLS</p><ul className="cd-chips" aria-label="Skills">{skillsOf(m.id).map((s) => <li key={s}>{s}</li>)}</ul></section> : null}
+          {skillsOf(m.id, projectId).length ? <section className="cd-member__block"><p className="cw-over">SKILLS</p><ul className="cd-chips" aria-label="Skills">{skillsOf(m.id, projectId).map((s) => <li key={s}>{s}</li>)}</ul></section> : null}
           {recent ? <section className="cd-member__block"><p className="cw-over">RECENT CONTRIBUTION</p><p>{recent}</p></section> : null}
         </div>
       </div>
@@ -118,9 +118,9 @@ export function SkillList({ labels, wrap }: { labels: { label: string; used?: bo
   );
 }
 
-function MemberCard({ m, wide, onOpen }: { m: TeamPerson; wide: boolean; onOpen: () => void }) {
-  const [first, ...rest] = skillsOf(m.id);
-  const photo = faceSrc(m.id, wide ? 1404 : 684);
+function MemberCard({ m, wide, onOpen, projectId }: { m: TeamPerson; wide: boolean; onOpen: () => void; projectId: string }) {
+  const [first, ...rest] = skillsOf(m.id, projectId);
+  const photo = teamPhoto(projectId, m.id) ?? faceSrc(m.id, wide ? 1404 : 684);
   return (
     <button type="button" className={wide ? "pt-mcard pt-mcard--wide" : "pt-mcard"} onClick={onOpen} aria-haspopup="dialog">
       <span className="pt-mcard__media">
@@ -189,7 +189,7 @@ export default function Team({ projectId }: { projectId: string }) {
             <InterestBand ir={ir} reviewHref={`${workspaceHref(projectId)}/applicants`} />
             <Band label="TEAM MEMBERS" title={`${num(people.length)} people, one project.`} support="Availability is shown only when a member chooses to share it.">
               <ul className="pt-grid">
-                {people.map((m, i) => <li key={m.id}><MemberCard m={m} wide={people.length % 2 === 1 && i === people.length - 1} onOpen={() => setPanel(m)} /></li>)}
+                {people.map((m, i) => <li key={m.id}><MemberCard projectId={projectId} m={m} wide={people.length % 2 === 1 && i === people.length - 1} onOpen={() => setPanel(m)} /></li>)}
               </ul>
             </Band>
           </>

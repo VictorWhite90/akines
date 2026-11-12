@@ -9,7 +9,7 @@ import { DECISION_STATUS, isDecided, useDecisions } from "@/lib/collab/decisions
 import { ME } from "@/lib/collab/me";
 import { useNextSession } from "@/lib/collab/session";
 import { useTasks, type WorkItem } from "@/lib/collab/tasks";
-import { useWorkspace } from "@/lib/collab/workspace";
+import { sampleMilestone, useWorkspace } from "@/lib/collab/workspace";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { cn } from "@/lib/cn";
 import { Arrow, BackLink, Band, CwLink, PeopleBlock } from "../brief/parts";
@@ -96,7 +96,9 @@ export default function MilestonePage({ id, milestone }: { id: string; milestone
 
   // What done looks like: the deliverable's own steps, or the deliverables promised for this milestone.
   let steps: Step[];
-  if (own) {
+  const sample = sampleMilestone(project.id, m.id);
+  if (sample) steps = sample.criteria;
+  else if (own) {
     const firstOpen = own.criteria.findIndex((c) => !c.done);
     steps = own.criteria.map((c, i) => ({ title: c.title, status: c.done ? "Completed" : i === firstOpen && own.status !== "Not started" ? "In progress" : "Next" }));
   } else {
@@ -146,7 +148,7 @@ export default function MilestonePage({ id, milestone }: { id: string; milestone
           <span className="cw-mstatus__state"><Dot tone={state.tone} />{state.label}</span>
           <span>{dueText(m.due)}</span>
         </div>
-        {own?.description ? <p className="cw-pagehead__lead">{own.description}</p> : null}
+        {sample?.description ?? own?.description ? <p className="cw-pagehead__lead">{sample?.description ?? own?.description}</p> : null}
       </PageHead>
       {steps.length ? (
         <Band label="COMPLETION CRITERIA" title="What done looks like." support={`The milestone is complete when ${steps.length === 1 ? "this is" : `all ${WORDS[steps.length] ?? steps.length} are`} true.`}>

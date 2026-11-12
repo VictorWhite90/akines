@@ -42,6 +42,8 @@ export type TaskDetails = {
   reviewer?: PersonId;
   criteria?: { id: string; title: string; done: boolean }[];
   comments?: { by: PersonId; text: string; at: number }[];
+  /** Files on a plain task (deliverables carry theirs as proof). */
+  files?: WorkItem["files"];
   /** What Edit task changed on the project's own fields, until useCollab can save them. */
   edit?: { title?: string; owner?: PersonId; due?: string };
 };
@@ -127,31 +129,50 @@ function fromTask(t: Task, extra: TaskDetails, p: Project): Omit<WorkItem, "slug
   return {
     id: t.id, kind: "task", title: t.title, owner: t.who, support: extra.support, reviewer: extra.reviewer, status, description: extra.description,
     dueText: t.due, dueAt: parseDue(t.due), doneAt: finished ?? (t.status === "done" ? parseDue(t.due) : undefined),
-    criteria: extra.criteria ?? [], files: [], comments: extra.comments ?? [],
+    criteria: extra.criteria ?? [], files: extra.files ?? [], comments: extra.comments ?? [],
   };
 }
 
-/** Sample details for our two sample projects (what our model doesn't hold yet). */
-const SEED: Record<string, TaskDetails> = {
-  "market-light/t1": { priority: "Low", milestone: "m1" },
-  "market-light/t2": { priority: "High", milestone: "m2", support: "amara", description: "Write up Mama Ngozi's interview in her own words, ready for the caption." },
-  "market-light/t3": { priority: "High", milestone: "m3", support: "wanjiru", description: "Lay out all 24 pages with the selects and captions, so all three can sign it off.", criteria: [{ id: "c1", title: "Grid and type set", done: true }, { id: "c2", title: "Every trader placed", done: false }, { id: "c3", title: "Captions in", done: false }] },
-  "market-light/t4": { priority: "Medium", milestone: "m3" },
-  "market-light/t5": { priority: "Medium", milestone: "m4" },
-  "market-light/ml-d1": { priority: "High", milestone: "m1" },
-  "market-light/ml-d2": { priority: "High", milestone: "m2" },
-  "market-light/ml-d3": { priority: "High", milestone: "m3", support: "efua" },
-  "market-light/ml-d4": { priority: "Medium", milestone: "m4" },
-  "garki-clinic-booking/gc-d1": { priority: "Low" },
-  "garki-clinic-booking/gc-d2": { priority: "Low" },
-  "garki-clinic-booking/gc-d3": { priority: "High", description: "The screen the front desk uses each morning: today's bookings, cancellations and who confirmed." },
-  "garki-clinic-booking/gc-d6": { priority: "High", support: "amara", description: "Pick a time, confirm, and choose reminders. Each screen must work on a cheap Android phone." },
-  "garki-clinic-booking/gc-d7": { priority: "Medium" },
-  "garki-clinic-booking/gc-d8": { priority: "Medium", support: "amara" },
-  "garki-clinic-booking/gc-d4": { priority: "High", support: "leila", description: "The day-before reminder in English and Hausa, checked by a nurse." },
-  "garki-clinic-booking/gc-d9": { priority: "Medium" },
-  "garki-clinic-booking/gc-d5": { priority: "High" },
-};
+/** "Today, 9:05" or "yesterday, 16:12": a comment time the design writes relative to today. */
+const at = (daysAgo: number, h: number, m: number) => { const d = new Date(); d.setDate(d.getDate() - daysAgo); d.setHours(h, m, 0, 0); return d.getTime(); };
+const CG = "career-guidance-for-everyone", AS = "adire-stories";
+
+/**
+ * Sample details of the design's two sample projects (what our model doesn't hold yet), by task id. The tasks
+ * themselves (title, owner, due, status) are the projects' own (lib/collab/seed.ts), with the design's ids.
+ */
+function seedDetails(): Record<string, TaskDetails> {
+  return {
+    [`${CG}/review-the-student-onboarding-draft`]: { priority: "High", milestone: "first-student-experience", review: true, reviewer: "kemi" },
+    [`${CG}/collect-questions-students-ask-about-careers`]: { priority: "High", milestone: "first-student-experience" },
+    [`${CG}/write-the-guided-onboarding-questions`]: {
+      priority: "Medium", milestone: "first-student-experience", support: "adaeze", reviewer: "adaeze",
+      description: "Write the questions that guide a student through the first onboarding screen. Keep each one short and in plain language.",
+      criteria: [{ id: "c1", title: "Three questions written", done: true }, { id: "c2", title: "Questions reviewed with Adaeze", done: false }, { id: "c3", title: "Questions added to the onboarding draft", done: false }],
+      files: [{ id: "f1", name: "Onboarding questions.docx", meta: "Word, 42 KB, added by Kemi Adeyemi" }, { id: "f2", name: "Career interview notes.docx", meta: "Word, 180 KB, shared by Ngozi Eze" }],
+      comments: [
+        { by: "tobi", text: "I added the second screen to the draft. Can you look at the wording of the third question?", at: at(1, 16, 12) },
+        { by: "adaeze", text: "The wording is clear. I would move the interest question to the end.", at: at(0, 9, 5) },
+      ],
+    },
+    [`${CG}/build-the-second-onboarding-screen`]: { priority: "Medium", milestone: "first-student-experience" },
+    [`${CG}/confirm-the-final-interest-questions`]: { priority: "High", milestone: "first-student-experience" },
+    [`${CG}/invite-two-schools-to-the-review`]: { priority: "Medium", milestone: "prototype-review" },
+    [`${CG}/plan-the-prototype-review-session`]: { priority: "Low", milestone: "prototype-review" },
+    [`${CG}/share-the-career-interview-notes`]: { priority: "Low", milestone: "first-student-experience" },
+    [`${CG}/set-up-the-shared-canvas`]: { priority: "Low", milestone: "first-student-experience" },
+
+    [`${AS}/review-the-student-onboarding-draft`]: { priority: "High", milestone: "headwrap-portrait", review: true, reviewer: "kemi" },
+    [`${AS}/collect-questions-students-ask-about-careers`]: { priority: "High", milestone: "headwrap-portrait" },
+    [`${AS}/write-the-guided-onboarding-questions`]: { priority: "Medium", milestone: "headwrap-portrait" },
+    [`${AS}/build-the-second-onboarding-screen`]: { priority: "Medium", milestone: "headwrap-portrait" },
+    [`${AS}/confirm-the-final-interest-questions`]: { priority: "High", milestone: "headwrap-portrait" },
+    [`${AS}/invite-two-schools-to-the-review`]: { priority: "Medium", milestone: "pattern-study-set" },
+    [`${AS}/plan-the-prototype-review-session`]: { priority: "Low", milestone: "pattern-study-set" },
+    [`${AS}/share-the-career-interview-notes`]: { priority: "Low", milestone: "headwrap-portrait" },
+    [`${AS}/set-up-the-shared-canvas`]: { priority: "Low", milestone: "headwrap-portrait" },
+  };
+}
 
 const ORDER = (a: WorkItem, b: WorkItem) => (a.dueAt ?? Infinity) - (b.dueAt ?? Infinity);
 /** Open tasks by due date, then completed ones, most recent first (as the design sorts them). */
@@ -198,7 +219,7 @@ function changes(before: TaskDetails, after: TaskDetails, kind: WorkItem["kind"]
 
 /** A project's tasks, and what the member can do with them. */
 export function useTasks(project: Project | undefined, collab: Collab) {
-  const [localDetails, setDetails] = useLocal<Record<string, TaskDetails>>("ak:collab-task-details:v1", DEMO ? SEED : {});
+  const [localDetails, setDetails] = useLocal<Record<string, TaskDetails>>("ak:collab-task-details:v2", DEMO ? seedDetails() : {});
   const remote = useRemoteExtras();
   const pid = project?.id ?? "";
   const server = useMemo(() => (DEMO || !pid ? null : serverDetails(pid, remote.projects[pid])), [remote, pid]);

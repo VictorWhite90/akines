@@ -19,7 +19,7 @@ export const INTENTS = [
 export type IntentId = (typeof INTENTS)[number]["id"];
 
 export type KMsg =
-  | { id: string; from: PersonId; at: string; kind: "text"; text: string; react?: string[] }
+  | { id: string; from: PersonId; at: string; kind: "text"; text: string; react?: string[]; sender?: string }
   | { id: string; from: PersonId; at: string; kind: "voice"; length: string; text?: string }
   | { id: string; from: PersonId; at: string; kind: "photo"; photo: PhotoKey; text?: string }
   | { id: string; from: PersonId; at: string; kind: "poll"; question: string; options: string[]; votes: number[] }
@@ -32,7 +32,13 @@ export type Convo = {
   name: string;
   members: PersonId[];
   intent: IntentId;
-  photo?: PhotoKey;
+  photo?: PhotoKey | (string & {});
+  /** The line under the name, as the design writes it ("Friend", "Cliq · 9 members"). */
+  sub?: string;
+  /** The time shown in the list ("6d", "Today"). */
+  meta?: string;
+  /** What the composer starts with (the design's sample message). */
+  draft?: string;
   /** Waiting on the member to reply. */
   needsYou?: boolean;
   unread?: number;
@@ -43,108 +49,55 @@ export type Convo = {
   msgs: KMsg[];
 };
 
+/**
+ * The product design's conversations (Messages, /messages/<id>), word for word. A message's `at` is the day it falls
+ * under; Kemi (ME) writes the outgoing ones. Group messages name their sender as the design does.
+ */
+const AV = (name: string) => `/kin/design/home/community/av-${name}.jpg`;
 export const CONVOS: Convo[] = [
   {
-    id: "zuri",
-    kind: "direct",
-    name: "Zuri Nwosu",
-    members: ["zuri"],
-    intent: "checkin",
-    needsYou: true,
-    unread: 2,
-    last: "10:36",
-    health: { label: "Strong", value: 82, exchanges: 12, shared: 2, reciprocity: "Balanced", lastMet: "3 weeks" },
-    memories: [
-      { title: "Community supper", body: "You met at Zuri's supper for newcomers · 14 March" },
-      { title: "First talk together", body: "She invited you to share your story with the circle" },
-    ],
+    id: "amara", kind: "direct", name: "Amara", members: ["amara-okafor"], intent: "create", sub: "Community Health Initiative", meta: "6d",
+    last: "No rush. Tell me when you would like to talk it through.", draft: "I am ready to look at the plan. Could we talk tomorrow?",
+    health: { label: "Steady", value: 60, exchanges: 0, shared: 0, reciprocity: "Balanced", lastMet: "Not yet" }, memories: [],
     msgs: [
-      { id: "z1", from: "zuri", at: "10:18", kind: "text", text: "I kept thinking about what you said, that you want to mentor young people outside the usual programmes. I found a small group in Surulere that might be the right place to start." },
-      { id: "z2", from: "amara", at: "10:24", kind: "text", text: "That's timely. I'd want to keep it small enough that everyone is genuinely known. Not another big event.", react: ["💛"] },
-      { id: "z3", from: "zuri", at: "10:27", kind: "voice", length: "0:24", text: "Why small groups work better for first-time mentors" },
-      { id: "z4", from: "zuri", at: "10:31", kind: "photo", photo: "talkGroup", text: "This is the group I mentioned. Four different careers, the same reason for showing up." },
-      { id: "z5", from: "ai", at: "10:32", kind: "spark", title: "A shared idea is taking shape", body: "You've discussed a purpose, the people and a first gathering. Turn this into a small collaboration?", action: "collab" },
-      { id: "z6", from: "zuri", at: "10:36", kind: "poll", question: "When should we meet them?", options: ["Saturday morning", "Sunday afternoon", "A weekday evening"], votes: [4, 2, 1] },
+      { id: "am1", from: "amara-okafor", at: "Thursday", kind: "text", text: "I mapped out the three clinics we could visit first. Want to look at it together?" },
+      { id: "am2", from: "kemi", at: "Thursday", kind: "text", text: "Yes please. I will send my draft of the outreach plan this week." },
+      { id: "am3", from: "amara-okafor", at: "Six days ago", kind: "text", text: "No rush. Tell me when you would like to talk it through." },
     ],
   },
   {
-    id: "markets",
-    kind: "circle",
-    name: "Weekend Coding Club",
-    members: ["wanjiru", "efua", "fatou", "nandi", "tunde"],
-    intent: "create",
-    photo: "talkGroup",
-    needsYou: true,
-    unread: 4,
-    last: "09:48",
-    health: { label: "Growing", value: 64, exchanges: 38, shared: 1, reciprocity: "Mostly balanced", lastMet: "Thursday" },
-    memories: [{ title: "Agreement signed", body: "All six agreed on safeguarding and roles before the first class" }],
+    id: "folake", kind: "direct", name: "Folake", members: ["folake"], intent: "plan", sub: "Friend", meta: "9d",
+    last: "Yes, I would love that. Let me check my week.", draft: "Yes, Sunday works. Shall we say 8:00 AM?",
+    health: { label: "Steady", value: 60, exchanges: 0, shared: 0, reciprocity: "Balanced", lastMet: "Not yet" }, memories: [],
     msgs: [
-      { id: "m1", from: "wanjiru", at: "09:20", kind: "photo", photo: "studioBusy", text: "Three lesson plans for week one. Which one would a 14-year-old enjoy?" },
-      { id: "m2", from: "efua", at: "09:31", kind: "text", text: "The second. They build something in the first ten minutes." },
-      { id: "m3", from: "nandi", at: "09:40", kind: "invite", invite: "meetup", title: "Parents' meeting before we start", detail: "Thursday · 18:00 · Presence Room · 6 seats", href: "/connect/rooms" },
-      { id: "m4", from: "fatou", at: "09:48", kind: "poll", question: "What do we teach first?", options: ["A simple website", "A small game", "A chatbot"], votes: [3, 2, 1] },
+      { id: "fo1", from: "folake", at: "Nine days ago", kind: "text", text: "Are we still on for the Sunday walk? No pressure if this week has been busy." },
+      { id: "fo2", from: "kemi", at: "Nine days ago", kind: "text", text: "Yes, I would love that. Let me check my week and come back to you." },
     ],
   },
   {
-    id: "makers",
-    kind: "cliq",
-    name: "Work Besties",
-    members: ["thandi", "ayo", "fatou", "tunde", "kwame"],
-    intent: "celebrate",
-    photo: "studioEasel",
-    last: "Yesterday",
-    health: { label: "Steady", value: 58, exchanges: 21, shared: 0, reciprocity: "Balanced", lastMet: "Sunday" },
-    memories: [{ title: "Sunday show-and-tell", body: "Kwame shared the job offer he almost turned down" }],
+    id: "food-systems-cliq", kind: "cliq", name: "Food Systems Cliq", members: ["tunde-bakare", "ngozi"], intent: "create", photo: AV("health"), sub: "Cliq · 9 members", meta: "Today",
+    last: "I will bring the budget questions to the 2:00 PM call.", draft: "Thanks both. See you at 2:00 PM.",
+    health: { label: "Steady", value: 60, exchanges: 0, shared: 0, reciprocity: "Balanced", lastMet: "Not yet" }, memories: [],
     msgs: [
-      { id: "k1", from: "ayo", at: "Yesterday", kind: "text", text: "Got the promotion! Starting Monday." },
-      { id: "k2", from: "thandi", at: "Yesterday", kind: "text", text: "Finally! This deserves a game night.", react: ["🎉", "💛"] },
-      { id: "k3", from: "thandi", at: "Yesterday", kind: "invite", invite: "game", title: "Two truths and a story", detail: "Sunday · 18:00 · Live play · 5 players", href: "/connect/activities" },
+      { id: "fs1", from: "tunde-bakare", at: "Today", kind: "text", text: "Notes from the last call are in the shared folder.", sender: "Tunde" },
+      { id: "fs2", from: "ngozi", at: "Today", kind: "text", text: "I will bring the budget questions to the 2:00 PM call.", sender: "Ngozi" },
     ],
   },
   {
-    id: "threads",
-    kind: "project",
-    name: "Supper Club Launch",
-    members: ["ayo", "fatou"],
-    intent: "plan",
-    photo: "collabArt",
-    last: "Yesterday",
-    health: { label: "Strong", value: 76, exchanges: 46, shared: 1, reciprocity: "Balanced", lastMet: "Last week" },
-    memories: [{ title: "Ownership agreed", body: "Costs and roles agreed before the first booking" }],
+    id: "kincircle-reflection", kind: "circle", name: "KinCircle Reflection", members: ["ngozi", "tunde-bakare"], intent: "checkin", photo: AV("kincircle"), sub: "KinCircle · Tomorrow, 12:30 PM", meta: "1d",
+    last: "Tomorrow we will begin with one thing that went well.", draft: "Looking forward to it.",
+    health: { label: "Steady", value: 60, exchanges: 0, shared: 0, reciprocity: "Balanced", lastMet: "Not yet" }, memories: [],
     msgs: [
-      { id: "p1", from: "fatou", at: "Yesterday", kind: "text", text: "Venue confirmed. First supper in Lagos, then Dakar." },
-      { id: "p2", from: "ayo", at: "Yesterday", kind: "voice", length: "1:04", text: "Ideas for the menu" },
-      { id: "p3", from: "ai", at: "Yesterday", kind: "spark", title: "Milestone reached", body: "Planning is 68% done. Add the launch date to the project timeline?", action: "collab" },
+      { id: "kr1", from: "ngozi", at: "Yesterday", kind: "text", text: "Tomorrow we will begin with one thing that went well this week. No preparation needed.", sender: "Facilitator" },
     ],
   },
   {
-    id: "kwame",
-    kind: "direct",
-    name: "Kwame Mensah",
-    members: ["kwame"],
-    intent: "support",
-    last: "Tue",
-    health: { label: "Strong", value: 79, exchanges: 17, shared: 0, reciprocity: "You give more", lastMet: "2 weeks" },
-    memories: [{ title: "The job he took", body: "You told him to trust his gut" }],
+    id: "university-friends", kind: "cliq", name: "University friends", members: ["chuka", "folake"], intent: "celebrate", photo: AV("friends"), sub: "Group · 7 members", meta: "Today",
+    last: "I am bringing the Ludo board.", draft: "Count me in for Friday.",
+    health: { label: "Steady", value: 60, exchanges: 0, shared: 0, reciprocity: "Balanced", lastMet: "Not yet" }, memories: [],
     msgs: [
-      { id: "w1", from: "kwame", at: "Mon", kind: "voice", length: "0:51", text: "Thinking out loud about the job offer" },
-      { id: "w2", from: "amara", at: "Mon", kind: "text", text: "Listened twice. Take it. You've outgrown the old role." },
-      { id: "w3", from: "kwame", at: "Tue", kind: "text", text: "That's what I needed to hear. Thank you." },
-    ],
-  },
-  {
-    id: "leila",
-    kind: "direct",
-    name: "Leila Benali",
-    members: ["leila"],
-    intent: "plan",
-    last: "Sun",
-    health: { label: "Quiet", value: 32, exchanges: 5, shared: 0, reciprocity: "Balanced", lastMet: "Never in person" },
-    memories: [],
-    msgs: [
-      { id: "l1", from: "leila", at: "Sun", kind: "text", text: "Introduced through Akines! You're both building something of your own, apparently. Coffee when I'm in Lagos?" },
-      { id: "l2", from: "leila", at: "Sun", kind: "invite", invite: "banter", title: "What's the best advice you ignored?", detail: "A private Banter between you two", href: "/community/banter" },
+      { id: "uf1", from: "chuka", at: "Today", kind: "text", text: "Game night on Friday. Bring snacks, not strategy.", sender: "Chuka" },
+      { id: "uf2", from: "folake", at: "Today", kind: "text", text: "I am bringing the Ludo board.", sender: "Folake" },
     ],
   },
 ];

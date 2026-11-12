@@ -50,9 +50,21 @@ export function Ico({ icon: I, size = 16, className }: { icon: LucideIcon; size?
   return <I size={size} strokeWidth={1.5} absoluteStrokeWidth className={className} aria-hidden="true" focusable="false" />;
 }
 
+/**
+ * The faces the design's two workspaces show: Kemi (you) as initials, and the workspace photos of Amara Obi, Ayo Bello and
+ * Yusuf Danjuma (other photos than their profile ones). Everyone else shows their usual face.
+ */
+const TOOL_FACES: Partial<Record<PersonId, string | null>> = {
+  kemi: null,
+  "amara-obi": "/kin/design/people/workspace/amara.jpg",
+  "ayo-bello": "/kin/design/people/workspace/ayo.jpg",
+  "yusuf-danjuma": "/kin/design/people/workspace/yusuf.jpg",
+};
+export const toolFace = (who: PersonId): string | undefined => { const f = TOOL_FACES[who]; return f === null ? undefined : f ?? faceSrc(who); };
+
 /** A person's avatar with their live ring and dot. */
 export function LiveAvatar({ who, state }: { who: PersonId; state: LivePerson["state"] | "offline" }) {
-  const src = faceSrc(who);
+  const src = toolFace(who);
   return (
     <span className="tw-av" data-state={state} title={nameOf(who)}>
       {state !== "away" ? <span className="tw-av__ring" /> : null}
@@ -220,7 +232,7 @@ function PeoplePop({ ws, people, onClose }: { ws: Ws; people: Shown[]; onClose: 
         <ul className="tw-people__list">
           {/* as in the design: you first, then who is here, then who is not */}
           {[...people].sort((a, b) => Number(b.who === ME) - Number(a.who === ME) || Number(a.state === "away") - Number(b.state === "away")).map((p) => {
-            const access = accessOf(p.who, ws.project!.host);
+            const access = p.access ?? accessOf(p.who, ws.project!.host);
             return (
               <li key={p.who} className="tw-person">
                 <LiveAvatar who={p.who} state={p.state} />
@@ -242,7 +254,7 @@ function PeoplePop({ ws, people, onClose }: { ws: Ws; people: Shown[]; onClose: 
 
 type BannerKind = "collaborator" | "reconnecting" | "lost" | "view" | "version";
 const BANNER: Record<BannerKind, { tone: "warning" | "error" | "info"; icon: LucideIcon; title: string; detail: string }> = {
-  // the title names the collaborator ("Chidi lost connection")
+  // the title names the collaborator ("Amara lost connection"), and the detail says her or their (lostDetail)
   collaborator: { tone: "warning", icon: RefreshCw, title: "", detail: "Their changes so far are saved. They will show up again when they are back online." },
   reconnecting: { tone: "warning", icon: RefreshCw, title: "Reconnecting to the workspace", detail: "Hold on. You can keep working and nothing will be lost." },
   lost: { tone: "error", icon: CloudOff, title: "Connection lost", detail: "Your changes are saved on this device. We will sync them when you are back online." },
@@ -251,14 +263,14 @@ const BANNER: Record<BannerKind, { tone: "warning" | "error" | "info"; icon: Luc
 };
 
 /** The banner over the work: offline, reconnecting, or previewing an older version. */
-export function Banner({ kind, title, className, onRetry, onBack, onRestore, onRequest }: { kind: BannerKind; title?: string; className?: string; onRetry?: () => void; onBack?: () => void; onRestore?: () => void; onRequest?: () => void }) {
+export function Banner({ kind, title, detail, className, onRetry, onBack, onRestore, onRequest }: { kind: BannerKind; title?: string; detail?: string; className?: string; onRetry?: () => void; onBack?: () => void; onRestore?: () => void; onRequest?: () => void }) {
   const b = BANNER[kind];
   return (
     <div className={["tw-banner", className].filter(Boolean).join(" ")} data-tone={b.tone} data-kind={kind} role={kind === "lost" ? "alert" : "status"}>
       <Ico icon={b.icon} size={20} className="tw-banner__icon" />
       <div className="tw-banner__text">
         <p className="tw-banner__title">{title ?? b.title}</p>
-        <p className="tw-banner__detail">{b.detail}</p>
+        <p className="tw-banner__detail">{detail ?? b.detail}</p>
       </div>
       {kind === "lost" ? <div className="tw-banner__actions"><Button variant="secondary" size="sm" onClick={onRetry}>Try again</Button></div> : null}
       {kind === "view" ? <div className="tw-banner__actions"><Button variant="secondary" size="sm" onClick={onRequest}>Request edit access</Button></div> : null}
@@ -273,8 +285,11 @@ export function Banner({ kind, title, className, onRetry, onBack, onRestore, onR
 }
 const BANNER_OF: Partial<Record<ToolState, BannerKind>> = { collaboratorOffline: "collaborator", lost: "lost", reconnecting: "reconnecting", viewOnly: "view", versionHistory: "version" };
 export const bannerFor = (state: ToolState): BannerKind | null => BANNER_OF[state] ?? null;
-/** "Chidi lost connection" */
+/** "Amara lost connection" */
 export const lostTitle = (who: PersonId) => `${firstName(who)} lost connection`;
+/** The design's words for Amara Obi; anyone else is "their". */
+const SHE: PersonId[] = ["amara-obi"];
+export const lostDetail = (who: PersonId) => (SHE.includes(who) ? "Her changes so far are saved. She will show up again when she is back online." : undefined);
 /** "Viewing the version from yesterday, 16:20" */
 export const viewingTitle = (v: Version) => { const t = versionTime(v.at); return `Viewing the version from ${t.charAt(0).toLowerCase()}${t.slice(1)}`; };
 

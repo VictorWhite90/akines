@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, Bookmark, Eye } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { faceSrc } from "@/components/kin/home/parts";
+import { memberSlug } from "@/lib/collab/members";
 import { sentWhen, type DiscoverProject } from "@/lib/collab/projects";
 import type { Application } from "@/lib/collab/types";
 import { requestHref } from "@/components/collaborate/applications/paths";
@@ -81,7 +82,7 @@ export function StageLine({ stage, type }: { stage: string; type?: string }) {
 }
 
 export const projectHref = (id: string) => `/collaborate/projects/${id}`;
-export const memberHref = (id: PersonId, projectId: string) => `/collaborate/members/${id}?project=${encodeURIComponent(projectId)}`;
+export const memberHref = (id: PersonId, projectId: string) => `/collaborate/members/${memberSlug(id)}?project=${encodeURIComponent(projectId)}`;
 
 export function ProjectCard({ project: p, mode, saved, onSave }: { project: DiscoverProject; mode: "discover" | "saved"; saved: boolean; onSave: () => void }) {
   const closed = p.closed;

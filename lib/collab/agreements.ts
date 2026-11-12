@@ -53,8 +53,47 @@ const sentence = (s: string) => { const t = s.trim(); return /[.!?]$/.test(t) ? 
 const NUMBER = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
 export const numberWord = (n: number) => NUMBER[n] ?? String(n);
 
+/*
+ * Preview only: the design's two sample projects are part way through their agreements (Intent agreed by everyone,
+ * Roles waiting on two members, Contributions being drafted, the rest not started) and word their roles as terms.
+ * Our charter holds one set of signatures for every stage, so the stages the charter can't tell apart are given here.
+ */
+type SampleStage = { status: StageStatus; note: string; text?: string };
+const SAMPLE_STAGES: Record<string, Partial<Record<StageId, SampleStage>>> = {
+  "career-guidance-for-everyone": {
+    intent: { status: "Acknowledged", note: "Acknowledged by all four members." },
+    contributions: { status: "In progress", note: "Being drafted. Not shared for acknowledgement yet." },
+    ownership: { status: "Not started", note: "Nothing to acknowledge yet." },
+    revenue: { status: "Not started", note: "Nothing to acknowledge yet." },
+  },
+  "adire-stories": {
+    intent: { status: "Acknowledged", note: "Acknowledged by all four members." },
+    contributions: { status: "In progress", note: "Being drafted. Not shared for acknowledgement yet." },
+    ownership: { status: "Not started", note: "Nothing to acknowledge yet.", text: "Who owns each plate, credits for the dyers, attribution and shared work." },
+    revenue: { status: "Not started", note: "Nothing to acknowledge yet.", text: "Print sales, exhibition costs and how any income is shared, where relevant." },
+    formal: { status: "Not started", note: "Optional. A draft is not automatically legally binding.", text: "Optional legal templates, such as permission to show names and cloth." },
+  },
+};
+const SAMPLE_ROLES: Record<string, string[]> = {
+  "career-guidance-for-everyone": [
+    "Kemi Adeyemi is the project owner and keeps the project brief up to date.",
+    "Adaeze Okoye supports product design and reviews design work before it is shared.",
+    "Tobi Adeyemi builds the prototype and tells the team early when something is hard to do.",
+    "Ngozi Eze leads the career research and shares what she learns with the whole team.",
+    "Decisions that change the project are discussed in Decisions. The project owner confirms the outcome once everyone has had their say.",
+  ],
+  "adire-stories": [
+    "Kemi Adeyemi leads the project as owner.",
+    "Amara Obi illustrates the plates.",
+    "Ayo Bello chooses the colours.",
+    "Yusuf Danjuma leads the pattern research.",
+    "Decisions are discussed together. The owner confirms the outcome.",
+  ],
+};
+
 /** The terms a stage proposes, written from the charter and the team. */
 export function stageTerms(p: Project, stage: StageId): string[] {
+  if (DEMO && stage === "roles" && SAMPLE_ROLES[p.id]) return SAMPLE_ROLES[p.id];
   const c = p.charter;
   switch (stage) {
     case "intent": return [sentence(p.summary)];
@@ -74,7 +113,7 @@ export function stageTerms(p: Project, stage: StageId): string[] {
 
 /** Versions of the charter: the first, then one for every change that asked everyone to sign again. */
 export function charterVersions(p: Project) {
-  const changes = p.ledger.filter((l) => /^Changed the .+, so everyone signs again$/.test(l.what));
+  const changes = p.ledger.filter((l) => /^.+, so everyone signs again$/.test(l.what));
   return [
     { n: 1, at: p.createdAt, by: p.host as PersonId | "akines", what: "" },
     ...changes.map((l, i) => ({ n: i + 2, at: l.at, by: l.who, what: l.what.replace(/, so everyone signs again$/, "") })),
@@ -97,9 +136,12 @@ export function agreementStages(p: Project, drafts: AgreementDraft[], base: stri
   const total = p.members.length;
   const waiting = p.members.filter((m) => !signed.includes(m.id)).map((m) => nameOf(m.id).split(" ")[0]);
   const list = (names: string[]) => (names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names.at(-1)}` : names[0] ?? "");
+  const sample = DEMO ? SAMPLE_STAGES[p.id] : undefined;
   return STAGES.map((s, index) => {
     const terms = stageTerms(p, s.id);
     const href = s.id === "formal" ? `${base}/formal-agreement` : s.id === "roles" ? `${base}/roles` : `${base}/${s.id}`;
+    const fixed = sample?.[s.id];
+    if (fixed && !drafts.some((d) => d.stage === s.id)) return { ...s, index, terms, href, text: fixed.text ?? s.text, status: fixed.status, note: fixed.note };
     if (s.id === "formal") {
       const mine = drafts.filter((d) => d.stage === "formal");
       return { ...s, index, terms, href, status: mine.length ? "In progress" : "Not started", note: mine.length ? "Being drafted. Not shared for acknowledgement yet." : "Optional. A draft is not automatically legally binding." };

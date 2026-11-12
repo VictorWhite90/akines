@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { IconButton } from "@/components/kin/Button";
 import { INTERESTS } from "@/lib/connect/interests";
-import { MATCHES } from "@/lib/data/matches";
+import { RECOMMENDATIONS } from "@/lib/connect/discover";
 import { AssistantMark, CardView, ExploreCard, InterestCard, RecCard, reduced, revealFocused } from "./cards";
 import { EXPLORE, FILTERS, PATHS, useForYou, type Filter } from "./data";
 import { DiscoverRail, Section } from "./parts";
@@ -15,7 +15,7 @@ import { CardsSkeleton, DiscoverSkeleton, EmptyText, LOADING_MS, RETRY_MS, Secti
 /*
  * Connect, Discover, mirrored from the product design (classes in discover.css, with Community Home's in home.css):
  * a row of places to explore, a filterable mix of what suits you, interests, people to meet, and the same rail as
- * Community Home. Every card reads our own people, circles, shop, projects, studios, stories and events, and leads
+ * Community Home. Every card shows the design's people, circles, artwork, projects, studios, stories and events, and leads
  * to the pages the design wires (Explore all, For you, interests, events, suggestions and profiles).
  */
 
@@ -81,7 +81,7 @@ function Interests({ empty }: { empty?: boolean }) {
 }
 
 function Recommendations({ empty, failing }: { empty?: boolean; failing?: boolean }) {
-  const list = empty ? [] : MATCHES.slice(0, 4);
+  const list = empty ? [] : RECOMMENDATIONS.slice(0, 4);
   // The error state: "Try again" shows the cards' skeleton for RETRY_MS, then the live cards; the other sections are untouched.
   const [phase, setPhase] = useState<"error" | "loading" | "live">(failing ? "error" : "live");
   useEffect(() => {
@@ -100,7 +100,7 @@ function Recommendations({ empty, failing }: { empty?: boolean; failing?: boolea
         <EmptyText>{STATE_COPY.recommendationsEmpty}</EmptyText>
       ) : (
         <div className="dxr-cards">
-          <ul className="dxr-grid">{list.map((m, i) => <RecCard key={m.id} match={m} index={i} />)}</ul>
+          <ul className="dxr-grid">{list.map((m, i) => <RecCard key={m.id} rec={m} index={i} />)}</ul>
         </div>
       )}
     </Section>

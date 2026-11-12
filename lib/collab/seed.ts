@@ -1,9 +1,21 @@
 import type { PersonId } from "@/lib/data/people";
-import type { Application, CollabCall, CollabState, Deliverable, ProofFile, Project } from "./types";
+import type { Application, Charter, CollabCall, CollabState, Member, Milestone, Project, Task } from "./types";
 
-const ME: PersonId = "amara";
-const MIN = 60_000, HOUR = 60 * MIN, DAY = 24 * HOUR;
+/*
+ * The demo's collaboration content, word for word from the product design's sample data:
+ *   - the projects looking for people of Discover projects (features/collaborate/projects/data.ts) and the open
+ *     calls of Collaborate Home (start/home-data.ts), as our open calls;
+ *   - Kemi's own open call, Mapping the Market Road, with the five people who applied (applicants/data.ts);
+ *   - Kemi's four projects of My projects (workspace/data.ts, project-header/data.ts, project-team/data.ts):
+ *     Career Guidance for Everyone, Community Learning Initiative, Mentorship Circle and Adire Stories.
+ * The workspace content (tasks, decisions, files, conversations…) is keyed by these project ids.
+ * The design's dates are the story's dates (November 2026), so they are fixed here rather than counted from today.
+ */
 
+const ME: PersonId = "kemi";
+const HOUR = 3_600_000, DAY = 24 * HOUR;
+/** A fixed day of the story, at 10:00 (month is 1-based). */
+const on = (month: number, day: number, hour = 10, minute = 0) => new Date(2026, month - 1, day, hour, minute).getTime();
 
 const ab = (id: string) => [
   { id: "works", label: "Your work", hint: "Pieces, links or files that show you can do this: whatever fits your work.", required: true },
@@ -12,404 +24,306 @@ const ab = (id: string) => [
   { id: `${id}-extra`, label: "A rough idea or sketch", hint: "Optional, but it helps.", required: false },
 ];
 
-const f = (kind: ProofFile["kind"], name: string, kb: number): ProofFile => ({ id: `${kind}-${name}`, name, size: kb * 1024, type: name.split(".").pop() ?? "", kind });
+/** What every sample project and call agrees by default. */
+const RIGHTS = "Everyone is credited for their part. What each person brings stays theirs.";
+const SELECTION = "The project owner reads every request and replies to everyone.";
 
-/** What the sample applicants to the podcast sent: different work, different proof. */
-const INCOMING_PROOF: Record<string, Pick<Application, "links" | "files">> = {
-  chidi: { links: [{ url: "https://soundcloud.com/chidi-eze/derby-day-pod-ep12", kind: "soundcloud", note: "Football podcast, episode 12" }], files: [f("sample", "lecture-cleanup-before-after.mp3", 3900)] },
-  kwame: { links: [{ url: "https://open.spotify.com/show/devs-after-dark", kind: "spotify", note: "Devs After Dark (I edit it)" }, { url: "https://github.com/kwame-asante", kind: "github" }, { url: "https://linkedin.com/in/kwame-asante", kind: "linkedin" }], files: [f("cv", "Kwame-Asante-CV.pdf", 182)] },
-  wanjiru: { links: [{ url: "https://behance.net/wanjirukamau", kind: "behance" }, { url: "https://instagram.com/wanjiru.frames", kind: "instagram" }], files: [] },
-  leila: { links: [{ url: "https://youtube.com/watch?v=founder-talks-casablanca", kind: "youtube", note: "Panel I hosted, Casablanca" }, { url: "https://linkedin.com/in/leila-benali", kind: "linkedin" }], files: [f("cv", "Leila-Benali-Resume.pdf", 240)] },
-  nandi: { links: [{ url: "https://linkedin.com/in/nandi-moyo", kind: "linkedin" }], files: [f("cv", "Nandi-Moyo-CV.docx", 96), f("sample", "Radio-segment-money-and-family.m4a", 4700)] },
-};
-
-export const SEED_CALLS: CollabCall[] = [
-  {
-    id: "jabi-mural", title: "Jabi Lake Arts Week: a 20-metre mural", host: "zuri", org: "Jabi Lake Arts Week", orgKind: "Community festival", city: "Abuja", where: "In person",
-    photo: "paintingDancers", summary: "Three people to design and paint the festival's lakeside wall, start to finish, in nine days.",
-    about: "Every November the lake walk gets a new wall. This year's theme is \"Arriving\": what Abuja looks like to people who came here to start again. We're putting together a small team: one person to lead the design, one to paint alongside, and one designer to turn it into the festival's posters and signs.",
-    roles: ["Lead muralist", "Assistant painter", "Graphic designer"], fields: ["Arts", "Design"], level: "Any level, with at least three finished pieces",
-    fee: "₦600,000 lead · ₦250,000 per teammate", rights: "The festival may photograph and show the mural for two years. You keep the design, and your name is on the wall.",
-    selection: "Zuri reviews every application herself. Shortlisted people get a 20-minute conversation, and everyone hears back.", teamSize: 3,
-    materials: ab("jabi"), timeline: [{ label: "Applications close", when: "9 Nov" }, { label: "Conversations", when: "11 to 13 Nov" }, { label: "Painting", when: "20 to 28 Nov" }, { label: "Unveiling", when: "30 Nov" }],
-    closesInDays: 14, verified: true,
-  },
-  {
-    id: "kubwa-bread", title: "A short brand film for Kubwa Bread Co.", host: "fatou", org: "Kubwa Bread Co.", orgKind: "Small business", city: "Abuja", where: "Hybrid",
-    photo: "talkCafe", summary: "A 60-second film and ten photos about the family behind Kubwa's favourite bakery.",
-    about: "We bake from 4am and most of Kubwa has eaten our agege bread, but nobody knows the family behind it. We want one honest, warm minute of film and a set of photos for our page and the shop wall.",
-    roles: ["Videographer", "Photographer"], fields: ["Media", "Food", "Business"], level: "Some paid work already",
-    fee: "₦350,000 for the pair", rights: "The bakery may use the film and photos online and in the shop for three years. Raw footage stays with you.",
-    selection: "Fatou picks a pair. She'll call shortlisted people for a quick chat at the bakery.", teamSize: 2,
-    materials: ab("bread"), timeline: [{ label: "Applications close", when: "15 Nov" }, { label: "Shoot", when: "22 Nov, 4am" }, { label: "Delivery", when: "6 Dec" }],
-    closesInDays: 20, verified: true,
-  },
-  {
-    id: "clinic-app", title: "Booking app for Garki Family Clinic, version 1", host: "ayo", org: "Garki Family Clinic", orgKind: "Health clinic", city: "Abuja", where: "Hybrid",
-    photo: "studioBusy", summary: "Patients book and see their queue on their phones, so nobody waits outside from 6am.",
-    about: "Our patients queue from 6am. We want a simple booking app (web is fine) that shows their place in the queue. We need a designer and a developer who'll talk to patients first.",
-    roles: ["Product designer", "Developer"], fields: ["Tech", "Design"], level: "Two or more shipped projects",
-    fee: "₦1.2m, paid at three milestones", rights: "The clinic owns the app. You can show it in your portfolio and you're credited in the app.",
-    selection: "Ayo and the clinic manager review together. Shortlisted pairs get a 30-minute call.", teamSize: 2,
-    materials: ab("clinic"), timeline: [{ label: "Applications close", when: "12 Nov" }, { label: "Patient interviews", when: "18 to 20 Nov" }, { label: "First version", when: "15 Dec" }],
-    closesInDays: 17, verified: true,
-  },
-  {
-    id: "youth-podcast", title: "Abuja Youth Podcast: season one", host: ME, org: "Wuse Tech Hangout", orgKind: "Akines community", city: "Abuja", where: "Hybrid",
-    photo: "talkYoung", summary: "Eight episodes on starting out in Abuja: first jobs, first rent, first business.",
-    about: "We're making an eight-episode podcast with young people starting out in Abuja. We need an audio editor, a cover designer and two co-hosts who'd enjoy asking good questions.",
-    roles: ["Audio editor", "Cover designer", "Co-host"], fields: ["Media", "Community"], level: "Any level",
-    fee: "₦80,000 per episode for editing · ₦150,000 for the cover · co-hosts credited", rights: "Everyone is credited in every episode. The community owns the show; you can share your part anywhere.",
-    selection: "You review the applications. Shortlisted people get a 20-minute call.", teamSize: 4,
-    materials: ab("pod"), timeline: [{ label: "Applications close", when: "10 Nov" }, { label: "Recording starts", when: "17 Nov" }, { label: "Episode one", when: "1 Dec" }],
-    closesInDays: 15, verified: true, postedByMe: true,
-  },
-  {
-    id: "indigo-futures", title: "Indigo Futures Residency", host: "efua", org: "Abeokuta Dye Works", orgKind: "Craft workshop", city: "Abeokuta", where: "In person",
-    photo: "textileHang", summary: "Four weeks with master dyers, for textile artists and designers early in their careers.",
-    about: "Live and work at the dye works for four weeks, learn adire from the women who've done it for forty years, and make one new piece with them.",
-    roles: ["Resident"], fields: ["Arts", "Design"], level: "Early to mid career",
-    fee: "Stipend ₦300,000 · housing and meals included", rights: "Your work stays yours. The dye works may show it in their end-of-residency exhibition.",
-    selection: "A panel of three dyers reviews applications.", teamSize: 4,
-    materials: ab("indigo"), timeline: [{ label: "Applications close", when: "1 Nov" }, { label: "Residency", when: "Jan 2027" }],
-    closesInDays: 6, verified: true,
-  },
-  {
-    id: "supply-drive", title: "Back-to-school supply drive", host: "thandi", org: "Kubwa Parents' Forum", orgKind: "Parents' group", city: "Abuja", where: "In person",
-    photo: "talkGroup", summary: "Get 400 school packs to children in Kubwa before term starts.",
-    about: "Last year we packed 250 bags on one Saturday. This year we want 400, and we need people who can organise: someone to run the day, someone for pick-ups and drop-offs, and someone to tell the story online.",
-    roles: ["Volunteer lead", "Logistics", "Social media"], fields: ["Community"], level: "Anyone who can give two Saturdays",
-    fee: "Volunteer · transport and lunch covered", rights: "Photos are shared with families' consent only.",
-    selection: "Thandi calls everyone who applies.", teamSize: 3,
-    materials: ab("supply").filter((m) => m.id !== "works"), timeline: [{ label: "Applications close", when: "20 Nov" }, { label: "Packing day", when: "6 Dec" }],
-    closesInDays: 25, verified: false,
-  },
-  {
-    id: "matchday-food", title: "Matchday food stalls for the Area 1 Youth League", host: "tunde", org: "Area 1 Youth League", orgKind: "Youth sports", city: "Abuja", where: "In person",
-    photo: "talkMugs", summary: "Food, photos and a little design for the league's final, with 2,000 people expected.",
-    about: "Our final draws families from all over Garki. We want local cooks to run three stalls, a photographer, and someone to design the stall signs and menu boards.",
-    roles: ["Caterer", "Photographer", "Event designer"], fields: ["Food", "Community", "Design"], level: "Any level",
-    fee: "₦200,000 per stall · ₦120,000 photos · ₦90,000 design", rights: "The league may post the photos. Cooks keep their recipes and their takings.",
-    selection: "Tunde and two coaches choose.", teamSize: 5,
-    materials: ab("match"), timeline: [{ label: "Applications close", when: "18 Nov" }, { label: "Final", when: "29 Nov" }],
-    closesInDays: 23, verified: true,
-  },
+/** The talk times Ngozi shared (the design's Slot Picker, the disabled chips left out). */
+export const NGOZI_SLOTS = [
+  "Mon 9 Nov · 10:00", "Mon 9 Nov · 11:30", "Mon 9 Nov · 16:30",
+  "Tue 10 Nov · 09:30", "Tue 10 Nov · 12:00", "Tue 10 Nov · 16:00", "Tue 10 Nov · 17:30",
+  "Wed 11 Nov · 10:00", "Wed 11 Nov · 15:00", "Wed 11 Nov · 16:00",
 ];
 
-/** A deliverable for the sample projects. */
-function dl(d: Partial<Deliverable> & Pick<Deliverable, "id" | "title" | "owner" | "approver" | "due" | "status">): Deliverable {
-  return { steps: [], proof: [], thread: [], ...d };
+type CallInput = Pick<CollabCall, "id" | "title" | "host" | "city" | "where" | "summary" | "about" | "roles" | "fields"> & Partial<CollabCall>;
+const call = (c: CallInput): CollabCall => ({
+  org: "", orgKind: "Independent project", photo: "collabArt", level: "Any level", fee: "Agreed together", rights: RIGHTS, selection: SELECTION,
+  teamSize: c.roles.length + 1, materials: ab(c.id), timeline: [{ label: "Start", when: "Agreed together" }, { label: "Check-ins", when: "Every week" }],
+  closesInDays: 30, verified: true, ...c,
+});
+
+/**
+ * The calls, in the order Collaborate Home shows its open calls (A Better Way to Learn first) and Discover shows its
+ * six projects. Which screen lists which call is in their profiles (lib/collab/projects.ts).
+ */
+export const SEED_CALLS: CollabCall[] = [
+  call({
+    id: "a-better-way-to-learn", title: "A Better Way to Learn", host: "ngozi", city: "Lagos", where: "Hybrid", photo: "notebookWhite",
+    summary: "A digital learning initiative exploring more accessible ways for students to learn.",
+    about: "A Better Way to Learn explores how simple, low-cost lesson tools can help students who learn at different speeds. The team has spoken with students and teachers in Lagos and is now shaping a first version that works on a basic phone.",
+    roles: ["Product Designer", "Software Engineer", "Education Researcher"], fields: ["Tech", "Design"],
+    fee: "6 hours a week, agreed together", timeline: [{ label: "Start", when: "Mon 23 Nov" }, { label: "Check-ins", when: "Every week" }],
+  }),
+  call({
+    id: "craft-memory-archive", title: "Craft Memory Archive", host: "tunde-bello", city: "Ibadan", where: "Hybrid", photo: "textileHang",
+    summary: "A shared archive documenting traditional craft techniques with the artisans who practise them.",
+    about: "A shared archive documenting traditional craft techniques with the artisans who practise them.",
+    roles: ["Photographer", "Researcher", "Web Developer"], fields: ["Arts", "Tech"], fee: "Two hours a week, agreed together.",
+  }),
+  call({
+    id: "neighbourhood-story-map", title: "Neighbourhood Story Map", host: "chioma", city: "Lagos", where: "Hybrid", photo: "journalOpen",
+    summary: "A shared map of the stories, places and voices that shape Lagos neighbourhoods.",
+    about: "A shared map of the stories, places and voices that shape Lagos neighbourhoods.",
+    roles: ["Illustrator", "Writer", "Front-end Developer"], fields: ["Arts", "Tech"],
+  }),
+  call({
+    id: "voices-of-the-market", title: "Voices of the Market", host: "emeka-anozie", city: "Lagos", where: "Hybrid", photo: "beadsShop",
+    summary: "A shared audio archive of the stories traders tell about their markets and their work.",
+    about: "A shared audio archive of the stories traders tell about their markets and their work.",
+    roles: ["Sound Recordist", "Writer", "Researcher"], fields: ["Media"],
+  }),
+  call({
+    id: "learning-in-two-languages", title: "Learning in Two Languages", host: "halima-sani", city: "Kano", where: "Hybrid", photo: "talkGroup",
+    summary: "A bilingual learning toolkit for primary school teachers working in two languages.",
+    about: "A bilingual learning toolkit for primary school teachers working in two languages.",
+    roles: ["Learning Designer", "Illustrator", "Teacher"], fields: ["Community", "Design"],
+  }),
+  call({
+    id: "the-weaving-lab", title: "The Weaving Lab", host: "adaora", city: "Lagos", where: "Hybrid", photo: "textileHang",
+    summary: "An open lab exploring how traditional weaving can shape modern product design.",
+    about: "An open lab exploring how traditional weaving can shape modern product design.",
+    roles: ["Product Designer", "Weaver", "Photographer"], fields: ["Design", "Arts"],
+  }),
+  call({
+    id: "voices-of-lagos", title: "Voices of Lagos", host: "tunde-bakare", city: "Lagos", where: "In person", photo: "talkYoung",
+    summary: "A documentary series capturing everyday stories from Lagos neighbourhoods.",
+    about: "Voices of Lagos follows ordinary people through a day in their own neighbourhood. The team has filmed short test shoots and written an outline for the first episode, and now needs a small crew to shape it into a series.",
+    roles: ["Cinematographer", "Sound Designer", "Documentary Editor"], fields: ["Media"],
+  }),
+  call({
+    id: "clean-water-mapping", title: "Clean Water Mapping", host: "halima-yusuf", city: "Kaduna", where: "In person", photo: "calmBench",
+    summary: "A community-led map of safe water points across Kaduna and Abuja.",
+    about: "A community-led map of safe water points across Kaduna and Abuja.",
+    roles: ["Field Researcher", "GIS Analyst", "Community Organiser"], fields: ["Community", "Tech"], closesInDays: 0,
+  }),
+  call({
+    id: "market-women-ledger", title: "Market Women Ledger", host: "amaka", city: "Enugu", where: "Remote", photo: "beadsShop",
+    summary: "A simple mobile ledger helping market traders record sales and savings.",
+    about: "Market Women Ledger replaces paper notebooks with a simple phone app that records daily sales and savings. The team has spoken with traders about how they keep records today and is now building a first version.",
+    roles: ["Mobile Developer", "UX Researcher", "Finance Advisor"], fields: ["Tech", "Business"],
+  }),
+  call({
+    id: "stories-for-small-hands", title: "Stories for Small Hands", host: "ifeoma", city: "Kano", where: "Hybrid", photo: "journalOpen",
+    summary: "An illustrated book series helping young students learn kindness in Hausa and English.",
+    about: "Stories for Small Hands is a series of short picture books that teach kindness through everyday moments. The team has drafted the first story in English and is exploring how to publish each book in both Hausa and English.",
+    roles: ["Illustrator", "Hausa Translator", "Children’s Book Editor"], fields: ["Arts", "Community"],
+  }),
+  call({
+    id: "clinic-queue", title: "Clinic Queue", host: "dayo", city: "Ibadan", where: "Hybrid", photo: "studioBusy",
+    summary: "A queue and appointment tool for busy primary health centres.",
+    about: "Clinic Queue helps patients know when to arrive and helps nurses see who is waiting. The team has watched how queues work at two primary health centres and is now exploring a first version.",
+    roles: ["Mobile Developer", "Health Informatics Lead", "UX Writer"], fields: ["Tech", "Community"],
+  }),
+  // Daniel's invitation to Kemi (Collaborate Home, "You've been invited"): the call behind Community Learning Initiative.
+  call({
+    id: "community-learning-initiative", title: "Community Learning Initiative", host: "daniel", city: "Lagos", where: "Hybrid", photo: "talkGroup",
+    summary: "A project creating accessible learning opportunities for underserved communities.",
+    about: "A weekend learning programme that pairs local tutors with students who need extra support.",
+    roles: ["Product Designer"], fields: ["Community", "Design"], fee: "Flexible, based on agreed contribution.",
+  }),
+  // Kemi's own open call (12.46 Open calls), with no project yet.
+  call({
+    id: "mapping-the-market-road", title: "Mapping the Market Road: a call for a writer and a photographer", host: ME, city: "Lagos", where: "Hybrid", photo: "beadsShop",
+    summary: "Stories and photographs of the traders along the market road, from Lagos to Port Harcourt.",
+    about: "Stories and photographs of the traders along the market road, from Lagos to Port Harcourt.",
+    roles: ["Writer", "Photographer"], fields: ["Media", "Arts"], postedByMe: true,
+    timeline: [{ label: "Applications close", when: "Fri 20 Nov" }, { label: "Start", when: "Agreed together" }], closesInDays: 8,
+  }),
+];
+
+/* ------------------------------------------------------------------ Kemi's projects */
+
+function charter(members: PersonId[], signedAt: number): Charter {
+  const even = Math.floor(100 / members.length);
+  return {
+    credit: "Every member is named on the finished work, in the order they joined.",
+    ownership: "What each person brings stays theirs. What we make together belongs to all of us.",
+    decisions: "Each person decides their own part. Anything that changes the whole needs everyone to agree.",
+    expenses: "Agreed costs come out of the shared budget first, with receipts in the workspace.",
+    uses: "Everyone can show their part anywhere. Selling or licensing the whole needs everyone to agree.",
+    exit: "Anyone can leave with two weeks' notice. Their finished work stays in, credited.",
+    split: Object.fromEntries(members.map((m, i) => [m, i === 0 ? 100 - even * (members.length - 1) : even])),
+    signed: members, signedAt,
+  };
 }
+
+/** A milestone. `label` is how the project bar and the cards say it ("Define the first student experience."). */
+const ms = (id: string, title: string, due: string, done: boolean, label?: string): Milestone => ({ id, title, due, done, ...(label ? { label } : {}) });
+
+type ProjectInput = Pick<Project, "id" | "title" | "summary" | "photo" | "host" | "stage" | "kind" | "createdAt" | "milestones" | "ledger"> & { members: Member[]; callId?: string; tasks?: Task[]; signed?: PersonId[] };
+const project = ({ signed, tasks = [], ...p }: ProjectInput): Project => {
+  const c = charter(p.members.map((m) => m.id), p.createdAt + 2 * DAY);
+  return {
+  ...p,
+  // Agreed by everyone, unless the terms changed and only some have signed again (no signedAt then).
+  charter: signed ? { ...c, signed, signedAt: undefined } : c,
+  tasks, studio: [], rooms: [], tools: [], deliverables: [], checkins: [],
+  present: { what: "", where: "", when: "", checklist: [] },
+  budget: { total: 0, currency: "₦", expenses: [], paidOut: [] },
+  convoId: `co-${p.id}`,
+  };
+};
+
+/** The nine tasks of the design's Tasks page (12.14 and 12.36): the same ids on both projects, in the same order. */
+const TASK_IDS = [
+  "review-the-student-onboarding-draft", "collect-questions-students-ask-about-careers", "write-the-guided-onboarding-questions", "build-the-second-onboarding-screen",
+  "confirm-the-final-interest-questions", "invite-two-schools-to-the-review", "plan-the-prototype-review-session", "share-the-career-interview-notes", "set-up-the-shared-canvas",
+];
+const tasks = (rows: [string, PersonId, string, Task["status"]][]): Task[] => rows.map(([title, who, due, status], i) => ({ id: TASK_IDS[i]!, title, who, due, status }));
 
 export function seedState(): CollabState {
   const now = Date.now();
-  const applications: Application[] = [
-    // Mine: one in progress, one decided (so "every applicant hears back" is visible).
-    {
-      id: "a-clinic", callId: "clinic-app", applicant: ME, role: "Product designer", works: ["w-clinic", "w-journal", "w-research"],
-      statement: "I redesigned a clinic check-in last year and spent two mornings in the queue first. I'd start the same way here.", availability: "Weekday afternoons and Saturdays",
-      materials: { works: true, why: true, availability: true }, stage: "viewed",
-      history: [{ stage: "submitted", at: now - 2 * DAY }, { stage: "viewed", at: now - DAY, note: "Ayo opened your application." }], notes: [], tags: [],
-    },
-    {
-      id: "a-bread", callId: "kubwa-bread", applicant: ME, role: "Photographer", works: ["w-poster"],
-      statement: "I'd shoot the bakery in the dark before 4am: flour in the lamp light, the first tray out. Honest, warm, no staging.", availability: "22 Nov from 3am, and edits the week after",
-      materials: { works: true, why: true, availability: true }, stage: "joined", slot: "Tue 12 Nov · 10:00", projectId: "kubwa-bread-shoot",
-      offer: { role: "Photographer", fee: "₦175,000", start: "Fri 22 Nov, 3:30am at the bakery" },
-      history: [
-        { stage: "submitted", at: now - 6 * DAY }, { stage: "viewed", at: now - 5 * DAY }, { stage: "shortlisted", at: now - 5 * DAY + 3 * HOUR },
-        { stage: "conversation", at: now - 3 * DAY, note: "Conversation booked: Tue 12 Nov · 10:00." }, { stage: "offer", at: now - DAY, note: "Fatou offered you the Photographer role." },
-        { stage: "joined", at: now - 2 * HOUR, note: "You accepted. The project workspace is open." },
+
+  const projects: Project[] = [
+    project({
+      id: "career-guidance-for-everyone", title: "Career Guidance for Everyone", photo: "notebookWhite", host: ME, stage: 3, kind: "build",
+      summary: "A digital career guidance platform helping Nigerian students make informed career decisions.",
+      members: [
+        { id: ME, role: "Owner and Product Designer", contribution: "Leads the project and shapes the product direction." },
+        { id: "adaeze", role: "Product Designer", contribution: "Designs the student-facing screens and helps the team review work." },
+        { id: "tobi", role: "Software Engineer", contribution: "Builds the student onboarding screens in code." },
+        { id: "ngozi", role: "Career Researcher", contribution: "Runs the student interviews and turns them into findings." },
       ],
-      notes: [], tags: [],
+      milestones: [
+        ms("project-brief-approved", "Project brief approved", "12 October", true),
+        ms("first-student-experience", "First Student Experience", "28 November", false, "Define the first student experience"),
+        ms("prototype-review", "Prototype Review", "12 December", false),
+      ],
+      tasks: tasks([
+        ["Review the student onboarding draft", "adaeze", "Fri 6 Nov", "doing"],
+        ["Collect questions students ask about careers", "ngozi", "Mon 9 Nov", "doing"],
+        ["Write the guided onboarding questions", ME, "Tue 10 Nov", "doing"],
+        ["Build the second onboarding screen", "tobi", "Fri 13 Nov", "doing"],
+        ["Confirm the final interest questions", "ngozi", "Fri 20 Nov", "todo"],
+        ["Invite two schools to the review", "tobi", "Fri 27 Nov", "todo"],
+        ["Plan the prototype review session", "adaeze", "Fri 4 Dec", "todo"],
+        ["Share the career interview notes", "ngozi", "Tue 3 Nov", "done"],
+        ["Set up the shared workspace", ME, "Mon 2 Nov", "done"],
+      ]),
+      signed: [ME, "adaeze"],
+      createdAt: on(10, 20),
+      ledger: [
+        { at: on(10, 20), who: ME, what: "Started the project and invited the team" },
+        { at: on(11, 3), who: ME, what: "Added decision-making rights, so everyone signs again" },
+        { at: on(11, 3, 10, 30), who: ME, what: "Signed the charter" },
+        { at: on(11, 3, 15), who: "adaeze", what: "Signed the charter" },
+        { at: now - 2 * HOUR, who: "adaeze", what: "Asked Kemi to review the student onboarding draft" },
+      ],
+    }),
+    project({
+      id: "community-learning-initiative", title: "Community Learning Initiative", photo: "talkGroup", host: "ayo-balogun", stage: 2, kind: "teach", callId: "community-learning-initiative",
+      summary: "A weekend learning programme that pairs local tutors with students who need extra support.",
+      members: [
+        { id: "ayo-balogun", role: "Owner", contribution: "Leads the programme" },
+        { id: ME, role: "Product Designer", contribution: "Shapes the learning experience" },
+        { id: "tolu", role: "Volunteer Coordinator", contribution: "Recruits and supports the tutors" },
+        { id: "funke", role: "Education Researcher", contribution: "Shapes the session format" },
+      ],
+      milestones: [
+        ms("project-brief-approved", "Project brief approved", "20 October", true),
+        ms("weekend-session-format", "Weekend Session Format", "30 November", false, "Agree the weekend session format"),
+        ms("tutor-onboarding-plan", "Tutor Onboarding Plan", "14 December", false),
+      ],
+      createdAt: on(10, 10),
+      ledger: [
+        { at: on(10, 10), who: "ayo-balogun", what: "Started the project and invited the team" },
+        { at: on(10, 20), who: "akines", what: "Milestone done: Project brief approved" },
+        { at: now - DAY, who: "tolu", what: "Drafted the tutor list" },
+      ],
+    }),
+    project({
+      id: "mentorship-circle", title: "Mentorship Circle", photo: "talkTwo", host: ME, stage: 2, kind: "teach",
+      summary: "A peer mentoring programme connecting final-year students with early-career professionals.",
+      members: [
+        { id: ME, role: "Owner", contribution: "Leads the programme" },
+        { id: "bisi-fashola", role: "Mentor Coordinator", contribution: "Recruits the mentors" },
+        { id: "emeka-nwosu", role: "Programme Support", contribution: "Keeps the mentor shortlist" },
+      ],
+      milestones: [
+        ms("project-brief-approved", "Project brief approved", "18 October", true),
+        ms("mentor-recruitment", "Mentor Recruitment", "27 November", false, "Recruit the first six mentors"),
+        ms("mentor-guide", "Mentor Guide", "11 December", false),
+      ],
+      createdAt: on(10, 8),
+      ledger: [
+        { at: on(10, 8), who: ME, what: "Started the project and invited the team" },
+        { at: on(10, 18), who: "akines", what: "Milestone done: Project brief approved" },
+        { at: now - 3 * DAY, who: "bisi-fashola", what: "Shared the mentor sign-up form" },
+      ],
+    }),
+    project({
+      id: "adire-stories", title: "Adire Stories", photo: "textileHang", host: ME, stage: 3, kind: "make",
+      summary: "A shared illustration series that celebrates adire textile patterns and the people who make them.",
+      members: [
+        { id: ME, role: "Owner and Art Director", contribution: "Leads the series and sets the art direction." },
+        { id: "amara-obi", role: "Illustrator", contribution: "Draws the line work for each headwrap illustration." },
+        { id: "ayo-bello", role: "Colour Artist", contribution: "Chooses the colours and prepares the print proofs." },
+        { id: "yusuf-danjuma", role: "Textile Historian", contribution: "Researches the history behind each resist pattern." },
+      ],
+      milestones: [
+        ms("series-brief-approved", "Series brief approved", "8 October", true),
+        ms("headwrap-portrait", "Headwrap Portrait", "26 November", false, "Finish the headwrap portrait"),
+        ms("pattern-study-set", "Pattern Study Set", "10 December", false),
+      ],
+      tasks: tasks([
+        ["Review the headwrap colour layer", "amara-obi", "Fri 6 Nov", "doing"],
+        ["Collect reference photos of headwrap cloth", "yusuf-danjuma", "Wed 11 Nov", "doing"],
+        ["Write the caption for the headwrap plate", ME, "Thu 12 Nov", "doing"],
+        ["Paint the headwrap highlight layer", "ayo-bello", "Mon 16 Nov", "doing"],
+        ["Confirm the pattern names with the dyers", "yusuf-danjuma", "Wed 18 Nov", "todo"],
+        ["Draft the palette for the pattern set", "ayo-bello", "Mon 30 Nov", "todo"],
+        ["Sketch the pattern study layouts", "amara-obi", "Thu 3 Dec", "todo"],
+        ["Share the dye pot notes from Abeokuta", "yusuf-danjuma", "Wed 4 Nov", "done"],
+        ["Set up the plate template", ME, "Sun 1 Nov", "done"],
+      ]),
+      signed: [ME, "amara-obi"],
+      createdAt: on(10, 20),
+      ledger: [
+        { at: on(10, 20), who: ME, what: "Started the project and invited the team" },
+        { at: on(11, 3), who: ME, what: "Added decision-making rights, so everyone signs again" },
+        { at: on(11, 3, 10, 30), who: ME, what: "Signed the charter" },
+        { at: on(11, 3, 15), who: "amara-obi", what: "Signed the charter" },
+        { at: now - HOUR, who: "amara-obi", what: "Asked Kemi to review the headwrap colour layer" },
+      ],
+    }),
+  ];
+
+  const applications: Application[] = [
+    // Kemi's interest in A Better Way to Learn, sent Thu 5 Nov and withdrawn Fri 6 Nov: the project reads plain (Express
+    // interest is open again) and the request's own pages show each stage Ngozi's journey has.
+    {
+      id: "a-better-way-to-learn-kemi", callId: "a-better-way-to-learn", applicant: ME, role: "Product Designer", works: [],
+      statement: "I design simple learning tools and have worked with teachers in Ibadan. I can help shape how students move through each lesson.",
+      availability: "A few hours a week", materials: { works: true, why: true, availability: true }, stage: "withdrawn", slotsOffered: NGOZI_SLOTS,
+      history: [{ stage: "submitted", at: on(11, 5) }, { stage: "withdrawn", at: on(11, 6), note: "You withdrew your interest." }], notes: [], tags: [],
+    },
+    // The two invitations of Collaborate Home.
+    {
+      id: "community-learning-initiative-kemi", callId: "community-learning-initiative", applicant: ME, role: "Product Designer", works: [],
+      statement: "", availability: "Flexible, based on agreed contribution.", materials: {}, stage: "offer",
+      offer: { role: "Product Designer", fee: "Flexible, based on agreed contribution.", start: "" },
+      history: [{ stage: "offer", at: on(10, 28), note: "Daniel invited you to contribute to a new project." }], notes: [], tags: [],
     },
     {
-      id: "a-indigo", callId: "indigo-futures", applicant: ME, role: "Resident", works: ["w-poster", "w-mentoring"],
-      statement: "I want to learn how pattern carries meaning in cloth, for my stall identity work.", availability: "All of January",
-      materials: { works: true, why: true, availability: true }, stage: "not-selected",
-      history: [{ stage: "submitted", at: now - 9 * DAY }, { stage: "viewed", at: now - 8 * DAY }, { stage: "not-selected", at: now - 3 * DAY }],
-      feedback: "Thank you, Amara. We chose residents with more hands-on dyeing this time. Your stall identities were lovely; come to our open studio day on 14 Dec and dye something with us.",
-      notes: [], tags: [],
+      id: "craft-memory-archive-kemi", callId: "craft-memory-archive", applicant: ME, role: "Web Developer", works: [],
+      statement: "", availability: "Two hours a week, agreed together.", materials: {}, stage: "offer",
+      offer: { role: "Web Developer", fee: "Two hours a week, agreed together.", start: "" },
+      history: [{ stage: "offer", at: on(10, 30), note: "Tunde invited you to contribute to a new project." }], notes: [], tags: [],
     },
-    // Coming in to the call I host.
+    // The people who applied to Mapping the Market Road (12.46), all new.
     ...([
-      ["chidi", "Audio editor", "I edit my department's lecture recordings and a friend's football podcast. I'd love to learn properly on a real show.", "submitted", 5 * HOUR],
-      ["kwame", "Audio editor", "Eight years of software, three of them editing a tech podcast on the side. I care about clean levels and short edits.", "viewed", 26 * HOUR],
-      ["wanjiru", "Cover designer", "Most of my work is photography; the cover could be a portrait of your guests, shot in Wuse.", "shortlisted", 2 * DAY],
-      ["leila", "Co-host", "I started my company at 23 and made every mistake. I'd ask the questions I wish someone had asked me.", "submitted", 3 * HOUR],
-      ["nandi", "Co-host", "I'm a therapist; I'd bring the quieter questions about money, family and pressure.", "submitted", 40 * MIN],
-    ] as const).map(([who, role, statement, stage, ago]): Application => ({
-      id: `in-${who}`, callId: "youth-podcast", applicant: who, role, works: [], ...INCOMING_PROOF[who], statement, availability: "Weekends", materials: { works: true, why: true, availability: true },
-      stage, slot: stage === "shortlisted" ? "Thu 14 Nov · 16:00" : undefined,
-      history: [{ stage: "submitted", at: now - ago }, ...(stage !== "submitted" ? [{ stage: "viewed" as const, at: now - ago + HOUR }] : []), ...(stage === "shortlisted" ? [{ stage: "shortlisted" as const, at: now - ago + 2 * HOUR }] : [])],
-      notes: who === "kwame" ? [{ at: now - 20 * HOUR, text: "Strong on audio quality. Ask about time per episode." }] : [], tags: who === "wanjiru" ? ["Strong visuals"] : [],
+      ["folake", "Writer", "I write about markets and the people who keep them running. This is the story I want to tell.", "Available for new projects", 3],
+      ["tunde-bello", "Photographer", "I photograph working streets and the people on them. I know the Ibadan end of the road well.", "Available from next month", 3],
+      ["ngozi", "Writer", "I have written about informal trade for three years and would like to interview traders along the road.", "A few hours a week", 4],
+      ["chuka", "Photographer", "I can cover the Port Harcourt end of the road with portraits and market scenes.", "Open to new collaborations", 5],
+      ["amara-okafor", "Writer", "I write long pieces and would like to bring the voices of market women into the story.", "Available for new projects", 6],
+    ] as const).map(([who, role, statement, availability, day]): Application => ({
+      id: `mapping-the-market-road-${who}`, callId: "mapping-the-market-road", applicant: who, role, works: [], statement, availability,
+      materials: { works: true, why: true, availability: true }, stage: "submitted", history: [{ stage: "submitted", at: on(11, day) }], notes: [], tags: [],
     })),
   ];
 
-  const market: Project = {
-    id: "market-light", title: "Market Light", summary: "A small photo book of Wuse Market traders, in their own words.", photo: "beadsShop", host: "wanjiru",
-    members: [
-      { id: "wanjiru", role: "Photographer", contribution: "Portraits and market photos" },
-      { id: ME, role: "Designer", contribution: "Book layout, type and cover" },
-      { id: "efua", role: "Historian", contribution: "Trader interviews and captions" },
-    ],
-    stage: 3, createdAt: now - 18 * DAY,
-    charter: {
-      credit: "All three names on the cover, in alphabetical order. Each trader is named with their photo.",
-      ownership: "Photos stay Wanjiru's, interviews stay Efua's, the layout stays Amara's. The book as a whole belongs to all three.",
-      decisions: "Day-to-day decisions by whoever owns that part. The cover and the title need all three.",
-      expenses: "Printing and transport come out of the shared budget first. Receipts go in the workspace.",
-      uses: "Each of us can show our part anywhere. Selling the book needs all three to agree.",
-      exit: "Anyone can leave with two weeks' notice. Their finished work stays in the book, credited.",
-      split: { wanjiru: 40, amara: 30, efua: 30 }, signed: ["wanjiru", "amara", "efua"], signedAt: now - 15 * DAY,
-    },
-    tasks: [
-      { id: "t1", title: "Shoot the fabric row (6 traders)", who: "wanjiru", due: "Sat 2 Nov", status: "done" },
-      { id: "t2", title: "Transcribe Mama Ngozi's interview", who: "efua", due: "Mon 4 Nov", status: "doing" },
-      { id: "t3", title: "First full layout, 24 pages", who: ME, due: "Fri 8 Nov", status: "doing" },
-      { id: "t4", title: "Choose the cover photo", who: "wanjiru", due: "Fri 8 Nov", status: "todo" },
-      { id: "t5", title: "Get printing quotes (3 printers)", who: ME, due: "Wed 13 Nov", status: "todo" },
-    ],
-    milestones: [
-      { id: "m1", title: "All traders photographed", due: "2 Nov", done: true },
-      { id: "m2", title: "Interviews written up", due: "6 Nov", done: false },
-      { id: "m3", title: "Layout signed off by all three", due: "15 Nov", done: false },
-      { id: "m4", title: "Launch at the market", due: "7 Dec", done: false },
-    ],
-    studio: [
-      { id: "s1", kind: "image", title: "Mama Ngozi at her stall", by: "wanjiru", tag: "Final", at: now - 6 * DAY, photo: "beadsPile", comments: [{ by: "efua", text: "This is the cover. Look at her hands.", at: now - 6 * DAY + HOUR }] },
-      { id: "s2", kind: "image", title: "Fabric row, early morning", by: "wanjiru", tag: "Draft", at: now - 5 * DAY, photo: "textileStack", comments: [] },
-      { id: "s3", kind: "note", title: "Caption style", by: "efua", tag: "Reference", at: now - 4 * DAY, text: "First name, stall, years at the market, one sentence in their own words. No more than 30 words.", comments: [{ by: ME, text: "Agreed. I'll set them in the sans at 9pt.", at: now - 4 * DAY + 2 * HOUR }] },
-      { id: "s4", kind: "image", title: "Layout draft, spread 3", by: ME, tag: "Draft", at: now - 2 * DAY, photo: "journalOpen", comments: [] },
-      { id: "s5", kind: "image", title: "Bead seller's tray", by: "wanjiru", tag: "Draft", at: now - DAY, photo: "beadsGold", comments: [] },
-    ],
-    present: { what: "Launch at Wuse Market, with the traders", where: "Wuse Market, fabric row", when: "Sat 7 Dec · 10:00", checklist: [{ label: "Permission from the market association", done: true }, { label: "Print 200 copies", done: false }, { label: "A copy for every trader in the book", done: false }, { label: "Invite the community", done: false }] },
-    budget: { total: 450_000, currency: "₦", expenses: [{ id: "e1", label: "Transport to the market (6 trips)", amount: 18_000, by: "wanjiru", status: "paid" }, { id: "e2", label: "Recorder batteries", amount: 6_500, by: "efua", status: "paid" }, { id: "e3", label: "Printing deposit", amount: 120_000, by: ME, status: "pending" }], paidOut: [] },
-    ledger: [
-      { at: now - 18 * DAY, who: "wanjiru", what: "Started the project and invited Amara and Efua" },
-      { at: now - 15 * DAY, who: "akines", what: "Charter signed by all three. Work can start." },
-      { at: now - 12 * DAY, who: "wanjiru", what: "Added 46 photos to the studio" },
-      { at: now - 6 * DAY, who: "efua", what: "Marked \"Mama Ngozi at her stall\" as the cover" },
-      { at: now - 6 * DAY, who: "akines", what: "Milestone done: all traders photographed" },
-    ],
-    convoId: "co-market-light", rooms: [], kind: "make",
-    tools: [
-      { id: "ml-t1", label: "Photo folder", url: "https://drive.google.com/drive/folders/market-light", kind: "drive" },
-      { id: "ml-t2", label: "Book layout", url: "https://figma.com/file/market-light-book", kind: "figma" },
-    ],
-    deliverables: [
-      dl({ id: "ml-d1", title: "Portraits of 24 traders", owner: "wanjiru", approver: ME, due: "2 Nov", share: 35, status: "approved", approvedAt: now - 6 * DAY,
-        proof: [{ id: "ml-p1", kind: "image", title: "Mama Ngozi at her stall", photo: "beadsPile", by: "wanjiru", at: now - 7 * DAY }, { id: "ml-p2", kind: "link", title: "All 46 selects", url: "https://drive.google.com/drive/folders/market-light", by: "wanjiru", at: now - 7 * DAY }],
-        thread: [{ by: "wanjiru", text: "All 24 traders, two frames each. Selects are in the folder.", at: now - 7 * DAY, kind: "submitted" }, { by: ME, text: "These are beautiful. Approved.", at: now - 6 * DAY, kind: "approved" }] }),
-      dl({ id: "ml-d2", title: "Trader interviews, written up", owner: "efua", approver: "wanjiru", due: "6 Nov", share: 25, status: "doing",
-        steps: [{ id: "s1", title: "Fabric row (6)", done: true }, { id: "s2", title: "Bead sellers (8)", done: true }, { id: "s3", title: "Food stalls (10)", done: false }],
-        proof: [{ id: "ml-p3", kind: "note", title: "Caption style", text: "First name, stall, years at the market, one sentence in their own words. No more than 30 words.", by: "efua", at: now - 4 * DAY }] }),
-      dl({ id: "ml-d3", title: "Book layout, 24 pages", owner: ME, approver: "wanjiru", due: "15 Nov", share: 25, status: "doing",
-        steps: [{ id: "s1", title: "Grid and type", done: true }, { id: "s2", title: "Spreads 1 to 6", done: true }, { id: "s3", title: "Spreads 7 to 12", done: false }],
-        proof: [{ id: "ml-p4", kind: "image", title: "Spread 3 draft", photo: "journalOpen", by: ME, at: now - 2 * DAY }, { id: "ml-p5", kind: "link", title: "Layout in Figma", url: "https://figma.com/file/market-light-book", by: ME, at: now - 2 * DAY }] }),
-      dl({ id: "ml-d4", title: "Launch at Wuse Market", owner: "wanjiru", approver: "efua", due: "7 Dec", share: 15, status: "todo" }),
-    ],
-    checkins: [
-      { id: "ml-c1", who: "efua", at: now - DAY, done: "Wrote up the bead sellers.", next: "Food stalls on Thursday morning.", stuck: "Two traders want to check their quotes first." },
-      { id: "ml-c2", who: "wanjiru", at: now - DAY - 3 * HOUR, done: "Picked three cover options.", next: "Print tests on Saturday." },
-    ],
-  };
-
-  /** Just accepted: the team agrees the terms first. Fatou and Chidi have signed; your signature opens the work. */
-  const bread: Project = {
-    id: "kubwa-bread-shoot", title: "A short brand film for Kubwa Bread Co.", summary: "A 60-second film and ten photos about the family behind Kubwa's favourite bakery.", photo: "talkCafe", host: "fatou", callId: "kubwa-bread",
-    members: [
-      { id: "fatou", role: "Host", contribution: "For Kubwa Bread Co." },
-      { id: "chidi", role: "Videographer", contribution: "The 60-second film and sound" },
-      { id: ME, role: "Photographer", contribution: "Ten photos for the page and the shop wall" },
-    ],
-    stage: 2, createdAt: now - 2 * HOUR,
-    charter: {
-      credit: "Film and photos credited to Chidi and Amara on every post and on the shop wall. The bakery is credited as the client.",
-      ownership: "The bakery may use the film and photos online and in the shop for three years. Raw footage and outtakes stay with Chidi and Amara.",
-      decisions: "Fatou approves the final cut and the ten photos. Chidi and Amara decide how to shoot.",
-      expenses: "Transport to the 4am shoot comes out of the budget first, with receipts in the workspace.",
-      uses: "Chidi and Amara can show the work in their portfolios once the bakery has posted it.",
-      exit: "If someone can't make the shoot, they say so a week before. Work already delivered is paid for.",
-      split: { fatou: 0, chidi: 50, amara: 50 }, signed: ["fatou", "chidi"],
-    },
-    tasks: [
-      { id: "b1", title: "Visit the bakery and plan the shots", who: "chidi", due: "Mon 18 Nov", status: "todo" },
-      { id: "b2", title: "Shot list: ten photos", who: ME, due: "Tue 19 Nov", status: "todo" },
-      { id: "b3", title: "Share opening hours and who'll be on shift", who: "fatou", due: "Mon 18 Nov", status: "todo" },
-    ],
-    milestones: [
-      { id: "bm1", title: "Terms agreed by everyone", due: "This week", done: false },
-      { id: "bm2", title: "Shoot day at 4am", due: "22 Nov", done: false },
-      { id: "bm3", title: "Film and photos delivered", due: "6 Dec", done: false },
-    ],
-    studio: [
-      { id: "bs1", kind: "note", title: "What the film should feel like", by: "fatou", tag: "Reference", at: now - HOUR, text: "Warm, early, a bit sleepy. My mother kneading, my brother loading the van. No music with words.", comments: [] },
-    ],
-    present: { what: "Film on the bakery's page, photos on the shop wall", where: "Kubwa Bread Co., Kubwa", when: "Sat 7 Dec", checklist: [{ label: "Final cut approved by Fatou", done: false }, { label: "Ten photos printed for the wall", done: false }, { label: "Post the film", done: false }] },
-    budget: { total: 350_000, currency: "₦", expenses: [], paidOut: [] },
-    ledger: [
-      { at: now - 2 * HOUR - 20 * MIN, who: "fatou", what: "Accepted Amara and Chidi from the open call" },
-      { at: now - 2 * HOUR, who: "akines", what: "Workspace opened. Agree the terms to start." },
-      { at: now - 90 * MIN, who: "fatou", what: "Signed the charter" },
-      { at: now - HOUR, who: "chidi", what: "Signed the charter" },
-    ],
-    convoId: "co-kubwa-bread-shoot", rooms: [], kind: "make",
-    tools: [{ id: "kb-t1", label: "Shot list and footage", url: "https://drive.google.com/drive/folders/kubwa-bread", kind: "drive" }],
-    deliverables: [
-      dl({ id: "kb-d1", title: "Shot list: ten photos", owner: ME, approver: "fatou", due: "Tue 19 Nov", share: 10, status: "todo" }),
-      dl({ id: "kb-d2", title: "The 60-second film", owner: "chidi", approver: "fatou", due: "6 Dec", share: 45, status: "todo" }),
-      dl({ id: "kb-d3", title: "Ten finished photos", owner: ME, approver: "fatou", due: "6 Dec", share: 45, status: "todo" }),
-    ],
-    checkins: [],
-  };
-
-  const base = { stage: 3 as const, present: { what: "", where: "", when: "", checklist: [] }, studio: [], tasks: [], milestones: [], rooms: [] };
-
-  /** Build: a clinic app with a team of six. Four of them are waiting for your review. */
-  const clinic: Project = {
-    ...base, id: "garki-clinic-booking", title: "Garki Clinic booking app", summary: "Online booking and SMS reminders, so patients stop waiting three hours to be seen.", photo: "studioBusy", host: "ayo", kind: "build", createdAt: now - 24 * DAY,
-    members: [
-      { id: "ayo", role: "Client", contribution: "For Garki Family Clinic" },
-      { id: ME, role: "Product lead", contribution: "Design, and reviews the team's work" },
-      { id: "kwame", role: "Backend developer", contribution: "Booking API, SMS and the admin screen" },
-      { id: "chidi", role: "Frontend developer", contribution: "The patient booking screens" },
-      { id: "wanjiru", role: "Photographer", contribution: "Photos of the clinic and staff" },
-      { id: "leila", role: "Content", contribution: "Help text and messages" },
-    ],
-    charter: {
-      credit: "Everyone credited in the app's About page and free to show their part in their portfolio.", ownership: "The clinic owns the app and its data. Developers keep the right to reuse their general code; the designer keeps her design system.",
-      decisions: "Amara reviews the team's work first; Dr Ayo approves what goes live after trying it on the test site.", expenses: "SMS credits and hosting come out of the budget first.", uses: "Screenshots without patient data can be shown anywhere.", exit: "Two weeks' notice. Approved work is paid for.",
-      split: { ayo: 0, amara: 25, kwame: 35, chidi: 25, wanjiru: 7, leila: 8 }, signed: ["ayo", ME, "kwame", "chidi", "wanjiru", "leila"], signedAt: now - 22 * DAY,
-    },
-    tools: [
-      { id: "gc-t1", label: "Code repository", url: "https://github.com/garki-clinic/booking", kind: "github" },
-      { id: "gc-t2", label: "Designs", url: "https://figma.com/file/garki-booking", kind: "figma" },
-      { id: "gc-t3", label: "Test site", url: "https://staging.garkiclinic.ng", kind: "site" },
-    ],
-    deliverables: [
-      dl({ id: "gc-d1", title: "Booking flow design", owner: ME, approver: "ayo", due: "Week 2", share: 15, status: "approved", approvedAt: now - 14 * DAY,
-        proof: [{ id: "gc-p1", kind: "link", title: "Booking flow in Figma", url: "https://figma.com/file/garki-booking", by: ME, at: now - 15 * DAY }],
-        thread: [{ by: ME, text: "Three screens: pick a time, confirm, reminder settings.", at: now - 15 * DAY, kind: "submitted" }, { by: "ayo", text: "My receptionist tried it on her phone in a minute. Approved.", at: now - 14 * DAY, kind: "approved" }] }),
-      dl({ id: "gc-d2", title: "Booking API and database", owner: "kwame", approver: "ayo", due: "Week 3", share: 20, status: "approved", approvedAt: now - 6 * DAY,
-        proof: [{ id: "gc-p2", kind: "link", title: "Pull request #14: bookings", url: "https://github.com/garki-clinic/booking/pull/14", by: "kwame", at: now - 7 * DAY }, { id: "gc-p3", kind: "file", title: "API docs", file: { id: "f-api", name: "Booking-API.pdf", size: 420 * 1024, type: "pdf", kind: "sample" }, by: "kwame", at: now - 7 * DAY }],
-        thread: [{ by: "kwame", text: "Bookings, cancellations and the daily list. Tested with 500 fake bookings.", at: now - 7 * DAY, kind: "submitted" }, { by: "ayo", text: "Tried booking and cancelling on the test site. Works. Approved.", at: now - 6 * DAY, kind: "approved" }] }),
-      dl({ id: "gc-d3", title: "Admin screen for the front desk", owner: "kwame", approver: ME, due: "Week 4", share: 15, status: "review",
-        proof: [{ id: "gc-p4", kind: "link", title: "Try it on the test site", url: "https://staging.garkiclinic.ng/admin", by: "kwame", at: now - 5 * HOUR }, { id: "gc-p5", kind: "link", title: "Pull request #21: admin screen", url: "https://github.com/garki-clinic/booking/pull/21", by: "kwame", at: now - 5 * HOUR }],
-        thread: [{ by: "kwame", text: "Built from your designs. Can you check it matches before Dr Ayo sees it?", at: now - 5 * HOUR, kind: "submitted" }] }),
-      dl({ id: "gc-d6", title: "Patient booking screens", owner: "chidi", approver: ME, due: "Week 4", share: 15, status: "review",
-        steps: [{ id: "s1", title: "Pick a time", done: true }, { id: "s2", title: "Confirm", done: true }, { id: "s3", title: "Reminder settings", done: true }],
-        proof: [{ id: "gc-p7", kind: "link", title: "Try it on your phone", url: "https://staging.garkiclinic.ng/book", by: "chidi", at: now - 2 * HOUR }, { id: "gc-p8", kind: "file", title: "Screen recording", file: { id: "f-rec", name: "Booking-walkthrough.mp4", size: 4600 * 1024, type: "mp4", kind: "sample" }, by: "chidi", at: now - 2 * HOUR }],
-        thread: [{ by: "chidi", text: "All three screens are done and work on a cheap Android phone. Recording attached.", at: now - 2 * HOUR, kind: "submitted" }] }),
-      dl({ id: "gc-d7", title: "Photos of the clinic and staff", owner: "wanjiru", approver: ME, due: "Week 4", share: 5, status: "review",
-        proof: [{ id: "gc-p9", kind: "image", title: "Front desk, morning", photo: "talkGroup", by: "wanjiru", at: now - 70 * MIN }, { id: "gc-p10", kind: "image", title: "Dr Ayo with the nurses", photo: "talkTwo", by: "wanjiru", at: now - 70 * MIN }, { id: "gc-p11", kind: "image", title: "Waiting room", photo: "calmBench", by: "wanjiru", at: now - 70 * MIN }],
-        thread: [{ by: "wanjiru", text: "Twelve photos, three of my favourites here. Everyone signed a release.", at: now - 70 * MIN, kind: "submitted" }] }),
-      dl({ id: "gc-d8", title: "Help text and messages", owner: "leila", approver: ME, due: "Week 4", share: 5, status: "review",
-        proof: [{ id: "gc-p12", kind: "link", title: "All app text", url: "https://docs.google.com/document/d/garki-app-text", by: "leila", at: now - 35 * MIN }, { id: "gc-p13", kind: "note", title: "Tone", text: "Short, warm and plain. No medical words a patient wouldn't use.", by: "leila", at: now - 35 * MIN }],
-        thread: [{ by: "leila", text: "Every screen's text in one doc. Hausa versions next week once you're happy.", at: now - 35 * MIN, kind: "submitted" }] }),
-      dl({ id: "gc-d4", title: "SMS reminders in English and Hausa", owner: ME, approver: "ayo", due: "Week 4", share: 5, status: "doing",
-        steps: [{ id: "s1", title: "English copy", done: true }, { id: "s2", title: "Hausa copy, checked by a nurse", done: false }],
-        proof: [{ id: "gc-p6", kind: "note", title: "Reminder, day before", text: "Hello {name}, your appointment at Garki Family Clinic is tomorrow at {time}. Reply 1 to confirm or 2 to cancel.", by: ME, at: now - DAY }] }),
-      dl({ id: "gc-d9", title: "Accessibility check", owner: "chidi", approver: ME, due: "Week 5", share: 5, status: "todo" }),
-      dl({ id: "gc-d5", title: "Launch at the clinic", owner: "kwame", approver: "ayo", due: "Week 5", share: 15, status: "todo" }),
-    ],
-    checkins: [
-      { id: "gc-c3", who: "leila", at: now - 40 * MIN, done: "Wrote every screen's text.", next: "Hausa versions with a nurse." },
-      { id: "gc-c2", who: "chidi", at: now - 2 * HOUR - 10 * MIN, done: "Finished the three booking screens.", next: "Accessibility check.", stuck: "Need a real Android phone below ₦60k to test on." },
-      { id: "gc-c1", who: "kwame", at: now - 5 * HOUR, done: "Finished the admin screen and sent it for review.", next: "SMS gateway once the copy is final.", stuck: "Need the Hausa reminder text." },
-    ],
-    budget: { total: 1_200_000, currency: "₦", expenses: [{ id: "gc-e1", label: "SMS credits (first 2,000)", amount: 24_000, by: "kwame", status: "paid" }], paidOut: [] },
-    ledger: [
-      { at: now - 24 * DAY, who: "ayo", what: "Started the project and invited the team" },
-      { at: now - 22 * DAY, who: "akines", what: "Charter signed by all six. Work can start." },
-      { at: now - 14 * DAY, who: "ayo", what: "Approved \"Booking flow design\", delivered by Amara" },
-      { at: now - 6 * DAY, who: "ayo", what: "Approved \"Booking API and database\", delivered by Kwame" },
-      { at: now - 5 * HOUR, who: "kwame", what: "Sent \"Admin screen for the front desk\" to Amara for review" },
-      { at: now - 2 * HOUR, who: "chidi", what: "Sent \"Patient booking screens\" to Amara for review" },
-      { at: now - 70 * MIN, who: "wanjiru", what: "Sent \"Photos of the clinic and staff\" to Amara for review" },
-      { at: now - 35 * MIN, who: "leila", what: "Sent \"Help text and messages\" to Amara for review" },
-    ],
-    convoId: "co-garki-clinic-booking",
-  };
-
-  /** Study: a final-year group project, with you as their industry mentor. Tunde's survey is waiting for you. */
-  const study: Project = {
-    ...base, id: "kubwa-ride-final-year", title: "Final-year project: a ride app for Kubwa students", summary: "Three engineering students design and test a shared-ride app for the Kubwa to campus route.", photo: "notebookWhite", host: "chidi", kind: "study", createdAt: now - 40 * DAY,
-    members: [
-      { id: "chidi", role: "Group lead", contribution: "Research question, report" },
-      { id: "tunde", role: "Student", contribution: "Survey and data" },
-      { id: "wanjiru", role: "Student", contribution: "Prototype" },
-      { id: ME, role: "Industry mentor", contribution: "Reviews each section" },
-      { id: "efua", role: "Supervisor", contribution: "Final sign-off and grading" },
-    ],
-    charter: {
-      credit: "All three students named on the report in alphabetical order; mentor and supervisor in the acknowledgements.", ownership: "The students own the work. The department keeps a copy.",
-      decisions: "The group agrees each section; the mentor reviews it; the supervisor signs off the final report.", expenses: "Survey printing split three ways.", uses: "The students can show it in their portfolios.", exit: "If someone stops contributing, the record shows it and the supervisor decides.",
-      split: { chidi: 34, tunde: 33, wanjiru: 33, amara: 0, efua: 0 }, signed: ["chidi", "tunde", "wanjiru", ME, "efua"], signedAt: now - 38 * DAY,
-    },
-    tools: [
-      { id: "st-t1", label: "Report draft", url: "https://docs.google.com/document/d/kubwa-ride-report", kind: "drive" },
-      { id: "st-t2", label: "Survey data", url: "https://docs.google.com/spreadsheets/d/kubwa-ride-survey", kind: "drive" },
-    ],
-    deliverables: [
-      dl({ id: "st-d1", title: "Research question and plan", owner: "chidi", approver: ME, due: "Week 2", share: 15, status: "approved", approvedAt: now - 30 * DAY,
-        proof: [{ id: "st-p1", kind: "file", title: "Proposal", file: { id: "f-prop", name: "Project-proposal.pdf", size: 310 * 1024, type: "pdf", kind: "sample" }, by: "chidi", at: now - 31 * DAY }],
-        thread: [{ by: "chidi", text: "Our question: can a shared-ride app cut the morning wait on the Kubwa route by half?", at: now - 31 * DAY, kind: "submitted" }, { by: ME, text: "Clear and testable. Approved.", at: now - 30 * DAY, kind: "approved" }] }),
-      dl({ id: "st-d2", title: "Survey of 60 students", owner: "tunde", approver: ME, due: "Week 5", share: 25, status: "review",
-        proof: [{ id: "st-p2", kind: "link", title: "Survey results", url: "https://docs.google.com/spreadsheets/d/kubwa-ride-survey", by: "tunde", at: now - 3 * HOUR }, { id: "st-p3", kind: "note", title: "Headline finding", text: "41 of 60 wait more than 40 minutes most mornings. 38 would share a ride for ₦300.", by: "tunde", at: now - 3 * HOUR }],
-        thread: [{ by: "tunde", text: "62 responses in the end. Summary is in the note.", at: now - 3 * HOUR, kind: "submitted" }] }),
-      dl({ id: "st-d3", title: "Clickable prototype", owner: "wanjiru", approver: ME, due: "Week 7", share: 25, status: "doing", steps: [{ id: "s1", title: "Sketches", done: true }, { id: "s2", title: "Figma screens", done: false }] }),
-      dl({ id: "st-d4", title: "Final report", owner: "chidi", approver: "efua", due: "Week 10", share: 35, status: "todo" }),
-    ],
-    checkins: [{ id: "st-c1", who: "wanjiru", at: now - DAY, done: "Paper sketches of five screens.", next: "Figma version by Friday." }],
-    budget: { total: 0, currency: "₦", expenses: [{ id: "st-e1", label: "Printing survey forms", amount: 4_500, by: "tunde", status: "paid" }], paidOut: [] },
-    ledger: [
-      { at: now - 40 * DAY, who: "chidi", what: "Started the project and invited the group, a mentor and the supervisor" },
-      { at: now - 38 * DAY, who: "akines", what: "Charter signed by all five. Work can start." },
-      { at: now - 30 * DAY, who: ME, what: "Approved \"Research question and plan\", delivered by Chidi" },
-      { at: now - 3 * HOUR, who: "tunde", what: "Sent \"Survey of 60 students\" to Amara for review" },
-    ],
-    convoId: "co-kubwa-ride-final-year",
-  };
-
-  /** Teach: a co-taught evening course. Paid per session taught. */
-  const course: Project = {
-    ...base, id: "product-design-evening-course", title: "Evening course: product design basics", summary: "Six Tuesday evenings at Abuja Tech Hub for 20 people starting out in design.", photo: "talkGroup", host: "thandi", kind: "teach", createdAt: now - 20 * DAY,
-    members: [
-      { id: "thandi", role: "Course lead", contribution: "Runs the course and the hub booking" },
-      { id: ME, role: "Lecturer", contribution: "Sessions on research and design" },
-      { id: "kwame", role: "Guest lecturer", contribution: "The session on building with code" },
-    ],
-    charter: {
-      credit: "Each lecturer named on the sessions they teach.", ownership: "Each lecturer keeps their own slides and may reuse them.", decisions: "Thandi confirms each session ran and sets the dates.",
-      expenses: "Snacks and printing come out of the course fee first.", uses: "Recordings shared only with the class.", exit: "A month's notice, or find a replacement lecturer.",
-      split: { thandi: 30, amara: 50, kwame: 20 }, signed: ["thandi", ME, "kwame"], signedAt: now - 18 * DAY,
-    },
-    tools: [
-      { id: "pc-t1", label: "Class page", url: "https://classroom.google.com/c/product-design-basics", kind: "site" },
-      { id: "pc-t2", label: "Slides folder", url: "https://drive.google.com/drive/folders/pd-basics-slides", kind: "drive" },
-    ],
-    deliverables: [
-      dl({ id: "pc-d1", title: "Course outline", owner: "thandi", approver: ME, due: "Week 1", share: 10, status: "approved", approvedAt: now - 17 * DAY }),
-      dl({ id: "pc-d2", title: "Session 1: What makes a good product?", owner: ME, approver: "thandi", due: "Tue 22 Oct", share: 15, status: "approved", approvedAt: now - 4 * DAY,
-        proof: [{ id: "pc-p1", kind: "file", title: "Slides", file: { id: "f-s1", name: "Session-1-good-products.pdf", size: 3100 * 1024, type: "pdf", kind: "sample" }, by: ME, at: now - 5 * DAY }, { id: "pc-p2", kind: "note", title: "Attendance", text: "18 of 20 came. Two asked for the recording.", by: "thandi", at: now - 4 * DAY }],
-        thread: [{ by: "thandi", text: "Ran beautifully. Approved.", at: now - 4 * DAY, kind: "approved" }] }),
-      dl({ id: "pc-d3", title: "Session 2: Talking to users", owner: ME, approver: "thandi", due: "Tue 29 Oct", share: 15, status: "doing", steps: [{ id: "s1", title: "Slides", done: true }, { id: "s2", title: "Interview practice cards", done: false }] }),
-      dl({ id: "pc-d4", title: "Session 3: Building with code", owner: "kwame", approver: ME, due: "Tue 5 Nov", share: 15, status: "review",
-        proof: [{ id: "pc-p3", kind: "file", title: "Draft slides", file: { id: "f-s3", name: "Session-3-building-with-code.pdf", size: 2400 * 1024, type: "pdf", kind: "sample" }, by: "kwame", at: now - 2 * HOUR }],
-        thread: [{ by: "kwame", text: "First time teaching beginners. Is this too much code?", at: now - 2 * HOUR, kind: "submitted" }] }),
-      dl({ id: "pc-d5", title: "Feedback from learners", owner: "thandi", approver: ME, due: "Week 6", share: 15, status: "todo" }),
-    ],
-    checkins: [],
-    budget: { total: 600_000, currency: "₦", expenses: [], paidOut: [] },
-    ledger: [
-      { at: now - 20 * DAY, who: "thandi", what: "Started the course and invited Amara and Kwame" },
-      { at: now - 18 * DAY, who: "akines", what: "Charter signed by all three. Work can start." },
-      { at: now - 4 * DAY, who: "thandi", what: "Approved \"Session 1: What makes a good product?\", taught by Amara" },
-      { at: now - 2 * HOUR, who: "kwame", what: "Sent \"Session 3: Building with code\" to Amara for review" },
-    ],
-    convoId: "co-product-design-evening-course",
-  };
-
-  return { v: 1, calls: SEED_CALLS, applications, projects: [bread, clinic, study, course, market], proposals: [], saved: [] };
+  // The Saved list, oldest first (the page lists the latest first): A Better Way to Learn, Voices of Lagos, Clean Water Mapping.
+  return { v: 1, calls: SEED_CALLS, applications, projects, proposals: [], saved: ["clean-water-mapping", "voices-of-lagos", "a-better-way-to-learn"] };
 }
+

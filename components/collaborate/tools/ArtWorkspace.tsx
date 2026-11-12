@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { Eraser, Eye, EyeOff, Hand, Maximize, Move, PaintBucket, Pipette, Plus, Redo2, Shapes, SquareDashed, Type, Undo2, ZoomIn, ZoomOut, createLucideIcon, type LucideIcon } from "lucide-react";
 import Button from "@/components/kin/Button";
-import { faceSrc, photoSrc } from "@/components/kin/home/parts";
+import { photoSrc } from "@/components/kin/home/parts";
 import { useCanvas, layerDetail, type Canvas, type Layer, type Pin } from "@/lib/collab/canvas";
 import { clock24, firstName, initialsOf, nameOf, type Version } from "@/lib/collab/live";
 import { ME } from "@/lib/collab/me";
 import { toast } from "@/components/kin/Toast";
-import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, lostTitle, useToolState, viewingTitle, type ToolState, type WorkspaceState, type Ws } from "./ToolFrame";
+import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, lostDetail, lostTitle, toolFace, useToolState, viewingTitle, type ToolState, type WorkspaceState, type Ws } from "./ToolFrame";
 import "../styles/art-workspace-panels.css";
 // For the reply field (tr-thread__field), which the canvas thread borrows from the document.
 import "../styles/research-workspace.css";
@@ -65,7 +65,7 @@ function Cursor({ who, slot, faded }: Canvas["cursors"][number] & { faded?: bool
 }
 
 function Avatar({ who }: { who: Pin["messages"][number]["who"] }) {
-  const src = faceSrc(who);
+  const src = toolFace(who);
   // eslint-disable-next-line @next/next/no-img-element -- member face
   return src ? <img className="ta-msg__av" src={src} alt="" loading="lazy" decoding="async" /> : <span className="ta-msg__av ta-msg__av--init" aria-hidden="true">{initialsOf(who)}</span>;
 }
@@ -152,7 +152,7 @@ function Colour({ canvas, faded }: { canvas: Canvas; faded?: boolean }) {
 }
 
 function LayerRow({ layer, selected, onToggle }: { layer: Layer; selected: boolean; onToggle: () => void }) {
-  const src = layer.editor ? faceSrc(layer.editor) : undefined;
+  const src = layer.editor ? toolFace(layer.editor) : undefined;
   const inner = (
     <>
       <span className="ta-layer__thumb" data-layer={layer.id} />
@@ -232,7 +232,7 @@ export default function ArtWorkspace({ ws, state: frame }: { ws: Ws; state?: Wor
           <Zoom />
           <div className="ta-size">{canvas.size.width} x {canvas.size.height} px, {canvas.size.dpi} dpi</div>
           {banner && picked ? (
-            <Banner kind={banner} className="ta-banner" title={banner === "version" ? viewingTitle(picked) : banner === "collaborator" && offline ? lostTitle(offline) : undefined} onRetry={tool.retry}
+            <Banner kind={banner} className="ta-banner" title={banner === "version" ? viewingTitle(picked) : banner === "collaborator" && offline ? lostTitle(offline) : undefined} detail={banner === "collaborator" && offline ? lostDetail(offline) : undefined} onRetry={tool.retry}
               onRequest={() => toast.show({ message: "Edit access requested." })}
               onBack={() => setHistory(false)}
               onRestore={() => { restore(picked); setHistory(false); tool.save(); toast.show({ message: "Version restored." }); }} />

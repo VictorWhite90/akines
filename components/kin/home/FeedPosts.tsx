@@ -3,18 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { IconButton } from "@/components/kin/Button";
 import { Chip, Tag } from "@/components/kin/Chip";
-import { usePosts } from "@/components/feed/usePosts";
-import { useJoined } from "@/components/circles/useJoined";
-import { CIRCLES } from "@/lib/data/community";
-import { MORE_POSTS } from "@/lib/data/feedMore";
-import { REACTIONS, type Post, type ReactionKey } from "@/lib/data/feed";
-import { ME, PEOPLE } from "@/lib/data/people";
-import { FdAvatar, FdPhoto, photoSrc } from "./parts";
+import { useLocal } from "@/lib/useLocal";
+import { PICKER, POSTS, REACT_LABEL, type FeedPost } from "./content";
+import { FdAvatar, FdPhoto } from "./parts";
 
-/** "Your circles' feed" on Community Home: the design's post cards, reading the shared feed store. */
-const KEYS = Object.keys(REACTIONS) as ReactionKey[];
+/**
+ * "Your circles' feed" on Community Home: the design's three posts (./content.ts) with reaction chips that toggle and
+ * a "+ React" menu. Your reactions are kept in this browser.
+ */
+type ReactChip = { emoji: string; label: string; count: number; on: boolean };
+type Reacts = Record<string, ReactChip[]>;
+const INITIAL: Reacts = Object.fromEntries(POSTS.map((p) => [p.id, p.reactions.map((r) => ({ ...r, on: false }))]));
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-function ReactPicker({ onPick }: { onPick: (k: ReactionKey) => void }) {
+function ReactPicker({ onPick }: { onPick: (emoji: string, label: string) => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const focusBtn = () => ref.current?.querySelector<HTMLElement>(".fd-react__btn")?.focus();
@@ -27,7 +29,7 @@ function ReactPicker({ onPick }: { onPick: (k: ReactionKey) => void }) {
   }, [open]);
   return (
     <div className="fd-react" ref={ref}>
-      <Chip className="fd-react__btn" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen((o) => !o)}>+ React</Chip>
+      <Chip className="fd-react__btn" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen((o) => !o)}>{REACT_LABEL}</Chip>
       {open ? (
         <div className="fd-pick" role="group" aria-label="Choose a reaction" onKeyDown={(e) => {
           const list = Array.from(ref.current?.querySelectorAll<HTMLElement>(".fd-pick__btn") ?? []);
@@ -36,50 +38,52 @@ function ReactPicker({ onPick }: { onPick: (k: ReactionKey) => void }) {
           else if (e.key === "ArrowRight" && list.length) { e.preventDefault(); list[(at + 1) % list.length].focus(); }
           else if (e.key === "ArrowLeft" && list.length) { e.preventDefault(); list[(at - 1 + list.length) % list.length].focus(); }
         }}>
-          {KEYS.map((k) => <IconButton key={k} className="fd-pick__btn" label={`React: ${REACTIONS[k].label}`} tooltip={false} onClick={() => { onPick(k); setOpen(false); focusBtn(); }}><span className="fd-emoji" aria-hidden>{REACTIONS[k].glyph}</span></IconButton>)}
+          {PICKER.map((p) => <IconButton key={p.emoji} className="fd-pick__btn" label={`React with ${p.label}`} tooltip={false} onClick={() => { onPick(p.emoji, p.label); setOpen(false); focusBtn(); }}><span className="fd-emoji" aria-hidden>{p.emoji}</span></IconButton>)}
         </div>
       ) : null}
     </div>
   );
 }
 
-function FeedPost({ post }: { post: Post }) {
-  const { react, myReaction } = usePosts();
-  const author = PEOPLE[post.by];
-  const circle = post.circle ? CIRCLES.find((c) => c.id === post.circle) : undefined;
-  const mine = myReaction(post);
-  const media = [...(post.photo ? [photoSrc(post.photo)] : []), ...(post.photos ?? [])].slice(0, 3);
-  const used = KEYS.filter((k) => (post.reactions[k]?.length ?? 0) > 0);
-  const replies = post.replies === 0 ? "No replies yet" : post.replies === 1 ? "1 reply" : `${post.replies} replies`;
+function Post({ post, chips, onToggle, onPick }: { post: FeedPost; chips: ReactChip[]; onToggle: (emoji: string) => void; onPick: (emoji: string, label: string) => void }) {
+  const n = post.media.length;
   return (
-    <article className="fd-post" aria-label={`Post by ${author.name}`}>
+    <article className="fd-post" aria-label={`Post by ${post.name}`}>
       <header className="fd-post__head">
-        <FdAvatar id={post.by} size={48} />
+        <FdAvatar src={post.face} size={48} />
         <div className="fd-post__who">
-          <p className="fd-post__name">{author.name}</p>
-          <p className="fd-post__meta">{author.role} · {author.city} · {post.at}</p>
+          <p className="fd-post__name">{post.name}</p>
+          <p className="fd-post__meta">{post.meta}</p>
         </div>
-        {circle ? <Tag className="fd-post__circle">{circle.name}</Tag> : null}
+        {post.circle ? <Tag className="fd-post__circle">{post.circle}</Tag> : null}
       </header>
-      <div className="fd-post__body">{post.text.split(/\n+/).map((p) => <p key={p.slice(0, 24)}>{p}</p>)}</div>
-      {media.length > 0 ? <div className={`fd-post__media fd-post__media--${media.length}`}>{media.map((m) => <FdPhoto key={m} src={m} className="fd-post__img" />)}</div> : null}
+      <div className="fd-post__body">{post.body.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}</div>
+      {n > 0 ? <div className={`fd-post__media fd-post__media--${n}`}>{post.media.map((m) => <FdPhoto key={m} src={m} className="fd-post__img" />)}</div> : null}
       <footer className="fd-post__foot">
         <div className="fd-post__reacts">
-          {used.map((k) => {
-            const n = post.reactions[k]?.length ?? 0;
-            return <Chip key={k} selected={mine === k} count={n} aria-label={`${REACTIONS[k].label}, ${n}`} onClick={() => react(post, k)}><span className="fd-emoji" aria-hidden>{REACTIONS[k].glyph}</span></Chip>;
-          })}
-          <ReactPicker onPick={(k) => react(post, k)} />
+          {chips.map((c) => <Chip key={c.emoji} selected={c.on} count={c.count} aria-label={`${cap(c.label)}, ${c.count}`} onClick={() => onToggle(c.emoji)}><span className="fd-emoji" aria-hidden>{c.emoji}</span></Chip>)}
+          <ReactPicker onPick={onPick} />
         </div>
-        <span className="fd-post__replies">{replies}</span>
+        <span className="fd-post__replies">{post.replies}</span>
       </footer>
     </article>
   );
 }
 
 export default function FeedPosts() {
-  const { posts } = usePosts();
-  const { ids } = useJoined();
-  const feed = [...posts, ...MORE_POSTS].filter((p) => (p.circle ? ids.includes(p.circle) : p.by === ME.id)).slice(0, 3);
-  return <div className="fd-posts" data-m="stagger">{feed.map((p) => <FeedPost key={p.id} post={p} />)}</div>;
+  const [reacts, setReacts] = useLocal<Reacts>("ak:feed-reactions", INITIAL);
+  const flip = (c: ReactChip): ReactChip => ({ ...c, on: !c.on, count: c.count + (c.on ? -1 : 1) });
+  const toggle = (id: string, emoji: string) => setReacts((prev) => ({ ...prev, [id]: (prev[id] ?? []).map((c) => (c.emoji === emoji ? flip(c) : c)) }));
+  const pick = (id: string, emoji: string, label: string) =>
+    setReacts((prev) => {
+      const list = prev[id] ?? [];
+      return list.some((c) => c.emoji === emoji)
+        ? { ...prev, [id]: list.map((c) => (c.emoji === emoji ? flip(c) : c)) }
+        : { ...prev, [id]: [...list, { emoji, label, count: 1, on: true }] };
+    });
+  return (
+    <div className="fd-posts" data-m="stagger">
+      {POSTS.map((p) => <Post key={p.id} post={p} chips={reacts[p.id] ?? INITIAL[p.id]} onToggle={(e) => toggle(p.id, e)} onPick={(e, l) => pick(p.id, e, l)} />)}
+    </div>
+  );
 }

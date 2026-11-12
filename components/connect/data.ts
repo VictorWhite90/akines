@@ -1,21 +1,20 @@
 "use client";
 
-import { faceSrc, photoSrc } from "@/components/kin/home/parts";
-import { useAllProducts } from "@/components/shop/useShop";
+import { photoSrc } from "@/components/kin/home/parts";
 import { useCollab } from "@/lib/collab/useCollab";
 import { circleAccess, type CircleAccess } from "@/lib/connect/circles";
+import { DISCOVER_ARTWORK, DISCOVER_CIRCLES, DISCOVER_PEOPLE, DISCOVER_PROJECTS, DISCOVER_STORIES, DISCOVER_STUDIOS, FOR_YOU_PEOPLE, designImg, type DiscoverCircle, type DiscoverItem, type DiscoverPerson } from "@/lib/connect/discover";
 import { EVENTS, eventMeta, eventTag, type ConnectEvent } from "@/lib/connect/events";
 import type { Interest } from "@/lib/connect/interests";
 import { profilePath } from "@/lib/connect/profiles";
-import { CIRCLES, STUDIOS, type Circle } from "@/lib/data/community";
-import { allPeople, ME, PEOPLE, type Person, type PersonId } from "@/lib/data/people";
-import { sortProducts } from "@/lib/data/shop";
-import { STORIES } from "@/lib/data/stories";
+import { DEMO } from "@/lib/demo/mode";
+import { PEOPLE, type PersonId } from "@/lib/data/people";
 
 /**
- * The cards of Discover and the pages it leads to (the design's connect/discover/data.ts), built from our own people,
- * circles, shop, open calls, studios, stories and events. Links go where the design's do: people to their profile,
- * events to their page, projects to the project, circles to their KinCircle page.
+ * The cards of Discover and the pages it leads to (the design's connect/discover/data.ts), with the design's people, circles,
+ * artwork, projects, studio visits, stories and events (lib/connect/discover, events). Links go where the design's do: people to
+ * their profile, events to their page, A Better Way to Learn to its project. Outside preview, projects are the open calls of the
+ * backend, and the sample "N Kin connections" counts are left out.
  */
 export const PATHS = {
   discover: "/connect",
@@ -32,11 +31,11 @@ export const eventPath = (id: string) => `/connect/events/${id}`;
 export const first = (id: string) => PEOPLE[id as PersonId]?.name.split(" ")[0] ?? "";
 
 export const EXPLORE: { id: string; title: string; text: string; image: string; href?: string }[] = [
-  { id: "people", title: "People", text: "Artists, creators and kindred spirits.", image: "/kin/discover/ngozi.jpg", href: "/collaborate/collaborators" },
-  { id: "circles", title: "Circles", text: "Communities and shared interests.", image: "/kin/discover/kincircle.jpg", href: "/connect/kincircle" },
-  { id: "stores", title: "Artworks & Stores", text: "Original work that's made-to-order.", image: "/kin/discover/explore-stores.jpg", href: "/make-sell" },
-  { id: "projects", title: "Projects", text: "Collaborations and creative builds.", image: "/kin/discover/zine.jpg", href: "/collaborate/discover" },
-  { id: "events", title: "Events", text: "Talks, workshops and gatherings.", image: "/kin/discover/event-workshop.jpg", href: PATHS.events },
+  { id: "people", title: "People", text: "Artists, creators and kindred spirits.", image: designImg("community/av-ngozi"), href: "/collaborate/collaborators" },
+  { id: "circles", title: "Circles", text: "Communities and shared interests.", image: designImg("community/av-kincircle"), href: "/connect/kincircle" },
+  { id: "stores", title: "Artworks & Stores", text: "Original work that's made-to-order.", image: designImg("discover/explore-stores"), href: "/make-sell" },
+  { id: "projects", title: "Projects", text: "Collaborations and creative builds.", image: designImg("community/zine"), href: "/collaborate/discover" },
+  { id: "events", title: "Events", text: "Talks, workshops and gatherings.", image: designImg("discover/event-workshop"), href: PATHS.events },
 ];
 
 export const FILTERS = [
@@ -50,36 +49,35 @@ export const FILTERS = [
 ] as const;
 export type Filter = (typeof FILTERS)[number]["key"];
 
-export type PersonCard = { kind: "person"; id: string; person: string; name: string; image?: string; identity: string; text: string; href: string };
+export type PersonCard = { kind: "person"; id: string; person: string; name: string; image?: string; identity: string; text: string; href: string; connections?: string };
 export type CircleCard = { kind: "circle"; id: string; circle: string; name: string; image: string; meta: string; text: string; href: string; access: CircleAccess };
 export type ArtCard = { kind: "artwork"; id: string; tag: string; title: string; maker: PersonId; makerHref: string; price: string; edition: string; image: string; href: string };
 export type ItemCard = { kind: "project" | "studio" | "story" | "event"; id: string; tag: string; title: string; text: string; meta: string; image: string; action: string; href?: string };
 export type Card = PersonCard | CircleCard | ArtCard | ItemCard;
 
-export const personCard = (p: Person): PersonCard => ({ kind: "person", id: `person-${p.id}`, person: p.id, name: p.name, image: faceSrc(p.id as PersonId, 640) ?? p.photo ?? undefined, identity: [p.role, p.city].filter(Boolean).join(" · "), text: p.about, href: profilePath(p.id) });
-export const circleCard = (c: Circle): CircleCard => ({ kind: "circle", id: `circle-${c.id}`, circle: c.id, name: c.name, image: photoSrc(c.photo), meta: `${c.members} members · ${c.active} active`, text: c.blurb, href: "/connect/kincircle", access: circleAccess(c.id) });
+export const personCard = (d: DiscoverPerson): PersonCard => {
+  const p = PEOPLE[d.person];
+  return { kind: "person", id: `person-${d.person}`, person: d.person, name: p.name, image: d.image, identity: [p.role, p.city].filter(Boolean).join(" · "), text: d.text, href: profilePath(d.person), connections: DEMO ? d.connections : undefined };
+};
+export const circleCard = (c: DiscoverCircle): CircleCard => ({ kind: "circle", id: `circle-${c.id}`, circle: c.id, name: c.name, image: c.image, meta: `${c.members} members · ${c.active} active`, text: c.text, href: "/connect/kincircle", access: circleAccess(c.id) });
 export const eventCard = (e: ConnectEvent): ItemCard => ({ kind: "event", id: `event-${e.id}`, tag: eventTag(e), title: e.title, text: e.summary, meta: eventMeta(e), image: photoSrc(e.photo), action: "View event", href: eventPath(e.id) });
+const item = (kind: ItemCard["kind"], tag: string, action: string) => (d: DiscoverItem): ItemCard => ({ kind, id: `${kind}-${d.id}`, tag, title: d.title, text: d.text, meta: d.meta, image: d.image, action, href: d.href });
 
-/** Open and approval circles taken in turn, as the design orders its circles (open, approval, open, approval, then the rest). */
-function interleave(list: CircleCard[]): CircleCard[] {
-  const open = list.filter((c) => c.access === "open"), approval = list.filter((c) => c.access === "approval");
-  const out: CircleCard[] = [];
-  for (let i = 0; i < Math.max(open.length, approval.length); i++) { if (open[i]) out.push(open[i]); if (approval[i]) out.push(approval[i]); }
-  return out;
-}
-
-/** Every card kind, from our data. */
+/** Every card kind. */
 export function useCardLists() {
   const { calls } = useCollab();
-  const products = sortProducts(useAllProducts(), "new");
-  const people = allPeople.filter((p) => p.id !== ME.id).map(personCard);
-  const circles = interleave(CIRCLES.filter((c) => !c.joined).map(circleCard));
-  const art: ArtCard[] = products.slice(0, 1).map((p) => ({ kind: "artwork", id: `artwork-${p.id}`, tag: p.category.toUpperCase(), title: p.title, maker: p.seller, makerHref: profilePath(p.seller), price: `$${p.price.toLocaleString()}`, edition: p.unique ? "1 of 1" : `${p.stock} available`, image: photoSrc(p.photos[0]), href: "/make-sell" }));
-  const projects: ItemCard[] = calls.filter((c) => !c.postedByMe).map((c) => ({ kind: "project", id: `project-${c.id}`, tag: "PROJECT", title: c.title, text: c.summary, meta: `${PEOPLE[c.host]?.name ?? c.org} · ${c.teamSize} people`, image: photoSrc(c.photo), action: "View project", href: `/collaborate/projects/${c.id}` }));
-  const studios: ItemCard[] = STUDIOS.map((v) => ({ kind: "studio", id: `studio-${v.id}`, tag: "STUDIO VISIT", title: `${first(v.artist)}'s studio`, text: v.blurb, meta: `${v.place} · ${v.when}`, image: photoSrc(v.photo), action: "Request a visit", href: "/explore/studio-visits" }));
-  const stories: ItemCard[] = STORIES.map((s) => ({ kind: "story", id: `story-${s.id}`, tag: "STORY", title: s.title, text: s.excerpt, meta: `By ${PEOPLE[s.by]?.name ?? "a member"}`, image: photoSrc(s.photo), action: "Read story", href: "/explore/stories" }));
+  const all = DISCOVER_PEOPLE.map(personCard);
+  const people = all.slice(0, FOR_YOU_PEOPLE);
+  const circles = DISCOVER_CIRCLES.map(circleCard);
+  const a = DISCOVER_ARTWORK;
+  const art: ArtCard[] = [{ kind: "artwork", id: `artwork-${a.id}`, tag: a.tag, title: a.title, maker: a.maker, makerHref: profilePath(a.maker), price: a.price, edition: a.edition, image: a.image, href: a.href }];
+  const projects: ItemCard[] = DEMO
+    ? DISCOVER_PROJECTS.map(item("project", "PROJECT", "View project"))
+    : calls.filter((c) => !c.postedByMe).map((c) => ({ kind: "project", id: `project-${c.id}`, tag: "PROJECT", title: c.title, text: c.summary, meta: `${PEOPLE[c.host]?.name ?? c.org} · ${c.teamSize} people`, image: photoSrc(c.photo), action: "View project", href: `/collaborate/projects/${c.id}` }));
+  const studios = DISCOVER_STUDIOS.map(item("studio", "STUDIO VISIT", "Request a visit"));
+  const stories = DISCOVER_STORIES.map(item("story", "STORY", "Read story"));
   const events = EVENTS.map(eventCard);
-  return { people, circles, art, projects, studios, stories, events, calls };
+  return { all, people, circles, art, projects, studios, stories, events, calls };
 }
 
 const pick = <T,>(list: T[], i: number) => list[i];
@@ -119,8 +117,8 @@ export type InterestFilter = (typeof INTEREST_FILTERS)[number]["key"];
 export function useInterestCards(interest: Interest | undefined): (filter: InterestFilter) => Card[] {
   const l = useCardLists();
   if (!interest) return () => [];
-  const people = interest.people.flatMap((id) => l.people.filter((c) => c.person === id));
-  const circles = interest.circles.flatMap((id) => CIRCLES.filter((c) => c.id === id).map(circleCard));
+  const people = interest.people.flatMap((id) => l.all.filter((c) => c.person === id));
+  const circles = interest.circles.flatMap((id) => l.circles.filter((c) => c.circle === id));
   const projects = interest.projects.flatMap((id) => l.projects.filter((c) => c.id === `project-${id}`));
   const events = interest.events.flatMap((id) => l.events.filter((c) => c.id === `event-${id}`));
   const lists: Card[][] = [people, circles, projects, events];

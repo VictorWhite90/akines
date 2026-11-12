@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/kin/Button";
 import { faceSrc } from "@/components/kin/home/parts";
 import { useCollab } from "@/lib/collab/useCollab";
-import { memberPage } from "@/lib/collab/members";
+import { memberIdOf, memberPage } from "@/lib/collab/members";
 import { discoverProject } from "@/lib/collab/projects";
 import type { PersonId } from "@/lib/data/people";
 import { useFirstVisit } from "@/components/collaborate/overview-lists/loading";
@@ -20,12 +20,14 @@ import { Back, Bar, DsLink, Facts, InterestPanel, Item, Match, PageState, Privac
 /** The design's frames at their own addresses: Limited profile, Loading and Could not load. */
 export type MemberVariant = "limited" | "loading" | "error";
 
-export default function MemberPage({ id, variant }: { id: string; variant?: MemberVariant }) {
+export default function MemberPage({ id: slug, variant }: { id: string; variant?: MemberVariant }) {
+  // The address names the member by the design's slug (ngozi-eze), or by their id.
+  const id = memberIdOf(slug);
   const collab = useCollab();
   const router = useRouter();
   const asked = useSearchParams().get("project");
   const query = asked ? `?project=${encodeURIComponent(asked)}` : "";
-  const base = `/collaborate/members/${encodeURIComponent(id)}`;
+  const base = `/collaborate/members/${encodeURIComponent(slug)}`;
   // The design's Loading frame: the first visit of a session (and the state-loading route, which then goes on to the page).
   const first = useFirstVisit("member", { stateRoute: variant === "loading", skip: !!variant, onDone: () => router.replace(base + query) });
   const status = first ? "loading" : variant === "error" ? "error" : pageStatus(collab);
@@ -52,7 +54,7 @@ export default function MemberPage({ id, variant }: { id: string; variant?: Memb
 
   const limited = m.limited || variant === "limited";
   const saved = collab.state.saved.includes(project.id);
-  const portrait = limited ? undefined : faceSrc(m.portraitId, 560);
+  const portrait = limited ? undefined : m.portrait ?? faceSrc(m.portraitId, 560);
   const pr = variant === "limited" ? undefined : m.profile;
   return (
     <div className="dsc-page">

@@ -4,7 +4,7 @@
  */
 export type CircleAccess = "open" | "approval";
 
-/** Circles whose hosts approve each member: care workers and parents share things they keep among themselves. */
-const APPROVAL = new Set(["ceramics", "curators"]);
+/** The design's approval circles: Poetry and Wine talk, Community Health Circle. */
+const APPROVAL = new Set(["poetry", "health"]);
 
 export const circleAccess = (id: string): CircleAccess => (APPROVAL.has(id) ? "approval" : "open");

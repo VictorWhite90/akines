@@ -58,9 +58,53 @@ export type ProjectFile = {
   source: { kind: "studio"; itemId: string } | { kind: "proof"; deliverableId: string; proofId: string } | { kind: "added" };
 };
 
-type Added = { id: string; projectId: string; name: string; category: FileCategory; work?: string; milestone?: string; by: PersonId; at: number; doc?: boolean };
+type Added = {
+  id: string; projectId: string; name: string; category: FileCategory; work?: string; milestone?: string; by: PersonId; at: number; doc?: boolean;
+  /** Sample files: their size, a line about them, the words on their first page, research notes, and where their work and milestone live. */
+  size?: number; about?: string; text?: string; research?: boolean; workTo?: string; milestoneTo?: string;
+};
 type Store = { added: Added[]; comments: Record<string, FileComment[]> };
-const KEY = "ak:collab-files:v1";
+const KEY = "ak:collab-files:v2";
+
+/*
+ * The files of the design's two sample projects (Files, 12.19), as added to each project. Paths in workTo and
+ * milestoneTo are under the project's own address.
+ */
+const on = (month: number, day: number) => new Date(2026, month - 1, day, 12).getTime();
+const today = (h: number, m: number) => { const d = new Date(); d.setHours(h, m, 0, 0); return d.getTime(); };
+const MB = 1024 * 1024, KB = 1024;
+function seedStore(): Store {
+  const CG = "career-guidance-for-everyone", AS = "adire-stories";
+  const added: Added[] = [
+    { id: "student-onboarding-draft", projectId: CG, name: "Student onboarding draft.pdf", category: "Documents", size: 2.4 * MB, by: "tobi", at: on(11, 4),
+      about: "A first draft of the guided onboarding, shared with the team for review.", text: "What do you enjoy doing when nobody is asking you to?",
+      work: "Map the student journey", milestone: "Prototype Review", milestoneTo: "milestones/prototype-review" },
+    { id: "career-interview-notes", projectId: CG, name: "Career interview notes.docx", category: "Documents", size: 180 * KB, by: "ngozi", at: on(11, 3),
+      work: "Questions students ask about careers", milestone: "First Student Experience", milestoneTo: "milestones/first-student-experience" },
+    { id: "student-journey-map", projectId: CG, name: "Student journey map.png", category: "Images", size: 1.1 * MB, by: "adaeze", at: on(11, 2),
+      work: "Map the student journey", milestone: "First Student Experience", milestoneTo: "milestones/first-student-experience" },
+    { id: "onboarding-research-summary", projectId: CG, name: "Onboarding research summary", category: "Research", research: true, by: "ngozi", at: on(10, 30),
+      work: "Questions students ask about careers", milestone: "First Student Experience", milestoneTo: "milestones/first-student-experience" },
+    { id: "prototype-screens", projectId: CG, name: "Prototype screens.fig", category: "Design files", size: 8.6 * MB, by: "adaeze", at: on(10, 29),
+      work: "Review the student onboarding draft", workTo: "files/student-onboarding-draft-pdf", milestone: "Prototype Review", milestoneTo: "milestones/prototype-review" },
+    { id: "stakeholder-presentation", projectId: CG, name: "Stakeholder presentation.pptx", category: "Presentations", size: 4.1 * MB, by: "kemi", at: on(10, 28),
+      work: "Review the student onboarding draft", workTo: "files/student-onboarding-draft-pdf", milestone: "Prototype Review", milestoneTo: "milestones/prototype-review" },
+
+    { id: "as-student-onboarding-draft", projectId: AS, name: "Pattern repeats sheet.pdf", category: "Documents", size: 2.4 * MB, by: "ayo-bello", at: on(11, 4), work: "Map the pattern repeats", milestone: "Pattern Study Set" },
+    { id: "as-career-interview-notes", projectId: AS, name: "Dyer interview notes.docx", category: "Documents", size: 180 * KB, by: "yusuf-danjuma", at: on(11, 3), work: "Questions to ask the dyers about cloth", milestone: "Headwrap Portrait" },
+    { id: "as-student-journey-map", projectId: AS, name: "Pattern repeat map.png", category: "Images", size: 1.1 * MB, by: "amara-obi", at: on(11, 2), work: "Map the pattern repeats", milestone: "Headwrap Portrait" },
+    { id: "as-onboarding-research-summary", projectId: AS, name: "Dye pot research summary", category: "Research", research: true, by: "yusuf-danjuma", at: on(10, 30), work: "Questions to ask the dyers about cloth", milestone: "Headwrap Portrait" },
+    { id: "as-prototype-screens", projectId: AS, name: "Pattern study sketches.psd", category: "Design files", size: 8.6 * MB, by: "amara-obi", at: on(10, 29), work: "Review the headwrap colour layer", milestone: "Pattern Study Set" },
+    { id: "as-stakeholder-presentation", projectId: AS, name: "Series presentation.pptx", category: "Presentations", size: 4.1 * MB, by: "kemi", at: on(10, 28), work: "Review the headwrap colour layer", milestone: "Pattern Study Set" },
+  ];
+  const comments: Record<string, FileComment[]> = {
+    [`${CG}/student-onboarding-draft`]: [
+      { id: "c1", by: "tobi", text: "This is the latest draft with all five screens. Comments are welcome before Friday.", at: today(8, 50) },
+      { id: "c2", by: "adaeze", text: "Thank you, Tobi. I will read the wording of the third screen first.", at: today(9, 20) },
+    ],
+  };
+  return { added, comments };
+}
 
 const slugOf = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "file";
 const ext = (name: string) => (name.includes(".") ? name.split(".").pop()!.toLowerCase() : "");
@@ -122,9 +166,13 @@ export function filesOf(p: Project, extra: Store, workHref: (d: Deliverable) => 
     if (studio.some((s) => (x.photo && x.photo === s.photo) || x.title === s.title)) continue;
     out.push(fromProof(d, x, { text: d.title, href: workHref(d) }));
   }
+  const under = (to?: string) => (to ? `/collaborate/my-projects/${p.id}/${to}` : undefined);
   for (const a of extra.added.filter((a) => a.projectId === p.id)) {
-    const t = a.doc ? { type: "Document", typeLong: "Shared document", category: a.category, icon: "text" as const } : { ...byExt(a.name), category: a.category };
-    out.push({ ...t, id: a.id, slug: slugOf(a.name), name: a.name, by: a.by, at: a.at, work: a.work ? { text: a.work } : undefined, milestone: a.milestone ? { text: a.milestone } : undefined, comments: [], source: { kind: "added" } });
+    const t = a.doc ? { type: "Document", typeLong: "Shared document", category: a.category, icon: "text" as const }
+      : a.research ? { type: "Research", typeLong: "Research notes", category: a.category, icon: "notes" as const }
+      : { ...byExt(a.name), category: a.category };
+    out.push({ ...t, id: a.id, slug: slugOf(a.name), name: a.name, by: a.by, at: a.at, size: a.size, about: a.about, text: a.text,
+      work: a.work ? { text: a.work, href: under(a.workTo) } : undefined, milestone: a.milestone ? { text: a.milestone, href: under(a.milestoneTo) } : undefined, comments: [], source: { kind: "added" } });
   }
   // Unique addresses, and the comments kept here.
   const seen = new Map<string, number>();
@@ -147,7 +195,7 @@ type AddInput = { name: string; category: FileCategory; work?: string; milestone
 
 /** A project's files, and what the member can add. */
 function useLocalFiles(p: Project | undefined, workHref: (d: Deliverable) => string | undefined) {
-  const [store, setStore, ready] = useLocal<Store>(KEY, { added: [], comments: {} });
+  const [store, setStore, ready] = useLocal<Store>(KEY, seedStore());
   const files = useMemo(() => (p ? filesOf(p, store, workHref) : []), [p, store, workHref]);
   const pid = p?.id ?? "";
   return {

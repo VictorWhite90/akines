@@ -8,8 +8,9 @@ import { useJoined } from "@/components/circles/useJoined";
 import { faceSrc, photoSrc } from "@/components/kin/home/parts";
 import { profilePath } from "@/lib/connect/profiles";
 import type { Interest } from "@/lib/connect/interests";
-import type { Match } from "@/lib/data/matches";
-import { PEOPLE, type PersonId } from "@/lib/data/people";
+import type { Recommendation } from "@/lib/connect/discover";
+import { DEMO } from "@/lib/demo/mode";
+import { PEOPLE } from "@/lib/data/people";
 import { first, interestPath, type Card, type EXPLORE } from "./data";
 import { useDiscoverState, type RecStatus } from "./state";
 
@@ -91,7 +92,8 @@ export function CardView({ card, reveal }: { card: Card; reveal: boolean }) {
               <p className="dxf-role">{card.identity}</p>
               <p className="dxf-desc">{card.text}</p>
             </div>
-            <div className="dxf-foot dxf-foot--end">
+            <div className={card.connections ? "dxf-foot" : "dxf-foot dxf-foot--end"}>
+              {card.connections ? <span className="dxf-meta">{card.connections}</span> : null}
               <Done done={d.isRequested(card.person)} label="Requested"><Button variant="secondary" aria-label={`Connect with ${card.name}`} onClick={() => d.connect(card.person)}>Connect</Button></Done>
             </div>
           </>
@@ -176,9 +178,10 @@ export function AssistantMark({ size = 16 }: { size?: number }) {
 }
 
 /** One Someone to meet card (Discover's section and All suggestions). Focus follows the member's action, as the design does. */
-export function RecCard({ match: m, index }: { match: Match; index: number }) {
+/** The match score is the design's sample value: shown in preview only. */
+export function RecCard({ rec: m, index }: { rec: Recommendation; index: number }) {
   const d = useDiscoverState();
-  const id = m.id as PersonId;
+  const id = m.id;
   const status = d.recStatus(id);
   const set = (s: RecStatus) => d.setRec(id, s);
   const p = PEOPLE[id];
@@ -195,14 +198,14 @@ export function RecCard({ match: m, index }: { match: Match; index: number }) {
   return (
     <li className="dxr-card" data-status={status} style={{ ["--dxr-i" as string]: index } as React.CSSProperties}>
       <div className="dxr-card__body" inert={status === "dismissed"}>
-        <div className="dxr-top"><p className="dxr-eyebrow">Someone to meet</p></div>
+        <div className="dxr-top"><p className="dxr-eyebrow">Someone to meet</p>{DEMO ? <p className="dxr-match">{`${m.match}% match`}</p> : null}</div>
         <Link className="dxr-who" href={profilePath(id)}>
           {/* eslint-disable-next-line @next/next/no-img-element -- the member's face */}
-          <span className="dxr-photo">{faceSrc(id) ? <img src={faceSrc(id)} alt="" width={72} height={72} loading="lazy" decoding="async" draggable={false} /> : null}</span>
+          <span className="dxr-photo">{(m.image ?? faceSrc(id)) ? <img src={m.image ?? faceSrc(id)} alt="" width={72} height={72} loading="lazy" decoding="async" draggable={false} /> : null}</span>
           <span className="dxr-who__text"><span className="dxr-name" id={nameId}>{p?.name}</span><span className="dxr-role">{p ? `${p.role} · ${p.city}` : ""}</span></span>
         </Link>
-        <ul className="dxr-tags">{m.signals.map((t) => <li key={t}>{t}</li>)}</ul>
-        <p className="dxr-reason">{`“${m.ask ?? m.reason}”`}</p>
+        <ul className="dxr-tags">{m.tags.map((t) => <li key={t}>{t}</li>)}</ul>
+        <p className="dxr-reason">{`“${m.prompt}”`}</p>
         <div className="dxr-slot">
           {status === "sent" ? (
             <p className="dxr-sent" ref={sent} tabIndex={-1}>{`Hello sent to ${name}. We will let you know when they reply.`}</p>

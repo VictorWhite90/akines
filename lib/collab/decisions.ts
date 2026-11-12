@@ -18,7 +18,7 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
  *   POST   decisions/:id/comments    ← { text } (the discussion, also a conversation)
  *   POST   decisions/:id/outcome     ← { status, outcome } (the host)
  *   DELETE decisions/:id             (the proposer before anyone responds, or the host)
- * The demo keeps them in the browser, seeded with decisions about our sample projects.
+ * The demo keeps them in the browser, seeded with the design's decisions on its two sample projects.
  * Decided ones are part of the project's story: see `decisionStory`, which reads them next to the ledger.
  */
 
@@ -63,113 +63,58 @@ export type Decision = {
 };
 export type DecisionInput = Pick<Decision, "title" | "summary"> & Partial<Pick<Decision, "decideBy" | "milestone" | "options" | "context" | "problem" | "direction">>;
 
-const DAY = 24 * 60 * 60 * 1000;
 const slugOf = (title: string) => title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60);
 
-function seed(): Decision[] {
-  const now = Date.now();
-  const d = (x: Omit<Decision, "slug" | "files" | "discussion" | "options"> & Partial<Pick<Decision, "files" | "discussion" | "options">>): Decision => ({ files: [], discussion: [], options: [], ...x, slug: slugOf(x.title) });
-  return [
-    // Garki Clinic booking app: six people, the patient screens are waiting on how a booking is confirmed.
-    d({
-      id: "gc-dec1", projectId: "garki-clinic-booking", title: "Choose how patients confirm a booking", status: "awaiting",
-      summary: "How a patient says yes to an appointment, so the reminder messages can be finished.",
-      proposedBy: "kwame", proposedAt: now - 5 * DAY, decideBy: now + 2 * DAY, acknowledged: ["kwame", "chidi", "leila"],
-      options: [
-        { title: "Reply to the SMS", good: "Works on every phone, with no data.", watch: "Replies cost the clinic a little for each message." },
-        { title: "Tap a link in the SMS", good: "Patients see the booking and can change it.", watch: "Needs data, which many patients ration." },
-      ],
-      context: "Patients get a reminder the day before. Many have basic phones and buy data a little at a time.",
-      problem: "The reminder text and the admin screen cannot be finished until the team agrees how patients confirm.",
-      direction: "Patients reply 1 to confirm or 2 to cancel. The front desk sees each answer on the daily list.",
-      files: [{ name: "Booking-API.pdf", meta: "PDF, 420 KB, shared by Kwame Mensah" }, { name: "Reminder copy, day before", meta: "Note, added by Amara Okafor" }],
-      discussion: [
-        { who: "chidi", text: "Likes the reply option: it works on the cheap Android phones we tested." },
-        { who: "leila", text: "Will write the Hausa version once the wording is agreed." },
-        { who: "kwame", text: "Prefers replies and asked for a decision before the SMS gateway is set up." },
-      ],
-    }),
-    d({
-      id: "gc-dec2", projectId: "garki-clinic-booking", title: "Choose the phone we test accessibility on", status: "discussion",
-      summary: "One phone that matches what most patients carry.",
-      proposedBy: "chidi", proposedAt: now - 3 * DAY, decideBy: now + 6 * DAY, acknowledged: [],
-      options: [
-        { title: "A phone under ₦60,000", good: "Close to what most patients use.", watch: "Someone has to buy or borrow one." },
-        { title: "The browser's phone view", good: "Free and quick.", watch: "Misses slow screens and small memory." },
-      ],
-      context: "The booking screens work on Chidi's phone, which is faster than most patients' phones.",
-      problem: "The accessibility check needs a real phone before it can start.",
-      direction: "Borrow a phone under ₦60,000 from the clinic staff for one week.",
-      discussion: [{ who: "chidi", text: "Asked for a real Android phone below ₦60,000 to test on." }],
-    }),
-    d({
-      id: "gc-dec3", projectId: "garki-clinic-booking", title: "Agree when the Hausa reminders go live", status: "proposed",
-      summary: "Whether Hausa reminders launch with the app or a week after.",
-      proposedBy: "leila", proposedAt: now - 1 * DAY, decideBy: now + 9 * DAY, acknowledged: [],
-      options: [
-        { title: "With the launch", good: "Every patient is reached from day one.", watch: "Less time for a nurse to check the wording." },
-        { title: "A week after", good: "A nurse checks every message first.", watch: "Hausa speakers get English reminders at first." },
-      ],
-      context: "The English reminders are written. The Hausa ones need a nurse to check them.",
-      direction: "Launch with Hausa reminders, checked by a nurse the week before.",
-    }),
-    d({
-      id: "gc-dec4", projectId: "garki-clinic-booking", title: "Send reminders the day before, not the same morning", status: "approved",
-      summary: "When patients get their reminder.", proposedBy: ME, proposedAt: now - 20 * DAY, acknowledged: ["amara", "ayo", "kwame", "chidi", "wanjiru", "leila"],
-      outcome: "Reminders go out at 6 PM the day before.", outcomeAt: now - 18 * DAY,
-    }),
-    d({
-      id: "gc-dec5", projectId: "garki-clinic-booking", title: "Build a phone app instead of a website", status: "rejected",
-      summary: "Whether patients install an app to book.", proposedBy: "kwame", proposedAt: now - 23 * DAY, acknowledged: ["amara", "ayo", "kwame", "chidi", "wanjiru", "leila"],
-      outcome: "A website and SMS reach more patients than an app they must install.", outcomeAt: now - 21 * DAY,
-    }),
-    d({
-      id: "gc-dec6", projectId: "garki-clinic-booking", title: "Use one booking form for every doctor", status: "superseded",
-      summary: "One form, or one per doctor.", proposedBy: "ayo", proposedAt: now - 16 * DAY, acknowledged: ["amara", "ayo", "kwame", "chidi", "leila"],
-      outcome: "Replaced by the doctor picker in the booking flow.", outcomeAt: now - 14 * DAY,
-    }),
+/** A day of the sample projects (their dates are fixed, as the design writes them): 2026, at noon. */
+const on = (month: number, day: number) => new Date(2026, month - 1, day, 12).getTime();
+const CAREER_ID = "career-guidance-for-everyone";
+const ADIRE_ID = "adire-stories";
 
-    // Market Light: three people, the book is in layout.
+function seed(): Decision[] {
+  const d = (x: Omit<Decision, "slug" | "files" | "discussion" | "options"> & Partial<Pick<Decision, "files" | "discussion" | "options">>): Decision => ({ files: [], discussion: [], options: [], ...x, slug: slugOf(x.title) });
+  const FSE = "First Student Experience", PR = "Prototype Review";
+  const HP = "Headwrap Portrait", PSS = "Pattern Study Set";
+  return [
+    // Career Guidance for Everyone: the second onboarding screen waits on how students start.
     d({
-      id: "ml-dec1", projectId: "market-light", title: "Choose the paper for the book", status: "awaiting",
-      summary: "The paper the 200 copies are printed on, so the printers can quote.",
-      proposedBy: "wanjiru", proposedAt: now - 4 * DAY, decideBy: now + 3 * DAY, milestone: "Layout signed off by all three", acknowledged: ["wanjiru", "efua"],
+      id: "cg-dec1", projectId: CAREER_ID, title: "Choose the onboarding approach", status: "awaiting",
+      summary: "How students first meet Career Guidance, so the first screens can be finished.",
+      proposedBy: "adaeze", proposedAt: on(11, 2), decideBy: on(11, 6), milestone: FSE, acknowledged: ["adaeze", "tobi"],
       options: [
-        { title: "Uncoated matte", good: "Warm, and the portraits feel close.", watch: "Colours print a little softer." },
-        { title: "Silk coated", good: "Sharp colour in the fabric photos.", watch: "Shine under the market lights." },
+        { title: "Guided questions", good: "A clear first step for every student.", watch: "Less room to explore on a first visit." },
+        { title: "Open workspace", good: "Freedom to explore at their own pace.", watch: "May feel overwhelming on a first visit." },
       ],
-      context: "The portraits are warm and full of fabric colour. The book is handed out at the market.",
-      problem: "The printing quotes cannot be compared until the paper is chosen.",
-      direction: "Uncoated matte, with one test print of spread 3 before the full run.",
-      files: [{ name: "Spread 3 draft", meta: "Image, added by Amara Okafor" }],
+      context: "Students meet Career Guidance on the first screen. Many want a clear first step, and some are unsure where to begin.",
+      problem: "The second onboarding screen cannot be finished until the team agrees how students start.",
+      direction: "Start with guided questions: three short questions, then a first step built from the answers. Review it at the prototype session.",
+      files: [{ name: "Student onboarding draft.pdf", meta: "PDF, 2.4 MB, shared by Tobi Adeyemi" }, { name: "Career interview notes.docx", meta: "Word, 180 KB, shared by Ngozi Eze" }],
       discussion: [
-        { who: "efua", text: "Prefers matte: the traders will hold it in daylight." },
-        { who: "wanjiru", text: "Asked for a test print before Saturday." },
+        { who: "tobi", text: "Worries the open option may feel overwhelming on a first visit." },
+        { who: "ngozi", text: "Agrees, based on the student interviews." },
+        { who: "adaeze", text: "Prefers the guided option and asked for a decision before Friday." },
       ],
     }),
+    d({ id: "cg-dec2", projectId: CAREER_ID, title: "Choose the first student group", status: "discussion", summary: "", proposedBy: "ngozi", proposedAt: on(11, 3), milestone: FSE, acknowledged: [] }),
+    d({ id: "cg-dec3", projectId: CAREER_ID, title: "Agree the review schedule", status: "proposed", summary: "", proposedBy: "tobi", proposedAt: on(11, 4), milestone: PR, acknowledged: [] }),
+    d({ id: "cg-dec4", projectId: CAREER_ID, title: "Use one questionnaire for every school", status: "superseded", summary: "", proposedBy: "ngozi", proposedAt: on(10, 31), milestone: FSE, acknowledged: ["ngozi", "adaeze", "kemi"], outcomeAt: on(11, 2) }),
+    d({ id: "cg-dec5", projectId: CAREER_ID, title: "Build the onboarding as a mobile app first", status: "rejected", summary: "", proposedBy: "tobi", proposedAt: on(10, 28), milestone: FSE, acknowledged: ["tobi", "adaeze", "ngozi", "kemi"], outcomeAt: on(10, 30) }),
+    d({ id: "cg-dec6", projectId: CAREER_ID, title: "Run interviews before building screens", status: "approved", summary: "", proposedBy: "kemi", proposedAt: on(10, 26), milestone: FSE, acknowledged: ["kemi", "adaeze", "tobi", "ngozi"], outcomeAt: on(10, 28) }),
+
+    // Adire Stories: the headwrap plate waits on its palette.
     d({
-      id: "ml-dec2", projectId: "market-light", title: "Agree the launch day at the market", status: "discussion",
-      summary: "A market day when the traders can come.", proposedBy: "efua", proposedAt: now - 2 * DAY, decideBy: now + 8 * DAY, milestone: "Launch at the market", acknowledged: [],
-      options: [
-        { title: "Saturday 7 December", good: "The busiest day, so many people see it.", watch: "Traders have less time to stop." },
-        { title: "Sunday 8 December", good: "Traders can stay for the launch.", watch: "Fewer shoppers walk past." },
-      ],
-      discussion: [{ who: "efua", text: "Three traders said Saturday is too busy for them." }],
+      id: "as-dec1", projectId: ADIRE_ID, title: "Choose the headwrap palette", status: "awaiting", summary: "",
+      proposedBy: "amara-obi", proposedAt: on(11, 3), milestone: HP, acknowledged: ["amara-obi", "ayo-bello"],
+      options: [{ title: "Indigo and cream", good: "", watch: "" }],
     }),
-    d({
-      id: "ml-dec3", projectId: "market-light", title: "Keep each caption under 30 words", status: "approved",
-      summary: "How long a trader's caption can be.", proposedBy: "efua", proposedAt: now - 5 * DAY, milestone: "Interviews written up", acknowledged: ["efua", "amara", "wanjiru"],
-      outcome: "First name, stall, years at the market, and one sentence in their own words.", outcomeAt: now - 4 * DAY,
-    }),
-    d({
-      id: "ml-dec4", projectId: "market-light", title: "Use Mama Ngozi at her stall for the cover", status: "approved",
-      summary: "The cover photo.", proposedBy: "efua", proposedAt: now - 7 * DAY, milestone: "Layout signed off by all three", acknowledged: ["efua", "wanjiru", "amara"],
-      outcome: "Mama Ngozi at her stall is the cover.", outcomeAt: now - 6 * DAY,
-    }),
+    d({ id: "as-dec2", projectId: ADIRE_ID, title: "Choose the pattern for the next plate", status: "discussion", summary: "", proposedBy: "yusuf-danjuma", proposedAt: on(11, 4), milestone: HP, acknowledged: [] }),
+    d({ id: "as-dec3", projectId: ADIRE_ID, title: "Agree the print proof schedule", status: "proposed", summary: "", proposedBy: "ayo-bello", proposedAt: on(11, 5), milestone: PSS, acknowledged: [] }),
+    d({ id: "as-dec4", projectId: ADIRE_ID, title: "Use one dye palette for every plate", status: "superseded", summary: "", proposedBy: "yusuf-danjuma", proposedAt: on(11, 1), milestone: HP, acknowledged: ["yusuf-danjuma", "amara-obi", "kemi"], outcomeAt: on(11, 3) }),
+    d({ id: "as-dec5", projectId: ADIRE_ID, title: "Match colours from phone photos alone", status: "rejected", summary: "", proposedBy: "ayo-bello", proposedAt: on(10, 29), milestone: HP, acknowledged: ["ayo-bello", "amara-obi", "yusuf-danjuma", "kemi"], outcomeAt: on(10, 31) }),
+    d({ id: "as-dec6", projectId: ADIRE_ID, title: "Meet the dyers before drawing the plates", status: "approved", summary: "", proposedBy: "kemi", proposedAt: on(10, 27), milestone: HP, acknowledged: ["kemi", "amara-obi", "ayo-bello", "yusuf-danjuma"], outcomeAt: on(10, 29) }),
   ];
 }
 
-const KEY = "ak:collab-decisions:v1";
+const KEY = "ak:collab-decisions:v2";
 const BY_TIME = (a: Decision, b: Decision) => a.proposedAt - b.proposedAt;
 
 /** A project's decisions, and what the member can do with them. */

@@ -9,7 +9,7 @@ import { ME } from "@/lib/collab/me";
 import type { Project } from "@/lib/collab/types";
 import type { PersonId } from "@/lib/data/people";
 import { photoSrc } from "@/components/kin/home/parts";
-import { ago, clock24, daysAgo, presenceFor, threadFromApi, versionFromApi, versionNumber, type LivePerson, type Thread, type Version } from "@/lib/collab/live";
+import { clock24, daysAgo, on2026, presenceFor, threadFromApi, versionFromApi, versionNumber, type LivePerson, type Thread, type Version } from "@/lib/collab/live";
 
 /*
  * A project's shared canvas, as the product design's Digital Art Workspace shows it (art-workspace*.css, tw-/ta-):
@@ -22,7 +22,7 @@ import { ago, clock24, daysAgo, presenceFor, threadFromApi, versionFromApi, vers
  *   POST canvas/comments/:id/replies             ← { text }
  *   POST canvas/comments/:id/resolve             ← { resolved }
  *   POST canvas/versions/:n/restore
- * The demo keeps edits in the browser, seeded with a canvas for Market Light; other making projects start from
+ * The demo keeps edits in the browser, seeded with the design's canvas for Adire Stories; other making projects start from
  * their own cover photo.
  */
 
@@ -73,33 +73,36 @@ export const layerDetail = (l: Layer) => `${l.blend}, ${l.opacity}%`;
 function seedCanvas(project: Project, now: number): Canvas {
   const members = project.members.map((m) => m.id);
   const base = { projectId: project.id, size: { width: 4000, height: 3000, dpi: 300 }, colour: RECENT[0]!, recent: RECENT, brush: { name: "Dry ink", size: 24, opacity: 80 }, brushes: BRUSHES };
-  if (project.id === "market-light") {
+  if (project.id === "adire-stories") {
+    // The design's Digital Art Workspace (12.16), word for word.
     return {
       ...base,
-      title: "Chapter opener: the fabric row",
-      art: "/kin/collaborate/art-adire-portrait.jpg",
-      layers: LAYERS.map((l) => (l.id === "colour" ? { ...l, name: "Colour: Adire pattern", editor: "wanjiru" } : l)),
-      cursors: [{ who: "wanjiru", slot: "Amara" }, { who: "efua", slot: "Ayo" }],
+      title: "Visual identity and illustration series",
+      art: "/kin/design/workspace/art-adire-portrait.jpg",
+      layers: LAYERS.map((l) => (l.id === "colour" ? { ...l, name: "Colour: Adire pattern", editor: "amara-obi" } : l)),
+      cursors: [{ who: "amara-obi", slot: "Amara" }, { who: "ayo-bello", slot: "Ayo" }],
       pins: [
-        { id: "ml-c1", n: 1, messages: [
-          { who: "efua", at: ago(now, 64), text: "Could the Adire pattern repeat here? It feels sparse next to the rest of the headwrap." },
-          { who: "wanjiru", at: ago(now, 55), text: "Yes, I will extend the pattern on the colour layer." },
+        { id: "as-c1", n: 1, messages: [
+          { who: "ayo-bello", at: daysAgo(now, 0, 10, 42), text: "Could the Adire pattern repeat here? It feels sparse next to the rest of the headwrap." },
+          { who: "kemi", at: daysAgo(now, 0, 10, 51), text: "Yes, I will extend the pattern on the colour layer." },
         ] },
-        { id: "ml-c2", n: 2, messages: [{ who: ME, at: ago(now, 40), text: "Leave this corner quiet for the chapter title." }] },
+        // Pin 2 has no open thread in the design.
+        { id: "as-c2", n: 2, messages: [{ who: "kemi", at: daysAgo(now, 0, 10, 55), text: "Leave this corner quiet for the plate title." }] },
       ],
       versions: [
-        { id: "ml-v6", at: ago(now, 28), who: "wanjiru", what: "colour layer" },
-        { id: "ml-v5", at: ago(now, 115), who: ME, what: "linework" },
-        { id: "ml-v4", at: daysAgo(now, 1, 16, 20), who: "efua", what: "highlights" },
-        { id: "ml-v3", at: daysAgo(now, 1, 11, 2), who: "wanjiru", what: "colour layer" },
-        { id: "ml-v2", at: daysAgo(now, 4, 15, 40), who: ME, what: "sketch" },
-        { id: "ml-v1", at: daysAgo(now, 5, 9, 30), who: ME, what: "new canvas" },
+        { id: "as-v6", at: daysAgo(now, 0, 10, 42), who: "amara-obi", what: "colour layer" },
+        { id: "as-v5", at: daysAgo(now, 0, 9, 15), who: "kemi", what: "linework" },
+        { id: "as-v4", at: daysAgo(now, 1, 16, 20), who: "ayo-bello", what: "highlights" },
+        { id: "as-v3", at: daysAgo(now, 1, 11, 2), who: "amara-obi", what: "colour layer" },
+        { id: "as-v2", at: on2026(10, 12, 15, 40), who: "kemi", what: "sketch" },
+        { id: "as-v1", at: on2026(10, 11, 9, 30), who: "kemi", what: "new canvas" },
       ],
-      presence: presenceFor(members, [
-        { who: ME, state: "editing", note: "Editing the layers" },
-        { who: "wanjiru", state: "editing", note: "Editing the colour layer" },
-        { who: "efua", state: "viewing", note: "Viewing the canvas" },
-      ], "Editing the layers"),
+      presence: [
+        { who: "kemi", state: "editing", note: "Editing the layers", access: "Owner" },
+        { who: "amara-obi", state: "editing", note: "Editing the colour layer", access: "Can edit" },
+        { who: "ayo-bello", state: "viewing", note: "Viewing the canvas", access: "Can comment" },
+        { who: "yusuf-danjuma", state: "away", note: "Last seen yesterday", access: "View only" },
+      ],
     };
   }
   return {
@@ -118,7 +121,7 @@ function seedCanvas(project: Project, now: number): Canvas {
 type Edits = { hidden?: Partial<Record<LayerId, boolean>>; pins?: Record<string, Pick<Thread, "messages" | "resolved" | "resolvedBy">>; versions?: Version[] };
 
 function useLocalCanvas(project: Project | undefined) {
-  const [all, setAll] = useLocal<Record<string, Edits>>("ak:collab-canvas:v1", {});
+  const [all, setAll] = useLocal<Record<string, Edits>>("ak:collab-canvas:v2", {});
   const id = project?.id ?? "";
   const edits = all[id];
   const canvas = useMemo<Canvas | undefined>(() => {

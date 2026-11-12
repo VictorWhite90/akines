@@ -47,7 +47,7 @@ function Bubble({ m, me, group }: { m: Shown; me: string; group: boolean }) {
   if (m.kind === "spark") return null;
   if (m.kind === "system") return <p className="ch-date">{m.text}</p>;
   const out = m.from === me;
-  const sender = group && !out ? PEOPLE[m.from as PersonId]?.name.split(" ")[0] : undefined;
+  const sender = group && !out ? (m.kind === "text" && m.sender) || PEOPLE[m.from as PersonId]?.name.split(" ")[0] : undefined;
   return (
     <div className={`ch-bub ch-bub--${out ? "out" : "in"}`}>
       <div className="ch-bub__col">
@@ -108,7 +108,7 @@ export function EmptyPane({ quick }: { quick?: Plan }) {
  * `onPhoto` takes a photo pasted into the composer or dropped on the conversation.
  */
 export function ThreadPane({
-  name, sub, face, group, msgs, me, status, onSend, plan, closed, onTop, onPhoto, onDraft,
+  name, sub, face, group, msgs, me, status, onSend, plan, closed, onTop, onPhoto, onDraft, draft: startDraft,
 }: {
   name: string;
   sub: string;
@@ -123,8 +123,10 @@ export function ThreadPane({
   onTop?: () => void;
   onPhoto?: (f: File) => void;
   onDraft?: (t: string) => void;
+  /** What the composer starts with (the design's sample message in preview). */
+  draft?: string;
 }) {
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(startDraft ?? "");
   const [planning, setPlanning] = useState(false);
   const feed = useRef<HTMLDivElement>(null);
   const edges = useRef<{ first?: string; last?: string; fromBottom: number }>({ fromBottom: 0 });

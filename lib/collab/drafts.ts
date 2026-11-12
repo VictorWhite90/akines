@@ -43,7 +43,7 @@ const SEED: ProjectDraft[] = [
     id: "teaching-tools", title: "Teaching Tools for Rural Schools",
     description: "Low-cost teaching aids that help teachers in schools with few resources bring lessons to life.",
     answers: {
-      type: "community", idea: "I want to make low-cost teaching aids that help teachers in schools around Kuje bring lessons to life.",
+      type: "community", idea: "Low-cost teaching aids that help teachers in schools with few resources bring lessons to life.",
       q: { q1: "Teachers in schools with few resources often teach science and maths with nothing but a blackboard.", q2: "", q3: "", q4: "" },
       stage: "", needs: [],
     },
@@ -52,7 +52,7 @@ const SEED: ProjectDraft[] = [
   {
     id: "youth-radio", title: "Youth Radio Workshop",
     description: "A weekly radio workshop where young people tell stories from their neighbourhoods.",
-    answers: { type: "community", idea: "A weekly radio workshop where young people in Wuse tell stories from their neighbourhoods.", q: { q1: "", q2: "", q3: "", q4: "" }, stage: "", needs: [] },
+    answers: { type: "community", idea: "A weekly radio workshop where young people tell stories from their neighbourhoods.", q: { q1: "", q2: "", q3: "", q4: "" }, stage: "", needs: [] },
     brief: {}, at: "idea", updatedAt: now - 14 * DAY,
   },
 ];
@@ -134,7 +134,7 @@ export function useDrafts() {
 }
 
 function useLocalDrafts() {
-  const [list, setList, ready] = useLocal<ProjectDraft[]>("ak:collab-drafts", SEED);
+  const [list, setList, ready] = useLocal<ProjectDraft[]>("ak:collab-drafts:v2", SEED);
   const drafts = [...list].sort((a, b) => b.updatedAt - a.updatedAt);
   /** Creates or updates a draft; resolves to its id. */
   const save = useCallback((d: Omit<ProjectDraft, "id" | "updatedAt"> & { id?: string }) => {

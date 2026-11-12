@@ -105,7 +105,8 @@ export type Charter = {
 };
 
 export type Task = { id: string; title: string; who: PersonId; due: string; status: "todo" | "doing" | "done" };
-export type Milestone = { id: string; title: string; due: string; done: boolean };
+/** `label` is how the project bar and the project cards say the milestone, when it differs from its title. */
+export type Milestone = { id: string; title: string; due: string; done: boolean; label?: string };
 export type StudioItem = {
   id: string;
   kind: "image" | "note";

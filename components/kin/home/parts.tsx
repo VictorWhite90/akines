@@ -21,8 +21,9 @@ export function FdPhoto({ src, className, eager, position }: { src: string; clas
   );
 }
 
-export function FdAvatar({ id, size = 32, ring }: { id: PersonId; size?: number; ring?: boolean }) {
-  const src = faceSrc(id);
+/** A member's face, or `src` when a card shows a particular photo (the design reuses photos across people). */
+export function FdAvatar({ id, src: given, size = 32, ring }: { id?: PersonId; src?: string; size?: number; ring?: boolean }) {
+  const src = given ?? (id ? faceSrc(id) : undefined);
   return (
     <span className={ring ? "fd-av fd-av--ring" : "fd-av"} style={{ width: size, height: size }}>
       {/* eslint-disable-next-line @next/next/no-img-element -- member face */}

@@ -6,6 +6,8 @@ import { ArrowUp, ChevronRight, RotateCcw, X } from "lucide-react";
 import Button, { IconButton } from "@/components/kin/Button";
 import { Chip } from "@/components/kin/Chip";
 import Tooltip from "@/components/kin/Tooltip";
+import Avatar from "@/components/kin/Avatar";
+import { DEMO } from "@/lib/demo/mode";
 import { isSignedIn } from "@/lib/session";
 import { useMe } from "./MemberContext";
 import { ProjectChatView, START_PATH, useProjectChat } from "./createai/ProjectChat";
@@ -21,7 +23,7 @@ import "./companion.css";
  */
 
 type Go = { path: string; label: string };
-type Item = { title: string; text: string; meta: string; href: string };
+type Item = { title: string; text: string; meta: string; href: string; avatar?: string };
 type Intention = { label: string; headline: string; items: Item[] };
 
 const INTENTIONS: Intention[] = [
@@ -63,8 +65,57 @@ const INTENTIONS: Intention[] = [
   ] },
 ];
 
+/**
+ * Preview: the product design's own survey answers (its features/community/data.ts INTENTIONS), word for word. Where the
+ * design opens one of its panels, the row opens the page of ours that holds the same thing.
+ */
+const AV = (name: string) => `/kin/design/home/community/av-${name}.jpg`;
+const DESIGN_INTENTIONS: Intention[] = [
+  { label: "I want some company.", headline: "Some company, whenever you are ready.", items: [
+    { title: "Quick Catch-up", text: "A short, easy conversation with someone from your circle.", meta: "About 15 min", avatar: AV("folake"), href: "/messages" },
+    { title: "Banter: Can ambition and rest coexist?", text: "Starts at 6:00 PM. Come to listen or to join in.", meta: "Today", href: "/community/banter" },
+    { title: "Quiet company", text: "Be in a calm room with others. No talking needed.", meta: "Anytime", href: "/wellbeing/quiet" },
+  ] },
+  { label: "I want to collaborate.", headline: "People and projects to build with.", items: [
+    { title: "Tunde", text: "Community-health collaborator who likes practical, small-group work.", meta: "Collaborator", avatar: AV("tunde"), href: "/settings/explanations" },
+    { title: "Lagos Makers Zine", text: "An open project that could use one more maker.", meta: "Open project", avatar: AV("zine"), href: "/community/collaborations/lagos-makers-zine" },
+    { title: "Arrange a Create Call with Amara", text: "Pick up the Community Health Initiative together.", meta: "Create Call", avatar: AV("amara"), href: "/community/collaborations" },
+    { title: "Starting a purpose-driven business", text: "A KinCircle gathering on Thursday. Two places available.", meta: "KinCircle", avatar: AV("kincircle"), href: "/connect/kincircle" },
+  ] },
+  { label: "I want to meet someone new.", headline: "Someone new, for a good reason.", items: [
+    { title: "Tunde", text: "Community-health initiatives and small-group collaboration.", meta: "Introduction", avatar: AV("tunde"), href: "/settings/explanations" },
+    { title: "Ngozi", text: "Writing to remember, and quiet one-to-one conversation.", meta: "Introduction", avatar: AV("ngozi"), href: "/settings/explanations" },
+    { title: "Starting a purpose-driven business", text: "Meet five members at a KinCircle on Thursday.", meta: "KinCircle", avatar: AV("kincircle"), href: "/connect/kincircle" },
+  ] },
+  { label: "I want to talk to a friend.", headline: "Time with someone you know.", items: [
+    { title: "Amara", text: "Your project has been quiet for six days.", meta: "Conversation", avatar: AV("amara"), href: "/messages/amara" },
+    { title: "Folake", text: "You were planning a Sunday walk.", meta: "Conversation", avatar: AV("folake"), href: "/messages/folake" },
+    { title: "Game night with university friends", text: "Friday. Easy company and a few good games.", meta: "Friday", href: "/messages/university-friends" },
+  ] },
+  { label: "I want to play.", headline: "Time to play.", items: [
+    { title: "Game night with university friends", text: "Friday, with people you already know.", meta: "Friday", href: "/messages/university-friends" },
+    { title: "Play Call", text: "Games and play with people who like to laugh.", meta: "About 30 min", href: "/messages/university-friends" },
+  ] },
+  { label: "I need encouragement.", headline: "A little encouragement.", items: [
+    { title: "Message someone I trust", text: "Send a note to someone who knows you well.", meta: "Private", href: "/wellbeing/support" },
+    { title: "Support Call", text: "A listening ear when something is weighing on you.", meta: "About 20 min", href: "/wellbeing/support" },
+    { title: "Reflect privately", text: "Write down how things are, just for you.", meta: "Only you", href: "/wellbeing/reflect" },
+  ] },
+  { label: "I want to offer help.", headline: "A way to be useful.", items: [
+    { title: "Encourage someone", text: "Send a short, kind note to a person in your circle.", meta: "Takes a minute", href: "/messages" },
+    { title: "Community Health Initiative", text: "Your project with Amara has been quiet for six days.", meta: "Collaboration", avatar: AV("health"), href: "/community/collaborations" },
+    { title: "Circle Call", text: "A small conversation with the Food Systems Cliq.", meta: "About 45 min", href: "/messages/food-systems-cliq" },
+  ] },
+  { label: "I want quiet company.", headline: "Quiet company, close by.", items: [
+    { title: "Quiet company", text: "Be in a calm room with others. No talking needed.", meta: "Anytime", href: "/wellbeing/quiet" },
+    { title: "KinCircle Reflection", text: "Tomorrow. A gentle reflection circle.", meta: "Tomorrow", href: "/messages/kincircle-reflection" },
+    { title: "Reflect privately", text: "Write down how things are, just for you.", meta: "Only you", href: "/wellbeing/reflect" },
+  ] },
+];
+const SURVEY = DEMO ? DESIGN_INTENTIONS : INTENTIONS;
+
 const PLACES: Go[] = [
-  { path: "/", label: "Community Home" }, { path: "/messages", label: "Messages" }, { path: "/community/banter", label: "Banter" },
+  { path: "/", label: "Community home" }, { path: "/messages", label: "Messages" }, { path: "/community/banter", label: "Banter" },
   { path: "/connect", label: "Connect" }, { path: "/connect/kincircle", label: "KinCircle" }, { path: "/connect/rooms", label: "Rooms" }, { path: "/connect/activities", label: "Activities" },
   { path: "/collaborate", label: "Collaborate" }, { path: "/collaborate/start", label: "Start a project" },
   { path: "/collaborate/collaborators", label: "Explore collaborators" }, { path: "/collaborate/discover", label: "Discover projects" }, { path: "/collaborate/my-projects", label: "Open a project" },
@@ -79,20 +130,20 @@ const place = (p: string) => PLACES.find((x) => x.path === p);
 const RULES: { test: RegExp; text: string; go?: string[] }[] = [
   { test: /\b(hi|hello|hey|good (morning|afternoon|evening))\b/i, text: "Hello. I am Create AI. I can help you find the right place in Akines, or just talk something through. What is on your mind?" },
   { test: /\b(join|sign ?up|create (an )?account|register)\b/i, text: "Joining is a short, step by step flow, and you can go back at any step. When you are ready, it starts here.", go: ["/signup"] },
-  { test: /\b(sign ?in|log ?in|password)\b/i, text: "You can sign in from the top of any page. If you forgot your password, the sign-in panel can send you a reset code." },
+  { test: /\b(sign ?in|log ?in|password)\b/i, text: "You can sign in from the top of any page. If you are stuck, Help is the quickest way to get unstuck.", go: ["/help"] },
   { test: /\b(start|begin|launch|new)\b.*\bproject\b|\bproject\b.*\b(start|begin|idea)\b/i, text: "Starting a project takes a few short questions about what you want to make and who you would like beside you. You can save it and come back.", go: ["/collaborate/start", "/collaborate/collaborators", "/collaborate/my-projects"] },
   { test: /\b(collaborat\w*|co-?found\w*|partners?|teammates?|find (a )?(maker|person|people))\b/i, text: "Collaborate is where projects and people meet. You can start your own, look for collaborators, or see open projects that could use another pair of hands.", go: ["/collaborate/collaborators", "/collaborate/discover"] },
   { test: /\b(open projects?|discover)\b/i, text: "Discover projects lists open projects you could join. Each one shows what is needed and who is already in.", go: ["/collaborate/discover"] },
-  { test: /\bbanter\b/i, text: "Banter starts with one question. You can listen quietly or join in.", go: ["/community/banter"] },
-  { test: /\b(kin ?circle|circle|gathering)\b/i, text: "A KinCircle is a small group around something you care about, so it stays personal.", go: ["/connect/kincircle"] },
+  { test: /\bbanter\b/i, text: "Banter is a live conversation on one question, with a start time. You can listen quietly or join in.", go: ["/community/banter"] },
+  { test: /\b(kin ?circle|circle|gathering)\b/i, text: "A KinCircle is a small gathering around something you both care about. Places are limited, so they stay personal.", go: ["/connect/kincircle"] },
   { test: /\b(room|quiet|calm)\b/i, text: "Rooms are open spaces to be with others. Some are for talking, and some are calm rooms where no talking is needed.", go: ["/connect/rooms"] },
-  { test: /\b(activit|game|play|workshop)\b/i, text: "Activities and games are shared things to do together.", go: ["/connect/activities"] },
+  { test: /\b(activit|game|play|workshop)\b/i, text: "Activities are shared things to do together, from games to making sessions.", go: ["/connect/activities"] },
   { test: /\b(sell|shop|store|buy|journal)\b/i, text: "Make and Sell is where members share and sell their work, with a journal for the stories behind it.", go: ["/make-sell/store", "/make-sell/journal"] },
-  { test: /\b(stor(y|ies)|studio|visit|heritage|legacy)\b/i, text: "Explore has stories from members and studio visits, a good place to wander.", go: ["/explore/stories", "/explore/studio-visits"] },
-  { test: /\b(care|support|anxious|stress|sad|low|overwhelm|lonely|tired|burn(t|ed)? ?out)\b/i, text: "I am sorry it feels heavy. Reflect privately is a quiet place to write, just for you. If you feel unsafe, please contact your local emergency services or someone you trust.", go: ["/care", "/wellbeing/reflect"] },
+  { test: /\b(stor(y|ies)|studio|visit|heritage|legacy)\b/i, text: "Explore has stories from members and studio visits, a good place to wander when you are not looking for anything in particular.", go: ["/explore/stories", "/explore/studio-visits"] },
+  { test: /\b(care|support|anxious|stress|sad|low|overwhelm|lonely|tired|burn(t|ed)? ?out)\b/i, text: "I am sorry it feels heavy. Care has quiet company and a private place to write things down, just for you. If you feel unsafe, please contact your local emergency services or someone you trust.", go: ["/care", "/wellbeing/reflect"] },
   { test: /\b(message|chat with|dm|inbox)\b/i, text: "Messages holds your conversations. You can pick one up where you left off.", go: ["/messages"] },
-  { test: /\b(help|contact|problem|issue|bug|not working)\b/i, text: "Settings covers your account. For anything else, Help has the details.", go: ["/settings", "/help"] },
-  { test: /\b(what is|what's|about|who are|tell me about)\b.*\b(akines|this)\b|\bakines\b.*\b(what|about)\b/i, text: "Akines helps you find people you can genuinely know, trust and create with. Less scrolling, more belonging.", go: ["/landing"] },
+  { test: /\b(help|contact|problem|issue|bug|not working)\b/i, text: "Help is the best place for questions about your account or something that is not working.", go: ["/help"] },
+  { test: /\b(what is|what's|about|who are|tell me about)\b.*\b(akines|this)\b|\bakines\b.*\b(what|about)\b/i, text: "Akines helps you find people you can genuinely know, trust and create with. Less scrolling, more belonging. You choose how you want to connect, and it shows you a few good places to start.", go: ["/"] },
   { test: /\b(thank|thanks)\b/i, text: "Any time. I am here whenever you want to talk something through." },
 ];
 function reply(q: string): { text: string; go: Go[] } {
@@ -224,7 +275,7 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
   const pick = (n: number) => {
     if (busy) return;
     setChosen(n);
-    setMsgs((m) => [...m, { id: nextId(), role: "user", kind: "text", text: INTENTIONS[n - 1].label }, { id: nextId(), role: "assistant", kind: "result", intention: n }]);
+    setMsgs((m) => [...m, { id: nextId(), role: "user", kind: "text", text: SURVEY[n - 1].label }, { id: nextId(), role: "assistant", kind: "result", intention: n }]);
   };
   const goTo = (href: string) => { hide(); router.push(signedIn ? href : "/signup"); };
   const go = (g: Go) => {
@@ -281,12 +332,12 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
                   <h3 className="cai-q">How would you like to connect today?</h3>
                   <p className="cai-lead" id={`${panelId}-lead`}>Choose what feels right for you.</p>
                   <div className="cai-chips" role="group" aria-labelledby={`${panelId}-lead`}>
-                    {INTENTIONS.map((it, i) => <Chip key={it.label} variant="choice" selected={chosen === i + 1} disabled={busy} onClick={() => pick(i + 1)}>{it.label}</Chip>)}
+                    {SURVEY.map((it, i) => <Chip key={it.label} variant="choice" selected={chosen === i + 1} disabled={busy} onClick={() => pick(i + 1)}>{it.label}</Chip>)}
                   </div>
                 </div>
               );
               if (m.kind === "result") {
-                const it = INTENTIONS[m.intention - 1];
+                const it = SURVEY[m.intention - 1];
                 return (
                   <div key={m.id} className="cai-msg cai-msg--bot cai-result">
                     <p className="cai-label">For you today</p>
@@ -296,7 +347,7 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
                       {it.items.map((x) => (
                         <li key={x.title}>
                           <button type="button" className="cai-row" onClick={() => goTo(x.href)}>
-                            <span className="cai-row__dot" aria-hidden />
+                            {x.avatar ? <Avatar person={{ name: x.title, photo: x.avatar }} size={36} /> : <span className="cai-row__dot" aria-hidden />}
                             <span className="cai-row__txt"><span className="cai-row__title">{x.title}</span><span className="cai-row__text">{x.text}</span></span>
                             <span className="cai-row__meta">{x.meta}</span>
                             <ChevronRight className="cai-row__chev" strokeWidth={1.5} aria-hidden />

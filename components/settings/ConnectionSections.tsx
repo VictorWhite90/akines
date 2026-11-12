@@ -8,7 +8,6 @@ import { Chip, Tag } from "@/components/kin/Chip";
 import { Toggle } from "@/components/kin/Choice";
 import { Drawer } from "@/components/kin/Overlay";
 import { faceSrc } from "@/components/kin/home/parts";
-import { MATCHES } from "@/lib/data/matches";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { toggleIn, useConnectionPrefs } from "./prefs";
 
@@ -59,6 +58,15 @@ export function RecommendationsSection() {
   );
 }
 
+/** The design's three explanations (Tunde, Ngozi, Chuka) and the "Why we matched" drawer each opens, word for word. */
+type Why = { id: PersonId; text: string; image: string; tags: string[]; why: string; now: string; together: string; used: string };
+const WHY: Why[] = [
+  { id: "tunde-bakare", text: "You both develop community-health initiatives and prefer practical, small-group work.", image: "/kin/design/home/community/tunde.jpg", tags: ["Community health", "Small-group work"], why: "You and Tunde are both developing community-health initiatives and prefer practical, small-group collaboration.", now: "You both chose collaboration this week, and Tunde has room for a new Create Call on Thursday.", together: "Compare how you each plan outreach in a 30-minute Create Call, then decide whether to keep working together.", used: "Interests you both chose: community health and small groups. Your collaboration intention. Times you both shared." },
+  { id: "ngozi", text: "You both write to remember the people in your lives and prefer quiet, one-to-one conversation.", image: "/kin/design/home/community/ngozi.jpg", tags: ["Storytelling", "Zine-making"], why: "You and Ngozi both write to remember the people in your lives, and you both prefer a quiet, one-to-one conversation.", now: "You both chose evenings as a good time to talk this week.", together: "Start with a Quick Catch-up and see whether you would like to write together.", used: "Interests you both chose: storytelling and zine-making. Conversation style: slow and one to one. Times you both shared." },
+  { id: "chuka", text: "You are both starting something of your own and like talking ideas through one person at a time.", image: "/kin/design/home/community/chuka.jpg", tags: ["Small business", "Thinking out loud"], why: "You and Chuka are both starting something of your own and like talking ideas through with one person at a time.", now: "Chuka has joined the KinCircle on starting a purpose-driven business, the one you were invited to.", together: "Talk Something Through for about 20 minutes, with no pressure to continue.", used: "Interests you both chose: small business and thinking out loud. Your KinCircle invitations. Times you both shared." },
+];
+const firstOf = (id: PersonId) => PEOPLE[id]?.name.split(" ")[0] ?? "them";
+
 export function ExplanationsSection() {
   const { prefs: e, set } = useConnectionPrefs();
   const [why, setWhy] = useState<PersonId | null>(null);
@@ -67,14 +75,14 @@ export function ExplanationsSection() {
   return (
     <>
       <div className="ch-set__list" data-m="stagger">
-        {MATCHES.slice(0, 3).map((m) => {
-          const p = PEOPLE[m.id as PersonId], src = faceSrc(m.id as PersonId, 96), first = p.name.split(" ")[0];
+        {WHY.map((m) => {
+          const src = faceSrc(m.id, 96);
           return (
             <div key={m.id} className="ch-why">
               {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
               <span className="ch-av" style={{ width: 48, height: 48 }}>{src ? <img src={src} alt="" /> : null}</span>
-              <div className="ch-why__text"><span className="ch-why__title">Why {first} was suggested</span><span className="ch-why__desc">{m.reason}</span></div>
-              <button type="button" className="ch-tlink" onClick={() => setWhy(m.id as PersonId)}>See the full reason</button>
+              <div className="ch-why__text"><span className="ch-why__title">Why {firstOf(m.id)} was suggested</span><span className="ch-why__desc">{m.text}</span></div>
+              <button type="button" className="ch-tlink" onClick={() => setWhy(m.id)}>See the full reason</button>
             </div>
           );
         })}
@@ -87,17 +95,16 @@ export function ExplanationsSection() {
   );
 }
 
-/** The design's "Why we matched" drawer (520 wide), filled from the match's own reason and signals. */
+/** The design's "Why we matched" drawer (520 wide). */
 function WhyDrawer({ id, open, onClose }: { id: PersonId; open: boolean; onClose: () => void }) {
   const router = useRouter();
-  const m = MATCHES.find((x) => x.id === id);
-  const first = PEOPLE[id]?.name.split(" ")[0] ?? "them";
+  const m = WHY.find((x) => x.id === id);
   if (!m) return null;
-  const qa: [string, string][] = [["Why this person?", m.reason], ...(m.ask ? [["What could we do together?", m.ask] as [string, string]] : []), ["What information was used?", `${m.signals.join(". ")}.`]];
+  const qa: [string, string][] = [["Why this person?", m.why], ["Why now?", m.now], ["What could we do together?", m.together], ["What information was used?", m.used]];
   return (
-    <Drawer open={open} onClose={onClose} width={520} image={faceSrc(id, 1040)} eyebrow="Why we matched" title={`You and ${first}`} className="ch-ov ch-ov--drawer ch-ov--why">
+    <Drawer open={open} onClose={onClose} width={520} image={m.image} eyebrow="Why we matched" title={`You and ${firstOf(id)}`} className="ch-ov ch-ov--drawer ch-ov--why">
       <div className="ch-dbody ch-dbody--why">
-        <div className="ch-tags">{m.signals.slice(0, 2).map((t) => <Tag key={t}>{t}</Tag>)}</div>
+        <div className="ch-tags">{m.tags.map((t) => <Tag key={t}>{t}</Tag>)}</div>
         <hr className="ch-rule" />
         {qa.map(([q, a]) => (
           <div className="ch-qa" key={q}>

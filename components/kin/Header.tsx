@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
-import { Bell, BriefcaseBusiness, Camera, Check, ChevronDown, ChevronRight, ChevronUp, Compass, Heart, CircleHelp, House, Link2, LogOut, MessageSquare, Palette, PenLine, SlidersHorizontal, Sparkles, User, UserCheck, Users } from "lucide-react";
+import { Bell, BriefcaseBusiness, Camera, Check, ChevronDown, ChevronRight, ChevronUp, Compass, Fingerprint, Heart, CircleHelp, House, Image as ImageIcon, Link2, LogOut, Mail, MapPin, MessageSquare, Palette, PenLine, SlidersHorizontal, Sparkles, User, UserCheck, Users } from "lucide-react";
 import { chat } from "@/lib/api/chat";
 import { notifications as noticesApi, type Notice } from "@/lib/api/notifications";
 import { DEMO } from "@/lib/demo/mode";
@@ -72,6 +72,8 @@ const POLL_MS = 60_000;
 function useUnread() {
   const [n, setN] = useState({ messages: 0, notices: 0 });
   const refresh = useCallback(async () => {
+    // Preview shows the design's counters (3 messages, 12 notifications).
+    if (DEMO) { setN({ messages: 3, notices: 12 }); return; }
     const [m, x] = await Promise.all([chat.unread(), noticesApi.unread()]);
     setN({ messages: m.ok ? m.data.unread : 0, notices: x.ok ? x.data.unread : 0 });
   }, []);
@@ -94,6 +96,20 @@ const PART_TEXT: Record<string, { text: string; Icon: typeof Sparkles }> = {
   cv: { text: "Add your CV or a link to your work", Icon: Link2 },
   availability: { text: "Say what you are open to", Icon: BriefcaseBusiness },
 };
+/** The product design's sample steps (its features/profile/progress.ts), shown in preview: four left, four done. */
+type Part = { id: string; label: string; done: boolean; text?: string; Icon?: typeof Sparkles };
+const DESIGN_PARTS: Part[] = [
+  { id: "make", label: "Tell us what you make", text: "Choose your crafts and interests", Icon: Sparkles, done: false },
+  { id: "intro", label: "Write a short intro", text: "Say who you are in a few lines", Icon: PenLine, done: false },
+  { id: "dna", label: "Take the Creative DNA check-in", text: "So we can match you with care", Icon: Fingerprint, done: false },
+  { id: "sample", label: "Add a work sample", text: "Show what you are working on", Icon: ImageIcon, done: false },
+  { id: "photo", label: "Add a profile photo", text: "Help people recognise you", Icon: Camera, done: true },
+  { id: "location", label: "Add your location", text: "Find people and rooms near you", Icon: MapPin, done: true },
+  { id: "email", label: "Verify your email", text: "Build trust with other members", Icon: Mail, done: true },
+  { id: "connect", label: "Set how you like to connect", text: "Choose your intentions", Icon: Users, done: true },
+];
+const designProgress = () => ({ parts: DESIGN_PARTS, pct: Math.round((DESIGN_PARTS.filter((p) => p.done).length / DESIGN_PARTS.length) * 100) });
+
 function Ring({ percent }: { percent: number }) {
   const r = 15, c = 2 * Math.PI * r;
   return (
@@ -114,7 +130,7 @@ function ProfileProgress({ compact = false }: { compact?: boolean }) {
   const id = useId();
   useDismiss(open, ref, () => setOpen(false));
   if (!w.ready) return null;
-  const { parts, pct } = completeness(w.wp, pf.pieces.length);
+  const { parts, pct }: { parts: Part[]; pct: number } = DEMO ? designProgress() : completeness(w.wp, pf.pieces.length);
   if (pct >= 100) return null;
   const todo = parts.filter((p) => !p.done), done = parts.filter((p) => p.done);
   return (
@@ -133,7 +149,7 @@ function ProfileProgress({ compact = false }: { compact?: boolean }) {
           <p className="pp-label">Left to do</p>
           <ul className="pp-list">
             {todo.map((p) => {
-              const t = PART_TEXT[p.id] ?? { text: "", Icon: Sparkles };
+              const t = p.text && p.Icon ? { text: p.text, Icon: p.Icon } : PART_TEXT[p.id] ?? { text: "", Icon: Sparkles };
               return (
                 <li key={p.id}>
                   <Link href="/profile/complete" className="pp-row" onClick={() => setOpen(false)}>
@@ -209,6 +225,7 @@ function Count({ n }: { n: number }) {
 function when(iso: string) {
   const d = new Date(iso), mins = Math.round((Date.now() - d.getTime()) / 60000);
   if (mins < 1) return "Just now";
+  if (mins < 10) return "A few minutes ago";
   if (mins < 60) return `${mins} minutes ago`;
   if (mins < 24 * 60) return "Today";
   if (mins < 48 * 60) return "Yesterday";

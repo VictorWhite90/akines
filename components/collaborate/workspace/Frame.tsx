@@ -7,6 +7,7 @@ import { Bell, ChevronDown, SlidersHorizontal } from "lucide-react";
 import Button, { IconButton } from "@/components/kin/Button";
 import NotFound from "@/components/kin/NotFound";
 import { toast } from "@/components/kin/Toast";
+import { DEMO } from "@/lib/demo/mode";
 import { ME } from "@/lib/collab/me";
 import { useDecisions } from "@/lib/collab/decisions";
 import { isMine, useProjectSettings, useWorkspace, workspaceHref, WORKSPACE_PAGES, type WorkspacePage } from "@/lib/collab/workspace";
@@ -30,6 +31,26 @@ export { workspaceHref, useWorkspace };
 export function Dot({ tone, size = 8 }: { tone: Tone; size?: number }) {
   return <PartDot tone={tone} size={size} />;
 }
+
+/**
+ * The design's project notifications and Create AI answer for Career Guidance for Everyone (12.25, word for word), shown in
+ * preview. Every other project, and every project outside preview, builds them from its own state below.
+ */
+const DESIGN_BAR: Record<string, (base: string, milestoneHref: string) => { notes: ProjectNote[]; answer: string; go: { label: string; href: string }[] }> = {
+  "career-guidance-for-everyone": (base, milestoneHref) => ({
+    notes: [
+      { id: "review", title: "Review requested: Review the student onboarding draft", who: "Adaeze Okoye", when: "2 hours ago.", action: "Review work", href: `${base}/files/student-onboarding-draft-pdf` },
+      { id: "decision", title: "Decision awaiting acknowledgement: Choose the onboarding approach", who: "Ngozi Eze", when: "Yesterday.", action: "Review decision", href: `${base}/conversations/decision-discussion` },
+      { id: "conversation", title: "New conversation: The onboarding draft is ready", who: "Tobi Adeyemi", when: "Today, 10:42 AM.", action: "Open conversation", href: `${base}/conversations` },
+      { id: "milestone:first-student-experience", title: "Milestone approaching: First Student Experience", who: "Reminder", when: "2 days ago.", action: "View milestone", href: milestoneHref },
+    ],
+    answer: "The brief is approved and the team is defining the student experience. The first student experience is due on 28 November. One decision is waiting for acknowledgement and two pieces of work need review. What happens next is for the team to decide.",
+    go: [
+      { label: "Review the draft", href: `${base}/files/student-onboarding-draft-pdf` },
+      { label: "Open the decision", href: `${base}/conversations/decision-discussion` },
+    ],
+  }),
+};
 
 const cap = (s: string) => s.charAt(0) + s.slice(1).toLowerCase();
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
@@ -66,12 +87,15 @@ function ProjectBar({ projectId }: { projectId: string }) {
     ...(lastCheckin ? [{ id: `checkin:${lastCheckin.id}`, title: `New check-in: ${lastCheckin.done.replace(/\.$/, "")}`, who: PEOPLE[lastCheckin.who]?.name ?? "A member", when: `${ago(lastCheckin.at)}.`, action: "Open conversation", href: ws.href("conversations") }] : []),
     ...(next ? [{ id: `milestone:${next.id}`, title: `Milestone approaching: ${next.title}`, who: "Reminder", when: `Due ${next.due}.`, action: "View milestone", href: `${base}/tasks/milestones` }] : []),
   ];
+  const fse = ws.milestones.find((m) => m.title.toLowerCase() === "first student experience");
+  const design = DEMO ? DESIGN_BAR[p.id]?.(base, fse ? `${base}/milestones/${fse.id}` : `${base}/tasks/milestones`) : undefined;
+  if (design) notes.splice(0, notes.length, ...design.notes);
   // Reminders arrive already read; the rest stay new until opened.
   const unread = notes.filter((n) => !n.id.startsWith("milestone:") && !read.includes(n.id)).map((n) => n.id);
   const markRead = (id: string) => put((s) => ({ ...s, read: [...(s.read ?? []), id] }));
   const bellLabel = unread.length ? `Project notifications, ${unread.length} unread` : "Project notifications";
 
-  const details = { name: ws.title, summary: ws.summary, needs: settings.needs ?? p.members.map((m) => m.role).filter((r, i, a) => a.indexOf(r) === i).slice(1).join(", ") };
+  const details = { name: ws.title, summary: ws.summary, needs: settings.needs ?? (DEMO && p.id === "career-guidance-for-everyone" ? "Product design, student research and engineering." : undefined) ?? p.members.map((m) => m.role).filter((r, i, a) => a.indexOf(r) === i).slice(1).join(", ") };
   const leave = (message: string) => {
     const back = pathname;
     setDialog(null);
@@ -82,8 +106,8 @@ function ProjectBar({ projectId }: { projectId: string }) {
   // Create AI's summary, from the project's own state.
   const done = ws.milestones.filter((m) => m.done).length;
   const decWord = decisions.awaitingMe.length ? `${plural(decisions.awaitingMe.length, "decision is", "decisions are")} waiting for your acknowledgement` : "no decision is waiting for you";
-  const answer = `${done} of ${plural(ws.milestones.length, "milestone is", "milestones are")} done${next ? ` and the team is working on ${next.title.charAt(0).toLowerCase()}${next.title.slice(1).replace(/\.$/, "")}, due ${next.due}` : ""}. ${cap(decWord)} and ${plural(review.work.length, "piece of work needs", "pieces of work need")} your review. What happens next is for the team to decide.`;
-  const go = [...(review.work[0] ? [{ label: "Review the work", href: review.work[0].href }] : []), ...(review.decisions[0] ? [{ label: "Open the decision", href: review.decisions[0].href }] : [])];
+  const answer = design ? design.answer : `${done} of ${plural(ws.milestones.length, "milestone is", "milestones are")} done${next ? ` and the team is working on ${next.title.charAt(0).toLowerCase()}${next.title.slice(1).replace(/\.$/, "")}, due ${next.due}` : ""}. ${cap(decWord)} and ${plural(review.work.length, "piece of work needs", "pieces of work need")} your review. What happens next is for the team to decide.`;
+  const go = design ? design.go : [...(review.work[0] ? [{ label: "Review the work", href: review.work[0].href }] : []), ...(review.decisions[0] ? [{ label: "Open the decision", href: review.decisions[0].href }] : [])];
 
   return (
     <div className="cw-ph">

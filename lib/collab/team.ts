@@ -19,7 +19,7 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
  *   POST /collab/projects/:id/requests/:rid/not-now    ← { message }
  *   POST /collab/projects/:id/invitations              ← { to, role, message }
  *   GET  /people/:id/skills                            → string[]
- * The demo keeps them in the browser, seeded with requests to our sample projects.
+ * The demo keeps them in the browser (the sample projects' interest requests are applications: lib/collab/applicants).
  */
 
 export type JoinRequestStatus = "pending" | "accepted" | "dismissed";
@@ -42,38 +42,90 @@ export type Invitation = { id: string; projectId: string; to: string; role: stri
 
 /** Each person's skills. A real build reads them from the person's work profile. */
 export const SKILLS: Partial<Record<PersonId, string[]>> = {
-  amara: ["Product design", "Prototyping", "Design systems", "Accessibility"],
-  ayo: ["Patient care", "Clinic operations", "Staff training"],
-  kwame: ["Backend engineering", "APIs", "SMS gateways"],
-  chidi: ["Frontend engineering", "Android testing", "Accessibility"],
-  wanjiru: ["Portrait photography", "Photo editing", "Storytelling"],
-  leila: ["Plain-language writing", "Product strategy", "Translation"],
-  efua: ["Oral history", "Interviewing", "Captions"],
-  thandi: ["User testing", "Teaching", "Parent groups"],
-  zuri: ["Community organising", "Events", "Outreach"],
-  fatou: ["Cooking", "Teaching", "Small business"],
-  tunde: ["Coaching", "Survey design", "Data entry"],
-  nandi: ["Facilitation", "Listening", "Wellbeing"],
+  // Career Guidance for Everyone
+  kemi: ["Product design", "Facilitation", "Prototyping"],
+  adaeze: ["Interface design", "Prototyping", "Design systems"],
+  tobi: ["Frontend engineering", "Prototyping", "Accessibility"],
+  ngozi: ["Career research", "Student interviews", "Synthesis"],
+  amina: ["Career research", "Student interviews", "Survey design"],
+  // Adire Stories
+  "amara-obi": ["Line illustration", "Sketching", "Pattern repeats"],
+  "ayo-bello": ["Colour palettes", "Sketching", "Print proofing"],
+  "yusuf-danjuma": ["Resist patterns", "Cloth documentation", "Pattern notes"],
+  "bisi-adeoye": ["Resist patterns", "Cloth documentation", "Dye pot notes"],
+  // Applicants and introductions
+  kunle: ["Mobile development", "Low-bandwidth design", "APIs"],
+  funmi: ["Learning design", "Facilitation", "Content"],
+  chidi: ["Partnerships", "Student outreach", "Facilitation"],
+  folake: ["Feature writing", "Interviews", "Oral history"],
+  "tunde-bello": ["Street photography", "Portraits", "Photo editing"],
+  chuka: ["Portraits", "Market scenes", "Photo editing"],
+  "amara-okafor": ["Long form writing", "Interviews", "Editing"],
+};
+/** Skills that differ on one project (Kemi directs the art on Adire Stories). */
+const PROJECT_SKILLS: Record<string, Partial<Record<PersonId, string[]>>> = {
+  "adire-stories": { kemi: ["Art direction", "Facilitation", "Sketching"] },
 };
 /** The skills a member has used in this project's work (the member page marks them with a dot). */
 const USED: Record<string, Partial<Record<PersonId, string[]>>> = {
-  "garki-clinic-booking": { amara: ["Product design", "Prototyping"], kwame: ["Backend engineering", "APIs"], chidi: ["Frontend engineering", "Android testing"], wanjiru: ["Portrait photography"], leila: ["Plain-language writing"] },
-  "market-light": { wanjiru: ["Portrait photography", "Photo editing"], amara: ["Product design"], efua: ["Interviewing", "Captions"] },
+  "career-guidance-for-everyone": { adaeze: ["Interface design", "Prototyping"] },
 };
 /** Sample skills in the demo; outside it, what the member's published work profile lists. */
-export const skillsOf = (id: PersonId) => SKILLS[id] ?? (DEMO ? [] : collabApi.person(id)?.skills ?? []);
+export const skillsOf = (id: PersonId, projectId?: string) => (projectId && PROJECT_SKILLS[projectId]?.[id]) || SKILLS[id] || (DEMO ? [] : collabApi.person(id)?.skills ?? []);
 export const usedSkills = (projectId: string, id: PersonId) => USED[projectId]?.[id] ?? [];
 
-const HOUR = 3_600_000, DAY = 24 * HOUR;
+/*
+ * Preview only: what the design's member pages say that our project record can't tell yet: the latest
+ * contribution on each member card, and Adaeze's page (her role in the project and her contribution history).
+ */
+type SampleMember = { recent?: string; lead?: string; fields?: { label: string; value: string }[]; rows?: { title: string; status: string; at: number; to?: string }[] };
+const on = (month: number, day: number) => new Date(2026, month - 1, day, 12).getTime();
+const SAMPLE_MEMBERS: Record<string, Partial<Record<PersonId, SampleMember>>> = {
+  "career-guidance-for-everyone": {
+    kemi: { recent: "Set up the shared workspace." },
+    adaeze: {
+      recent: "Shared the second onboarding screen for review.",
+      lead: "Product Designer, designing the student-facing screens.",
+      fields: [
+        { label: "PROJECT ROLE", value: "Product Designer, supporting" },
+        { label: "EXPECTED", value: "Review work on the first student experience" },
+        { label: "RESPONSIBLE FOR", value: "Student-facing screens and design review" },
+        { label: "WORKS BEST WITH", value: "Written feedback first, then a short call" },
+      ],
+      rows: [
+        { title: "Second onboarding screen", status: "Work submitted, Mon 2 Nov", at: on(11, 2) },
+        { title: "Choose the onboarding approach", status: "Decision influenced, Fri 30 Oct", at: on(10, 30), to: "conversations/decision-discussion" },
+        { title: "Project brief approved", status: "Milestone completed, Mon 12 Oct", at: on(10, 12), to: "brief" },
+        { title: "Map the student journey", status: "Acknowledged by Tobi Adeyemi, Tue 27 Oct", at: on(10, 27) },
+        { title: "Interface design", status: "Skill demonstrated, Mon 2 Nov", at: on(11, 2) - 1, to: "milestones/first-student-experience" },
+      ],
+    },
+    tobi: { recent: "Shared the student onboarding draft." },
+    ngozi: { recent: "Shared the career interview notes." },
+    amina: { recent: "Joined the project today." },
+  },
+  "adire-stories": {
+    kemi: { recent: "Approved the series brief." },
+    "amara-obi": { recent: "Shared the headwrap colour layer for review." },
+    "ayo-bello": { recent: "Shared the headwrap palette draft." },
+    "yusuf-danjuma": { recent: "Shared the dyer interview notes." },
+    "bisi-adeoye": { recent: "Joined the project today." },
+  },
+};
+/** A different photo of someone on one project's team (the Career Guidance team shows Ngozi's team portrait). */
+const TEAM_PHOTOS: Record<string, Partial<Record<PersonId, string>>> = {
+  "career-guidance-for-everyone": { ngozi: "/kin/design/people/team/ngozi.jpg" },
+};
+export const teamPhoto = (projectId: string, id: PersonId) => (DEMO ? TEAM_PHOTOS[projectId]?.[id] : undefined);
+
+/** The design's own words for a member of one of its sample projects (preview only). */
+export const sampleMember = (projectId: string, id: PersonId): SampleMember | undefined => (DEMO ? SAMPLE_MEMBERS[projectId]?.[id] : undefined);
+
 function seed(): JoinRequest[] {
-  const now = Date.now();
-  return [
-    { id: "jr-garki-thandi", projectId: "garki-clinic-booking", person: "thandi", role: "Teacher", wants: "Tester", message: "I would like to test the booking screens with the parents at my school.", sentAt: now - 2 * DAY, status: "pending" },
-    { id: "jr-market-zuri", projectId: "market-light", person: "zuri", role: "Community organiser", wants: "Launch organiser", message: "I would like to help bring the traders and their families to the launch.", sentAt: now - 3 * DAY, status: "pending" },
-  ];
+  return [];
 }
 
-const KEY = "ak:collab-team:v1";
+const KEY = "ak:collab-team:v2";
 type Store = { requests: JoinRequest[]; invitations: Invitation[] };
 
 /* ---------- Outside the demo: the backend's requests and invitations ---------- */
@@ -186,6 +238,8 @@ const nameOf = (id: PersonId) => PEOPLE[id]?.name ?? "A teammate";
  * `hrefs` gives the addresses of the pages each row opens.
  */
 export function contributionsOf(p: Project, id: PersonId, decisions: Decision[], hrefs: { work: (d: Deliverable) => string; decision: (d: Decision) => string }): Contribution[] {
+  const sample = sampleMember(p.id, id)?.rows;
+  if (sample) return sample.map((r, i) => ({ id: `s${i}`, title: r.title, status: r.status, at: r.at, href: r.to ? `/collaborate/my-projects/${p.id}/${r.to}` : undefined }));
   const rows: Contribution[] = [];
   const titles: string[] = [];
   for (const d of p.deliverables ?? []) {

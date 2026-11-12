@@ -2,37 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
-import { allActivities, dayDistance } from "@/components/activities/activities";
-import { useBanters } from "@/components/banter/useBanters";
-import { ROOMS } from "@/lib/data/community";
-import { GAMES } from "@/lib/data/games";
-import { PEOPLE, type PersonId } from "@/lib/data/people";
-import { photoSrc } from "./parts";
+import { HERO_CARDS, HERO_HEADING, HERO_INTERVAL, HERO_LABEL } from "./content";
 
 /*
  * The top of Community Home, mirrored from the product design (classes in home.css): a row of what is happening
  * now, in the design's order of kinds. It moves on by one card every few seconds, pauses while you point at it,
- * hold it or tab into it, and can be dragged with a mouse. Every card reads our own Banter, rooms, games and activities.
+ * hold it or tab into it, and can be dragged with a mouse. The cards are the design's (./content.ts).
  */
 
-type Kind = "banter" | "live" | "game" | "activity";
-type HCard = { id: string; kind: Kind; tag: string; title: string; meta: string; image: string; href: string };
-const ORDER: Kind[] = ["banter", "live", "game", "activity", "banter", "live", "game", "live"];
-const TAG: Record<Kind, string> = { banter: "Banter", live: "Live room", game: "Game", activity: "Activity" };
-const INTERVAL = 5000, EAGER = 5, DRAG = 6;
-const first = (id: PersonId) => PEOPLE[id]?.name.split(" ")[0] ?? "";
-
-function useCards(): HCard[] {
-  const { all } = useBanters();
-  const pools: Record<Kind, HCard[]> = {
-    banter: all.filter((b) => !b.closed).map((b) => ({ id: `b-${b.id}`, kind: "banter", tag: TAG.banter, title: b.prompt, meta: `${b.replies.length + 1} people talking · Banter`, image: b.image ?? photoSrc(b.photo ?? "talkGroup"), href: "/community/banter" })),
-    live: [...ROOMS].sort((a, b) => (a.status === "live" ? -1 : b.status === "live" ? 1 : 0)).map((r) => ({ id: `r-${r.id}`, kind: "live", tag: TAG.live, title: r.title, meta: `${r.status === "live" ? `${r.seated.length} in the room` : r.when} · Hosted by ${first(r.host)}`, image: photoSrc(r.photo), href: "/connect/rooms" })),
-    game: GAMES.map((g) => ({ id: `g-${g.id}`, kind: "game", tag: TAG.game, title: g.name, meta: `${g.players} players · ${g.minutes} min`, image: photoSrc(g.photo), href: "/connect" })),
-    activity: allActivities().sort((a, b) => dayDistance(a.when) - dayDistance(b.when)).map((a) => ({ id: `a-${a.circleId}-${a.id}`, kind: "activity", tag: TAG.activity, title: a.title, meta: `${a.when} · ${a.where}`, image: photoSrc(a.photo), href: "/connect/activities" })),
-  };
-  const used: Record<Kind, number> = { banter: 0, live: 0, game: 0, activity: 0 };
-  return ORDER.map((k) => pools[k][used[k]++]).filter(Boolean);
-}
+const INTERVAL = HERO_INTERVAL, EAGER = 5, DRAG = 6;
 
 /** The design's auto-advance and mouse drag for the row. */
 function useTrack() {
@@ -108,11 +86,11 @@ function useTrack() {
 }
 
 export default function HomeHero() {
-  const cards = useCards();
+  const cards = HERO_CARDS;
   const track = useTrack();
   return (
-    <section className="fd-hero" aria-roledescription="carousel" aria-label="Happening now on Akines">
-      <h1 className="sr-only">Community home</h1>
+    <section className="fd-hero" aria-roledescription="carousel" aria-label={HERO_LABEL}>
+      <h1 className="sr-only">{HERO_HEADING}</h1>
       <ul className="fd-hero__track" ref={track}>
         {cards.map((c, i) => (
           <li key={c.id} className="fd-hero__item" style={{ ["--i" as string]: i } as React.CSSProperties}>

@@ -19,7 +19,7 @@ import { milestonesOf } from "@/lib/collab/workspace";
  *   POST   brief/changes              ← { part, text }  (suggest a change; the author counts as acknowledging it)
  *   POST   brief/changes/:id/ack      (acknowledge; once everyone has, it's agreed and the brief is a new version)
  *   DELETE brief/changes/:id          (take it back, the toast's Undo)
- * The demo keeps them in the browser, seeded for our sample projects.
+ * The demo keeps them in the browser, seeded for the design's two sample projects.
  */
 
 export type BriefPartKey = "purpose" | "problem" | "users" | "outcome" | "scope" | "team" | "milestones" | "risks" | "resources" | "success";
@@ -47,39 +47,49 @@ export type BriefDoc = {
 };
 
 const DAY = 24 * 60 * 60 * 1000;
+/** The briefs of the design's two sample projects (Career Guidance for Everyone's is the design's brief, word for word). */
 function seed(): Record<string, BriefDoc> {
   const now = Date.now();
   return {
-    "garki-clinic-booking": {
-      version: 3, updatedAt: now - 2 * DAY, updatedBy: "kwame",
+    "career-guidance-for-everyone": {
+      version: 3, updatedAt: now - 2 * DAY, updatedBy: "adaeze",
       parts: {
-        problem: "Patients at Garki Family Clinic queue for up to three hours because there is no way to book a time. Reception keeps the day's list on paper.",
-        users: "Patients of Garki Family Clinic, many on basic Android phones, and the front desk team who run each day's list.",
-        outcome: "Patients book a time from their phone and get a reminder the day before; the front desk sees the day's bookings on one screen.",
-        scope: "Includes booking, cancelling, SMS reminders in English and Hausa and a front desk screen. Excludes payments and medical records for now.",
-        risks: "Patients without data or a smartphone. SMS costs growing faster than bookings. Staff time to learn the new screen.",
-        resources: "SMS credits for the first 2,000 reminders, hosting for the first release and a nurse to check the Hausa messages.",
-        success: "Half of the clinic's appointments are booked online within a month, and the average wait drops below 45 minutes.",
+        problem: "Many students choose subjects and careers with little guidance. Advice depends on who they happen to know and rarely reflects the jobs that exist in Nigeria today.",
+        users: "Secondary school students aged 14 to 18, and the teachers and parents who support their decisions.",
+        outcome: "A guidance platform students can use on their own phones, with clear next steps for every path they explore.",
+        scope: "Includes career exploration, a short interest check and a personal shortlist. Excludes university admissions and job listings for now.",
+        risks: "Reaching students with limited data access. Keeping career information accurate. Finding schools willing to pilot.",
+        resources: "A researcher to validate career information, a school partner for the pilot and hosting for the first release.",
+        success: "At least 200 students complete the interest check, and most say they know their next step.",
       },
-      changes: [{ id: "bc-garki-1", part: "scope", text: "Add Hausa versions of the help text to the scope, not only the reminders.", by: "leila", at: now - DAY, acknowledged: ["leila", "chidi"] }],
+      // The design counts one change waiting, acknowledged by two of four (its words are not shown).
+      changes: [{ id: "bc-career-1", part: "scope", text: "Add the interest check to the first student experience, before the shortlist.", by: "adaeze", at: now - 2 * DAY, acknowledged: ["adaeze", "tobi"] }],
     },
-    "market-light": {
-      version: 2, updatedAt: now - 5 * DAY, updatedBy: "efua",
+    "adire-stories": {
+      version: 1, updatedAt: new Date(2026, 9, 8, 12).getTime(), updatedBy: "kemi",
       parts: {
-        problem: "Wuse Market's traders are photographed all the time but rarely asked what they think. Their stories stay at the stall.",
-        users: "The traders themselves and their families first, then people in Abuja who shop at the market and want to know who they buy from.",
-        outcome: "A small photo book of 24 traders, each with a portrait and a few lines in their own words, launched at the market.",
-        scope: "Includes portraits, interviews, captions and a 24-page layout. Excludes a website or selling the book for now.",
-        risks: "Traders changing their minds about their words. Printing costs going up. Launch day clashing with a busy market day.",
-        resources: "A printer for 200 copies, transport to the market and a quiet corner to record interviews.",
-        success: "Every trader approves their page and gets copies, and the first 200 copies are given out at the launch.",
+        users: "Young Nigerians who love cloth.",
+        scope: "A printed zine and a small exhibition.",
+        success: "Twelve plates and every dyer credited.",
       },
       changes: [],
     },
   };
 }
 
-const KEY = "ak:collab-briefs:v1";
+/** Preview only: the design's brief words for the parts we otherwise read from the project (purpose, team, milestones). */
+const SAMPLE_FIXED: Record<string, Partial<Record<BriefPartKey, string>>> = {
+  "career-guidance-for-everyone": {
+    purpose: "Help Nigerian students make informed career decisions by connecting what they enjoy with the paths open to them.",
+    team: "Kemi Adeyemi (owner), Adaeze Okoye (product design), Tobi Adeyemi (engineering) and Ngozi Eze (research).",
+    milestones: "Project brief approved. First student experience. Prototype review. Pilot with two schools. Launch to students.",
+  },
+  "adire-stories": {
+    purpose: "A shared illustration series that celebrates adire textile patterns and the people who make them.",
+  },
+};
+
+const KEY = "ak:collab-briefs:v2";
 const first = (id: PersonId) => PEOPLE[id]?.name.split(" ")[0] ?? "A member";
 const name = (id: PersonId) => PEOPLE[id]?.name ?? "A member";
 const sentence = (s: string) => { const t = s.trim(); return /[.!?]$/.test(t) ? t : `${t}.`; };
@@ -169,6 +179,7 @@ function useBriefView(project: Project | undefined, summary: string, call: Colla
       resources: doc.parts.resources ?? (call?.roles.length ? sentence(list(call.roles)) : undefined),
       team: project.members.length ? sentence(list(project.members.map((m) => `${name(m.id)} (${m.id === project.host ? "owner" : m.role.toLowerCase()})`))) : undefined,
       milestones: ms.length ? ms.map((m) => sentence(m.title)).join(" ") : undefined,
+      ...(DEMO ? SAMPLE_FIXED[project.id] : undefined),
     };
     return BRIEF_PARTS.filter((p) => body[p.key]?.trim()).map((p, i) => ({ ...p, number: String(i + 1).padStart(2, "0"), body: body[p.key]! }));
   }, [project, doc.parts, summary, call]);

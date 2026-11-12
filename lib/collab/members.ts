@@ -20,77 +20,42 @@ export type MemberProfile = {
   interests: string[];
   preferences: { label: string; value: string }[];
   contributions: { title: string; detail: string }[];
+  /** How the member's page names their role and place, and their portrait, when it differs from their Akines profile. */
+  role?: string;
+  place?: string;
+  portrait?: string;
 };
 
-/** The profiles the sample hosts share. Everyone else shares only their role and skills. */
+/** The profiles the sample members share (the design's projects/data.ts, word for word). Everyone else shares only their role and skills. */
 export const MEMBER_PROFILES: Partial<Record<PersonId, MemberProfile>> = {
-  zuri: {
-    pronoun: "she",
-    headline: "I bring people together around real tables. I started this year's wall at Jabi Lake Arts Week so newcomers could see themselves in the city.",
-    keySkills: ["Community organising", "Event production", "Public art"],
-    about: "Zuri brings diaspora people together, online and in person. She runs the lakeside wall at Jabi Lake Arts Week, where every November a small team paints something new for the people who walk there.",
-    experience: [{ title: "Jabi Lake Arts Week", detail: "Organiser, community festival in Abuja" }, { title: "Diaspora supper series", detail: "Host and organiser, London" }, { title: "Neighbourhood mural day", detail: "Producer" }],
-    skills: ["Community organising", "Event production", "Fundraising", "Volunteer coordination"],
-    interests: ["Public art", "Belonging", "Diaspora stories", "Festivals"],
-    preferences: [{ label: "Communication style", value: "Voice notes and a short call when it matters" }, { label: "Preferred working rhythm", value: "Planning together first, then daily on site" }, { label: "Availability", value: "Open to new collaborators on the lakeside wall" }, { label: "Collaboration preferences", value: "Shared sketches and one review before painting" }],
-    contributions: [{ title: "Lakeside wall, last year", detail: "Organiser. Shared with Zuri’s consent." }, { title: "Diaspora supper series", detail: "Host. Shared with Zuri’s consent." }],
+  ngozi: {
+    pronoun: "she", role: "Product Designer", place: "Lagos", portrait: "/kin/design/people/collab-projects/ngozi-eze.jpg",
+    headline: "I design simple tools that help students keep up in class. I started A Better Way to Learn to make lessons easier to follow on a basic phone.",
+    keySkills: ["Product design", "Education technology", "User research"],
+    about: "Ngozi designs learning tools for secondary school students in Lagos. She started A Better Way to Learn after seeing how many students fall behind when lessons are not built for the phones and data they have.",
+    experience: [{ title: "Study tool for secondary school students", detail: "Lead designer, education start-up in Lagos" }, { title: "Teacher feedback dashboard", detail: "Product designer" }, { title: "Reading habits research", detail: "Researcher and designer" }],
+    skills: ["Product design", "Interaction design", "User research", "Prototyping"],
+    interests: ["Access to education", "Youth development", "Inclusive design", "Community learning"],
+    preferences: [{ label: "Communication style", value: "Short written updates and a weekly call" }, { label: "Preferred working rhythm", value: "Weekly, with shared notes between calls" }, { label: "Availability", value: "Open to new collaborators on A Better Way to Learn" }, { label: "Collaboration preferences", value: "Shared documents and one live session each week" }],
+    contributions: [{ title: "Lesson sketch reviews", detail: "Led two sessions with teachers. Shared with Ngozi’s consent." }, { title: "Study tool for secondary school students", detail: "Lead designer. Shared with Ngozi’s consent." }],
   },
-  fatou: {
-    pronoun: "she",
-    headline: "I run a small kitchen and teach the dishes our grandmothers made. I want people to meet the family behind Kubwa Bread Co.",
-    keySkills: ["Cooking", "Small business", "Teaching"],
-    about: "Fatou runs a small kitchen and teaches people to cook the food they grew up with. At Kubwa Bread Co. the family bakes from 4am, and she wants one honest minute of film to show who they are.",
-    experience: [{ title: "Kubwa Bread Co.", detail: "Family bakery, Abuja" }, { title: "Grandmother’s dishes classes", detail: "Teacher and host" }, { title: "Market pop-up kitchen", detail: "Founder" }],
-    skills: ["Cooking", "Running a small business", "Teaching", "Hosting"],
-    interests: ["Family recipes", "Local food", "Small business", "Storytelling"],
-    preferences: [{ label: "Communication style", value: "A quick chat at the bakery, then messages" }, { label: "Preferred working rhythm", value: "Early mornings, before the shop opens" }, { label: "Availability", value: "Open to a videographer and a photographer" }, { label: "Collaboration preferences", value: "Shared folders for photos and footage" }],
-    contributions: [{ title: "Cooking classes for new arrivals", detail: "Teacher. Shared with Fatou’s consent." }],
-  },
-  ayo: {
-    pronoun: "she",
-    headline: "I care for patients for a living. I want the people who come to Garki Family Clinic to stop waiting outside from 6am.",
-    keySkills: ["Patient care", "Clinic operations", "Health"],
-    about: "Ayo is a nurse who has worked night shifts and early mornings for years. She is working with Garki Family Clinic on a simple booking app, so patients can see their place in the queue on their phones.",
-    experience: [{ title: "Garki Family Clinic", detail: "Nurse and clinic lead, Abuja" }, { title: "Night shift handover notes", detail: "Wrote the ward’s handover guide" }, { title: "Patient check-in day", detail: "Organiser" }],
-    skills: ["Patient care", "Clinic operations", "Training staff", "Listening"],
-    interests: ["Access to health care", "Rest and wellbeing", "Simple tools", "Community health"],
-    preferences: [{ label: "Communication style", value: "Short messages, and a call after shifts" }, { label: "Preferred working rhythm", value: "A weekly review with the clinic manager" }, { label: "Availability", value: "Open to a designer and a developer" }, { label: "Collaboration preferences", value: "Talk to patients first, then decide together" }],
-    contributions: [{ title: "Garki Clinic booking app", detail: "Client. Shared with Ayo’s consent." }],
-  },
-  efua: {
-    pronoun: "she",
-    headline: "I follow stories home, one archive at a time. At the dye works I want young designers to learn adire from the women who know it best.",
-    keySkills: ["Oral history", "Textile history", "Interviewing"],
-    about: "Efua is a historian who records the stories behind everyday things. She works with Abeokuta Dye Works, where the dyers have made adire for forty years, on a residency for designers early in their careers.",
-    experience: [{ title: "Indigo Futures Residency", detail: "Organiser, Abeokuta Dye Works" }, { title: "Market Light", detail: "Historian and interviewer" }, { title: "Cloth as archive", detail: "Researcher" }],
-    skills: ["Oral history", "Interviewing", "Writing captions", "Archive research"],
-    interests: ["Adire", "Family archives", "Craft", "Identity"],
-    preferences: [{ label: "Communication style", value: "Long written notes and a monthly call" }, { label: "Preferred working rhythm", value: "Slow and steady, with time to listen" }, { label: "Availability", value: "Open to residents for January" }, { label: "Collaboration preferences", value: "Recorded interviews and shared transcripts" }],
-    contributions: [{ title: "Trader interviews for Market Light", detail: "Historian. Shared with Efua’s consent." }],
-  },
-  thandi: {
-    pronoun: "she",
-    headline: "I teach primary school and encourage everyone I meet. With the parents’ forum I want 400 children in Kubwa to start term with what they need.",
-    keySkills: ["Teaching", "Organising", "Volunteering"],
-    about: "Thandi is a primary school teacher and part-time potter. With Kubwa Parents’ Forum she runs a back-to-school supply drive: last year 250 packs on one Saturday, this year 400.",
-    experience: [{ title: "Back-to-school supply drive", detail: "Organiser, Kubwa Parents’ Forum" }, { title: "Primary school class teacher", detail: "Teacher" }, { title: "Saturday pottery for children", detail: "Volunteer" }],
-    skills: ["Teaching", "Organising volunteers", "Planning", "Encouraging people"],
-    interests: ["Education", "Children", "Pottery", "Community"],
-    preferences: [{ label: "Communication style", value: "A phone call with everyone who offers to help" }, { label: "Preferred working rhythm", value: "A planning call, then the day itself" }, { label: "Availability", value: "Open to volunteers for two Saturdays" }, { label: "Collaboration preferences", value: "One shared checklist" }],
-    contributions: [{ title: "Last year’s supply drive", detail: "Organiser. Shared with Thandi’s consent." }],
-  },
-  tunde: {
-    pronoun: "he",
-    headline: "I coach under-15s on Saturdays. For the league final I want local cooks, a photographer and good signs, so families stay all day.",
-    keySkills: ["Coaching", "Event planning", "Youth sport"],
-    about: "Tunde coaches young footballers and helps run the Area 1 Youth League. The final draws families from all over Garki, and this year he wants it to feel like a festival.",
-    experience: [{ title: "Area 1 Youth League", detail: "Coach and organiser, Abuja" }, { title: "Under-15s team", detail: "Head coach" }, { title: "Holiday football camp", detail: "Organiser" }],
-    skills: ["Coaching", "Event planning", "Working with families", "Team building"],
-    interests: ["Youth sport", "Local food", "Community events", "Mentoring"],
-    preferences: [{ label: "Communication style", value: "Group chat and a walk round the ground" }, { label: "Preferred working rhythm", value: "Evenings after training" }, { label: "Availability", value: "Open to cooks, a photographer and a designer" }, { label: "Collaboration preferences", value: "Everyone meets at the ground before the day" }],
-    contributions: [{ title: "Last season’s final", detail: "Organiser. Shared with Tunde’s consent." }],
+  obinna: {
+    pronoun: "he", role: "Learning Designer", place: "Abuja", portrait: "/kin/design/people/collab-projects/obinna-adeyemi.jpg",
+    headline: "I turn classroom ideas into short, clear lessons. On A Better Way to Learn I shape how each lesson is written and tested with students.",
+    keySkills: ["Learning design", "Curriculum writing", "Teacher training"],
+    about: "Obinna has spent years writing lessons and training teachers in Abuja and Kaduna. He joined A Better Way to Learn to make sure every lesson is clear for students who learn at different speeds.",
+    experience: [{ title: "Primary school reading programme", detail: "Curriculum writer, Kaduna" }, { title: "Teacher training course", detail: "Trainer and course designer" }, { title: "Literacy radio lessons", detail: "Script writer" }],
+    skills: ["Learning design", "Lesson writing", "Teacher training", "Assessment design"],
+    interests: ["Early literacy", "Teacher support", "Low-data learning", "Community education"],
+    preferences: [{ label: "Communication style", value: "Clear briefs and quick written replies" }, { label: "Preferred working rhythm", value: "Two focused sessions each week" }, { label: "Availability", value: "Part of the team, a few hours a week" }, { label: "Collaboration preferences", value: "Shared documents and short voice notes" }],
+    contributions: [{ title: "Lesson structure for A Better Way to Learn", detail: "Wrote the first three lesson outlines. Shared with Obinna’s consent." }, { title: "Teacher guide", detail: "Co-author. Shared with Obinna’s consent." }],
   },
 };
+
+/** The design's addresses of the sample members' pages (collaborate/members/ngozi-eze). Everyone else's is their id. */
+const MEMBER_SLUGS: Partial<Record<PersonId, string>> = { ngozi: "ngozi-eze", obinna: "obinna-adeyemi" };
+export const memberSlug = (id: PersonId) => MEMBER_SLUGS[id] ?? id;
+export const memberIdOf = (slug: string): PersonId => (Object.entries(MEMBER_SLUGS).find(([, s]) => s === slug)?.[0] ?? slug) as PersonId;
 
 export type MemberPage = {
   id: PersonId;
@@ -100,6 +65,8 @@ export type MemberPage = {
   role: string;
   place: string;
   portraitId: PersonId;
+  /** Their portrait on this page, when it is not their profile photo. */
+  portrait?: string;
   kind: "owner" | "team";
   limited: boolean;
   headline: string;
@@ -138,10 +105,10 @@ export function memberPage(id: PersonId, project: DiscoverProject): MemberPage |
   const pro = profile?.pronoun ?? "they";
   const kind = id === project.ownerId ? "owner" : "team";
   const looking = listOf(project.roles.map((r) => `${/^[aeiou]/i.test(r) ? "an" : "a"} ${r.toLowerCase()}`));
-  const role = kind === "owner" ? person.role || "Project owner" : onTeam.role;
+  const role = profile?.role ?? (kind === "owner" ? person.role || "Project owner" : onTeam.role);
   return {
     id, name: person.name, first, initials: person.name.split(" ").map((w) => w[0]).join(""),
-    role: role.charAt(0).toUpperCase() + role.slice(1), place: person.city, portraitId: id, kind, limited: !profile,
+    role: role.charAt(0).toUpperCase() + role.slice(1), place: profile?.place ?? person.city, portraitId: id, portrait: profile?.portrait, kind, limited: !profile,
     headline: profile?.headline ?? "",
     limitedIntro: `${first} shares only a few details with other members. You can see ${POSSESSIVE[pro]} role on this project and the skills ${pro} ${pro === "they" ? "list" : "lists"}.`,
     keySkills: profile?.keySkills ?? [...new Set([onTeam.role, person.role].filter(Boolean))],

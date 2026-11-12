@@ -13,7 +13,8 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 
 /** What a person is doing in the tool right now. "away" has access but is not here. */
 export type LiveState = "editing" | "viewing" | "commenting" | "away";
-export type LivePerson = { who: PersonId; state: LiveState; note: string };
+/** `access` is the person's access in the tool when it differs from the project default (see accessOf). */
+export type LivePerson = { who: PersonId; state: LiveState; note: string; access?: Access };
 
 /** Access in the tool follows the project: the host owns it, members can edit. */
 export type Access = "Owner" | "Can edit" | "Can comment" | "View only";
@@ -27,6 +28,8 @@ const MIN = 60 * 1000;
 const DAY = 24 * 60 * MIN;
 export const ago = (now: number, minutes: number) => now - minutes * MIN;
 export const daysAgo = (now: number, days: number, h: number, m: number) => { const d = new Date(now - days * DAY); d.setHours(h, m, 0, 0); return d.getTime(); };
+/** A fixed day of 2026, as the design writes dates it does not count from today ("12 Oct, 15:40"). month is 1-based. */
+export const on2026 = (month: number, day: number, h: number, m: number) => new Date(2026, month - 1, day, h, m).getTime();
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const sameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();

@@ -45,6 +45,8 @@ export function Round({ label, tone = "default", wide, pressed, onClick, buttonR
 export type CastPerson = { id: PersonId; name: string; photo?: string; role: string };
 const strip = (n: string) => n.replace(/\s*\(you\)\s*$/i, "");
 const first = (n: string) => strip(n).split(" ")[0]!;
+/** The call shows the project team's portraits; where a member's team portrait differs from their face elsewhere, it is named here. */
+const CALL_PHOTO: Partial<Record<PersonId, string>> = { ngozi: "/kin/design/people/team/ngozi.jpg" };
 
 /** Who is in the meeting: you, and the people the call says are here. */
 export function useCast(projectId: string) {
@@ -53,7 +55,7 @@ export function useCast(projectId: string) {
   const call = callOf(projectId);
   return useMemo(() => {
     const roleOf = (id: PersonId) => ws.project?.members.find((m) => m.id === id)?.role ?? "";
-    const personOf = (id: PersonId): CastPerson => ({ id, name: PEOPLE[id]?.name ?? "A member", photo: faceSrc(id, 640), role: roleOf(id) });
+    const personOf = (id: PersonId): CastPerson => ({ id, name: PEOPLE[id]?.name ?? "A member", photo: CALL_PHOTO[id] ?? faceSrc(id, 640), role: roleOf(id) });
     const you = personOf(ME);
     const seats: (Seat & { person: CastPerson })[] = call.here.map((s) => ({ ...s, person: personOf(s.who) }));
     const others = seats.map((s) => s.person);

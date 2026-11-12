@@ -39,20 +39,22 @@ export type Call = { here: Seat[]; chat: { who: PersonId; text: string }[] };
 export const SESSION_TIMES = ["Thursday, 4:00 PM", "Friday, 10:00 AM", "Monday, 2:00 PM", "Tuesday, 11:00 AM"];
 export const SESSION_LENGTHS = [15, 30, 45, 60];
 
+/** The design's meetings: Prototype review (Career Guidance for Everyone) and Colour review (Adire Stories). */
 const SEED: Record<string, Session> = {
-  "garki-clinic-booking": { status: "upcoming", name: "Booking screens review", day: "THU", time: "4 PM", when: "Thursday, 4:00 PM", minutes: 45 },
-  "market-light": { status: "upcoming", name: "Layout review", day: "THU", time: "4 PM", when: "Thursday, 4:00 PM", minutes: 45 },
+  "career-guidance-for-everyone": { status: "upcoming", name: "Prototype review", day: "THU", time: "4 PM", when: "Thursday, 4:00 PM", minutes: 45 },
+  "adire-stories": { status: "upcoming", name: "Colour review", day: "THU", time: "4 PM", when: "Thursday, 4:00 PM", minutes: 45 },
 };
 const NONE: Session = { status: "none", name: "Team meeting", day: "", time: "", when: "", minutes: 45 };
 
+/** Who is in the call (the two who can speak, then the one who is muted with the camera off) and the chat, as the design's call shows them. */
 const CALLS: Record<string, Call> = {
-  "garki-clinic-booking": {
-    here: [{ who: "kwame", camera: true, mic: true }, { who: "wanjiru", camera: true, mic: true }, { who: "leila", camera: false, mic: false }],
-    chat: [{ who: "kwame", text: "I can see the second screen now." }, { who: "leila", text: "Could we look at the last question again?" }],
+  "career-guidance-for-everyone": {
+    here: [{ who: "adaeze", camera: true, mic: true }, { who: "tobi", camera: true, mic: true }, { who: "ngozi", camera: false, mic: false }],
+    chat: [{ who: "adaeze", text: "I can see the second screen now." }, { who: "ngozi", text: "Could we look at the last question again?" }],
   },
-  "market-light": {
-    here: [{ who: "wanjiru", camera: true, mic: true }, { who: "efua", camera: false, mic: false }],
-    chat: [{ who: "wanjiru", text: "I can see the second spread now." }, { who: "efua", text: "Could we look at the cover again?" }],
+  "adire-stories": {
+    here: [{ who: "amara-obi", camera: true, mic: true }, { who: "ayo-bello", camera: true, mic: true }, { who: "yusuf-danjuma", camera: false, mic: false }],
+    chat: [{ who: "amara-obi", text: "I can see the second screen now." }, { who: "yusuf-danjuma", text: "Could we look at the last question again?" }],
   },
 };
 const EMPTY: Call = { here: [], chat: [] };
@@ -74,7 +76,7 @@ export const callOf = (projectId: string): Call => {
 };
 
 function useLocalNextSession(projectId: string) {
-  const [all, setAll] = useLocal<Record<string, Session>>("ak:collab-sessions:v1", SEED);
+  const [all, setAll] = useLocal<Record<string, Session>>("ak:collab-sessions:v2", SEED);
   const session = all[projectId] ?? NONE;
   const put = useCallback((s: Session) => setAll((cur) => ({ ...cur, [projectId]: s })), [projectId, setAll]);
   return {

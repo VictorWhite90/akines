@@ -4,12 +4,11 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import { Bold, Check, ChevronDown, Italic, Link as LinkIcon, List, ListOrdered, MessageSquarePlus, Quote, Redo2, RotateCcwClock, Table, TextAlignCenter, TextAlignStart, Underline, Undo2, type LucideIcon } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { toast } from "@/components/kin/Toast";
-import { faceSrc } from "@/components/kin/home/parts";
 import { useDocument, type Block, type Doc, type DocThread, type Part } from "@/lib/collab/documents";
 import { clock24, editedAt, firstName, initialsOf, nameOf, type Version } from "@/lib/collab/live";
 import { ME } from "@/lib/collab/me";
 import type { PersonId } from "@/lib/data/people";
-import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, lostTitle, useToolState, viewingTitle, type ToolState, type WorkspaceState, type Ws } from "./ToolFrame";
+import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, lostDetail, lostTitle, toolFace, useToolState, viewingTitle, type ToolState, type WorkspaceState, type Ws } from "./ToolFrame";
 import "../styles/research-workspace.css";
 
 /*
@@ -103,7 +102,7 @@ function Page({ doc, caret, offline }: { doc: Doc; caret: boolean; offline: bool
 }
 
 function Face({ who }: { who: PersonId }) {
-  const src = faceSrc(who);
+  const src = toolFace(who);
   // eslint-disable-next-line @next/next/no-img-element -- member face
   return src ? <img className="tr-c28" src={src} alt="" loading="lazy" decoding="async" /> : <span className="tr-c28 tr-c28--kemi" aria-hidden="true">{initialsOf(who)}</span>;
 }
@@ -224,7 +223,7 @@ export default function ResearchWorkspace({ ws, state: frame }: { ws: Ws; state?
         <Outline doc={doc} history={history} onHistory={toggleHistory} />
         <div className="tr-stage">
           {banner && picked ? (
-            <Banner kind={banner} title={banner === "version" ? viewingTitle(picked) : banner === "collaborator" && offline ? lostTitle(offline) : undefined} onRetry={tool.retry}
+            <Banner kind={banner} title={banner === "version" ? viewingTitle(picked) : banner === "collaborator" && offline ? lostTitle(offline) : undefined} detail={banner === "collaborator" && offline ? lostDetail(offline) : undefined} onRetry={tool.retry}
               onRequest={() => toast.show({ message: "Edit access requested." })}
               onBack={() => setHistory(false)}
               onRestore={() => { restore(picked); setHistory(false); tool.save(); toast.show({ message: "Version restored." }); }} />

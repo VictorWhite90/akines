@@ -58,22 +58,72 @@ export type Thread = {
 
 type Local = { id: string; projectId: string; kind: ThreadKind; title: string; by: PersonId; at: number; decisionId?: string };
 type Store = { threads: Local[]; messages: Record<string, ThreadMsg[]>; read: Record<string, number> };
-const KEY = "ak:collab-threads:v1";
+const KEY = "ak:collab-threads:v2";
 
 const HOUR = 3_600_000, DAY = 24 * HOUR;
-/** What each decision's discussion said before the member opened it. */
-function seedMessages(): Record<string, ThreadMsg[]> {
-  const now = Date.now();
+/** A clock time on a day counted back from today ("Today, 10:30" is `on(0, 10, 30)`). */
+const on = (daysBack: number, h: number, m: number) => { const d = new Date(Date.now() - daysBack * DAY); d.setHours(h, m, 0, 0); return d.getTime(); };
+/** The latest Monday at least two days back (the design's "Mon" in the list), or two days back. */
+const monday = (h: number, m: number) => { const back = (new Date().getDay() + 6) % 7; return on(back >= 2 ? back : 2, h, m); };
+
+const CAREER = "career-guidance-for-everyone", ADIRE = "adire-stories";
+/** The team chat's name in the list, as the design writes it. */
+const TEAM_TITLE: Record<string, string> = { [CAREER]: "Career Guidance team", [ADIRE]: "Adire Stories team" };
+/** The design's decision discussion address (…/conversations/decision-discussion) opens the project's decision discussion. */
+const DECISION_ALIAS = "decision-discussion";
+
+/**
+ * The design's conversations (Conversations 17389:27624 and Adire Stories 17759:89576), word for word:
+ * the work discussion that opens first, the milestone and research discussions, what each decision's discussion
+ * said before the member opened it (`decision:<project>/<decision slug>`), and the team chat when the project's
+ * chat has nothing in it yet (`team:<project>`).
+ */
+function seed(): Store {
+  const dec = (pid: string, slug: string, title: string) => ({ title, status: "Awaiting acknowledgement", href: `${workspaceHref(pid, "decisions")}/${slug}` });
+  const careerDec = dec(CAREER, "choose-the-onboarding-approach", "Choose the onboarding approach");
+  const adireDec = dec(ADIRE, "choose-the-headwrap-palette", "Choose the headwrap palette");
+  const t = (id: string, projectId: string, kind: ThreadKind, title: string, by: PersonId, at: number): Local => ({ id, projectId, kind, title, by, at });
   return {
-    "decision:gc-dec1": [
-      { id: "gcd1", by: "chidi", text: "The reply option works on the cheap Android phones we tested.", at: now - DAY - 6 * HOUR },
-      { id: "gcd2", by: "leila", text: "I will write the Hausa version once the wording is agreed.", at: now - DAY - 4 * HOUR },
-      { id: "gcd3", by: "kwame", text: "I prefer replies. Can we decide before I set up the SMS gateway?", at: now - DAY - 3 * HOUR },
+    threads: [
+      t("onboarding-flow", CAREER, "work", "Onboarding flow", "ngozi", on(0, 10, 30)),
+      t("first-student-experience", CAREER, "milestone", "First Student Experience", "tobi", on(1, 14, 20)),
+      t("questions-students-ask-about-careers", CAREER, "work", "Questions students ask about careers", "adaeze", monday(16, 5)),
+      t("headwrap-colours", ADIRE, "work", "Headwrap colours", "yusuf-danjuma", on(0, 10, 30)),
+      t("headwrap-portrait", ADIRE, "milestone", "Headwrap Portrait", "amara-obi", on(1, 14, 20)),
+      t("questions-to-ask-the-dyers-about-cloth", ADIRE, "work", "Questions to ask the dyers about cloth", "ayo-bello", monday(16, 5)),
     ],
-    "decision:ml-dec1": [
-      { id: "mld1", by: "efua", text: "Matte, please. The traders will hold it in daylight.", at: now - DAY - 5 * HOUR },
-      { id: "mld2", by: "wanjiru", text: "Can we see a test print of spread 3 before Saturday?", at: now - DAY - 2 * HOUR },
-    ],
+    messages: {
+      "onboarding-flow": [
+        { id: "m1", by: "ngozi", text: "These are the interview notes behind the questions.", at: on(0, 10, 30), file: { name: "Career interview notes.docx", meta: "Word, 180 KB" } },
+        { id: "m2", by: "adaeze", text: "We should settle the approach before building more screens.", at: on(0, 10, 48), decision: careerDec },
+        { id: "m3", by: "kemi", text: "Agreed. I will review the decision today.", at: on(0, 11, 2) },
+        { id: "m4", by: "tobi", text: "Let us talk it through on Thursday.", at: on(0, 11, 20) },
+      ],
+      "first-student-experience": [{ id: "fse1", by: "tobi", text: "The journey map matches these screens. We can test with five students next week.", at: on(1, 14, 20) }],
+      "questions-students-ask-about-careers": [{ id: "q1", by: "adaeze", text: "These are the questions the onboarding draft should answer.", at: monday(16, 5) }],
+      [`decision:${CAREER}/choose-the-onboarding-approach`]: [
+        { id: "d1", by: "tobi", text: "The open option may feel overwhelming on a first visit.", at: on(1, 15, 10) },
+        { id: "d2", by: "ngozi", text: "Agreed. Most students we interviewed wanted a clear first step.", at: on(1, 16, 30) },
+        { id: "d3", by: "adaeze", text: "I prefer the guided option. Can we decide before Friday?", at: on(1, 17, 40) },
+      ],
+      [`team:${CAREER}`]: [{ id: "tm1", by: "tobi", text: "The onboarding prototype is ready for review whenever you are.", at: on(0, 9, 15) }],
+      "headwrap-colours": [
+        { id: "m1", by: "yusuf-danjuma", text: "These are the dye pot notes behind the shades.", at: on(0, 10, 30), file: { name: "Adire dye pot notes.docx", meta: "Word, 180 KB" } },
+        { id: "m2", by: "amara-obi", text: "We should settle the palette before colouring more areas.", at: on(0, 10, 48), decision: adireDec },
+        { id: "m3", by: "kemi", text: "Agreed. I will review the decision today.", at: on(0, 11, 2) },
+        { id: "m4", by: "ayo-bello", text: "Let us talk it through on Thursday.", at: on(0, 11, 20) },
+      ],
+      "headwrap-portrait": [{ id: "hp1", by: "amara-obi", text: "Three layers from linework to highlights. The colour layer is ready for review.", at: on(1, 14, 20) }],
+      "questions-to-ask-the-dyers-about-cloth": [{ id: "qd1", by: "ayo-bello", text: "Collected from the first workshop visits. Added for the headwrap portrait.", at: monday(16, 5) }],
+      [`decision:${ADIRE}/choose-the-headwrap-palette`]: [
+        { id: "d1", by: "ayo-bello", text: "The brighter option may overpower the indigo cloth.", at: on(1, 15, 10) },
+        { id: "d2", by: "yusuf-danjuma", text: "Agreed. Most of the cloth in our references keeps to one deep blue.", at: on(1, 16, 30) },
+        { id: "d3", by: "amara-obi", text: "I prefer the deeper indigo. Can we decide before Friday?", at: on(1, 17, 40) },
+      ],
+      [`team:${ADIRE}`]: [{ id: "tm1", by: "yusuf-danjuma", text: "Photo from the first workshop visit. Cloth dries on the line after the indigo dip.", at: on(0, 9, 15) }],
+    },
+    // The design shows the team chat and the older research discussion as read; the decision and milestone ones are new.
+    read: Object.fromEntries([CAREER, ADIRE].flatMap((pid) => [[`${pid}/team`, Date.now()], [`${pid}/${pid === CAREER ? "questions-students-ask-about-careers" : "questions-to-ask-the-dyers-about-cloth"}`, Date.now()]])),
   };
 }
 
@@ -89,7 +139,7 @@ function useLocalThreads(p: Project | undefined) {
   const collab = useCollab();
   const pid = p?.id ?? "";
   const decisions = useDecisions(pid);
-  const [store, setStore, ready] = useLocal<Store>(KEY, { threads: [], messages: seedMessages(), read: {} });
+  const [store, setStore, ready] = useLocal<Store>(KEY, DEMO ? seed() : { threads: [], messages: {}, read: {} });
   const [convos, setConvos] = useLocal<Convo[]>("km:convos", []);
   const [km, setKm] = useLocal<Record<string, KMsg[]>>("km:msgs", {});
 
@@ -99,8 +149,9 @@ function useLocalThreads(p: Project | undefined) {
     // The whole team: the project's KinMessage chat.
     const convo = [...convos, ...CONVOS].find((c) => c.id === p.convoId);
     const chat = [...(convo?.msgs ?? []), ...(km[p.convoId] ?? [])].filter((m): m is Extract<KMsg, { kind: "text" }> => m.kind === "text" && m.from !== ("ai" as PersonId));
-    const teamMsgs: ThreadMsg[] = chat.map((m) => ({ id: m.id, by: m.from, text: m.text, clock: m.at }));
-    out.push({ id: "team", kind: "project", title: `${p.title} team`, messages: teamMsgs, lastAt: store.read[`${pid}/team-sent`] ?? p.createdAt });
+    const sample = chat.length ? [] : store.messages[`team:${pid}`] ?? [];
+    const teamMsgs: ThreadMsg[] = [...sample, ...chat.map((m) => ({ id: m.id, by: m.from, text: m.text, clock: m.at }))];
+    out.push({ id: "team", kind: "project", title: TEAM_TITLE[pid] ?? `${p.title} team`, messages: teamMsgs, lastAt: store.read[`${pid}/team-sent`] ?? sample.at(-1)?.at ?? p.createdAt });
     // Each piece of work that has been talked about.
     for (const d of p.deliverables ?? []) {
       if (!d.thread.length) continue;
@@ -115,8 +166,7 @@ function useLocalThreads(p: Project | undefined) {
     }
     // Each decision still being decided that the team has discussed here.
     for (const dec of decisions.pending) {
-      const key = `decision:${dec.id}`;
-      const msgs = store.messages[key];
+      const msgs = store.messages[`decision:${pid}/${dec.slug}`] ?? store.messages[`decision:${dec.id}`];
       if (!msgs?.length) continue;
       const embed = { title: dec.title, status: DECISION_STATUS[dec.status], href: decisionHref(pid, dec) };
       // The decision travels with the last thing a teammate said about it.
@@ -145,14 +195,14 @@ function useLocalThreads(p: Project | undefined) {
       setStore((cur) => ({ ...cur, read: { ...cur.read, [`${pid}/team-sent`]: Date.now() } }));
       return;
     }
-    const key = t.kind === "decision" && t.decision ? `decision:${t.decision.id}` : t.id;
+    const key = t.kind === "decision" && t.decision ? (store.messages[`decision:${pid}/${t.decision.slug}`] ? `decision:${pid}/${t.decision.slug}` : `decision:${t.decision.id}`) : t.id;
     setStore((cur) => ({ ...cur, messages: { ...cur.messages, [key]: [...(cur.messages[key] ?? []), { id: newId("tm"), by: ME, text, at: Date.now() }] } }));
-  }, [p, pid, collab.project, setConvos, setKm, setStore]);
+  }, [p, pid, collab.project, setConvos, setKm, setStore, store.messages]);
 
   return {
     ready: ready && collab.ready,
     threads,
-    get: (id: string) => threads.find((t) => t.id === id),
+    get: (id: string) => threads.find((t) => t.id === id) ?? (id === DECISION_ALIAS ? threads.find((t) => t.kind === "decision") : undefined),
     send,
     /** Unread: someone else wrote in the last three days, and the member has not opened it since. */
     unread: (t: Thread) => { const last = t.messages[t.messages.length - 1]; return !!last && last.by !== ME && t.lastAt > Date.now() - 3 * DAY && (store.read[`${pid}/${t.id}`] ?? 0) < t.lastAt; },

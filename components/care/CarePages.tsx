@@ -10,6 +10,7 @@ import { Modal } from "@/components/kin/Overlay";
 import { faceSrc } from "@/components/kin/home/parts";
 import { useSendMessage } from "@/components/messages/send";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
+import { DEMO } from "@/lib/demo/mode";
 import { useLocal } from "@/lib/useLocal";
 
 /* The product design's care screens (classes in components/kin/community.css). */
@@ -18,7 +19,7 @@ const Back = () => <Link href="/" className="ch-tlink">Back to Community Home</L
 const Arrow = <ArrowRight strokeWidth={1.5} aria-hidden />;
 
 export function QuietCompany() {
-  const here: PersonId[] = ["tunde", "zuri", "efua", "kwame"];
+  const here: PersonId[] = ["tunde-bakare", "ngozi", "folake", "chuka"];
   return (
     <div className="ch-page ch-page--bleed">
       <div className="ch-care">
@@ -44,7 +45,8 @@ export function QuietCompany() {
 }
 
 export function ReflectPrivately() {
-  const [text, setText] = useLocal<string>("ak:reflect-draft", "");
+  // Preview starts with the design's sample note.
+  const [text, setText] = useLocal<string>("ak:reflect-draft", DEMO ? "A slow morning, one honest conversation with a friend, and time to finish the outreach plan." : "");
   const [notes, setNotes] = useLocal<{ at: number; text: string }[]>("ak:reflect-notes", []);
   const [saved, setSaved] = useLocal<boolean>("ak:reflect-saved", false);
   return (
@@ -104,7 +106,7 @@ export function ProfessionalSupport() {
 }
 
 /* The design's "Message someone I trust" modal (560 wide, then "Message sent"). The message goes to their chat. */
-const TRUSTED: PersonId[] = ["zuri", "kwame", "leila"];
+const TRUSTED: PersonId[] = ["amara-okafor", "folake", "chuka"];
 const TRUST_NOTE = "Hi, it has been a heavy week. Could we talk for a little while tonight?";
 function TrustModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
@@ -134,7 +136,7 @@ function TrustModal({ open, onClose }: { open: boolean; onClose: () => void }) {
     );
   }
   return (
-    <Modal open={open} onClose={close} width={560} image={faceSrc(TRUSTED[1], 1120)} eyebrow="Wellbeing" title="Message someone I trust" className="ch-ov ch-ov--modal">
+    <Modal open={open} onClose={close} width={560} image="/kin/design/home/community/ngozi.jpg" eyebrow="Wellbeing" title="Message someone I trust" className="ch-ov ch-ov--modal">
       <div className="ch-ov__body">
         <p className="ch-ov__lead">Choose who you would like to reach. Only they will see your message.</p>
         <div className="ch-ov__field">

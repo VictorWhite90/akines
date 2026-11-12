@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import ProfilePage from "@/components/connect/Profile";
-import { PEOPLE, type PersonId } from "@/lib/data/people";
+import { profileOf } from "@/lib/connect/profiles";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  return { title: `${PEOPLE[decodeURIComponent(id) as PersonId]?.name ?? "Profile"} · Akines` };
+  return { title: `${profileOf(decodeURIComponent(id))?.name ?? "Profile"} · Akines` };
 }
 
 /** Connect, People: a member's public profile. */

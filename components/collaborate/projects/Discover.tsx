@@ -7,7 +7,7 @@ import Button from "@/components/kin/Button";
 import { Chip } from "@/components/kin/Chip";
 import { Modal } from "@/components/kin/Overlay";
 import { useCollab } from "@/lib/collab/useCollab";
-import { discoverProject, FILTER_GROUPS, filterLabels, hasFilters, matchesFilters, noFilters, PROJECT_TYPES, searchScore, suggestedFilters, type Filters } from "@/lib/collab/projects";
+import { discoverProject, FILTER_GROUPS, filterLabels, type Filters, hasFilters, listedOn, matchesFilters, noFilters, PROJECT_TYPES, searchScore, suggestedFilters } from "@/lib/collab/projects";
 import { useFirstVisit } from "@/components/collaborate/overview-lists/loading";
 import { DsLink, PageHead, PageState, ProjectCard, SkeletonCard, pageStatus } from "./parts";
 
@@ -35,7 +35,7 @@ export default function Discover({ variant }: { variant?: "loading" | "empty" })
   const status = first ? "loading" : variant === "empty" ? "ready" : real;
   const { query, type, filters } = view;
 
-  const all = useMemo(() => collab.calls.filter((c) => !c.postedByMe).map((c) => discoverProject(c, collab.projects)), [collab.calls, collab.projects]);
+  const all = useMemo(() => collab.calls.filter((c) => !c.postedByMe && listedOn(c, "discover")).map((c) => discoverProject(c, collab.projects)), [collab.calls, collab.projects]);
   const shown = useMemo(() => {
     const list = all.filter((p) => (!type || p.type === type) && matchesFilters(p, filters));
     const q = query.trim();

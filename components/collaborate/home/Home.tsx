@@ -16,7 +16,7 @@ import { useOverview } from "@/components/collaborate/overview-lists/probe";
 import { activeAgo, cardHref, ctaOf, currentMilestone, progressOf, ProjectProbes, type ProjectSummary } from "@/components/collaborate/my-projects/summary";
 import { collabHref, useIncomingIntroductions, useRecommendations, useSavedCollaborators, type Collaborator } from "@/lib/collab/collaborators";
 import { ME } from "@/lib/collab/me";
-import { discoverProject, initialsOf, profileOf } from "@/lib/collab/projects";
+import { discoverProject, initialsOf, listedOn, profileOf } from "@/lib/collab/projects";
 import type { Project } from "@/lib/collab/types";
 import { useCollab } from "@/lib/collab/useCollab";
 import { isMine, membersOf, phaseOf, workspaceHref } from "@/lib/collab/workspace";
@@ -99,8 +99,11 @@ function NewProject() {
 function PersonCard({ c, onSave, onOverlay }: { c: Collaborator; onSave: () => void; onOverlay: (k: OverlayKind) => void }) {
   const person = PEOPLE[c.id];
   const href = collabHref(c.id);
-  const src = photoOf(c.id, 900);
-  const purpose = c.reasons.find((r) => r.category === "Shared purpose")?.text ?? c.matchContext;
+  const src = c.photos?.home ?? photoOf(c.id, 900);
+  // Home's own words for the person where they have them, else their discovery card's.
+  const h = c.home;
+  const purpose = h?.purpose ?? c.reasons.find((r) => r.category === "Shared purpose")?.text ?? c.matchContext;
+  const availability = h?.availability ?? c.availability;
   return (
     <article className="cs-cc cs-hcard">
       <Link className="cs-cc__photo" href={href.profile} tabIndex={-1} aria-hidden>
@@ -109,18 +112,18 @@ function PersonCard({ c, onSave, onOverlay }: { c: Collaborator; onSave: () => v
       </Link>
       <div className="cs-cc__body">
         <div className="cs-cc__profile">
-          <p className="cs-cc__avail"><Dot />{/[.!?]$/.test(c.availability) ? c.availability : `${c.availability}.`}</p>
+          <p className="cs-cc__avail"><Dot />{/[.!?]$/.test(availability) ? availability : `${availability}.`}</p>
           <div className="cs-cc__who"><h3><Link className="cs-cc__name" href={href.profile}>{person?.name}</Link></h3><p className="cs-cc__role">{person?.role}</p></div>
-          <p className="cs-cc__skills">{c.keySkills.join(" · ")}</p>
+          <p className="cs-cc__skills">{h?.skills ?? c.keySkills.join(" · ")}</p>
           <hr className="cs-rule" />
           <div className="cs-cc__fields">
             <div><p className="cs-label cs-label--muted">Shared purpose</p><p className="cs-val cs-val--sm">{purpose}</p></div>
-            <div><p className="cs-label cs-label--muted">Complementary skill</p><p className="cs-val cs-val--sm">{c.experience}</p></div>
-            <div><p className="cs-label cs-label--muted">Working preference</p><p className="cs-val cs-val--sm">{c.preference}</p></div>
+            <div><p className="cs-label cs-label--muted">Complementary skill</p><p className="cs-val cs-val--sm">{h?.skill ?? c.experience}</p></div>
+            <div><p className="cs-label cs-label--muted">Working preference</p><p className="cs-val cs-val--sm">{h?.preference ?? c.preference}</p></div>
           </div>
         </div>
         <div className="cs-cc__match">
-          <div className="cs-cc__why"><p className="cs-label cs-label--muted">Why you may work well together</p><p className="cs-cc__text">{c.compat}</p></div>
+          <div className="cs-cc__why"><p className="cs-label cs-label--muted">Why you may work well together</p><p className="cs-cc__text">{h?.match ?? c.compat}</p></div>
           <div className="cs-cc__actions">
             <Button full iconRight={<Arrow />} href={href.request}>Request introduction</Button>
             <Button full variant="secondary" onClick={onSave}>Save for later</Button>
@@ -379,17 +382,22 @@ export default function CollaborateHome() {
     })),
   ];
 
-  const attention = [
-    ...decisions.map((d) => ({ key: d.href, type: "Decision awaiting you", time: `Requested ${ago(d.at).toLowerCase()}`, title: d.projectTitle, text: `The team needs your approval: ${d.title.charAt(0).toLowerCase()}${d.title.slice(1).replace(/\.$/, "")}.`, cta: "Review decision", href: d.href })),
-    ...invites.map((v) => ({ key: v.key, type: "Project invitation", time: v.date, title: v.title, text: "You have been invited to contribute to a new project.", cta: "Review invitation", href: v.href })),
-    ...incoming.map((p) => ({ key: `in-${p.id}`, type: "Collaborator introduction", time: `Received ${ago(p.receivedAt).toLowerCase()}`, title: PEOPLE[p.from]?.name ?? "Someone", text: "A potential collaborator would like to connect around your project.", cta: "Review introduction", href: OL.introductions })),
-  ].slice(0, 3);
+  const attentionByKind = [
+    decisions.map((d) => ({ key: d.href, type: "Decision awaiting you", time: `Requested ${ago(d.at).toLowerCase()}`, title: d.projectTitle, text: `The team needs your approval: ${d.title.charAt(0).toLowerCase()}${d.title.slice(1).replace(/\.$/, "")}.`, cta: "Review decision", href: d.href })),
+    invites.map((v) => ({ key: v.key, type: "Project invitation", time: v.date, title: v.title, text: "You have been invited to contribute to a new project.", cta: "Review invitation", href: v.href })),
+    incoming.map((p) => ({ key: `in-${p.id}`, type: "Collaborator introduction", time: `Received ${ago(p.receivedAt).toLowerCase()}`, title: PEOPLE[p.from]?.name ?? "Someone", text: "A potential collaborator would like to connect around your project.", cta: "Review introduction", href: OL.introductions })),
+  ];
+  // The first of each kind, then the rest, so a decision, an invitation and an introduction all get a place.
+  const attention = [...attentionByKind.flatMap((k) => k.slice(0, 1)), ...attentionByKind.flatMap((k) => k.slice(1))].slice(0, 3);
 
   const taken = new Set(collab.projects.filter(isMine).map((p) => p.callId));
-  const open: Open[] = collab.calls.filter((c) => !c.postedByMe && c.host !== ME && c.closesInDays > 0 && !collab.appFor(c.id) && !taken.has(c.id)).map((c) => {
+  const open: Open[] = collab.calls.filter((c) => listedOn(c, "home") && !c.postedByMe && c.host !== ME && c.closesInDays > 0 && !collab.appFor(c.id) && !taken.has(c.id)).map((c) => {
     const dp = discoverProject(c, collab.projects);
     return { id: c.id, stage: dp.stage, title: c.title, text: c.summary, looking: c.roles.join(" · "), team: dp.team.slice(0, 3).map((m) => m.initials), teamText: `${dp.teamCount} ${plural(dp.teamCount, "person", "people")}`, commitment: dp.commitment, owner: dp.owner };
   });
+
+  // The people Home has its own words for (the design's carousel), else every recommendation.
+  const homeRecs = recs.list.some((c) => c.home) ? recs.list.filter((c) => c.home) : recs.list;
 
   const messages = summaries.flatMap((s) => s.messages.map((m) => ({ ...m, order: m.at ?? s.lastAt }))).sort((a, b) => b.order - a.order).slice(0, 3);
 
@@ -437,11 +445,11 @@ export default function CollaborateHome() {
         </section>
       ) : null}
 
-      {recs.list.length ? (
+      {homeRecs.length ? (
         <section className="cs-band cs-stack" aria-label="Suggested collaborators">
           <Sec label="People to create with" title="The right people can change an idea." support="Meet people whose experience, perspective and way of working may complement yours." />
           <Carousel label="Suggested collaborators" noun="collaborator" per={{ desktop: 1, tablet: 1, mobile: 1 }}>
-            {recs.list.map((c) => (
+            {homeRecs.map((c) => (
               <PersonCard key={c.id} c={c} onOverlay={(kind) => { setWho(c); setOverlay(kind); }} onSave={() => { const undo = save(c.id); toast.show({ message: "Saved to your collaborators.", actionLabel: "Undo", onAction: undo }); }} />
             ))}
           </Carousel>

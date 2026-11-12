@@ -36,7 +36,7 @@ export function callFrom(answers: DraftAnswers, brief: Brief, workspace: Workspa
   const about = [part(brief.purpose), part(brief.problem), part(brief.audience) && `Who it is for: ${brief.audience}`, part(brief.outcome) && `Success looks like this: ${brief.outcome}`].filter(Boolean).join("\n\n");
   const summary = part(brief.overview) || part(brief.name) || "A new project on Akines.";
   return {
-    title: brief.name.trim(), org: PEOPLE[ME]?.name ?? "Akines member", orgKind: "Independent project", city: "Abuja", where: "Hybrid",
+    title: brief.name.trim(), org: PEOPLE[ME]?.name ?? "Akines member", orgKind: "Independent project", city: PEOPLE[ME]?.city || "Lagos", where: "Hybrid",
     photo: workspace === "art" ? "collabArt" : "teamWork", summary: summary.length > 140 ? `${summary.slice(0, 137).trimEnd()}...` : summary, about: about || summary,
     roles, fields, level: "Any level", fee: "To be agreed together",
     rights: "Everyone is credited. You can each show your part anywhere.",

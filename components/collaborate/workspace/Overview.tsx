@@ -6,7 +6,7 @@ import { Empty } from "@/components/kin/Overlay";
 import { useBrief } from "@/lib/collab/brief";
 import { useDecisions } from "@/lib/collab/decisions";
 import { parseDue, dayMonth, useTasks, type TaskStatus } from "@/lib/collab/tasks";
-import { useWorkspace, workspaceHref } from "@/lib/collab/workspace";
+import { sampleOverview, useWorkspace, workspaceHref } from "@/lib/collab/workspace";
 import type { Milestone, Project } from "@/lib/collab/types";
 import { cn } from "@/lib/cn";
 import { Card, Metric, Metrics } from "./blocks";
@@ -132,7 +132,7 @@ export default function Overview({ projectId }: { projectId: string }) {
     return (
       <WorkspaceFrame projectId={projectId} active="overview" rail="short">
         <div className="ov">
-          <PageHead label="OVERVIEW" title={ws.title} lead={ws.summary} />
+          <PageHead label="OVERVIEW" title={ws.title} lead={(ws.project && sampleOverview(ws.project.id)?.lead) || ws.summary} />
           <Metrics>
             <Metric label="MILESTONES" value="0" caption="none yet" href={`${base}/tasks/milestones`} />
             <Metric label="OPEN TASKS" value="0" caption="none yet" href={`${base}/tasks`} />
@@ -154,21 +154,23 @@ export default function Overview({ projectId }: { projectId: string }) {
   const doneAt = (m: Milestone) => p.deliverables?.find((d) => d.id === m.id)?.approvedAt ?? p.ledger.find((l) => l.what === `Milestone done: ${m.title}`)?.at;
   const toReview = review.work.length;
   const toDecide = decisions.awaitingMe.length;
-  const glance = [
+  const sample = sampleOverview(p.id);
+  const glance = sample?.glance ?? [
     { label: "AUDIENCE", value: firstSentence(brief.parts.find((x) => x.key === "users")?.body) },
     { label: "GOAL", value: firstSentence(brief.parts.find((x) => x.key === "success")?.body) },
     { label: "SCOPE", value: firstSentence(brief.parts.find((x) => x.key === "scope")?.body) },
   ].filter((g) => g.value);
   const mine = items.find((t) => t.owner === ws.members.find((m) => m.you)?.id && t.status === "In progress");
-  const work = [
-    ...(review.work[0] ? [{ title: `Review ${review.work[0].title.charAt(0).toLowerCase()}${review.work[0].title.slice(1)}`, status: "Needs your review", href: review.work[0].href }] : []),
+  const reviewTitle = (t: string) => (/^review\b/i.test(t) ? t : `Review ${t.charAt(0).toLowerCase()}${t.slice(1)}`);
+  const work = sample ? sample.work.map((w) => ({ title: w.title, status: w.status, href: `${base}/${w.to}` })) : [
+    ...(review.work[0] ? [{ title: reviewTitle(review.work[0].title), status: "Needs your review", href: review.work[0].href }] : []),
     ...(review.decisions[0] ? [{ title: review.decisions[0].title, status: "Waiting for your acknowledgement", href: review.decisions[0].href }] : mine ? [{ title: mine.title, status: "In progress", href: `${base}/tasks/${mine.slug}` }] : []),
   ];
 
   return (
     <WorkspaceFrame projectId={projectId} active="overview" rail>
       <div className="ov">
-        <PageHead label="OVERVIEW" title={ws.title} lead={ws.summary} />
+        <PageHead label="OVERVIEW" title={ws.title} lead={(ws.project && sampleOverview(ws.project.id)?.lead) || ws.summary} />
         <Metrics>
           <Metric label="MILESTONES" value={`${ms.filter((m) => m.done).length}/${ms.length}`} caption="complete" href={`${base}/tasks/milestones`} />
           <Metric label="OPEN TASKS" value={open} caption={`${counts["In review"]} in review`} href={`${base}/tasks`} />
@@ -183,7 +185,7 @@ export default function Overview({ projectId }: { projectId: string }) {
             <header className="cd-card__head"><h3 className="cd-card__title">TASK STATUS</h3></header>
             <Status counts={counts} />
           </Link>
-          <Card title="THIS WEEK" id="this-week"><Week {...weekOf(p)} /></Card>
+          <Card title="THIS WEEK" id="this-week"><Week {...(sample?.week ?? weekOf(p))} /></Card>
         </div>
         {glance.length ? (
           <Card title="BRIEF AT A GLANCE" id="brief-glance">

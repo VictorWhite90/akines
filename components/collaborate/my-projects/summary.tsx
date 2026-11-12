@@ -86,7 +86,7 @@ export function progressOf(p: Project) {
 /** The current milestone, as the cards word it. */
 export function currentMilestone(p: Project) {
   const m = milestonesOf(p).find((x) => !x.done);
-  return m ? sentence(m.title) : "All milestones complete.";
+  return m ? sentence(m.label ?? m.title) : "All milestones complete.";
 }
 
 /** "2 hours ago", "yesterday": for "Active …". */

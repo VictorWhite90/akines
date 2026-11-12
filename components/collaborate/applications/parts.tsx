@@ -172,7 +172,7 @@ export function OfferCard({ project: p, role, fee, start, sent, note }: { projec
       <hr className="apl-rule" />
       <dl className="apl-facts">
         <Fact label="Role" value={role} />
-        {fee ? <Fact label="Fee" value={fee} /> : null}
+        {fee ? <Fact label="Hours" value={fee} /> : null}
         {start ? <Fact label="Start date" value={start} /> : null}
         <Fact label="Sent" value={sent} />
       </dl>

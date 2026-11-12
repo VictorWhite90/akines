@@ -20,9 +20,16 @@ import RemoteMessages from "./RemoteMessages";
  */
 
 const ME_ID = ME.id as PersonId;
+
+/** The design's Create Call plans for its two one-to-one conversations (its cc-amara and cc-folake). */
+const PLANS: Partial<Record<string, { lead: string; note: string; placeholder: string; peopleText: string; image: string }>> = {
+  amara: { lead: "Pick a time to work on the Community Health Initiative together.", note: "Let us draft the outreach plan and agree the first clinic visit.", placeholder: "Add what you would like to work on (optional)", peopleText: "Amara", image: "/kin/design/home/community/amara.jpg" },
+  folake: { lead: "Make something small together, or start planning the next zine.", note: "Shall we sketch ideas for the next zine together?", placeholder: "Add what you would like to make (optional)", peopleText: "Folake", image: "/kin/design/home/community/folake.jpg" },
+};
 const now = () => new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
 function sub(c: Convo) {
+  if (c.sub) return c.sub;
   if (c.kind === "direct") { const p = PEOPLE[c.members[0]]; return p ? `${p.role} · ${p.city}` : ""; }
   return `${KIND_LABEL[c.kind]} · ${c.members.length + 1} members`;
 }
@@ -54,10 +61,11 @@ function LocalMessages({ initial }: { initial?: string }) {
     if (fresh && c.id === fresh.id && !(added[c.id]?.length)) setExtra([fresh, ...extra]);
     setAdded((cur) => ({ ...cur, [c.id]: [...(cur[c.id] ?? []), { id: newId("m"), from: ME_ID, at: now(), kind: "text", text: t }] }));
   };
-  const last = (c: Convo) => { const all = [...c.msgs, ...(added[c.id] ?? [])]; const m = all[all.length - 1]; return m ? text(m) : c.last; };
-  const meta = (c: Convo) => { const all = [...c.msgs, ...(added[c.id] ?? [])]; return all[all.length - 1]?.at.split(" · ")[0] ?? ""; };
+  // The list shows the design's preview and time until you write something yourself.
+  const last = (c: Convo) => { const mine = added[c.id] ?? []; if (!mine.length && c.last) return c.last; const all = [...c.msgs, ...mine]; const m = all[all.length - 1]; return m ? text(m) : c.last; };
+  const meta = (c: Convo) => { const mine = added[c.id] ?? []; if (!mine.length && c.meta) return c.meta; const all = [...c.msgs, ...mine]; return all[all.length - 1]?.at.split(" · ")[0] ?? ""; };
   // The Quick Catch-up suggests someone you already talk to (the design suggests Folake).
-  const friend = saved.find((c) => c.kind === "direct")?.members[0];
+  const friend = (saved.find((c) => c.id === "folake") ?? saved.find((c) => c.kind === "direct"))?.members[0];
 
   const plan = (c: Convo) => ({
     eyebrow: "Create Call",
@@ -67,6 +75,7 @@ function LocalMessages({ initial }: { initial?: string }) {
     convo: c.id,
     note: "Shall we find time to work on this together?",
     placeholder: "Add what you would like to work on (optional)",
+    ...PLANS[c.id],
   });
 
   return (
@@ -83,10 +92,11 @@ function LocalMessages({ initial }: { initial?: string }) {
           me={ME_ID}
           status={(added[open.id]?.length ?? 0) > 0 ? <p className="ch-sent"><Check size={14} strokeWidth={1.5} aria-hidden /><span>Sent</span></p> : null}
           onSend={(t) => send(open, t)}
+          draft={(added[open.id]?.length ?? 0) > 0 ? undefined : open.draft}
           plan={open.kind === "direct" || open.kind === "project" ? plan(open) : undefined}
         />
       ) : (
-        <EmptyPane quick={friend ? { eyebrow: "About 15 minutes", title: "Quick Catch-up", lead: "A short, easy conversation with someone from your circle.", people: [friend], peopleText: `Suggested: ${PEOPLE[friend].name.split(" ")[0]}`, times: TIMES_NOW, note: `Hi ${PEOPLE[friend].name.split(" ")[0]}, do you have a few minutes for a quick catch-up?`, image: photoSrc("talkTwo", 1120) } : undefined} />
+        <EmptyPane quick={friend ? { eyebrow: "About 15 minutes", title: "Quick Catch-up", lead: "A short, easy conversation with someone from your circle.", people: [friend], peopleText: `Suggested: ${PEOPLE[friend].name.split(" ")[0]}`, times: TIMES_NOW, note: `Hi ${PEOPLE[friend].name.split(" ")[0]}, do you have a few minutes for a quick catch-up?`, image: "/kin/design/home/community/friends.jpg" } : undefined} />
       )}
     </div>
   );

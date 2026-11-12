@@ -15,7 +15,8 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
  */
 
 export const PROJECT_STAGES = ["Just an idea", "Exploring", "Ready to plan", "Building", "Launching"] as const;
-export type ProjectStage = (typeof PROJECT_STAGES)[number];
+/** The five stages Discover filters by, and "Planning", which Collaborate Home's open calls also use. */
+export type ProjectStage = (typeof PROJECT_STAGES)[number] | "Planning";
 export const PROJECT_TYPES = ["Business", "Application", "Film", "Research", "Community", "Book", "Event", "Course", "Social impact"] as const;
 export type ProjectType = (typeof PROJECT_TYPES)[number];
 export type CommitmentCat = "month" | "week" | "weekend" | "full" | "flexible";
@@ -34,59 +35,130 @@ export type CallProfile = {
   skillCats?: SkillCat[];
   skillTags?: string[];
   progress?: { title: string; detail: string }[];
+  /** What the project page says first, when it says more than the summary. */
+  intro?: string;
+  /** Where the team works, in the project's own words ("Remote, with occasional meetings in Lagos"). */
+  location?: string;
+  /** Who is on the team so far, when the call names them. */
+  team?: ProfileMember[];
+  /** Why Akines suggests the project, in the project's own words. */
+  fit?: string;
+  /** The screens that list the call (sample calls only); none named means every screen. */
+  listed?: Listing[];
 };
 
-/** The sample calls' profiles (lib/collab/seed.ts), written the way the design writes its own. */
+/** A member of the team as a project's card and page show them, when the call says who they are (sample calls). */
+/** `id` is a member id; someone the design names only by initials has a placeholder id of their own. */
+export type ProfileMember = { id: string; role: string; name?: string; initials?: string };
+
+/** The screens that list a sample call: Discover projects (and Opportunities, Saved) or Collaborate Home's open calls. */
+export type Listing = "discover" | "home";
+
+/** The sample calls' profiles (lib/collab/seed.ts), word for word from the design's projects/data.ts and start/home-data.ts. */
 export const CALL_PROFILES: Record<string, CallProfile> = {
-  "jabi-mural": {
-    stage: "Ready to plan", type: "Event", commitment: "Nine days of painting, from 20 November.", commitmentCat: "full",
-    rhythm: "A design review before painting starts, then daily on the wall", openTo: "Individuals",
-    needs: { "Lead muralist": "Leads the design and the painting of the lakeside wall.", "Assistant painter": "Paints alongside the lead for the nine days.", "Graphic designer": "Turns the mural into the festival's posters and signs." },
-    skillCats: ["Design", "Community"], skillTags: ["Mural painting", "Illustration", "Graphic design", "Public art"],
-    progress: [{ title: "This year's theme", detail: "\"Arriving\": what Abuja looks like to people who came here to start again." }, { title: "The wall", detail: "Twenty metres on the lake walk, cleaned and primed. The next step is the design." }],
+  "a-better-way-to-learn": {
+    stage: "Exploring", type: "Application", commitment: "Flexible, based on agreed contribution.", commitmentCat: "flexible",
+    rhythm: "A weekly check-in, with shared documents in between", openTo: "Individuals and small teams",
+    location: "Remote, with occasional meetings in Lagos",
+    intro: "A digital learning initiative exploring more accessible ways for students to learn. The team is testing simple lesson tools with students in Lagos and is looking for people who care about how young people learn.",
+    needs: { "Product Designer": "Shapes how students move through each lesson. A few hours a week.", "Software Engineer": "Builds the first lesson tool that works on a basic phone. Flexible hours.", "Education Researcher": "Runs short student interviews and turns them into clear findings. Weekends." },
+    skillCats: ["Design", "Engineering", "Research"], skillTags: ["Product design", "Software engineering", "Education research", "Learning design"],
+    team: [{ id: "ngozi", role: "Project owner" }, { id: "obinna", role: "Learning designer" }],
+    progress: [{ title: "Student interviews in Lagos", detail: "Held with a small group of students and teachers." }, { title: "First lesson sketches", detail: "Reviewed with two teachers. The next step is a simple prototype." }],
+    fit: "Your product design experience could help this project make lessons easier to follow. Akines suggests it because you care about education and learning tools.",
+    listed: ["discover", "home"],
   },
-  "kubwa-bread": {
-    stage: "Ready to plan", type: "Film", commitment: "One early shoot day, then a week of edits.", commitmentCat: "weekend",
-    rhythm: "A chat at the bakery first, then the shoot from 4am", openTo: "Pairs or individuals",
-    needs: { Videographer: "Films one honest, warm minute about the family behind the bakery.", Photographer: "Takes ten photos for the bakery's page and the shop wall." },
-    skillCats: ["Film and sound", "Design"], skillTags: ["Filmmaking", "Photography", "Storytelling", "Small business"],
-    progress: [{ title: "The story", detail: "The family bakes from 4am, and most of Kubwa has eaten their agege bread." }, { title: "What the film should feel like", detail: "Warm, early, a bit sleepy. The next step is a shot list." }],
+  "craft-memory-archive": {
+    stage: "Planning", type: "Community", commitment: "Two hours a week, agreed together.", commitmentCat: "week",
+    needs: { Photographer: "Photographs the artisans and their techniques.", Researcher: "Records how each technique is passed on.", "Web Developer": "Build a simple, accessible home for the archive where artisans can share their techniques." },
+    team: [{ id: "tunde-bello", role: "Project owner" }, { id: "folake", role: "Team member", initials: "FO" }],
+    listed: ["home"],
   },
-  "clinic-app": {
-    stage: "Exploring", type: "Application", commitment: "A few hours a week, until mid December.", commitmentCat: "week",
-    rhythm: "Patient interviews first, then a weekly review with the clinic", openTo: "Individuals and pairs",
-    needs: { "Product designer": "Talks to patients first, then shapes how booking and the queue work.", Developer: "Builds the first version, on the web, so it works on any phone." },
-    skillCats: ["Design", "Engineering", "Research"], skillTags: ["Product design", "Web development", "User research", "Health"],
-    progress: [{ title: "The problem", detail: "Patients queue outside the clinic from 6am to be seen." }, { title: "What the clinic wants", detail: "A simple booking app that shows each patient their place in the queue." }],
+  "neighbourhood-story-map": {
+    stage: "Exploring", type: "Community", commitment: "Flexible, based on agreed contribution.", commitmentCat: "flexible",
+    team: [{ id: "chioma", role: "Project owner" }], listed: ["home"],
   },
-  "youth-podcast": {
-    stage: "Ready to plan", type: "Community", commitment: "Eight episodes, from 17 November.", commitmentCat: "week",
-    rhythm: "A recording session each week, with edits shared in between", openTo: "Individuals",
-    needs: { "Audio editor": "Cleans and cuts each episode.", "Cover designer": "Designs the cover for the season.", "Co-host": "Asks good questions with young people starting out in Abuja." },
-    skillCats: ["Film and sound", "Design", "Community"], skillTags: ["Audio editing", "Cover design", "Hosting", "Storytelling"],
+  "voices-of-the-market": {
+    stage: "Exploring", type: "Research", commitment: "Flexible, based on agreed contribution.", commitmentCat: "flexible",
+    team: [{ id: "emeka-anozie", role: "Project owner" }, { id: "bukola", role: "Team member" }], listed: ["home"],
   },
-  "indigo-futures": {
-    stage: "Ready to plan", type: "Course", commitment: "Four weeks in January, living at the dye works.", commitmentCat: "full",
-    rhythm: "Every day with the master dyers", openTo: "Individuals",
-    needs: { Resident: "Learns adire with the dyers and makes one new piece with them." },
-    skillCats: ["Design"], skillTags: ["Textile design", "Adire", "Dyeing", "Craft"],
-    progress: [{ title: "The dyers", detail: "The women of the dye works have made adire for forty years." }],
+  "learning-in-two-languages": {
+    stage: "Planning", type: "Course", commitment: "Three hours a week, agreed together.", commitmentCat: "week",
+    team: [{ id: "halima-sani", role: "Project owner" }], listed: ["home"],
   },
-  "supply-drive": {
-    stage: "Building", type: "Social impact", commitment: "Two Saturdays.", commitmentCat: "weekend",
-    rhythm: "A planning call, then the packing day", openTo: "Individuals and small groups",
-    needs: { "Volunteer lead": "Runs the packing day.", Logistics: "Plans the pick-ups and drop-offs.", "Social media": "Tells the story online, with families' consent." },
-    skillCats: ["Community", "Writing"], skillTags: ["Organising", "Logistics", "Social media", "Volunteering"],
-    progress: [{ title: "Last year", detail: "250 school packs, packed on one Saturday." }, { title: "This year", detail: "The goal is 400 packs before term starts." }],
+  "the-weaving-lab": {
+    stage: "Exploring", type: "Research", commitment: "Flexible, based on agreed contribution.", commitmentCat: "flexible",
+    team: [{ id: "adaora", role: "Project owner" }, { id: "kehinde", role: "Team member" }], listed: ["home"],
   },
-  "matchday-food": {
-    stage: "Ready to plan", type: "Event", commitment: "The league final, on 29 November.", commitmentCat: "weekend",
-    rhythm: "A walk round the ground before the final", openTo: "Individuals and small teams",
-    needs: { Caterer: "Runs one of three food stalls on the day.", Photographer: "Photographs the final and the families who come.", "Event designer": "Designs the stall signs and menu boards." },
-    skillCats: ["Community", "Design", "Film and sound"], skillTags: ["Catering", "Photography", "Event design", "Sport"],
-    progress: [{ title: "The final", detail: "Families from all over Garki come; 2,000 people are expected." }],
+  "voices-of-lagos": {
+    stage: "Building", type: "Film", commitment: "Weekends, over three months.", commitmentCat: "weekend",
+    rhythm: "A short call on Sunday evenings, with shared folders in between", openTo: "Individuals and small crews",
+    location: "On location in Lagos neighbourhoods",
+    intro: "A documentary series capturing everyday stories from Lagos neighbourhoods. The team has filmed first test shoots and is looking for people who can shoot, record and edit them into episodes.",
+    needs: { Cinematographer: "Films the street and home scenes for each episode. Weekends.", "Sound Designer": "Records and cleans the audio so every voice is easy to hear. Weekends.", "Documentary Editor": "Cuts the footage into short episodes and agrees the story with the team. Flexible hours." },
+    skillCats: ["Film and sound"], skillTags: ["Filmmaking", "Documentary", "Sound design", "Storytelling"],
+    team: [{ id: "tunde-bakare", role: "Project owner" }, { id: "kehinde", role: "Producer" }, { id: "efe", role: "Researcher" }],
+    progress: [{ title: "Test shoots in three neighbourhoods", detail: "Short films made with local residents who agreed to be recorded." }, { title: "First episode outline", detail: "Reviewed with a local editor. The next step is a rough cut." }],
+    fit: "Akines shows it because you saved it. The team needs film roles, so your product design experience may help most with how the series is presented.",
+    listed: ["discover"],
+  },
+  "clean-water-mapping": {
+    stage: "Ready to plan", type: "Social impact", commitment: "About ten hours a month.", commitmentCat: "month",
+    location: "Kaduna and Abuja",
+    skillCats: ["Research", "Engineering", "Community"], skillTags: [],
+    // The card shows four people, the second "SA"; the design names only the owner.
+    team: [{ id: "halima-yusuf", role: "Project owner" }, ...[2, 3, 4].map((n) => ({ id: `clean-water-mapping-${n}`, role: "Team member", name: "A team member", initials: n === 2 ? "SA" : "" }))],
+    listed: ["discover"],
+  },
+  "market-women-ledger": {
+    stage: "Building", type: "Application", commitment: "Flexible, based on agreed contribution.", commitmentCat: "flexible",
+    rhythm: "Two short check-ins a week, with shared designs in between", openTo: "Individuals and small teams",
+    intro: "A simple mobile ledger helping market traders record sales and savings. The team is building a first version and is looking for people who can shape it around how traders already work.",
+    needs: { "Mobile Developer": "Builds the first version of the ledger so it works on a basic phone. Flexible hours.", "UX Researcher": "Runs short interviews with traders and turns them into clear findings. Weekends.", "Finance Advisor": "Checks that the savings features are simple and safe for traders. A few hours a month." },
+    skillCats: ["Engineering", "Research", "Design"], skillTags: ["Mobile development", "User research", "Financial inclusion", "Small business"],
+    team: [{ id: "amaka", role: "Project owner" }, { id: "bukola", role: "Business analyst" }],
+    progress: [{ title: "Trader interviews", detail: "Held with twelve market traders about how they record sales today." }, { title: "First ledger screens", detail: "Reviewed with three traders. The next step is a simple prototype." }],
+    fit: "Your product design experience could help this project make a mobile ledger simple for traders to use. Akines suggests it because the team needs user research and design thinking.",
+    listed: ["discover"],
+  },
+  "stories-for-small-hands": {
+    stage: "Exploring", type: "Book", commitment: "Flexible, based on agreed contribution.", commitmentCat: "flexible",
+    rhythm: "A fortnightly review of drafts and illustrations", openTo: "Individuals",
+    location: "Remote, with occasional meetings in Kano",
+    intro: "An illustrated book series helping young students learn kindness in Hausa and English. The team is exploring the first story and is looking for people to bring it to life.",
+    needs: { Illustrator: "Draws the pictures for each page in a warm, simple style. Flexible hours.", "Hausa Translator": "Writes the Hausa version so it reads naturally for young children. Weekends.", "Children’s Book Editor": "Shapes the stories so they are clear and kind. A few hours a week." },
+    skillCats: ["Design", "Writing"], skillTags: ["Illustration", "Translation", "Children’s books", "Education"],
+    team: [{ id: "ifeoma", role: "Project owner" }, { id: "musa", role: "Storyteller" }],
+    progress: [{ title: "First story drafted", detail: "Written in English and shared with two teachers." }, { title: "Sample illustrations", detail: "Three pages sketched. The next step is a Hausa version of the text." }],
+    fit: "The team’s main needs are illustration, translation and editing. Your product design experience could still help with page layout. Akines shows it because the project is open to new people.",
+    listed: ["discover"],
+  },
+  "clinic-queue": {
+    stage: "Exploring", type: "Application", commitment: "Two evenings a week, for six weeks.", commitmentCat: "week",
+    rhythm: "Two evening sessions a week, with notes shared in between", openTo: "Individuals and small teams",
+    location: "Remote, with occasional clinic visits",
+    intro: "A queue and appointment tool for busy primary health centres. The team is exploring how it could work and is looking for people who can build, write and advise.",
+    needs: { "Mobile Developer": "Builds the first queue screen so it works on a basic phone. Flexible hours.", "Health Informatics Lead": "Advises on how patient information should be handled with care. Two evenings a week.", "UX Writer": "Writes short, clear messages for patients and nurses. A few hours a week." },
+    skillCats: ["Engineering", "Writing", "Research"], skillTags: ["Mobile development", "Health informatics", "UX writing", "Public health"],
+    team: [{ id: "dayo", role: "Project owner" }, { id: "esther", role: "Clinic operations lead" }, { id: "femi", role: "Backend engineer" }],
+    progress: [{ title: "Clinic visits", detail: "Observed how queues work at two primary health centres." }, { title: "Queue flow sketched", detail: "Reviewed with a clinic manager. The next step is a simple prototype." }],
+    fit: "Your product design experience could help this project make queues clear for patients and nurses. Akines suggests it because the team needs design and writing skills.",
+    listed: ["discover"],
+  },
+  "community-learning-initiative": {
+    stage: "Ready to plan", type: "Community", commitment: "Flexible, based on agreed contribution.", commitmentCat: "flexible",
+    needs: { "Product Designer": "Help define the learning experience and design the initial product structure." },
+    team: [{ id: "daniel", role: "Project owner" }, { id: "community-learning-initiative-2", role: "Team member", name: "A team member", initials: "TA" }, { id: "community-learning-initiative-3", role: "Team member", name: "A team member", initials: "NY" }],
+    listed: [],
+  },
+  "mapping-the-market-road": {
+    stage: "Exploring", type: "Research", commitment: "Agreed with the team.", commitmentCat: "flexible",
+    needs: { Writer: "Interviews traders along the road and writes their stories.", Photographer: "Photographs the traders and the markets along the road." },
   },
 };
+
+/** Whether a call belongs on a screen: every call does, unless its profile names the screens it is listed on. */
+export const listedOn = (call: CollabCall, where: Listing) => profileOf(call).listed?.includes(where) ?? true;
 
 const TYPE_BY_FIELD: Record<string, ProjectType> = { Tech: "Application", Media: "Film", Business: "Business", Community: "Community", Food: "Event", Arts: "Event", Design: "Application" };
 const CATS_BY_FIELD: Record<string, SkillCat> = { Design: "Design", Tech: "Engineering", Media: "Film and sound", Arts: "Design", Community: "Community", Business: "Research", Food: "Community" };
@@ -147,6 +219,8 @@ export type DiscoverProject = {
   working: { label: string; value: string }[];
   glanceLocation: string;
   closed: boolean;
+  /** Why Akines suggests it, when the project says so in its own words. */
+  fit?: string;
 };
 
 /** "₦600,000 lead · ₦250,000 per teammate": the part of the fee line about one role, if it names it. */
@@ -162,12 +236,14 @@ export function discoverProject(call: CollabCall, projects: Project[]): Discover
   const owner = host?.name ?? call.org;
   // The team so far: the host, then whoever has joined the project the call opened.
   const joined = projects.find((p) => p.callId === call.id);
-  const team: TeamMember[] = [{ id: call.host, name: owner, initials: initialsOf(owner), role: "Project owner" }];
-  for (const m of joined?.members ?? []) {
+  const team: TeamMember[] = pr.team
+    ? pr.team.map((m) => { const name = m.name ?? PEOPLE[m.id as PersonId]?.name ?? "A member"; return { id: m.id as PersonId, name, initials: m.initials ?? initialsOf(name), role: m.role }; })
+    : [{ id: call.host, name: owner, initials: initialsOf(owner), role: "Project owner" }];
+  if (!pr.team) for (const m of joined?.members ?? []) {
     if (m.id === call.host || !PEOPLE[m.id]) continue;
     team.push({ id: m.id, name: PEOPLE[m.id].name, initials: initialsOf(PEOPLE[m.id].name), role: m.role });
   }
-  const location = call.where === "Remote" ? "Remote" : call.where === "Hybrid" ? `Remote, with meetings in ${call.city}` : `In person, in ${call.city}`;
+  const location = pr.location ?? (call.where === "Remote" ? "Remote" : call.where === "Hybrid" ? `Remote, with meetings in ${call.city}` : `In person, in ${call.city}`);
   const working = [
     { label: "Commitment", value: pr.commitment },
     { label: "Working rhythm", value: pr.rhythm ?? "" },
@@ -181,7 +257,7 @@ export function discoverProject(call: CollabCall, projects: Project[]): Discover
     stage: pr.stage,
     type: pr.type,
     purpose: call.summary,
-    intro: call.summary,
+    intro: pr.intro ?? call.summary,
     about: call.about,
     roles: call.roles,
     skillCats: pr.skillCats ?? [],
@@ -203,11 +279,13 @@ export function discoverProject(call: CollabCall, projects: Project[]): Discover
     working,
     glanceLocation: location,
     closed: call.closesInDays <= 0,
+    fit: pr.fit,
   };
 }
 
 /** Why Akines shows you this project: from the roles it needs and what you do, never a score. */
 export function fitOf(p: DiscoverProject, saved: boolean) {
+  if (p.fit) return p.fit;
   const mine = PEOPLE[ME]?.role?.toLowerCase() ?? "";
   const role = mine ? p.roles.find((r) => r.toLowerCase() === mine || mine.includes(r.split(" ")[0]!.toLowerCase())) : undefined;
   if (role) return `Your ${mine} experience could help this project as its ${role.toLowerCase()}. Akines suggests it because the team is looking for one.`;

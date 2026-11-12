@@ -2,6 +2,7 @@
 
 import { useCollab } from "@/lib/collab/useCollab";
 import { useLocal } from "@/lib/useLocal";
+import { DEMO } from "@/lib/demo/mode";
 import { ME } from "@/lib/collab/me";
 import type { Milestone, Project } from "@/lib/collab/types";
 import { PEOPLE, type PersonId, type Presence } from "@/lib/data/people";
@@ -53,14 +54,80 @@ export function pulseOf(p: Project) {
  * milestones, so each deliverable stands as one (done once approved).
  */
 export const milestonesOf = (p: Project): Milestone[] => (p.milestones.length ? p.milestones : (p.deliverables ?? []).map((d) => ({ id: d.id, title: d.title, due: d.due, done: d.status === "approved" })));
-export const nextMilestoneOf = (p: Project) => { const m = milestonesOf(p).find((x) => !x.done); return m ? `${m.title.replace(/\.$/, "")}.` : "All milestones complete."; };
+export const nextMilestoneOf = (p: Project) => { const m = milestonesOf(p).find((x) => !x.done); return m ? `${(m.label ?? m.title).replace(/\.$/, "")}.` : "All milestones complete."; };
 export const kindOf = (p: Project): WorkspaceKind => (p.kind === "make" || p.kind === "event" ? "art" : "research");
+
+/** Preview only: what the members of the design's sample projects share (Kemi is working on a milestone, Ngozi is away). */
+const SAMPLE_AVAILABILITY: Record<string, Partial<Record<PersonId, Availability>>> = {
+  "career-guidance-for-everyone": { kemi: "working", adaeze: "available", tobi: "working", ngozi: "away" },
+  "adire-stories": { kemi: "working", "amara-obi": "available", "ayo-bello": "working", "yusuf-danjuma": "away" },
+};
+
+/*
+ * Preview only: what the design's Overview shows for its two sample projects that our record can't tell yet: this
+ * week's updates (Monday to Sunday, today is Thursday), the brief at a glance and the two rows to continue with.
+ * `to` is under the project's own address.
+ */
+export type SampleOverview = {
+  /** The design's one-line lead under the overview title (shorter than the project's description). */
+  lead: string;
+  week: { bars: number[]; total: number; today: number };
+  glance: { label: string; value: string }[];
+  work: { title: string; status: string; to: string }[];
+};
+const glanceOf = (audience: string, goal: string, scope: string) => [{ label: "AUDIENCE", value: audience }, { label: "GOAL", value: goal }, { label: "SCOPE", value: scope }];
+const SAMPLE_OVERVIEW: Record<string, SampleOverview> = {
+  "career-guidance-for-everyone": {
+    lead: "Helping Nigerian students make informed career decisions.",
+    week: { bars: [3, 5, 4, 6, 0, 0, 0], total: 18, today: 3 },
+    glance: glanceOf("Students aged 14 to 18", "200 complete the interest check", "Exploration and a personal shortlist"),
+    work: [
+      { title: "Review the student onboarding draft", status: "Needs your review", to: "files/student-onboarding-draft-pdf" },
+      { title: "Respond to the research findings", status: "Waiting for your reply", to: "conversations" },
+    ],
+  },
+  "adire-stories": {
+    lead: "A shared illustration series celebrating adire patterns.",
+    week: { bars: [3, 5, 4, 6, 0, 0, 0], total: 14, today: 3 },
+    glance: glanceOf("Young Nigerians who love cloth", "Twelve plates and every dyer credited", "A printed zine and a small exhibition"),
+    work: [
+      { title: "Review the headwrap colour layer", status: "Needs your review", to: "files" },
+      { title: "Respond to the pattern history notes", status: "Waiting for your reply", to: "conversations" },
+    ],
+  },
+};
+export const sampleOverview = (projectId: string): SampleOverview | undefined => (DEMO ? SAMPLE_OVERVIEW[projectId] : undefined);
+
+/** Preview only: a milestone page's description and completion criteria, as the design writes them (milestone ids). */
+export type SampleMilestone = { description: string; criteria: { title: string; caption: string; status: "Completed" | "In progress" | "Next" }[] };
+const SAMPLE_MILESTONES: Record<string, Record<string, SampleMilestone>> = {
+  "career-guidance-for-everyone": {
+    "first-student-experience": {
+      description: "Define the first version of the student-facing product experience.",
+      criteria: [
+        { title: "The first five screens are drafted", caption: "Reviewed by Adaeze", status: "Completed" },
+        { title: "The onboarding flow is agreed", caption: "One decision is waiting for the team", status: "In progress" },
+        { title: "Five students try the draft", caption: "After the prototype review", status: "Next" },
+      ],
+    },
+    "prototype-review": {
+      description: "Test the first prototype with five students and record what we learn.",
+      criteria: [
+        { title: "Five students are chosen", caption: "Two schools, ages 14 to 18", status: "Next" },
+        { title: "The prototype works on a basic phone", caption: "Tested by Tobi before the sessions", status: "Next" },
+        { title: "Findings are written up", caption: "Shared with the whole team", status: "Next" },
+      ],
+    },
+  },
+};
+export const sampleMilestone = (projectId: string, id: string): SampleMilestone | undefined => (DEMO ? SAMPLE_MILESTONES[projectId]?.[id] : undefined);
 
 export function membersOf(p: Project): WorkspaceMember[] {
   return p.members.map((m) => {
     const person = PEOPLE[m.id];
     const name = person?.name ?? "A member";
-    return { id: m.id, name, initials: initials(name), role: m.role, owner: m.id === p.host, you: m.id === ME, availability: person ? FROM_PRESENCE[person.presence] : "away" };
+    const shared = DEMO ? SAMPLE_AVAILABILITY[p.id]?.[m.id] : undefined;
+    return { id: m.id, name, initials: initials(name), role: m.role, owner: m.id === p.host, you: m.id === ME, availability: shared ?? (person ? FROM_PRESENCE[person.presence] : "away") };
   });
 }
 

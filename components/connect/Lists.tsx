@@ -5,7 +5,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/kin/Field";
 import { EVENTS, EVENT_FILTERS, eventsEmptyText, eventsFor, type EventFilter } from "@/lib/connect/events";
 import { INTERESTS, interestById } from "@/lib/connect/interests";
-import { MATCHES } from "@/lib/data/matches";
+import { RECOMMENDATIONS } from "@/lib/connect/discover";
 import { ExploreCard, InterestCard, RecCard } from "./cards";
 import { EXPLORE, FILTERS, INTEREST_FILTERS, PATHS, countWord, eventCard, useForYouAll, useInterestCards, type Filter, type InterestFilter } from "./data";
 import { FilterBlock, ListPage, NoResults } from "./parts";
@@ -101,13 +101,13 @@ export function EventsPage({ initial = null, empty }: { initial?: EventFilter | 
 
 /** All suggestions (11.72): every Someone to meet card. `empty` is the Empty state route. */
 export function Suggestions({ empty }: { empty?: boolean }) {
-  const list = empty ? [] : MATCHES;
+  const list = empty ? [] : RECOMMENDATIONS;
   return (
-    <ListPage title="People whose journeys complement yours" support={`${countWord(MATCHES.length)} people, chosen for what you are working on.`}>
+    <ListPage title="People whose journeys complement yours" support={`${countWord(RECOMMENDATIONS.length)} people, chosen for what you are working on.`}>
       {list.length === 0 ? (
         <p className="dxs-empty">No suggestions right now. We will add people as your journey grows.</p>
       ) : (
-        <div className="dxr-cards"><ul className="dxr-grid">{list.map((m, i) => <RecCard key={m.id} match={m} index={i} />)}</ul></div>
+        <div className="dxr-cards"><ul className="dxr-grid">{list.map((m, i) => <RecCard key={m.id} rec={m} index={i} />)}</ul></div>
       )}
     </ListPage>
   );

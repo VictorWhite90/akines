@@ -14,7 +14,7 @@ export default function BanterIntro({ session }: { session: BanterNow }) {
   const host = PEOPLE[session.host];
   const others = session.people.filter((p) => p !== session.host);
   const named = others.slice(0, 2).map((p) => PEOPLE[p].name.split(" ")[0]);
-  const rest = others.length - named.length;
+  const rest = others.length - named.length + (session.more ?? 0);
   const withText = named.length ? `, with ${named.join(rest > 0 ? ", " : " and ")}${rest > 0 ? ` and ${rest} other${rest > 1 ? "s" : ""}` : ""}` : "";
   const on = reminded.includes(session.id);
   return (
@@ -25,7 +25,7 @@ export default function BanterIntro({ session }: { session: BanterNow }) {
           <p className="ch-label">Banter · {session.context}</p>
           <h1 className="ch-split__title" data-m="words">{session.topic}</h1>
           <p className="ch-split__desc">An open conversation. Listen first, or join in when you feel like it.</p>
-          <p className="ch-when"><CalendarDays size={20} strokeWidth={1.25} aria-hidden /><span>{session.live ? "Live now" : `Starts ${session.startsIn ?? "soon"}`} · {session.minutes} minutes</span></p>
+          <p className="ch-when"><CalendarDays size={20} strokeWidth={1.25} aria-hidden /><span>{session.when ?? `${session.live ? "Live now" : `Starts ${session.startsIn ?? "soon"}`} · ${session.minutes} minutes`}</span></p>
           <div className="ch-ppl">
             <span className="ch-avs" style={{ "--ch-av-gap": "-10px" } as React.CSSProperties}>
               {session.people.slice(0, 3).map((p) => {
@@ -43,7 +43,7 @@ export default function BanterIntro({ session }: { session: BanterNow }) {
           <div className="ch-acts ch-acts--col">
             {on ? (
               <>
-                <p className="ch-confirm" aria-live="polite"><CircleCheck size={20} strokeWidth={1.5} aria-hidden /><span>{session.live ? "You are in. The conversation is open now." : "You are in. We will remind you before it starts."}</span></p>
+                <p className="ch-confirm" aria-live="polite"><CircleCheck size={20} strokeWidth={1.5} aria-hidden /><span>{session.joined ?? (session.live ? "You are in. The conversation is open now." : "You are in. We will remind you before it starts.")}</span></p>
                 <button type="button" className="ch-tlink" onClick={() => setReminded(reminded.filter((x) => x !== session.id))}>Leave Banter</button>
               </>
             ) : (
@@ -54,7 +54,7 @@ export default function BanterIntro({ session }: { session: BanterNow }) {
         <div className="ch-split__photo">
           <div className="ch-photo ch-photo--fill" data-m="frame">
             {/* eslint-disable-next-line @next/next/no-img-element -- the design's Banter photo */}
-            <img className="cover" src="/kin/banter/friends.jpg" alt="" loading="eager" decoding="async" />
+            <img className="cover" src={session.photo ?? "/kin/banter/friends.jpg"} alt="" loading="eager" decoding="async" />
           </div>
         </div>
       </div>
