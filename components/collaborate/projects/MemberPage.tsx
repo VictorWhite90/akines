@@ -1,12 +1,13 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/kin/Button";
 import { faceSrc } from "@/components/kin/home/parts";
 import { useCollab } from "@/lib/collab/useCollab";
 import { memberPage } from "@/lib/collab/members";
 import { discoverProject } from "@/lib/collab/projects";
 import type { PersonId } from "@/lib/data/people";
+import { useFirstVisit } from "@/components/collaborate/overview-lists/loading";
 import { Back, Bar, DsLink, Facts, InterestPanel, Item, Match, PageState, PrivacyPanel, Section, SkelSection, SkelSide, Tags, pageStatus } from "./parts";
 
 /*
@@ -16,10 +17,18 @@ import { Back, Bar, DsLink, Facts, InterestPanel, Item, Match, PageState, Privac
  * one named by ?project=, or else the first open call they lead or are on.
  */
 
-export default function MemberPage({ id }: { id: string }) {
+/** The design's frames at their own addresses: Limited profile, Loading and Could not load. */
+export type MemberVariant = "limited" | "loading" | "error";
+
+export default function MemberPage({ id, variant }: { id: string; variant?: MemberVariant }) {
   const collab = useCollab();
+  const router = useRouter();
   const asked = useSearchParams().get("project");
-  const status = pageStatus(collab);
+  const query = asked ? `?project=${encodeURIComponent(asked)}` : "";
+  const base = `/collaborate/members/${encodeURIComponent(id)}`;
+  // The design's Loading frame: the first visit of a session (and the state-loading route, which then goes on to the page).
+  const first = useFirstVisit("member", { stateRoute: variant === "loading", skip: !!variant, onDone: () => router.replace(base + query) });
+  const status = first ? "loading" : variant === "error" ? "error" : pageStatus(collab);
   if (status === "loading") return <LoadingProfile />;
 
   const projects = collab.calls.map((c) => discoverProject(c, collab.projects));
@@ -34,17 +43,17 @@ export default function MemberPage({ id }: { id: string }) {
       <div className="dsc-page"><div className="dsc-stack">
         <Back href={back}>{project ? `Back to ${project.title}` : "Back to discover projects"}</Back>
         <PageState pair role="alert" headline="We could not load this profile." support="Check your connection and try again. Your saved projects are safe.">
-          <Button onClick={() => window.location.reload()}>Try again</Button>
+          <Button onClick={() => (variant ? router.replace(`${base}/state-loading${query}`) : window.location.reload())}>Try again</Button>
           <Button variant="secondary" href={back}>{project ? "Back to project" : "Back to discover projects"}</Button>
         </PageState>
       </div></div>
     );
   }
 
-  const limited = m.limited;
+  const limited = m.limited || variant === "limited";
   const saved = collab.state.saved.includes(project.id);
   const portrait = limited ? undefined : faceSrc(m.portraitId, 560);
-  const pr = m.profile;
+  const pr = variant === "limited" ? undefined : m.profile;
   return (
     <div className="dsc-page">
       <div className="dsc-detail">
@@ -70,7 +79,7 @@ export default function MemberPage({ id }: { id: string }) {
               <Section title="Experience"><div className="dsc-items">{pr.experience.map((e) => <Item key={e.title} title={e.title} detail={e.detail} />)}</div></Section>
             </>
           ) : null}
-          <Section title="Skills"><Tags tags={pr?.skills ?? m.keySkills} label="Skills" /></Section>
+          <Section title="Skills"><Tags tags={m.profile?.skills ?? m.keySkills} label="Skills" /></Section>
           {pr ? (
             <>
               <Section title="Interests"><Tags tags={pr.interests} label="Interests" /></Section>
@@ -82,7 +91,7 @@ export default function MemberPage({ id }: { id: string }) {
         </div>
         <aside className="dsc-detail__side" aria-label="Project actions">
           <InterestPanel interestHref={`${back}/interest`} saved={saved} onSave={() => collab.toggleSave(project.id)} />
-          <PrivacyPanel text={m.seeing} />
+          <PrivacyPanel text={limited ? `${m.first} chose to share fewer details. Private information stays private.` : m.seeing} />
         </aside>
       </div>
     </div>

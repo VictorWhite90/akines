@@ -69,7 +69,7 @@
   flex-direction: column;
   gap: 24px;
 }
-.invitation .btn {
+.invitation .k-btn {
   align-self: stretch;
 }
 
@@ -123,7 +123,7 @@
   .invitation__right {
     flex: 0 0 347px;
   }
-  .invitation .btn {
+  .invitation .k-btn {
     align-self: flex-start;
   }
 }

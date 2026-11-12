@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
-import { Bell, BriefcaseBusiness, Camera, Check, ChevronDown, ChevronRight, ChevronUp, Compass, Heart, CircleHelp, House, Link2, LogOut, MessageSquare, Palette, PenLine, Settings, Sparkles, User, UserCheck, Users } from "lucide-react";
+import { Bell, BriefcaseBusiness, Camera, Check, ChevronDown, ChevronRight, ChevronUp, Compass, Heart, CircleHelp, House, Link2, LogOut, MessageSquare, Palette, PenLine, SlidersHorizontal, Sparkles, User, UserCheck, Users } from "lucide-react";
 import { chat } from "@/lib/api/chat";
 import { notifications as noticesApi, type Notice } from "@/lib/api/notifications";
 import { DEMO } from "@/lib/demo/mode";
@@ -169,7 +169,7 @@ function ProfileProgress({ compact = false }: { compact?: boolean }) {
 const ACCOUNT = [
   { label: "View profile", href: "/profile", Icon: User },
   { label: "Complete your profile", href: "/profile/complete", Icon: UserCheck },
-  { label: "Settings", href: "/settings", Icon: Settings },
+  { label: "Settings", href: "/settings", Icon: SlidersHorizontal },
   { label: "Help", href: "/help", Icon: CircleHelp },
 ];
 function AvatarCircle({ name, photo, lg }: { name: string; photo?: string | null; lg?: boolean }) {

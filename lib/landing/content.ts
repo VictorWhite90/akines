@@ -34,7 +34,7 @@ export const hero = {
   imageAlt: 'Friends laughing together outdoors',
   eyebrow: 'A new way to connect',
   headline: 'Find people you can genuinely know,\ntrust and create with.',
-  primary: { label: 'Find my kind of connection', href: LINKS.join },
+  primary: { label: 'Find my kind of connection', href: LINKS.signIn },
   secondary: { label: 'Discover Akines', href: ANCHORS.philosophy },
 };
 
@@ -342,7 +342,7 @@ export const closing = {
   eyebrow: 'Your next chapter starts here',
   headline: 'The people you are looking for\nmay be looking for a connection like yours.',
   body: 'Begin with what matters to you. Discover people, experiences and possibilities worth making room for.',
-  primary: { label: 'Find my kind of connection', href: LINKS.join },
+  primary: { label: 'Find my kind of connection', href: LINKS.signIn },
   secondary: { label: 'Explore Akines', href: ANCHORS.experiences },
 };
 
@@ -381,7 +381,7 @@ export const footer = {
       heading: 'Your account',
       links: [
         { label: 'Sign in', href: LINKS.signIn },
-        { label: 'Join Akines', href: LINKS.join },
+        { label: 'Join Akines', href: LINKS.signIn },
       ],
     },
   ],

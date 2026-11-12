@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, RefreshCw } from "lucide-react";
+import Button from "@/components/kin/Button";
+import { Skeleton } from "@/components/kin/Overlay";
 import { FACE, PHOTO, type PhotoKey } from "@/lib/data/images";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 
@@ -37,4 +39,57 @@ export function FdLink({ href, onClick, children, className }: { href?: string; 
   const cls = ["fd-link", className].filter(Boolean).join(" ");
   const inner = <><span>{children}</span><ArrowRight size={16} strokeWidth={1.5} aria-hidden /></>;
   return href ? <Link href={href} className={cls}>{inner}</Link> : <button type="button" className={cls} onClick={onClick}>{inner}</button>;
+}
+
+/* ---- loading and error (the design's feed/parts.tsx; copy from its content.ts) ---- */
+const FILL = { width: "100%", height: "100%", radius: 0 } as const;
+
+export function SkeletonCards({ n = 3 }: { n?: number }) {
+  return (
+    <div className="fd-row fd-row--sk" aria-hidden>
+      {Array.from({ length: n }, (_, i) => (
+        <div className="fd-sk-card" key={i}>
+          <div className="fd-sk-photo"><Skeleton {...FILL} /></div>
+          <Skeleton width="86%" height={24} radius={2} />
+          <Skeleton width="100%" height={14} radius={2} />
+          <Skeleton width="64%" height={14} radius={2} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SkeletonSection() {
+  return (
+    <div className="fd-section fd-section--sk" aria-hidden>
+      <div className="fd-head">
+        <div className="fd-head__copy">
+          <Skeleton width="min(420px, 80%)" height={32} radius={2} />
+          <Skeleton width="min(560px, 90%)" height={16} radius={2} />
+        </div>
+        <Skeleton width={96} height={16} radius={2} />
+      </div>
+      <SkeletonCards />
+    </div>
+  );
+}
+
+/** Six grey sections. `note` adds the "Getting things ready" line above them (the loading state). */
+export function FeedSkeleton({ note }: { note?: boolean }) {
+  return (
+    <div className="fd-feed__sk" aria-busy="true" aria-label="Loading your feed" role="status">
+      {note ? <p className="fd-note"><RefreshCw size={18} strokeWidth={1.25} absoluteStrokeWidth aria-hidden focusable={false} /><span>Getting things ready</span></p> : null}
+      {Array.from({ length: 6 }, (_, i) => <SkeletonSection key={i} />)}
+    </div>
+  );
+}
+
+export function ErrorPanel({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="fd-error" role="alert">
+      <h3 className="fd-error__title">We could not load this section.</h3>
+      <p className="fd-error__text">Your conversations and projects are safe. Check your connection and try again. The rest of your page is still here.</p>
+      <div><Button variant="secondary" onClick={onRetry}>Try again</Button></div>
+    </div>
+  );
 }

@@ -12,7 +12,9 @@ import { useFirstVisit } from "@/components/collaborate/overview-lists/loading";
 import { LOADING_COUNT, countOf } from "@/components/collaborate/overview-lists/data";
 import { CC, profileHref, pronounOf, receivedOn, useIncomingIntroductions, type IncomingIntroduction } from "@/lib/collab/collaborators";
 import { skillsOf } from "@/lib/collab/team";
-import { workspaceHref } from "@/lib/collab/workspace";
+import { useWorkspace } from "@/lib/collab/workspace";
+import { threadHref, useThreads } from "@/lib/collab/conversations";
+import { StartModal } from "@/components/collaborate/workspace/Conversations";
 import { PEOPLE } from "@/lib/data/people";
 
 /*
@@ -41,6 +43,23 @@ const LINES = {
 };
 /** The toasts of the review addresses stay longer so they can be looked at. */
 const STATE_TOAST_MS = 8000;
+
+/** Start a conversation opens the design's New conversation modal (the one of the Conversations screen); starting it opens the thread in the project's Conversations with its toast. */
+function StartConversation({ projectId, open, onClose }: { projectId: string; open: boolean; onClose: () => void }) {
+  const router = useRouter();
+  const ws = useWorkspace(projectId);
+  const th = useThreads(ws.project);
+  const p = ws.project;
+  const placeholder = `For example, ${(p?.deliverables ?? []).find((d) => d.status !== "approved")?.title ?? p?.tasks[0]?.title ?? "Next steps"}`;
+  return (
+    <StartModal open={open} placeholder={placeholder} onClose={onClose} onStart={(v) => {
+      onClose();
+      const id = th.start(v);
+      router.push(threadHref(projectId, id));
+      toast.show({ message: "Conversation started. Your team has been notified.", actionLabel: "Undo", onAction: () => { th.remove(id); router.push(threadHref(projectId)); } });
+    }} />
+  );
+}
 
 type Variant = "accepted" | "not-now" | "empty" | "loading";
 type Answer = { id: string; status: "accepted" | "notnow" };
@@ -83,6 +102,7 @@ export default function Introductions({ variant }: { variant?: Variant }) {
   // the review addresses answer the first request on screen only; a real answer is kept with its request
   const shown: Answer | null = variant === "accepted" || variant === "not-now" ? (intros.list[0] ? { id: intros.list[0].id, status: variant === "accepted" ? "accepted" : "notnow" } : null) : null;
   const [answered, setAnswered] = useState<Answer | null>(null);
+  const [convo, setConvo] = useState(false);
   const answer = shown ?? answered;
   const answeredReq = answer ? intros.list.find((x) => x.id === answer.id) ?? null : null;
   const waiting = variant ? (variant === "empty" ? [] : intros.waiting.filter((x) => x.id !== shown?.id)) : intros.waiting;
@@ -112,8 +132,7 @@ export default function Introductions({ variant }: { variant?: Variant }) {
           <div className="ol-next">
             {answer.status === "accepted" ? (
               <>
-                {/* the conversation starts in the project's Conversations, as the design's New conversation modal does */}
-                {answeredReq.projectId ? <Button arrow="up-right" href={workspaceHref(answeredReq.projectId, "conversations")}>Start a conversation</Button> : <Button arrow="up-right">Start a conversation</Button>}
+                <Button arrow="up-right" aria-haspopup="dialog" onClick={() => setConvo(true)}>Start a conversation</Button>
                 <DsLink href={profileHref(answeredReq.from)}>View profile</DsLink>
               </>
             ) : (
@@ -129,6 +148,7 @@ export default function Introductions({ variant }: { variant?: Variant }) {
   return (
     <ListPage eyebrow={PAGE.eyebrow} title={PAGE.title} lead={PAGE.lead} tab={PAGE.tab} count={loading ? LOADING_COUNT : countOf(waiting.length, "introduction", "introductions")} busy={loading}>
       {body}
+      {answeredReq?.projectId ? <StartConversation projectId={answeredReq.projectId} open={convo} onClose={() => setConvo(false)} /> : null}
     </ListPage>
   );
 }

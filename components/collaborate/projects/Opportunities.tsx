@@ -28,11 +28,12 @@ function RoleCard({ item }: { item: OpenRole }) {
   );
 }
 
-export default function Opportunities() {
+/** `empty`: the design's Empty frame, at its own address. */
+export default function Opportunities({ variant }: { variant?: "empty" }) {
   const collab = useCollab();
-  const status = pageStatus(collab);
+  const status = variant === "empty" ? "ready" : pageStatus(collab);
   const head = <PageHead eyebrow="Opportunities" title="Where you could help." lead="Open roles on projects that are looking for people. Choose one to read about the project." link={<DsLink href={HREF}>Discover projects</DsLink>} />;
-  const roles = status === "ready" ? openRoles(collab.calls, collab.projects, collab.appFor) : [];
+  const roles = status === "ready" && !variant ? openRoles(collab.calls, collab.projects, collab.appFor) : [];
 
   let body: React.ReactNode;
   if (status === "loading") {

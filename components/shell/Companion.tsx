@@ -163,6 +163,7 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
   const body = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const launcher = useRef<HTMLButtonElement>(null);
+  const noted = useRef(false);
   const auto = useRef(false);
   // The journeys inside the thread: their own steps replace the conversation until the person starts again.
   const project = useProjectChat();
@@ -219,7 +220,7 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
     body.current?.scrollTo({ top: body.current.scrollHeight, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [msgs, mounted]);
 
-  const restart = () => { project.stop(); collab.stop(); setBusy(false); setChosen(0); setDraft(""); setTime(stamp()); setMsgs([{ id: nextId(), role: "assistant", kind: "survey" }]); };
+  const restart = () => { noted.current = false; project.stop(); collab.stop(); setBusy(false); setChosen(0); setDraft(""); setTime(stamp()); setMsgs([{ id: nextId(), role: "assistant", kind: "survey" }]); };
   const pick = (n: number) => {
     if (busy) return;
     setChosen(n);
@@ -244,7 +245,10 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
     setMsgs((m) => [...m, { id: nextId(), role: "user", kind: "text", text: t }, { id: pend, role: "assistant", kind: "text", text: "", pending: true }]);
     window.setTimeout(() => {
       const r = reply(t);
-      setMsgs((m) => m.map((x) => (x.id === pend ? { id: pend, role: "assistant", kind: "text", text: r.text, go: r.go } : x)));
+      // Like the design, the "built-in guide" note shows once per conversation, under the first answer.
+      const note = noted.current ? undefined : "Live answers are not available here, so this is the built-in guide.";
+      noted.current = true;
+      setMsgs((m) => m.map((x) => (x.id === pend ? { id: pend, role: "assistant", kind: "text", text: r.text, go: r.go, note } : x)));
       setBusy(false);
     }, 650);
   };

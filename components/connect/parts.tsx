@@ -10,6 +10,7 @@ import { profilePath } from "@/lib/connect/profiles";
 import { CIRCLES } from "@/lib/data/community";
 import { CardView } from "./cards";
 import type { Card } from "./data";
+import { EmptyCircles, EmptyMatch } from "./States";
 import "@/components/kin/home/home.css";
 import "./discover.css";
 import "./lists.css";
@@ -35,9 +36,17 @@ export function Section({ id, title, support, link, className, children }: { id:
   );
 }
 
-/** The rail of Discover: Community Home's, with the match's photo and name linking to the person's profile. */
-export function DiscoverRail() {
+/** The rail of Discover: Community Home's, with the match's photo and name linking to the person's profile. `empty` is the empty state route. */
+export function DiscoverRail({ empty, onFindCircles }: { empty?: boolean; onFindCircles?: () => void } = {}) {
   const { ids } = useJoined();
+  if (empty) {
+    return (
+      <aside className="dx-rail" aria-label="Your circles and a match">
+        <EmptyCircles onFind={onFindCircles} />
+        <EmptyMatch />
+      </aside>
+    );
+  }
   return <HomeRail circles={CIRCLES.filter((c) => ids.includes(c.id))} className="dx-rail" profileHref={profilePath} />;
 }
 

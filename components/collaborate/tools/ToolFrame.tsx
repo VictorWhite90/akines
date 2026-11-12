@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, CircleAlert, CircleCheck, CloudOff, Eye, FileText, MessageSquare, Palette, PanelLeft, RefreshCw, RotateCcwClock, type LucideIcon } from "lucide-react";
 import Button, { IconButton } from "@/components/kin/Button";
 import { faceSrc } from "@/components/kin/home/parts";
 import { WORKSPACE_PAGES, type useWorkspace } from "@/lib/collab/workspace";
-import { accessOf, editedAt, initialsOf, nameOf, presenceSummary, versionTime, type LivePerson, type Version } from "@/lib/collab/live";
+import { accessOf, editedAt, firstName, initialsOf, nameOf, presenceSummary, versionTime, type LivePerson, type Version } from "@/lib/collab/live";
 import { ME } from "@/lib/collab/me";
 import type { PersonId } from "@/lib/data/people";
 import "../styles/art-workspace.css";
@@ -19,14 +20,28 @@ import "../styles/art-workspace.css";
  */
 
 export type Ws = ReturnType<typeof useWorkspace>;
-/** What the status pill says: saved, saving a change, offline, reconnecting, a save that failed, or a read-only preview. */
-export type ToolState = "saved" | "saving" | "lost" | "reconnecting" | "failed" | "versionHistory";
+/**
+ * What the status pill says: saved, saving a change, a collaborator who dropped out (still saved), offline, reconnecting,
+ * a save that failed, your role allows viewing only, or a read-only preview of an older version.
+ */
+export type ToolState = "saved" | "saving" | "collaboratorOffline" | "lost" | "reconnecting" | "failed" | "viewOnly" | "versionHistory";
+/**
+ * The design's state frames, each with its own route (workspace/state-…): they open the tool already in that state.
+ * commentReply (the document) and commentThread (the canvas) open the first comment thread.
+ */
+export type WorkspaceState = "saving" | "couldNotSave" | "collaboratorOffline" | "connectionLost" | "reconnecting" | "viewOnly" | "versionHistory" | "commentReply" | "commentThread";
+export const STATE_ROUTE: Record<WorkspaceState, string> = {
+  saving: "state-saving", couldNotSave: "state-could-not-save", collaboratorOffline: "state-collaborator-offline", connectionLost: "state-connection-lost",
+  reconnecting: "state-reconnecting", viewOnly: "state-view-only", versionHistory: "state-version-history", commentReply: "state-comment-reply", commentThread: "state-comment-thread",
+};
 const STATUS: Record<ToolState, { tone: "saved" | "saving" | "lost" | "reconnecting" | "failed" | "view"; label: string; icon: LucideIcon }> = {
   saved: { tone: "saved", label: "All changes saved", icon: CircleCheck },
   saving: { tone: "saving", label: "Saving changes", icon: RefreshCw },
+  collaboratorOffline: { tone: "saved", label: "All changes saved", icon: CircleCheck },
   lost: { tone: "lost", label: "Connection lost", icon: CloudOff },
   reconnecting: { tone: "reconnecting", label: "Reconnecting", icon: RefreshCw },
   failed: { tone: "failed", label: "Could not save", icon: CircleAlert },
+  viewOnly: { tone: "view", label: "View only", icon: Eye },
   versionHistory: { tone: "view", label: "View only", icon: Eye },
 };
 
@@ -52,12 +67,24 @@ export function LiveAvatar({ who, state }: { who: PersonId; state: LivePerson["s
  * Saving: a change shows "Saving changes" for a moment, then "All changes saved". Offline shows "Connection lost".
  * A save that fails shows "Could not save" until Try again (`failed` starts the tool in that state).
  */
-export function useToolState(failed = false) {
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(failed);
+export function useToolState(ws: Ws, forced?: WorkspaceState) {
+  const router = useRouter();
+  const [saving, setSaving] = useState(forced === "saving");
+  const [error, setError] = useState(forced === "couldNotSave");
   const [savedAt, setSavedAt] = useState<number | null>(null);
-  const [net, setNet] = useState<"online" | "lost" | "reconnecting">("online");
+  const [net, setNet] = useState<"online" | "lost" | "reconnecting">(forced === "connectionLost" ? "lost" : forced === "reconnecting" ? "reconnecting" : "online");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // The Saving and Reconnecting frames, as in the design: Saving reads "All changes saved" after 1.5 s and returns to the
+  // workspace after 2 s; Reconnecting returns after 3 s. An open save status popover holds them (they start again when it closes).
+  const [hold, setHold] = useState(false);
+  const base = ws.project ? ws.href("workspace") : null;
+  useEffect(() => {
+    if (hold || !base || (forced !== "saving" && forced !== "reconnecting")) return;
+    const timers = forced === "saving"
+      ? [setTimeout(() => { setSaving(false); setSavedAt(Date.now()); }, 1500), setTimeout(() => router.replace(base), 2000)]
+      : [setTimeout(() => router.replace(base), 3000)];
+    return () => timers.forEach(clearTimeout);
+  }, [forced, hold, base, router]);
   useEffect(() => {
     const off = () => setNet("lost");
     const on = () => { setNet("reconnecting"); window.setTimeout(() => setNet("online"), 1500); };
@@ -76,7 +103,13 @@ export function useToolState(failed = false) {
     savedAt,
     /** Show a change being saved. */
     save,
-    retry: () => { setNet("reconnecting"); window.setTimeout(() => setNet(navigator.onLine ? "online" : "lost"), 3000); },
+    /** Try again after the connection was lost (the Connection lost frame goes to the Reconnecting frame). */
+    retry: () => {
+      if (forced === "connectionLost" && base) { router.replace(`${base}/${STATE_ROUTE.reconnecting}`); return; }
+      setNet("reconnecting"); window.setTimeout(() => setNet(navigator.onLine ? "online" : "lost"), 3000);
+    },
+    /** Told when the save status popover opens or closes. */
+    onSaveOpenChange: setHold,
   };
 }
 
@@ -111,7 +144,7 @@ export function Pop({ onClose, label, className, kind, children }: { onClose: ()
 
 /** The save status popover follows the pill: Saved, Saving, Offline, Could not save. Reconnecting and a version preview have none. */
 type SaveKind = "saved" | "saving" | "offline" | "failed";
-const SAVE_KIND_OF: Partial<Record<ToolState, SaveKind>> = { saved: "saved", saving: "saving", lost: "offline", failed: "failed" };
+const SAVE_KIND_OF: Partial<Record<ToolState, SaveKind>> = { saved: "saved", collaboratorOffline: "saved", saving: "saving", lost: "offline", failed: "failed" };
 const SAVE_ICON: Record<SaveKind, LucideIcon> = { saved: CircleCheck, saving: RefreshCw, offline: CloudOff, failed: CircleAlert };
 const SAVE_COPY = {
   saved: { title: "All changes saved", note: "Autosave is on", now: "Save now", history: "Version history" },
@@ -173,16 +206,20 @@ function ProjectMenu({ ws, onClose }: { ws: Ws; onClose: () => void }) {
   );
 }
 
-function PeoplePop({ ws, people, onClose }: { ws: Ws; people: LivePerson[]; onClose: () => void }) {
+/** A person in the top bar and People: live, or offline when they lost connection. */
+type Shown = Omit<LivePerson, "state"> & { state: LivePerson["state"] | "offline" };
+
+function PeoplePop({ ws, people, onClose }: { ws: Ws; people: Shown[]; onClose: () => void }) {
   return (
     <Pop onClose={onClose} label="People and access" className="tw-pop--people">
       <div className="tw-people">
         <header className="tw-people__head">
           <h2 className="tw-people__title">People in this workspace</h2>
-          <p className="tw-people__sub">{presenceSummary(people)}</p>
+          <p className="tw-people__sub">{presenceSummary(people.map((p) => (p.state === "offline" ? { ...p, state: "away" as const } : { ...p, state: p.state })))}</p>
         </header>
         <ul className="tw-people__list">
-          {people.map((p) => {
+          {/* as in the design: you first, then who is here, then who is not */}
+          {[...people].sort((a, b) => Number(b.who === ME) - Number(a.who === ME) || Number(a.state === "away") - Number(b.state === "away")).map((p) => {
             const access = accessOf(p.who, ws.project!.host);
             return (
               <li key={p.who} className="tw-person">
@@ -203,15 +240,18 @@ function PeoplePop({ ws, people, onClose }: { ws: Ws; people: LivePerson[]; onCl
   );
 }
 
-type BannerKind = "reconnecting" | "lost" | "version";
+type BannerKind = "collaborator" | "reconnecting" | "lost" | "view" | "version";
 const BANNER: Record<BannerKind, { tone: "warning" | "error" | "info"; icon: LucideIcon; title: string; detail: string }> = {
+  // the title names the collaborator ("Chidi lost connection")
+  collaborator: { tone: "warning", icon: RefreshCw, title: "", detail: "Their changes so far are saved. They will show up again when they are back online." },
   reconnecting: { tone: "warning", icon: RefreshCw, title: "Reconnecting to the workspace", detail: "Hold on. You can keep working and nothing will be lost." },
   lost: { tone: "error", icon: CloudOff, title: "Connection lost", detail: "Your changes are saved on this device. We will sync them when you are back online." },
+  view: { tone: "info", icon: Eye, title: "You can view and comment, but not edit", detail: "Editing follows your role in this project. The project owner manages access." },
   version: { tone: "info", icon: RotateCcwClock, title: "", detail: "This is a preview. The current version is not changed until you restore." },
 };
 
 /** The banner over the work: offline, reconnecting, or previewing an older version. */
-export function Banner({ kind, title, className, onRetry, onBack, onRestore }: { kind: BannerKind; title?: string; className?: string; onRetry?: () => void; onBack?: () => void; onRestore?: () => void }) {
+export function Banner({ kind, title, className, onRetry, onBack, onRestore, onRequest }: { kind: BannerKind; title?: string; className?: string; onRetry?: () => void; onBack?: () => void; onRestore?: () => void; onRequest?: () => void }) {
   const b = BANNER[kind];
   return (
     <div className={["tw-banner", className].filter(Boolean).join(" ")} data-tone={b.tone} data-kind={kind} role={kind === "lost" ? "alert" : "status"}>
@@ -221,6 +261,7 @@ export function Banner({ kind, title, className, onRetry, onBack, onRestore }: {
         <p className="tw-banner__detail">{b.detail}</p>
       </div>
       {kind === "lost" ? <div className="tw-banner__actions"><Button variant="secondary" size="sm" onClick={onRetry}>Try again</Button></div> : null}
+      {kind === "view" ? <div className="tw-banner__actions"><Button variant="secondary" size="sm" onClick={onRequest}>Request edit access</Button></div> : null}
       {kind === "version" ? (
         <div className="tw-banner__actions">
           <Button variant="ghost" size="sm" onClick={onBack}>Back to current</Button>
@@ -230,7 +271,10 @@ export function Banner({ kind, title, className, onRetry, onBack, onRestore }: {
     </div>
   );
 }
-export const bannerFor = (state: ToolState): BannerKind | null => (state === "lost" ? "lost" : state === "reconnecting" ? "reconnecting" : state === "versionHistory" ? "version" : null);
+const BANNER_OF: Partial<Record<ToolState, BannerKind>> = { collaboratorOffline: "collaborator", lost: "lost", reconnecting: "reconnecting", viewOnly: "view", versionHistory: "version" };
+export const bannerFor = (state: ToolState): BannerKind | null => BANNER_OF[state] ?? null;
+/** "Chidi lost connection" */
+export const lostTitle = (who: PersonId) => `${firstName(who)} lost connection`;
 /** "Viewing the version from yesterday, 16:20" */
 export const viewingTitle = (v: Version) => { const t = versionTime(v.at); return `Viewing the version from ${t.charAt(0).toLowerCase()}${t.slice(1)}`; };
 
@@ -263,18 +307,25 @@ export function VersionList({ versions, selected, onSelect }: { versions: Versio
 }
 
 /** The full-screen tool: top bar and popovers around the tool's body. */
-export function ToolFrame({ ws, kind, state, title, people, history, onHistory, comments, onComments, save, saveOpen: initialSave, children, overlays }: {
+export function ToolFrame({ ws, kind, state, title, people: present, offline, history, onHistory, comments, onComments, save, saveOpen: initialSave, onSaveOpenChange, children, overlays }: {
   ws: Ws; kind: "art" | "research"; state: ToolState; title: string; people: LivePerson[];
   /** Version history is open. */ history: boolean; onHistory: () => void;
   /** The comments control: pressed when the comments are showing. */ comments: boolean; onComments: () => void;
   /** The save status popover's controls (without it the pill has no popover). */ save?: SaveInfo;
   /** The save status popover is open when the tool opens (the Could not save state). */ saveOpen?: boolean;
+  /** Told when the save status popover opens or closes. */ onSaveOpenChange?: (open: boolean) => void;
+  /** A collaborator who lost connection: their avatar shows offline. */ offline?: PersonId;
   children: React.ReactNode; overlays?: React.ReactNode;
 }) {
   const [menu, setMenu] = useState(false);
   const [who, setWho] = useState(false);
   const [saveOpen, setSaveOpen] = useState(Boolean(initialSave));
   const saveKind = save ? SAVE_KIND_OF[state] : undefined;
+  const saveShown = saveOpen && saveKind !== undefined;
+  const told = useRef(onSaveOpenChange);
+  useEffect(() => { told.current = onSaveOpenChange; });
+  useEffect(() => { told.current?.(saveShown); }, [saveShown]);
+  const people: Shown[] = offline ? present.map((p) => (p.who === offline ? { ...p, state: "offline" as const } : p)) : present;
   const shown = people.filter((p) => p.state !== "away");
   const avatars = shown.slice(0, 3);
   const more = people.length - avatars.length;
@@ -292,13 +343,13 @@ export function ToolFrame({ ws, kind, state, title, people, history, onHistory, 
           <h1 className="tw-title__text">{title}</h1>
           {save && saveKind ? (
             <span className="tw-statuswrap">
-              <Status state={state} onToggle={() => setSaveOpen((o) => !o)} expanded={saveOpen} />
-              {saveOpen ? <SavePop kind={saveKind} info={save} onClose={() => setSaveOpen(false)} /> : null}
+              <Status state={state} onToggle={() => setSaveOpen((o) => !o)} expanded={saveShown} />
+              {saveShown ? <SavePop kind={saveKind} info={save} onClose={() => setSaveOpen(false)} /> : null}
             </span>
           ) : <Status state={state} />}
         </div>
         <div className="tw-actions">
-          <button type="button" className="tw-presence" onClick={() => setWho((o) => !o)} aria-haspopup="dialog" aria-expanded={who} aria-label={`People in this workspace, ${shown.length} here now`}>
+          <button type="button" className="tw-presence" onClick={() => setWho((o) => !o)} aria-haspopup="dialog" aria-expanded={who} aria-label={`People in this workspace, ${shown.filter((p) => p.state !== "offline").length} here now`}>
             {avatars.map((p) => <LiveAvatar key={p.who} who={p.who} state={p.state} />)}
             {more > 0 ? <span className="tw-presence__more">+{more}</span> : null}
           </button>

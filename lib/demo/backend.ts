@@ -682,7 +682,8 @@ export async function demoCall<T>(method: string, url: string, body?: unknown): 
   const [rawPath, query = ""] = url.replace(/^\/api\/v1\//, "").split("?");
   const path = rawPath.replace(/\/+$/, "");
   const q = new URLSearchParams(query);
-  const gate = signedInOnly();
+  // Join checks a username before the account exists, so that one question is open to visitors.
+  const gate = path === "profile/username-available" ? null : signedInOnly();
   if (gate) return gate as ApiResult<T>;
   for (const [m, re, h] of routes) {
     const match = m === method ? path.match(re) : null;

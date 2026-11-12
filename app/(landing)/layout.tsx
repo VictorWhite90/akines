@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import "@/components/kin/akines/fonts.css";
+// The landing tokens first: the kit tokens after them set the app's Surface/Subtle (#f9f9f9) over the landing's, as their app-tokens.css does.
+import "./styles/tokens.css";
 import "@/components/kin/akines/tokens.css";
 import "@/components/kin/akines/library.css";
-import "./styles/tokens.css";
 import "./styles/base.css";
 import "./styles/header.css";
 import "./styles/hero.css";

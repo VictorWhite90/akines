@@ -162,10 +162,6 @@
   margin-top: auto;
   padding: 24px 24px 40px;
 }
-.menu__action {
-  width: 100%;
-  min-height: 48px;
-}
 
 @keyframes menu-fade {
   from {

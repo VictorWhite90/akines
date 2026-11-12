@@ -78,8 +78,8 @@ export default function LoginScreen({ signedOut = false, sessionEnded = false }:
 
   // Focus the close button first, keep focus inside the panel, Escape closes.
   useEffect(() => {
-    // Focus moves into the dialog without drawing a focus ring on Close (the design shows none).
-    panelRef.current?.focus({ preventScroll: true });
+    // Focus moves to Close, as the design's live panel and the menu do.
+    closeBtn.current?.focus({ preventScroll: true });
     const key = (e: KeyboardEvent) => {
       if (e.key === "Escape") { e.preventDefault(); close(); return; }
       if (e.key !== "Tab" || !root.current) return;

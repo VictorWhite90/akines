@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useId } from "react";
+import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { Chip } from "@/components/kin/Chip";
 import { Modal } from "@/components/kin/Overlay";
 import { useCollab } from "@/lib/collab/useCollab";
 import { discoverProject, FILTER_GROUPS, filterLabels, hasFilters, matchesFilters, noFilters, PROJECT_TYPES, searchScore, suggestedFilters, type Filters } from "@/lib/collab/projects";
+import { useFirstVisit } from "@/components/collaborate/overview-lists/loading";
 import { DsLink, PageHead, PageState, ProjectCard, SkeletonCard, pageStatus } from "./parts";
 
 /*
@@ -21,12 +23,16 @@ const START: View = { query: "", type: "", filters: noFilters(), touched: false 
 let kept: View = START;
 const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
-export default function Discover() {
+export default function Discover({ variant }: { variant?: "loading" | "empty" }) {
   const collab = useCollab();
+  const router = useRouter();
+  // The design's Loading frame: the first visit of a session (and the state-loading route, which then goes on to the page).
+  const first = useFirstVisit("discover", { stateRoute: variant === "loading", skip: !!variant, onDone: () => router.replace("/collaborate/discover") });
   const [view, setViewState] = useState<View>(() => kept);
   const setView = (fn: (v: View) => View) => setViewState((v) => (kept = fn(v)));
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const status = pageStatus(collab);
+  const real = pageStatus(collab);
+  const status = first ? "loading" : variant === "empty" ? "ready" : real;
   const { query, type, filters } = view;
 
   const all = useMemo(() => collab.calls.filter((c) => !c.postedByMe).map((c) => discoverProject(c, collab.projects)), [collab.calls, collab.projects]);
@@ -48,7 +54,7 @@ export default function Discover() {
       </div></div>
     );
   }
-  if (status === "ready" && all.length === 0) {
+  if (variant === "empty" || (status === "ready" && all.length === 0)) {
     return (
       <div className="dsc-page"><div className="dsc-stack">{head}
         <PageState headline="No projects are open to collaborators yet." support="When a member starts a project and looks for people, it appears here. You could be the first.">

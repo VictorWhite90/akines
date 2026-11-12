@@ -20,7 +20,7 @@ import { useLocal } from "@/lib/useLocal";
 import FeedPosts from "./FeedPosts";
 import HomeHero from "./HomeHero";
 import HomeRail from "./HomeRail";
-import { FdAvatar, FdFaces, FdLink, FdPhoto, photoSrc } from "./parts";
+import { ErrorPanel, FdAvatar, FdFaces, FdLink, FdPhoto, FeedSkeleton, SkeletonCards, photoSrc } from "./parts";
 import "./home.css";
 
 /*
@@ -179,7 +179,15 @@ function SectionBody({ name }: { name: SectionName }) {
   }
 }
 
-function Section({ name, isFirst }: { name: SectionName; isFirst: boolean }) {
+/** `failing` starts the section in its error state (the error state link); "Try again" shows the skeleton for a moment, then the section. */
+function Section({ name, isFirst, failing }: { name: SectionName; isFirst: boolean; failing?: boolean }) {
+  const [phase, setPhase] = useState<"error" | "loading" | "live">(failing ? "error" : "live");
+  useEffect(() => {
+    if (phase !== "loading") return;
+    const t = window.setTimeout(() => setPhase("live"), 900);
+    return () => window.clearTimeout(t);
+  }, [phase]);
+  // The wellbeing band has no error or retry variant in the design.
   if (name === "wellbeing") return <Wellbeing id={isFirst ? FIRST : undefined} />;
   const h = HEAD[name], id = `fd-title-${name}`;
   return (
@@ -191,43 +199,63 @@ function Section({ name, isFirst }: { name: SectionName; isFirst: boolean }) {
         </div>
         {h.link ? <FdLink href={h.link.href}>{h.link.label}</FdLink> : null}
       </header>
-      <SectionBody name={name} />
+      {phase === "error" ? <ErrorPanel onRetry={() => setPhase("loading")} /> : phase === "loading" ? <SkeletonCards /> : <SectionBody name={name} />}
     </section>
   );
 }
 
-/** One of the four feed versions, a different one from last visit. */
+type FeedState = "loading" | "error" | "empty";
+const STATES: Record<string, FeedState> = { "state-loading": "loading", "state-error": "error", "state-empty": "empty" };
+
+/**
+ * One of the four feed versions, a different one from last visit. Like the design's review links, ?feed=a|b|c|d shows one
+ * version and ?feed=state-loading|state-error|state-empty one state (on version A); neither touches the rotation.
+ */
 function useVersion() {
-  const [v, setV] = useState<keyof typeof VERSIONS | null>(null);
+  const [view, setView] = useState<{ v: keyof typeof VERSIONS; state?: FeedState } | null>(null);
   const picked = useRef(false);
   useEffect(() => {
     if (picked.current) return;
     picked.current = true;
-    let last: string | null = null;
-    try { last = localStorage.getItem(VERSION_KEY); } catch {}
-    const asked = new URLSearchParams(window.location.search).get("feed");
-    const options = (Object.keys(VERSIONS) as (keyof typeof VERSIONS)[]).filter((k) => k !== last);
-    // ?feed=a|b|c|d shows one version on purpose, as the design's review links do.
-    const next = asked && asked in VERSIONS ? (asked as keyof typeof VERSIONS) : options[Math.floor(Math.random() * options.length)];
-    try { localStorage.setItem(VERSION_KEY, next); } catch {}
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the version is chosen in the browser, once
-    setV(next);
+    const asked = new URLSearchParams(window.location.search).get("feed") ?? "";
+    let next: { v: keyof typeof VERSIONS; state?: FeedState };
+    if (asked in VERSIONS) next = { v: asked as keyof typeof VERSIONS };
+    else if (asked in STATES) next = { v: "a", state: STATES[asked] };
+    else {
+      let last: string | null = null;
+      try { last = localStorage.getItem(VERSION_KEY); } catch {}
+      const options = (Object.keys(VERSIONS) as (keyof typeof VERSIONS)[]).filter((k) => k !== last);
+      next = { v: options[Math.floor(Math.random() * options.length)] };
+      try { localStorage.setItem(VERSION_KEY, next.v); } catch {}
+    }
+    setView(next);
   }, []);
-  return v;
+  return view;
 }
 
+/** The loading state shows the skeletons this long, then the live feed (the design's LOADING_MS). */
+const LOADING_MS = 1500;
+
 export default function Home() {
-  const v = useVersion();
+  const view = useVersion();
+  const v = view?.v ?? null, state = view?.state;
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    if (state !== "loading") return;
+    const t = window.setTimeout(() => setSettled(true), LOADING_MS);
+    return () => window.clearTimeout(t);
+  }, [state]);
   const { ids } = useJoined();
   const joined = CIRCLES.filter((c) => ids.includes(c.id));
   const sections = v ? VERSIONS[v] : null;
+  const ready = sections && (state !== "loading" || settled);
   return (
-    <div className="fd-page" data-feed-version={v ?? undefined}>
+    <div className="fd-page" data-feed-version={v ?? undefined} data-feed-state={state}>
       <HomeHero />
       <div className="fd-layout">
-        <HomeRail circles={joined} />
+        <HomeRail circles={joined} empty={state === "empty"} />
         <div className="fd-feed">
-          {sections ? sections.map((s, i) => <Section key={s} name={s} isFirst={i === 0} />) : <div className="fd-feed__sk" aria-busy="true" aria-label="Loading your feed" role="status" />}
+          {ready ? sections.map((s, i) => <Section key={s} name={s} isFirst={i === 0} failing={state === "error" && s === "banter"} />) : <FeedSkeleton note={state === "loading"} />}
         </div>
       </div>
     </div>

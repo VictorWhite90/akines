@@ -5,6 +5,7 @@ import { nav } from '@/lib/landing/content';
 import { Logo } from './Logo';
 import { MenuIcon } from './Icon';
 import { Menu } from './Menu';
+import Button from '@/components/kin/Button';
 
 /** Scroll distance from the bottom of the hero at which the header turns solid. */
 const SOLID_OFFSET = 80;
@@ -96,14 +97,17 @@ export function Header() {
             <button
               ref={menuButton}
               type="button"
-              className="icon-btn"
+              className="k-iconbtn k-iconbtn--md k-btn--ghost k-btn--live site-header__menu"
               aria-label="Open menu"
               aria-haspopup="dialog"
               aria-expanded={open}
               aria-controls="site-menu"
               onClick={() => setOpen(true)}
             >
-              <MenuIcon className="icon-btn__glyph" />
+              <span className="k-iconbtn__fx" aria-hidden="true" />
+              <span className="k-iconbtn__glyph" aria-hidden="true">
+                <MenuIcon />
+              </span>
             </button>
           </div>
 
@@ -115,9 +119,9 @@ export function Header() {
             <a className="site-header__signin" href={nav.signIn.href}>
               {nav.signIn.label}
             </a>
-            <a className="btn btn--header" href={nav.join.href}>
-              <span>{nav.join.label}</span>
-            </a>
+            <Button href={nav.join.href} variant="secondary" fluid className="site-header__cta">
+              {nav.join.label}
+            </Button>
           </nav>
         </div>
       </header>

@@ -76,6 +76,8 @@ export type IncomingIntroduction = { id: string; from: PersonId; projectId: stri
 // ── Copy helpers ──
 
 const P = { she: { subj: "she", obj: "her", poss: "her" }, he: { subj: "he", obj: "him", poss: "his" }, they: { subj: "they", obj: "them", poss: "their" } } as const;
+/** "she does" / "they do": the pronoun with its verb, so sentences read as the design's and stay right for "they". */
+const acts = (pronoun: Pronoun, singular: string, plural: string) => `${P[pronoun].subj} ${pronoun === "they" ? plural : singular}`;
 /** Pronouns of people we write sentences about who are not among the recommendations (the seeded introductions). */
 const PRONOUNS: Partial<Record<PersonId, Pronoun>> = { leila: "she", wanjiru: "she", nandi: "she" };
 export const pronounOf = (id: PersonId): Pronoun => (DEMO ? SAMPLE.find((c) => c.id === id)?.pronoun ?? PRONOUNS[id] : matchingSnapshot().people[id]?.pronoun) ?? "they";
@@ -91,7 +93,7 @@ export function wordsFor(c: Collaborator) {
     requestNotice: `${f} will see your message and your public profile, then decide whether to connect. Neither of you is added to a project automatically.`,
     confirm: `${cap(subj)} will see your message and your public profile, then decide whether to connect. Nothing is sent until you confirm.`,
     sentSupport: `${f} can now review your message and decide whether ${subj}’d like to connect.`,
-    sentNote: `${f} hasn’t responded yet. You’ll see ${poss} decision here when ${f} does.`,
+    sentNote: `${f} hasn’t responded yet. You’ll see ${poss} decision here when ${acts(c.pronoun, "does", "do")}.`,
     privacyNote: `Explanations use only what ${f} has chosen to share. This is a reason to explore, not a promise of compatibility.`,
     notRelevant: `Your answer is optional and ${f} won’t be notified.`,
     askUser: `Why is ${f} recommended for this project?`,
@@ -104,7 +106,7 @@ export function wordsFor(c: Collaborator) {
     visible: [
       { label: "Availability", text: `${f} agreed to share ${poss} availability for collaboration matching.` },
       { label: "Skills", text: `${cap(poss)} skills are part of ${poss} public profile.` },
-      { label: "Working preferences", text: `${f} shared these for this match so you can see how ${f} likes to collaborate.` },
+      { label: "Working preferences", text: `${f} shared these for this match so you can see how ${acts(c.pronoun, "likes", "like")} to collaborate.` },
     ],
   };
 }
@@ -549,7 +551,7 @@ export type RequestPage = { stage: IntroStatus; sent: string; headline: string; 
  * recorded date (only on those review addresses) reads as today.
  */
 export function requestPage(intro: Introduction, stage: IntroStatus = intro.status): RequestPage {
-  const f = firstName(intro.to), { poss } = P[pronounOf(intro.to)];
+  const pronoun = pronounOf(intro.to), f = firstName(intro.to), { poss } = P[pronoun];
   const replied = intro.answeredAt ?? Date.now();
   if (stage === "accepted") {
     const seen = intro.seenAt ?? replied;
@@ -577,13 +579,13 @@ export function requestPage(intro: Introduction, stage: IntroStatus = intro.stat
   }
   return {
     stage, sent: sentOn(intro.sentAt),
-    headline: `Waiting for ${f}.`, support: `${f} has not replied yet. You will see ${poss} decision here when ${f} does.`,
+    headline: `Waiting for ${f}.`, support: `${f} has not replied yet. You will see ${poss} decision here when ${acts(pronoun, "does", "do")}.`,
     steps: [
       { title: "Sent", note: shortDay(intro.sentAt), state: "done" },
       intro.seenAt ? { title: "Seen", note: shortDay(intro.seenAt), state: "done" } : { title: "Seen", note: `You will see when ${f} has opened it`, state: "upcoming" },
       { title: "Reply", note: `${f} decides whether to connect`, state: "upcoming" },
     ],
-    notice: { title: `Nothing more is shared until ${f} agrees.`, text: `${f} can see your note and your public profile. Neither of you is added to a project automatically. You can withdraw this request before ${f} replies.` },
+    notice: { title: `Nothing more is shared until ${f} agrees.`, text: `${f} can see your note and your public profile. Neither of you is added to a project automatically. You can withdraw this request before ${acts(pronoun, "replies", "reply")}.` },
   };
 }
 

@@ -74,14 +74,22 @@ const PeoplePanel = forwardRef<HTMLElement, { roster: { person: CastPerson; name
   );
 });
 
-export default function MeetingCall({ projectId }: { projectId: string }) {
+/**
+ * `simulate` and `initial` open the call already in a state (the design's state frames, each with its own route:
+ * meet/state-screen-sharing, state-people, state-chat): no devices are asked for, your photo stands in for your camera,
+ * and presenting shows the design's shared screen until you stop.
+ */
+export type CallInitial = { panel?: "people" | "chat"; presenting?: boolean };
+
+export default function MeetingCall({ projectId, simulate = false, initial = {} }: { projectId: string; simulate?: boolean; initial?: CallInitial }) {
   const cast = useCast(projectId);
   const router = useRouter();
   const m = useMedia();
-  const self: Self = useSelf();
+  const self: Self = useSelf(simulate);
   useMeetingScreen();
-  const [panel, setPanel] = useState<"people" | "chat" | null>(null);
-  const presenting = !!m.screen;
+  const [panel, setPanel] = useState<"people" | "chat" | null>(initial.panel ?? null);
+  const [placeholder, setPlaceholder] = useState(Boolean(initial.presenting));
+  const presenting = !!m.screen || placeholder;
   const [speaker, setSpeaker] = useState(0);
   const now = useClock();
   const [chat, setChat] = useState<ChatMsg[] | null>(null);
@@ -94,7 +102,7 @@ export default function MeetingCall({ projectId }: { projectId: string }) {
   const ready = !!cast.project;
   // Joining the call starts the session if it was only planned, or records you as in it if it's already on.
   useEffect(() => { if (!ready) return; if (session.status === "ongoing") join(); else startNow(); }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { media.markJoined(); media.clearScreenNote(); void media.request(); }, []);
+  useEffect(() => { media.markJoined(); media.clearScreenNote(); if (!simulate) void media.request(); }, [simulate]);
   useEffect(() => {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     const t = window.setInterval(() => setSpeaker((s) => (s + 1) % 2), SPEAKER_EVERY);
@@ -119,7 +127,8 @@ export default function MeetingCall({ projectId }: { projectId: string }) {
   const joinedAt = m.joinedAt ?? now;
   const messages: ChatMsg[] = chat ?? cast.chat.map((c, i) => ({ id: `seed-${i}`, name: cast.others.find((o) => o.id === c.who)?.name ?? "", time: meetingClock(new Date(joinedAt - (cast.chat.length - 1 - i) * 2 * 60000)), text: c.text })).filter((c) => c.name);
   const toggle = (p: "people" | "chat") => { opened.current = true; setPanel((cur) => (cur === p ? null : p)); };
-  const present = async () => { if (presenting) { media.stopPresenting(); return; } await media.present(); };
+  const stopPresenting = () => { media.stopPresenting(); setPlaceholder(false); };
+  const present = async () => { if (presenting) { stopPresenting(); return; } await media.present(); };
   const leave = () => { cast.next.end(); media.leave(projectId); router.push(`/collaborate/my-projects/${projectId}/meet/ended`); };
   const send = (text: string) => setChat([...messages, { id: `m${messages.length + 1}-${Date.now()}`, name: cast.youName, time: meetingClock(), text }]);
 
@@ -137,11 +146,12 @@ export default function MeetingCall({ projectId }: { projectId: string }) {
           {presenting ? (
             <>
               <div className="mc-share">
-                <Video stream={m.screen} contain />
+                {/* eslint-disable-next-line @next/next/no-img-element -- the design's shared screen */}
+                {m.screen ? <Video stream={m.screen} contain /> : <img className="mc-share__img" src="/kin/collaborate/shared-screen.jpg" alt="Your shared screen" draggable={false} />}
                 <div className="mc-pill" role="status">
                   <span className="mc-pill__dot" aria-hidden="true" />
                   <span className="mc-pill__text">You are presenting to everyone</span>
-                  <Button variant="danger" size="sm" onClick={() => media.stopPresenting()}>Stop presenting</Button>
+                  <Button variant="danger" size="sm" onClick={stopPresenting}>Stop presenting</Button>
                 </div>
               </div>
               <div className="mc-side">{tiles}</div>

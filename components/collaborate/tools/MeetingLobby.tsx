@@ -11,14 +11,15 @@ import { MeetingMissing } from "./MeetingEnded";
  * The meeting lobby, mirrored from the product design (meeting.css, mc-lobby): your preview with the microphone
  * and camera controls, the meeting's name, time and who is already in, and Join now or Present.
  * It asks for the camera and microphone on arrival; without them your photo shows and a note asks you to allow them.
+ * The Camera off frame has its own route (meet/state-camera-off).
  */
-export default function MeetingLobby({ projectId }: { projectId: string }) {
+export default function MeetingLobby({ projectId, cameraOff = false }: { projectId: string; /** The Camera off frame (meet/state-camera-off): no devices are asked for, the camera starts off. */ cameraOff?: boolean }) {
   const cast = useCast(projectId);
   const router = useRouter();
   const m = useMedia();
-  const self = useSelf();
+  const self = useSelf(cameraOff, !cameraOff);
   useMeetingScreen();
-  useEffect(() => { media.clearScreenNote(); void media.request(); }, []);
+  useEffect(() => { media.clearScreenNote(); if (!cameraOff) void media.request(); }, [cameraOff]);
   useEffect(() => {
     if (!m.screenNote) return;
     const t = window.setTimeout(() => media.clearScreenNote(), 6000);
@@ -27,7 +28,7 @@ export default function MeetingLobby({ projectId }: { projectId: string }) {
 
   if (!cast.project) return <MeetingMissing ready={cast.ws.ready} />;
   const call = `/collaborate/my-projects/${projectId}/meet/call`;
-  const present = async () => { if (await media.present()) router.push(call); };
+  const present = async () => { if (await media.present()) router.push(`/collaborate/my-projects/${projectId}/meet/state-screen-sharing`); };
   const { meeting } = cast;
   return (
     <div className="mc-page">

@@ -68,15 +68,26 @@ export function useMeetingScreen() {
   useEffect(() => { media.screenShown(); return () => media.screenGone(); }, []);
 }
 
-/** Your own tile's state: your live camera, or your photo with the microphone state, and a note if a device is blocked. */
-export function useSelf() {
+/**
+ * Your own tile's state: your live camera, or your photo with the microphone state, and a note if a device is blocked.
+ * `simulate` (the state frames reached by their own address, which ask for no devices): your photo stands in for the
+ * camera and the buttons only change the look; `initialCamOn` false opens with the camera off (the Camera off frame).
+ */
+export function useSelf(simulate = false, initialCamOn = true) {
   const m = useMedia();
-  const view: "live" | "off" = m.hasCam && m.camOn && m.stream ? "live" : "off";
-  const micMuted = !m.hasMic || !m.micOn;
+  const [simMic, setSimMic] = useState(true);
+  const [simCam, setSimCam] = useState(initialCamOn);
+  const sim = simulate && m.phase !== "ready";
+  const view: "live" | "photo" | "off" = m.hasCam && m.camOn && m.stream ? "live" : sim && simCam ? "photo" : "off";
+  const micMuted = sim ? !simMic : !m.hasMic || !m.micOn;
   const camMissing = m.camOn && !m.hasCam, micMissing = !m.hasMic;
   let note: string | null = null;
-  if (m.phase !== "idle" && m.phase !== "requesting") note = camMissing && micMissing ? "Allow camera and microphone to use them here." : camMissing ? "Allow the camera to use it here." : micMissing ? "Allow the microphone to use it here." : null;
-  return { view, stream: m.stream, micMuted, camOff: view === "off", note, toggleMic: media.toggleMic, toggleCam: media.toggleCam };
+  if (!sim && m.phase !== "idle" && m.phase !== "requesting") note = camMissing && micMissing ? "Allow camera and microphone to use them here." : camMissing ? "Allow the camera to use it here." : micMissing ? "Allow the microphone to use it here." : null;
+  return {
+    view, stream: m.stream, micMuted, camOff: view === "off", note,
+    toggleMic: () => (sim ? setSimMic((v) => !v) : media.toggleMic()),
+    toggleCam: () => (sim ? setSimCam((v) => !v) : media.toggleCam()),
+  };
 }
 export type Self = ReturnType<typeof useSelf>;
 
@@ -122,6 +133,7 @@ export function SelfTile({ self, person, name, badge }: { self: Self; person: Ca
   return (
     <div className={`mc-tile${self.view === "off" ? " mc-tile--avatar" : ""}`}>
       {self.view === "live" && self.stream ? <Video stream={self.stream} mirror /> : null}
+      {self.view === "photo" ? <Feed src={person.photo} /> : null}
       {self.view === "off" ? <span className="mc-tile__avatar" aria-hidden="true"><Feed src={person.photo} className="mc-tile__avatar-img" /></span> : <span className="mc-tile__shade" aria-hidden="true" />}
       {badge && self.micMuted ? <span className="mc-tile__badge" role="img" aria-label="Your microphone is off"><MicOffIcon size={16} /></span> : null}
       {self.note ? <p className="mc-tile__note" role="status">{self.note}</p> : null}

@@ -16,6 +16,7 @@ import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
  */
 
 const TIMES = ["Today, 6:30 PM", "Tomorrow, 12:30 PM", "Another time"];
+export const TIMES_NOW = ["Right now", "Today, 5:00 PM", "Tomorrow, 10:00 AM"];
 const PRIVACY = "They will see your invitation and choose whether to join. Nothing starts until they accept.";
 
 export type Plan = {
@@ -23,6 +24,10 @@ export type Plan = {
   title: string;
   lead: string;
   people: PersonId[];
+  /** The line beside the faces (the design's peopleText, e.g. "Suggested: Folake"); their names when omitted. */
+  peopleText?: string;
+  /** The time choices (the design's T_EVE when omitted; T_NOW for a Quick Catch-up). */
+  times?: string[];
   /** The conversation the invitation goes to (a project's), or the person's direct chat when omitted. */
   convo?: string;
   note: string;
@@ -44,7 +49,7 @@ export default function PlanCall({ plan, open, onClose }: { plan: Plan; open: bo
   const [sent, setSent] = useState(false);
   const close = () => { onClose(); setTimeout(() => { setSent(false); setSlot(0); setNote(plan.note); }, 300); };
   const invite = () => {
-    const msg = { from: ME.id as PersonId, kind: "invite" as const, invite: "meetup" as const, title: plan.title.replace(/^Arrange a /, ""), detail: [TIMES[slot], note.trim()].filter(Boolean).join(" · "), href: plan.href };
+    const msg = { from: ME.id as PersonId, kind: "invite" as const, invite: "meetup" as const, title: plan.title.replace(/^Arrange a /, ""), detail: [(plan.times ?? TIMES)[slot], note.trim()].filter(Boolean).join(" · "), href: plan.href };
     // A project that has no conversation yet: the invitation goes to the first person's direct chat instead.
     if (!(plan.convo && send(plan.convo, msg))) send(plan.people[0], msg);
     setSent(true);
@@ -78,12 +83,12 @@ export default function PlanCall({ plan, open, onClose }: { plan: Plan; open: bo
               </span>
             ))}
           </span>
-          <span className="ch-ppl__text">{names(plan.people)}</span>
+          <span className="ch-ppl__text">{plan.peopleText ?? names(plan.people)}</span>
         </div>
         <div className="ch-ov__field">
           <p className="ch-ov__label">Choose a time</p>
           <div className="ch-chips" role="group" aria-label="Choose a time">
-            {TIMES.map((t, i) => <Chip key={t} variant="choice" selected={slot === i} onClick={() => setSlot(i)}>{t}</Chip>)}
+            {(plan.times ?? TIMES).map((t, i) => <Chip key={t} variant="choice" selected={slot === i} onClick={() => setSlot(i)}>{t}</Chip>)}
           </div>
         </div>
         <textarea className="ch-note" aria-label="Add a short note" placeholder={plan.placeholder ?? "Add a short note (optional)"} rows={2} value={note} onChange={(e) => setNote(e.target.value)} />

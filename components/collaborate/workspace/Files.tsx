@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { FileText, Image as ImageIcon, Layers, Link2, NotebookText, Search, Shapes, Upload, X } from "lucide-react";
+import { ArrowUp, FileText, Image as ImageIcon, Layers, Link2, NotebookText, Search, Shapes, X } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { Field, Input } from "@/components/kin/Field";
 import { Empty, Modal } from "@/components/kin/Overlay";
@@ -10,7 +10,7 @@ import { toast } from "@/components/kin/Toast";
 import { fileSize } from "@/lib/collab/proof";
 import { workHref } from "@/lib/collab/conversations";
 import { FILE_CATEGORIES, fileMeta, initialsOf, useFiles, type FileCategory, type FileIcon, type FileLink, type ProjectFile } from "@/lib/collab/files";
-import { useWorkspace } from "@/lib/collab/workspace";
+import { milestonesOf, useWorkspace } from "@/lib/collab/workspace";
 import type { Deliverable, Project } from "@/lib/collab/types";
 import { PageHead, WorkspaceFrame } from "./Frame";
 import { CwLink, IconCheck } from "./parts";
@@ -70,7 +70,7 @@ function FileRow({ f, href }: { f: ProjectFile; href: string }) {
 
 /** What the team is working on now, to suggest the work and milestone a new file supports. */
 const openWork = (p: Project) => (p.deliverables ?? []).find((d) => d.status !== "approved")?.title ?? p.tasks.find((t) => t.status !== "done")?.title ?? "";
-const openMilestone = (p: Project) => p.milestones.find((m) => !m.done)?.title ?? "";
+const openMilestone = (p: Project) => milestonesOf(p).find((m) => !m.done)?.title ?? "";
 const categoryOf = (name: string): FileCategory => {
   const e = name.split(".").pop()?.toLowerCase() ?? "";
   if (["png", "jpg", "jpeg", "webp", "gif"].includes(e)) return "Images";
@@ -102,7 +102,7 @@ function DropZone({ file, onFile }: { file: File | null; onFile: (f: File | null
   return (
     <>
       <button type="button" className="fl-drop" onClick={() => input.current?.click()} onDragOver={over} onDrop={drop}>
-        <span className="fl-drop__icon" aria-hidden><Upload size={20} strokeWidth={1.5} focusable={false} /></span>
+        <span className="fl-drop__icon" aria-hidden><ArrowUp size={20} strokeWidth={1.5} focusable={false} /></span>
         <span className="fl-drop__title">Choose a file</span>
         <span className="fl-drop__copy">or drag it here. PDF, Word, images, design files and presentations.</span>
       </button>

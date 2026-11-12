@@ -39,9 +39,11 @@ function pick(list: Applicant[], order: ReviewStatus[]) {
 export function frameOverrides(list: Applicant[], variant?: string): Record<string, Partial<Applicant>> {
   const today = weekdayDate(Date.now());
   if (variant === "offer-sent") { const a = pick(list, ["Talk booked", "Shortlisted", "New"]); return a ? { [a.id]: { status: "Offer sent", offerSent: a.offerSent ?? today } } : {}; }
-  if (variant === "joined") { const a = pick(list, ["Offer sent", "Talk booked", "New"]); return a ? { [a.id]: { status: "Joined", joined: a.joined ?? today } } : {}; }
+  // the design's Joined frame keeps the talk booked and makes the last new applicant the one who joined
+  if (variant === "joined") { const a = [...list].reverse().find((x) => x.status === "New") ?? pick(list, ["Offer sent", "Talk booked"]); return a ? { [a.id]: { status: "Joined", joined: a.joined ?? today } } : {}; }
   if (variant === "not-now") { const a = pick(list, ["New", "Shortlisted", "Talk booked"]); return a ? { [a.id]: { status: "Not now" } } : {}; }
-  if (variant === "ready") return Object.fromEntries(list.filter((a) => a.status === "New").slice(0, 2).map((a) => [a.id, { status: "Shortlisted" as ReviewStatus }]));
+  // Closed is where Close call ends after shortlisting, so it shows the Ready frame's shortlist too
+  if (variant === "ready" || variant === "closed") return Object.fromEntries(list.filter((a) => a.status === "New").slice(0, 2).map((a) => [a.id, { status: "Shortlisted" as ReviewStatus }]));
   return {};
 }
 

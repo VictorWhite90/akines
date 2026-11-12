@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, ChevronRight, MessageSquare } from "lucide-react";
+import { ArrowRight, ChevronRight, MessageCircle } from "lucide-react";
 import PlanCall, { type Plan } from "@/components/community/PlanCall";
 import Button from "@/components/kin/Button";
 import { photoSrc } from "@/components/kin/home/parts";
@@ -86,15 +86,18 @@ export function ConvoList({ rows, openId, onEnd }: { rows: Row[]; openId?: strin
   );
 }
 
-export function EmptyPane({ onStart }: { onStart?: () => void }) {
+/** Nothing open: the design's empty pane. `quick` is the Quick Catch-up its button plans (the plan modal, as in the design). */
+export function EmptyPane({ quick }: { quick?: Plan }) {
+  const [planning, setPlanning] = useState(false);
   return (
     <div className="ch-msg__main">
       <div className="ch-msg__empty">
-        <MessageSquare size={40} strokeWidth={1.25} aria-hidden />
+        <MessageCircle size={40} strokeWidth={1.25} absoluteStrokeWidth aria-hidden focusable={false} />
         <h1 className="ch-msg__empty-title">Choose a conversation</h1>
         <p className="ch-msg__empty-text">Pick someone from the list to continue, or start something new.</p>
-        {onStart ? <Button variant="secondary" onClick={onStart}>Start a new conversation</Button> : null}
+        {quick ? <Button variant="secondary" onClick={() => setPlanning(true)}>Start a Quick Catch-up</Button> : null}
       </div>
+      {quick ? <PlanCall open={planning} onClose={() => setPlanning(false)} plan={quick} /> : null}
     </div>
   );
 }

@@ -61,20 +61,13 @@
   gap: 24px;
 }
 
-.icon-btn {
-  display: inline-grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  margin-left: -12px; /* optical alignment: the glyph sits on the page margin */
-  color: inherit;
-}
-.icon-btn__glyph {
-  width: 20px;
-  height: 20px;
-}
-.icon-btn:hover {
-  opacity: 0.7;
+/* The menu button is the kit IconButton (ghost). It follows the header colour, sits optically on the page margin, and keeps the 20 / 24 px glyph. */
+.site-header .site-header__menu {
+  --k-fg: var(--hdr-fg);
+  --k-hfg: var(--hdr-fg);
+  --k-sweep: color-mix(in srgb, var(--hdr-fg) 14%, transparent);
+  --k-ig: 20px;
+  margin-left: -12px;
 }
 
 .site-header__signin {
@@ -90,24 +83,20 @@
 }
 
 /*
- * Outlined "Join Akines" pill in the header. It uses the same hover as every other button (the rising
- * fill and the colour swap, defined with .btn in base.css). The fill follows the header text colour:
- * white over the hero (text turns ink), ink on the solid ivory header (text turns ivory).
+ * Outlined "Join Akines" pill in the header: the kit Button (secondary, fluid) with the colours of the header. The fill follows
+ * the header text colour: white over the hero (text turns ink), ink on the solid ivory header (text turns ivory). It is 44 high
+ * below 1280 and 48 from 1280, which is smaller than the md size, so it keeps its own height.
  */
-.btn--header {
-  --sweep: var(--hdr-fg);
+.site-header .k-btn.site-header__cta {
+  --k-fg: var(--hdr-fg);
+  --k-bd: var(--hdr-fg);
+  --k-sweep: var(--hdr-fg);
+  --k-hfg: var(--ink);
   min-height: 44px;
   padding: 8px 20px;
-  border-color: var(--hdr-fg);
-  color: var(--hdr-fg);
 }
-@media (hover: hover) {
-  .site-header[data-state='clear'] .btn--header:hover {
-    color: var(--ink);
-  }
-  .site-header[data-state='solid'] .btn--header:hover {
-    color: var(--ivory);
-  }
+.site-header[data-state='solid'] .k-btn.site-header__cta {
+  --k-hfg: var(--ivory);
 }
 
 /* Tablet and up: menu left, logo centred, account actions right */
@@ -125,14 +114,11 @@
   .site-header__right {
     gap: 28px;
   }
-  .icon-btn {
+  .site-header .site-header__menu {
+    --k-ig: 24px;
     margin-left: -10px;
   }
-  .icon-btn__glyph {
-    width: 24px;
-    height: 24px;
-  }
-  .btn--header {
+  .site-header .k-btn.site-header__cta {
     min-height: 48px;
     padding: 12px 24px;
   }

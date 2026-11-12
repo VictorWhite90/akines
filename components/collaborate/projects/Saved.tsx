@@ -1,6 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Button from "@/components/kin/Button";
+import { useFirstVisit } from "@/components/collaborate/overview-lists/loading";
 import { toast } from "@/components/kin/Toast";
 import { useCollab } from "@/lib/collab/useCollab";
 import { discoverProject } from "@/lib/collab/projects";
@@ -11,16 +13,23 @@ import { Back, DsLink, PageHead, PageState, ProjectCard, SkeletonCard, pageStatu
  * most recent first, each removable with Undo. Loading, empty and failed states are the page's real ones.
  */
 
-export default function Saved() {
+export type SavedVariant = "empty" | "loading" | "error";
+
+export default function Saved({ variant }: { variant?: SavedVariant }) {
   const collab = useCollab();
-  const status = pageStatus(collab);
+  const router = useRouter();
+  // The design's Loading frame: the first visit of a session (and the state-loading route, which then goes on to the list).
+  const first = useFirstVisit("saved", { stateRoute: variant === "loading", skip: !!variant, onDone: () => router.replace("/collaborate/saved") });
+  const status = first ? "loading" : variant === "error" ? "error" : variant === "empty" ? "ready" : pageStatus(collab);
+  // On the state route, Try again shows the Loading frame and then the list, as in the design.
+  const retry = () => (variant ? router.replace("/collaborate/saved/state-loading") : window.location.reload());
 
   if (status === "error") {
     return (
       <div className="dsc-page"><div className="dsc-stack">
         <Back href="/collaborate/discover">Back to discover projects</Back>
         <PageState pair role="alert" headline="We could not load your saved projects." support="Check your connection and try again. Your saved list is not lost.">
-          <Button onClick={() => window.location.reload()}>Try again</Button>
+          <Button onClick={retry}>Try again</Button>
           <Button variant="secondary" href="/collaborate/discover">Back to discover projects</Button>
         </PageState>
       </div></div>
@@ -28,7 +37,7 @@ export default function Saved() {
   }
 
   // Saved calls are kept in the order they were saved; the design lists the latest first.
-  const list = [...collab.state.saved].reverse().map((id) => collab.call(id)).filter((c) => !!c).map((c) => discoverProject(c, collab.projects));
+  const list = variant === "empty" ? [] : [...collab.state.saved].reverse().map((id) => collab.call(id)).filter((c) => !!c).map((c) => discoverProject(c, collab.projects));
   const head = <PageHead eyebrow="Saved projects" title="Projects you saved." lead="Keep the ones you want to think about. Only you can see this list." link={<DsLink href="/collaborate/discover">Discover projects</DsLink>} />;
 
   let body: React.ReactNode;

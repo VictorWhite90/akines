@@ -354,7 +354,7 @@
 
 /* Philosophy link is a taller pill on desktop */
 @media (min-width: 1280px) {
-  .rhythm__cta {
+  .k-btn.k-btn--fluid.rhythm__cta {
     min-height: 56px;
   }
 }
@@ -436,17 +436,43 @@
   justify-content: center;
   gap: 16px;
 }
-.round-btn--outline {
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--border-card);
-  background: transparent;
+/* The stepper buttons are the kit IconButton. Their landing sizes: 38 high from 768, 48 from 1280, 16 / 20 px arrows */
+.rhythm__controls .k-iconbtn {
+  --k-ib: 38px;
+  --k-ig: 16px;
 }
-.round-btn--outline:hover {
-  background: transparent;
+@media (min-width: 1280px) {
+  .rhythm__controls .k-iconbtn {
+    --k-ib: 48px;
+    --k-ig: 20px;
+  }
 }
-.round-btn--outline svg {
-  stroke-width: 2; /* a little heavier than the 1.5 icons elsewhere, as drawn */
+/* Mobile card: 48 px outline buttons with a hairline border and a slightly heavier arrow, as drawn */
+.card__nav .k-iconbtn {
+  --k-ib: 48px;
+  --k-ig: 16px;
+  --k-bd: var(--border-card);
+}
+.card__nav .k-iconbtn svg {
+  stroke-width: 2;
+}
+/* the arrow leans the way it points */
+.rhythm__controls .k-iconbtn svg,
+.card__nav .k-iconbtn svg {
+  transition: transform 0.4s var(--ease-out);
+}
+@media (hover: hover) {
+  .card__nav .k-iconbtn.k-btn--live:hover {
+    --k-bd: var(--ink);
+  }
+  .rhythm__controls .k-iconbtn[aria-label='Previous step']:hover svg,
+  .card__nav .k-iconbtn[aria-label='Previous step']:hover svg {
+    transform: translateX(-3px);
+  }
+  .rhythm__controls .k-iconbtn[aria-label='Next step']:hover svg,
+  .card__nav .k-iconbtn[aria-label='Next step']:hover svg {
+    transform: translateX(3px);
+  }
 }
 .card__count {
   min-width: 71px;
@@ -482,11 +508,11 @@
     align-items: stretch;
   }
   /* The call to action as drawn for mobile: arrow closer to the label and a little heavier */
-  .rhythm__cta {
+  .k-btn.k-btn--fluid.rhythm__cta {
     gap: 8px;
     padding: 12px 20px 12px 24px;
   }
-  .rhythm__cta .btn__icon {
+  .rhythm__cta .k-btn__icon svg {
     stroke-width: 2.6;
   }
 }

@@ -1,0 +1,14 @@
+import type { Metadata } from "next";
+import { Suspense } from "react";
+import Discover from "@/components/connect/Discover";
+
+export const metadata: Metadata = { title: "Discover · Akines" };
+
+/** The design's error state of Discover, at its own address. */
+export default function DiscoverErrorPage() {
+  return (
+    <Suspense>
+      <Discover state="error" />
+    </Suspense>
+  );
+}

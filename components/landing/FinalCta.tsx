@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { closing } from '@/lib/landing/content';
-import { Button } from './Button';
+import Button from '@/components/kin/Button';
 import { Lines } from './Lines';
 
 export function FinalCta() {
@@ -23,10 +23,10 @@ export function FinalCta() {
         </h2>
         <p className="lead lead--muted closing__body">{closing.body}</p>
         <div className="closing__actions">
-          <Button href={closing.primary.href} variant="dark-filled" size="large">
+          <Button href={closing.primary.href} size="xl" fluid arrow="up-right">
             {closing.primary.label}
           </Button>
-          <Button href={closing.secondary.href} variant="dark-outline" icon="none" size="large">
+          <Button href={closing.secondary.href} variant="secondary" size="xl" fluid>
             {closing.secondary.label}
           </Button>
         </div>

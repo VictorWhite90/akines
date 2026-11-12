@@ -6,7 +6,7 @@ import { useState } from "react";
 import Button from "@/components/kin/Button";
 import { Chip } from "@/components/kin/Chip";
 import { Field, Input } from "@/components/kin/Field";
-import { Modal } from "@/components/kin/Overlay";
+import { Empty, Modal } from "@/components/kin/Overlay";
 import { toast } from "@/components/kin/Toast";
 import { ME } from "@/lib/collab/me";
 import { agreementStages, charterVersions, numberWord, signedAt, stageOfChip, STAGE_CHIPS, STAGES, useAgreements, type StageId, type StageStatus, type StageView } from "@/lib/collab/agreements";
@@ -209,9 +209,33 @@ function OverviewBody({ projectId }: { projectId: string }) {
   );
 }
 
+/** Before the team has agreed anything: the charter has no terms of its own and nothing is being drafted (the design's Empty). */
+function EmptyBody({ projectId }: { projectId: string }) {
+  const create = useCreate(projectId);
+  return (
+    <>
+      <div className="ag-stack">
+        <PageHead label="AGREEMENTS" title="Make sure everyone understands what they're building together." lead="Agree on the expectations, contributions and responsibilities that guide your collaboration." />
+        <div data-m="up">
+          <Empty className="cw-empty" title="Start with shared understanding." text="Clarify expectations, roles and contributions before substantial work begins." action={<Button arrow="up-right" onClick={create.show}>Create agreement</Button>} />
+        </div>
+      </div>
+      {create.modal}
+    </>
+  );
+}
+
 /** Agreements: the six stages. */
 export default function Agreements({ projectId }: { projectId: string }) {
-  return <WorkspaceFrame projectId={projectId} active="agreements" rail><OverviewBody projectId={projectId} /></WorkspaceFrame>;
+  const ws = useWorkspace(projectId);
+  const { drafts } = useAgreements(projectId);
+  const c = ws.project?.charter;
+  const empty = !!c && ![c.credit, c.ownership, c.decisions, c.expenses, c.uses, c.exit].some((t) => t?.trim()) && !c.signed.length && !drafts.length;
+  return (
+    <WorkspaceFrame projectId={projectId} active="agreements" rail={empty ? "short" : true}>
+      {empty ? <EmptyBody projectId={projectId} /> : <OverviewBody projectId={projectId} />}
+    </WorkspaceFrame>
+  );
 }
 
 const nameOf = (id: string) => (PEOPLE as Record<string, { name: string } | undefined>)[id]?.name ?? (id === "akines" ? "Akines" : "A member");

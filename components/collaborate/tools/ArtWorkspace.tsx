@@ -6,8 +6,9 @@ import Button from "@/components/kin/Button";
 import { faceSrc, photoSrc } from "@/components/kin/home/parts";
 import { useCanvas, layerDetail, type Canvas, type Layer, type Pin } from "@/lib/collab/canvas";
 import { clock24, firstName, initialsOf, nameOf, type Version } from "@/lib/collab/live";
+import { ME } from "@/lib/collab/me";
 import { toast } from "@/components/kin/Toast";
-import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, useToolState, viewingTitle, type ToolState, type Ws } from "./ToolFrame";
+import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, lostTitle, useToolState, viewingTitle, type ToolState, type WorkspaceState, type Ws } from "./ToolFrame";
 import "../styles/art-workspace-panels.css";
 // For the reply field (tr-thread__field), which the canvas thread borrows from the document.
 import "../styles/research-workspace.css";
@@ -29,33 +30,34 @@ const PAINT: Tool[] = [
   { id: "fill", label: "Fill", icon: PaintBucket }, { id: "shapes", label: "Shapes", icon: Shapes }, { id: "text", label: "Text", icon: Type }, { id: "eyedropper", label: "Eyedropper", icon: Pipette },
 ];
 
-function ToolBtn({ tool, active, onClick, popup, expanded }: { tool: Tool; active?: boolean; onClick?: () => void; popup?: boolean; expanded?: boolean }) {
+function ToolBtn({ tool, active, disabled, onClick, popup, expanded }: { tool: Tool; active?: boolean; disabled?: boolean; onClick?: () => void; popup?: boolean; expanded?: boolean }) {
   return (
-    <button type="button" className="ta-tool" data-active={active || undefined} aria-label={tool.label} aria-pressed={active ? true : undefined} aria-haspopup={popup ? "dialog" : undefined} aria-expanded={popup ? !!expanded : undefined} onClick={onClick}>
+    <button type="button" className="ta-tool" data-active={active || undefined} aria-label={tool.label} aria-pressed={active ? true : undefined} aria-haspopup={popup ? "dialog" : undefined} aria-expanded={popup ? !!expanded : undefined} disabled={disabled} onClick={onClick}>
       <Ico icon={tool.icon} size={22} />
     </button>
   );
 }
 
-function Rail({ canvas, live, brushOpen, colourOpen, onBrush, onColour }: { canvas: Canvas; live: boolean; brushOpen: boolean; colourOpen: boolean; onBrush: () => void; onColour: () => void }) {
+/** View only (locked) disables every tool but Move. */
+function Rail({ canvas, live, locked, brushOpen, colourOpen, onBrush, onColour }: { canvas: Canvas; live: boolean; locked: boolean; brushOpen: boolean; colourOpen: boolean; onBrush: () => void; onColour: () => void }) {
   return (
     <div className="ta-rail" role="toolbar" aria-label="Tools" aria-orientation="vertical">
-      {PICK.map((t) => <ToolBtn key={t.id} tool={t} />)}
+      {PICK.map((t) => <ToolBtn key={t.id} tool={t} disabled={locked && t.id !== "move"} />)}
       <i className="ta-rail__rule" aria-hidden="true" />
-      {PAINT.map((t) => (t.id === "brush" ? <ToolBtn key={t.id} tool={t} active popup={live} expanded={brushOpen} onClick={live ? onBrush : undefined} /> : <ToolBtn key={t.id} tool={t} />))}
+      {PAINT.map((t) => (t.id === "brush" ? <ToolBtn key={t.id} tool={t} active={!locked} disabled={locked} popup={live} expanded={brushOpen} onClick={live ? onBrush : undefined} /> : <ToolBtn key={t.id} tool={t} disabled={locked} />))}
       <span className="ta-rail__spacer" aria-hidden="true" />
       {live ? <button type="button" className="ta-swatch" aria-label={`Colour, ${canvas.colour}`} aria-haspopup="dialog" aria-expanded={colourOpen} onClick={onColour} /> : <span className="ta-swatch" role="img" aria-label={`Current colour ${canvas.colour}`} />}
       <i className="ta-rail__rule" aria-hidden="true" />
-      <ToolBtn tool={{ id: "undo", label: "Undo", icon: Undo2 }} />
-      <ToolBtn tool={{ id: "redo", label: "Redo", icon: Redo2 }} />
+      <ToolBtn tool={{ id: "undo", label: "Undo", icon: Undo2 }} disabled={locked} />
+      <ToolBtn tool={{ id: "redo", label: "Redo", icon: Redo2 }} disabled={locked} />
     </div>
   );
 }
 
-function Cursor({ who, slot }: Canvas["cursors"][number]) {
+function Cursor({ who, slot, faded }: Canvas["cursors"][number] & { faded?: boolean }) {
   // The styles place the two pointers by slot; the tag names our collaborator.
   return (
-    <div className="ta-cursor" data-person={slot} aria-hidden="true">
+    <div className="ta-cursor" data-person={slot} data-faded={faded || undefined} aria-hidden="true">
       <svg className="ta-cursor__ptr" width="20" height="20" viewBox="0 0 20 20" focusable="false"><path d="M3.7 3.2 3.7 17.2 7.5 13.9 10.3 19.1 12.9 17.9 10.2 12.9 15.3 12.9Z" strokeWidth="1.4" strokeLinejoin="round" /></svg>
       <span className="ta-cursor__tag">{firstName(who)}</span>
     </div>
@@ -163,11 +165,13 @@ function LayerRow({ layer, selected, onToggle }: { layer: Layer; selected: boole
   return layer.hidden ? <div className="ta-layer" data-hidden aria-label={`${layer.name}, hidden`}>{inner}</div> : <button type="button" className="ta-layer" data-selected={selected || undefined} aria-pressed={selected} onClick={onToggle}>{inner}</button>;
 }
 
-export default function ArtWorkspace({ ws, failed }: { ws: Ws; failed?: boolean }) {
+export default function ArtWorkspace({ ws, state: frame }: { ws: Ws; state?: WorkspaceState }) {
   const { canvas, reply, resolve, restore } = useCanvas(ws.project);
-  const tool = useToolState(failed);
-  const [history, setHistory] = useState(false);
-  const [thread, setThread] = useState(false);
+  const tool = useToolState(ws, frame);
+  const locked = frame === "viewOnly";
+  const [history, setHistory] = useState(frame === "versionHistory");
+  // the comment thread frame opens with pin 1's thread
+  const [thread, setThread] = useState(frame === "commentThread" || frame === "commentReply");
   const [pin2, setPin2] = useState(false);
   const [brushOpen, setBrushOpen] = useState(false);
   const [colourOpen, setColourOpen] = useState(false);
@@ -175,9 +179,11 @@ export default function ArtWorkspace({ ws, failed }: { ws: Ws; failed?: boolean 
   const [preview, setPreview] = useState<Version | null>(null);
   if (!canvas) return null;
 
-  const state: ToolState = tool.net !== "online" ? tool.net : history ? "versionHistory" : tool.saving ? "saving" : tool.failed ? "failed" : "saved";
+  // the collaborator whose pointer is first on the canvas drops out in the Collaborator offline frame
+  const offline = frame === "collaboratorOffline" ? canvas.cursors[0]?.who ?? canvas.presence.find((p) => p.who !== ME && p.state === "editing")?.who : undefined;
+  const state: ToolState = tool.net !== "online" ? tool.net : history ? "versionHistory" : tool.saving ? "saving" : tool.failed ? "failed" : locked ? "viewOnly" : offline ? "collaboratorOffline" : "saved";
   const banner = bannerFor(state);
-  const live = !history;
+  const live = !history && !locked;
   const pins = canvas.pins.filter((p) => !p.resolved);
   const pin1 = pins.find((p) => p.n === 1);
   const picked = preview ?? canvas.versions[Math.min(2, canvas.versions.length - 1)];
@@ -185,11 +191,11 @@ export default function ArtWorkspace({ ws, failed }: { ws: Ws; failed?: boolean 
   const openHistory = () => { setHistory((h) => !h); setThread(false); setPreview(null); };
 
   return (
-    <ToolFrame ws={ws} kind="art" state={state} title={canvas.title} people={canvas.presence}
+    <ToolFrame ws={ws} kind="art" state={state} title={canvas.title} people={canvas.presence} offline={offline}
       history={history} onHistory={openHistory}
       comments={thread} onComments={() => { if (history) setHistory(false); setThread((t) => !t && !!pin1); }}
       // with a comment thread open the pill has no popover, as in the design
-      save={thread ? undefined : { last: lastSaved(tool.savedAt, canvas.versions[0]?.at), onSaveNow: tool.save, onHistory: openHistory, onRetry: tool.save }} saveOpen={failed}
+      save={thread ? undefined : { last: lastSaved(tool.savedAt, canvas.versions[0]?.at), onSaveNow: tool.save, onHistory: openHistory, onRetry: tool.save }} saveOpen={frame === "couldNotSave"} onSaveOpenChange={tool.onSaveOpenChange}
       overlays={<>
         {brushOpen ? (
           <Pop onClose={() => setBrushOpen(false)} label="Brush library" className="ta-pop ta-pop--brush">
@@ -207,14 +213,14 @@ export default function ArtWorkspace({ ws, failed }: { ws: Ws; failed?: boolean 
         {colourOpen ? <Pop onClose={() => setColourOpen(false)} label="Colour picker" className="ta-pop ta-pop--colour"><Colour canvas={canvas} /></Pop> : null}
       </>}>
       <div className="ta-body" data-banner={banner ? "" : undefined}>
-        <Rail canvas={canvas} live={live} brushOpen={brushOpen} colourOpen={colourOpen} onBrush={() => setBrushOpen((o) => !o)} onColour={() => setColourOpen((o) => !o)} />
+        <Rail canvas={canvas} live={live} locked={locked} brushOpen={brushOpen} colourOpen={colourOpen} onBrush={() => setBrushOpen((o) => !o)} onColour={() => setColourOpen((o) => !o)} />
         <div className="ta-canvas">
           <div className="ta-scroll">
             <div className="ta-stage">
               <div className="ta-board">
                 {/* eslint-disable-next-line @next/next/no-img-element -- the artwork */}
                 <img className="ta-board__art" src={photoSrc(canvas.art, 1760)} alt="" width={880} height={660} loading="lazy" decoding="async" />
-                {canvas.cursors.map((c) => <Cursor key={c.who} {...c} />)}
+                {canvas.cursors.map((c) => <Cursor key={c.who} {...c} faded={c.who === offline} />)}
                 {pins.map((p) => (p.n === 1
                   ? <button key={p.id} type="button" className="ta-pin" data-n={1} data-selected={(thread && !history) || undefined} aria-label={thread ? "Close comment 1" : "Open comment 1"} aria-expanded={history ? undefined : thread} onClick={history ? undefined : () => setThread((t) => !t)}>1</button>
                   : <button key={p.id} type="button" className="ta-pin" data-n={p.n} data-selected={pin2 || undefined} aria-label={`Comment ${p.n}`} aria-pressed={pin2} onClick={() => setPin2((o) => !o)}>{p.n}</button>))}
@@ -226,7 +232,8 @@ export default function ArtWorkspace({ ws, failed }: { ws: Ws; failed?: boolean 
           <Zoom />
           <div className="ta-size">{canvas.size.width} x {canvas.size.height} px, {canvas.size.dpi} dpi</div>
           {banner && picked ? (
-            <Banner kind={banner} className="ta-banner" title={banner === "version" ? viewingTitle(picked) : undefined} onRetry={tool.retry}
+            <Banner kind={banner} className="ta-banner" title={banner === "version" ? viewingTitle(picked) : banner === "collaborator" && offline ? lostTitle(offline) : undefined} onRetry={tool.retry}
+              onRequest={() => toast.show({ message: "Edit access requested." })}
               onBack={() => setHistory(false)}
               onRestore={() => { restore(picked); setHistory(false); tool.save(); toast.show({ message: "Version restored." }); }} />
           ) : null}
@@ -236,10 +243,10 @@ export default function ArtWorkspace({ ws, failed }: { ws: Ws; failed?: boolean 
             <div className="ta-layers">
               <header className="ta-layers__head">
                 <h2 className="ta-layers__title">Layers</h2>
-                <button type="button" className="ta-compact" aria-label="Add layer"><Ico icon={Plus} size={20} /></button>
+                <button type="button" className="ta-compact" aria-label="Add layer" disabled={locked}><Ico icon={Plus} size={20} /></button>
               </header>
               {canvas.layers.map((l) => <LayerRow key={l.id} layer={l} selected={selected.has(l.id)} onToggle={() => toggleLayer(l.id)} />)}
-              <Colour canvas={canvas} />
+              <Colour canvas={canvas} faded={locked} />
             </div>
           )}
         </aside>

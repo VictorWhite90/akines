@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Button from "@/components/kin/Button";
 import { Empty, Modal, Skeleton } from "@/components/kin/Overlay";
 import { toast } from "@/components/kin/Toast";
@@ -11,6 +12,7 @@ import { ME } from "@/lib/collab/me";
 import type { Project } from "@/lib/collab/types";
 import { useCollab } from "@/lib/collab/useCollab";
 import { isMine, membersOf, phaseOf } from "@/lib/collab/workspace";
+import { useFirstVisit } from "@/components/collaborate/overview-lists/loading";
 import { activeAgo, cardHref, currentMilestone, progressOf, ProjectProbes, type ProjectSummary } from "./summary";
 import "../styles/pages.css";
 
@@ -116,8 +118,25 @@ function Tabs({ tab, onTab, count }: { tab: Tab; onTab: (t: Tab) => void; count?
   );
 }
 
-export default function MyProjects({ initialTab = "active" }: { initialTab?: Tab }) {
+/** The design's frames at their own addresses: Empty, Loading and Could not load. */
+export type MyProjectsVariant = "empty" | "loading" | "error";
+const LIST = "/collaborate/my-projects";
+
+/**
+ * `toast`: the message of the "state-project-archived" and "state-left-project" routes, where Archive and Leave end
+ * (My projects with their toast over it, as in the design).
+ */
+export default function MyProjects({ initialTab = "active", variant, toast: message }: { initialTab?: Tab; variant?: MyProjectsVariant; toast?: string }) {
   const collab = useCollab({ engine: true });
+  const router = useRouter();
+  // The design's Loading frame: the first visit of a session (and the state-loading route, which then goes on to the list).
+  const first = useFirstVisit("my-projects", { stateRoute: variant === "loading", skip: !!variant || !!message, onDone: () => router.replace(LIST) });
+  useEffect(() => {
+    // The design keeps a state route's toast up longer (8 s) than the 2.5 s of one raised by the action itself.
+    if (message) toast.show({ message, actionLabel: "Undo", duration: 8000, onAction: () => router.back() });
+    // once, when the page opens
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const drafts = useDrafts();
   const [tab, setTab] = useState<Tab>(initialTab);
   const [deleting, setDeleting] = useState<ProjectDraft | null>(null);
@@ -127,9 +146,9 @@ export default function MyProjects({ initialTab = "active" }: { initialTab?: Tab
   const [sums, setSums] = useState<Record<string, ProjectSummary>>({});
   const onSummary = useCallback((s: ProjectSummary) => setSums((cur) => ({ ...cur, [s.id]: s })), []);
 
-  const mine = collab.projects.filter(isMine);
+  const mine = variant === "empty" ? [] : collab.projects.filter(isMine);
   const ready = collab.ready && drafts.ready;
-  const state = !ready ? "loading" : collab.notice && !mine.length ? "error" : "list";
+  const state = first || !ready ? "loading" : variant === "error" || (collab.notice && !mine.length) ? "error" : "list";
 
   const confirmDelete = () => {
     if (!deleting) return;
@@ -143,7 +162,7 @@ export default function MyProjects({ initialTab = "active" }: { initialTab?: Tab
       <div className="cw-page cw-page--state">
         <div data-m="up"><BackLink href="/collaborate">Back to Collaborate</BackLink></div>
         <div data-m="up">
-          <Empty className="cw-empty" title="We could not load your projects." text="Check your connection and try again. Your drafts are safe." action={<Button onClick={() => window.location.reload()}>Try again</Button>} />
+          <Empty className="cw-empty" title="We could not load your projects." text="Check your connection and try again. Your drafts are safe." action={<Button onClick={() => (variant ? router.replace(`${LIST}/state-loading`) : window.location.reload())}>Try again</Button>} />
         </div>
       </div>
     );

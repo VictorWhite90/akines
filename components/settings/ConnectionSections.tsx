@@ -1,10 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { ArrowRight, CircleCheck, ShieldCheck } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { Chip, Tag } from "@/components/kin/Chip";
 import { Toggle } from "@/components/kin/Choice";
+import { Drawer } from "@/components/kin/Overlay";
 import { faceSrc } from "@/components/kin/home/parts";
 import { MATCHES } from "@/lib/data/matches";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
@@ -59,6 +61,9 @@ export function RecommendationsSection() {
 
 export function ExplanationsSection() {
   const { prefs: e, set } = useConnectionPrefs();
+  const [why, setWhy] = useState<PersonId | null>(null);
+  const [shown, setShown] = useState<PersonId | null>(null);
+  if (why && why !== shown) setShown(why);
   return (
     <>
       <div className="ch-set__list" data-m="stagger">
@@ -69,7 +74,7 @@ export function ExplanationsSection() {
               {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
               <span className="ch-av" style={{ width: 48, height: 48 }}>{src ? <img src={src} alt="" /> : null}</span>
               <div className="ch-why__text"><span className="ch-why__title">Why {first} was suggested</span><span className="ch-why__desc">{m.reason}</span></div>
-              <Link className="ch-tlink" href="/collaborate/collaborators/why-this-match">See the full reason</Link>
+              <button type="button" className="ch-tlink" onClick={() => setWhy(m.id as PersonId)}>See the full reason</button>
             </div>
           );
         })}
@@ -77,7 +82,37 @@ export function ExplanationsSection() {
       <p className="ch-ov__privacy"><ShieldCheck size={20} strokeWidth={1.25} aria-hidden /><span>Not used: popularity, follower counts or relationship scores. Akines does not show them.</span></p>
       <div className="ch-set__list"><Row title="Show a reason with every suggestion" text="Each person or activity comes with a short explanation." checked={e.showReason} onChange={(v) => set({ showReason: v })} /></div>
       <Save id="explanations" label="Save explanation settings" />
+      {shown ? <WhyDrawer id={shown} open={why !== null} onClose={() => setWhy(null)} /> : null}
     </>
+  );
+}
+
+/** The design's "Why we matched" drawer (520 wide), filled from the match's own reason and signals. */
+function WhyDrawer({ id, open, onClose }: { id: PersonId; open: boolean; onClose: () => void }) {
+  const router = useRouter();
+  const m = MATCHES.find((x) => x.id === id);
+  const first = PEOPLE[id]?.name.split(" ")[0] ?? "them";
+  if (!m) return null;
+  const qa: [string, string][] = [["Why this person?", m.reason], ...(m.ask ? [["What could we do together?", m.ask] as [string, string]] : []), ["What information was used?", `${m.signals.join(". ")}.`]];
+  return (
+    <Drawer open={open} onClose={onClose} width={520} image={faceSrc(id, 1040)} eyebrow="Why we matched" title={`You and ${first}`} className="ch-ov ch-ov--drawer ch-ov--why">
+      <div className="ch-dbody ch-dbody--why">
+        <div className="ch-tags">{m.signals.slice(0, 2).map((t) => <Tag key={t}>{t}</Tag>)}</div>
+        <hr className="ch-rule" />
+        {qa.map(([q, a]) => (
+          <div className="ch-qa" key={q}>
+            <p className="ch-ov__label">{q}</p>
+            <p className="ch-qa__a">{a}</p>
+          </div>
+        ))}
+        <p className="ch-ov__privacy ch-ov__privacy--shield"><ShieldCheck size={16} strokeWidth={1.25} absoluteStrokeWidth aria-hidden /><span>Not used: popularity, follower counts or relationship scores. Akines does not show them.</span></p>
+        <div className="ch-ov__actions ch-ov__actions--wrap ch-dbody__end">
+          <Button iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={() => { onClose(); router.push(`/messages/${id}`); }}>Introduce us</Button>
+          <button type="button" className="ch-tlink" onClick={onClose}>Not now</button>
+          <button type="button" className="ch-tlink" onClick={() => { onClose(); router.push("/settings"); }}>Recommendation preferences</button>
+        </div>
+      </div>
+    </Drawer>
   );
 }
 

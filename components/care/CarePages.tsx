@@ -1,10 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { ArrowRight, CircleCheck, Lock, CircleAlert } from "lucide-react";
 import Button from "@/components/kin/Button";
+import { Chip } from "@/components/kin/Chip";
+import { Modal } from "@/components/kin/Overlay";
 import { faceSrc } from "@/components/kin/home/parts";
-import type { PersonId } from "@/lib/data/people";
+import { useSendMessage } from "@/components/messages/send";
+import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 
 /* The product design's care screens (classes in components/kin/community.css). */
@@ -76,6 +81,7 @@ const OPTIONS: [string, string][] = [
   ["A helpline in your country", "Often free and confidential. Search for one near you."],
 ];
 export function ProfessionalSupport() {
+  const [trust, setTrust] = useState(false);
   return (
     <div className="ch-page">
       <div className="ch-wide">
@@ -88,10 +94,62 @@ export function ProfessionalSupport() {
         </div>
         <p className="ch-alert" role="note"><CircleAlert size={20} strokeWidth={1.25} aria-hidden /><span>If you or someone near you may be in immediate danger, contact your local emergency number now.</span></p>
         <div className="ch-acts">
-          <Button iconRight={Arrow} href="/messages">Message someone I trust</Button>
+          <Button iconRight={Arrow} onClick={() => setTrust(true)}>Message someone I trust</Button>
           <Button variant="secondary" href="/">Back to Community Home</Button>
         </div>
       </div>
+      <TrustModal open={trust} onClose={() => setTrust(false)} />
     </div>
+  );
+}
+
+/* The design's "Message someone I trust" modal (560 wide, then "Message sent"). The message goes to their chat. */
+const TRUSTED: PersonId[] = ["zuri", "kwame", "leila"];
+const TRUST_NOTE = "Hi, it has been a heavy week. Could we talk for a little while tonight?";
+function TrustModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const router = useRouter();
+  const send = useSendMessage();
+  const [who, setWho] = useState(0);
+  const [note, setNote] = useState(TRUST_NOTE);
+  const [sent, setSent] = useState(false);
+  const close = () => { onClose(); setTimeout(() => { setSent(false); setWho(0); setNote(TRUST_NOTE); }, 300); };
+  const submit = () => {
+    if (!note.trim()) return;
+    send(TRUSTED[who], { from: ME.id as PersonId, kind: "text", text: note.trim() } as Parameters<typeof send>[1]);
+    setSent(true);
+  };
+  if (sent) {
+    return (
+      <Modal open={open} onClose={close} width={480} hideClose label="Message sent" className="ch-ov ch-ov--result">
+        <div className="ch-result">
+          <span className="ch-result__icon"><CircleCheck size={40} strokeWidth={1.25} absoluteStrokeWidth aria-hidden /></span>
+          <h2 className="ch-result__title">Message sent</h2>
+          <p className="ch-result__text">Only the person you chose will see it. Your check-in stays private.</p>
+          <div className="ch-result__actions">
+            <Button onClick={close}>Done</Button>
+            <Button variant="secondary" onClick={() => { close(); router.push("/messages"); }}>Open Messages</Button>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+  return (
+    <Modal open={open} onClose={close} width={560} image={faceSrc(TRUSTED[1], 1120)} eyebrow="Wellbeing" title="Message someone I trust" className="ch-ov ch-ov--modal">
+      <div className="ch-ov__body">
+        <p className="ch-ov__lead">Choose who you would like to reach. Only they will see your message.</p>
+        <div className="ch-ov__field">
+          <p className="ch-ov__label">Who do you trust?</p>
+          <div className="ch-chips" role="group" aria-label="Who do you trust?">
+            {TRUSTED.map((id, i) => <Chip key={id} variant="choice" selected={who === i} onClick={() => setWho(i)}>{PEOPLE[id]?.name.split(" ")[0] ?? "A member"}</Chip>)}
+          </div>
+        </div>
+        <textarea className="ch-note" aria-label="Your message" placeholder="Write a few words. You choose what to share." rows={3} value={note} onChange={(e) => setNote(e.target.value)} />
+        <p className="ch-ov__privacy"><Lock size={16} strokeWidth={1.25} absoluteStrokeWidth aria-hidden /><span>Your check-in stays private. This message is sent only because you chose to send it.</span></p>
+        <div className="ch-ov__actions">
+          <Button iconRight={Arrow} onClick={submit}>Send message</Button>
+          <Button variant="secondary" onClick={close}>Cancel</Button>
+        </div>
+      </div>
+    </Modal>
   );
 }

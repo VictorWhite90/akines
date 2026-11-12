@@ -5,6 +5,7 @@ import { nav } from '@/lib/landing/content';
 import { scrollToId } from '@/lib/landing/motion';
 import { ChevronRightIcon, CloseIcon } from './Icon';
 import { Logo } from './Logo';
+import Button from '@/components/kin/Button';
 
 type Props = { onClose: (restoreFocus?: boolean) => void };
 
@@ -145,12 +146,12 @@ export function Menu({ onClose }: Props) {
             <ul className="menu__links">{links}</ul>
           </nav>
           <div className="menu__actions">
-            <a className="btn btn--dark-filled menu__action" href={nav.join.href} onClick={() => onClose(false)}>
-              <span>{nav.join.label}</span>
-            </a>
-            <a className="btn btn--dark-outline menu__action" href={nav.signIn.href} onClick={() => onClose(false)}>
-              <span>{nav.signIn.label}</span>
-            </a>
+            <Button fluid full href={nav.join.href} onClick={() => onClose(false)}>
+              {nav.join.label}
+            </Button>
+            <Button fluid full variant="secondary" href={nav.signIn.href} onClick={() => onClose(false)}>
+              {nav.signIn.label}
+            </Button>
           </div>
         </div>
       ) : (

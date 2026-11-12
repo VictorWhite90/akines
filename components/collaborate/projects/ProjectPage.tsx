@@ -10,8 +10,9 @@ import { discoverProject, firstOf, fitOf, type DiscoverProject } from "@/lib/col
 import type { Application } from "@/lib/collab/types";
 import { ME } from "@/lib/collab/me";
 import { withdrawWithUndo } from "@/components/collaborate/applications/parts";
+import { useFirstVisit } from "@/components/collaborate/overview-lists/loading";
 import { HostInterest } from "@/components/collaborate/workspace/InterestRequests";
-import { Back, Bar, GlancePanel, InterestPanel, Item, Match, PageState, PrivacyPanel, SaveButton, Section, SentPanel, SkelSection, SkelSide, StageLine, Tags, TeamMemberRow, memberHref, pageStatus } from "./parts";
+import { Back, Bar, GlancePanel, InterestPanel, Item, Match, PageState, PrivacyPanel, SaveButton, Section, SentPanel, SkelSection, SkelSide, StageLine, Tags, TeamMemberRow, memberHref, pageStatus, sampleApp } from "./parts";
 
 /*
  * A project's page, mirrored from the product design (classes in ../styles/projects.css): what the project is and
@@ -30,11 +31,16 @@ const glance = (p: DiscoverProject) => [
   { label: "Location", value: p.glanceLocation },
 ];
 
-export default function ProjectPage({ id }: { id: string }) {
+export type ProjectVariant = "loading" | "error" | "closed" | "sent";
+
+export default function ProjectPage({ id, variant }: { id: string; variant?: ProjectVariant }) {
   const collab = useCollab({ engine: true });
   const router = useRouter();
   const [withdrawing, setWithdrawing] = useState(false);
-  const status = pageStatus(collab);
+  const base = `/collaborate/projects/${encodeURIComponent(id)}`;
+  // The design's Loading frame: the first visit of a session (and the state-loading route, which then goes on to the page).
+  const first = useFirstVisit("project", { stateRoute: variant === "loading", skip: !!variant, onDone: () => router.replace(base) });
+  const status = first ? "loading" : variant === "error" ? "error" : pageStatus(collab);
   const call = collab.call(id);
   const workspace = !call && collab.projects.some((p) => p.id === id);
 
@@ -48,7 +54,7 @@ export default function ProjectPage({ id }: { id: string }) {
       <div className="dsc-page"><div className="dsc-stack">
         <Back href="/collaborate/discover">Back to discover projects</Back>
         <PageState pair role="alert" headline="We could not load this project." support="Check your connection and try again. Your saved projects are safe.">
-          <Button onClick={() => window.location.reload()}>Try again</Button>
+          <Button onClick={() => (variant ? router.replace(`${base}/state-loading`) : window.location.reload())}>Try again</Button>
           <Button variant="secondary" href="/collaborate/discover">Back to discover projects</Button>
         </PageState>
       </div></div>
@@ -58,10 +64,11 @@ export default function ProjectPage({ id }: { id: string }) {
   const p = discoverProject(call, collab.projects);
   const saved = collab.state.saved.includes(p.id);
   const save = () => collab.toggleSave(p.id);
-  const app = collab.appFor(p.id);
+  const sent = collab.appFor(p.id);
+  const app = sent ?? (variant === "sent" ? sampleApp(p) : undefined);
   const owner = firstOf(p.ownerId);
 
-  if (p.closed && !app) {
+  if (variant === "closed" || (p.closed && !app)) {
     return (
       <div className="dsc-page"><div className="dsc-stack">
         <Back href="/collaborate/discover">Back to discover projects</Back>
@@ -111,7 +118,7 @@ export default function ProjectPage({ id }: { id: string }) {
           <PrivacyPanel text="The project summary and what the owner chose to share. Private details stay private." />
         </aside>
       </div>
-      <WithdrawInterestModal open={withdrawing} owner={owner} onClose={() => setWithdrawing(false)} onWithdraw={() => { if (app) withdraw(app); }} />
+      <WithdrawInterestModal open={withdrawing} owner={owner} onClose={() => setWithdrawing(false)} onWithdraw={() => { if (sent) withdraw(sent); else { setWithdrawing(false); router.replace(base); } }} />
     </div>
   );
 }

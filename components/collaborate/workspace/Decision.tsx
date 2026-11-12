@@ -13,6 +13,7 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { cn } from "@/lib/cn";
 import { Card, Metric, Metrics } from "./blocks";
 import { milestonesHref } from "./Decisions";
+import { fileHref, useProjectFiles } from "./Files";
 import { PageHead, WorkspaceFrame } from "./Frame";
 import { BackLink, CwLink, IconCheck, initialsOf } from "./parts";
 import "../styles/workspace.css";
@@ -70,6 +71,8 @@ function AcknowledgeDialog({ open, onClose, d, onAcknowledge }: { open: boolean;
 function DecisionPage({ projectId, slug }: { projectId: string; slug: string }) {
   const ws = useWorkspace(projectId);
   const dec = useDecisions(projectId);
+  // A supporting file that is in Files opens its page there.
+  const projectFiles = useProjectFiles(projectId).files;
   const [asking, setAsking] = useState(false);
   const d = dec.get(slug);
   const base = workspaceHref(projectId, "decisions");
@@ -188,8 +191,9 @@ function DecisionPage({ projectId, slug }: { projectId: string; slug: string }) 
             <h2 className="dd-label">SUPPORTING INFORMATION</h2>
             <ul className="dd-rows">
               {d.files.map((f) => {
-                const inner = <><span className="dd-row__text"><span className="dd-row__title">{f.name}</span><span className="dd-row__status">{f.meta}</span></span>{f.href ? <span className="dd-row__act"><span className="dd-row__open">Open</span><UpRight /></span> : null}</>;
-                return <li key={f.name}>{f.href ? <a href={f.href} className="dd-row dd-row--link" target="_blank" rel="noreferrer">{inner}</a> : <div className="dd-row">{inner}</div>}</li>;
+                const page = projectFiles.find((x) => x.name === f.name);
+                const inner = <><span className="dd-row__text"><span className="dd-row__title">{f.name}</span><span className="dd-row__status">{f.meta}</span></span>{page || f.href ? <span className="dd-row__act"><span className="dd-row__open">Open</span><UpRight /></span> : null}</>;
+                return <li key={f.name}>{page ? <Link href={fileHref(projectId, page)} className="dd-row dd-row--link">{inner}</Link> : f.href ? <a href={f.href} className="dd-row dd-row--link" target="_blank" rel="noreferrer">{inner}</a> : <div className="dd-row">{inner}</div>}</li>;
               })}
             </ul>
           </section>

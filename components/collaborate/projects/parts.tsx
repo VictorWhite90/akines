@@ -8,6 +8,7 @@ import { sentWhen, type DiscoverProject } from "@/lib/collab/projects";
 import type { Application } from "@/lib/collab/types";
 import { requestHref } from "@/components/collaborate/applications/paths";
 import type { PersonId } from "@/lib/data/people";
+import { ME } from "@/lib/collab/me";
 import "../styles/projects.css";
 
 /*
@@ -252,3 +253,9 @@ export function pageStatus(collab: { ready: boolean; notice?: string; calls: unk
   if (collab.notice && collab.calls.length === 0) return "error" as const;
   return "ready" as const;
 }
+
+/** What the "state-interest-sent" and "interest/state-sent" routes show when you have not sent interest: a request just sent, as in the design. */
+export const sampleApp = (p: DiscoverProject, availability = ""): Application => ({
+  id: `sample-${p.id}`, callId: p.id, applicant: ME, role: p.roles[0] ?? "Collaborator", works: [], statement: "", availability,
+  materials: {}, stage: "submitted", history: [{ stage: "submitted", at: Date.now() }], notes: [], tags: [],
+});

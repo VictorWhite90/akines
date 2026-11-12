@@ -16,11 +16,11 @@ import { FdAvatar, photoSrc } from "./parts";
  * `profileHref` is optional: where it returns a path, the photo and name of that slide are one link to it (Connect Discover links
  * them to the person's profile). Community Home does not pass it, so there the slide is unchanged.
  */
-export default function HomeRail({ circles, className = "fd-rail", profileHref }: { circles: Circle[]; className?: string; profileHref?: (id: PersonId) => string | undefined }) {
+export default function HomeRail({ circles, className = "fd-rail", profileHref, empty }: { circles: Circle[]; className?: string; profileHref?: (id: PersonId) => string | undefined; empty?: boolean }) {
   return (
     <aside className={className} aria-label="Your circles and a match">
       <Circles circles={circles} />
-      <Match profileHref={profileHref} />
+      <Match profileHref={profileHref} empty={empty} />
     </aside>
   );
 }
@@ -49,7 +49,7 @@ function Circles({ circles }: { circles: Circle[] }) {
 }
 
 const MAX = 10, SWIPE = 40;
-function Match({ profileHref }: { profileHref?: (id: PersonId) => string | undefined }) {
+function Match({ profileHref, empty }: { profileHref?: (id: PersonId) => string | undefined; empty?: boolean }) {
   const list = MATCHES.slice(0, MAX);
   const n = list.length;
   const [i, setI] = useState(0);
@@ -57,7 +57,7 @@ function Match({ profileHref }: { profileHref?: (id: PersonId) => string | undef
   const [dragging, setDragging] = useState(false);
   const [hello, setHello] = useLocal<Record<string, boolean>>("ak:feed-hello", {});
   const start = useRef<{ x: number; y: number; id: number; drag: boolean } | null>(null);
-  if (n === 0) {
+  if (empty || n === 0) {
     return (
       <section className="fd-box fd-match fd-match--empty" aria-labelledby="fd-match-title">
         <h2 className="fd-box__title" id="fd-match-title">You two would get along</h2>

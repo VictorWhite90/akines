@@ -1,13 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Check } from "lucide-react";
 import { faceSrc, photoSrc } from "@/components/kin/home/parts";
 import { CONVOS, KIND_LABEL, type Convo, type KMsg } from "@/lib/data/kinmessage";
-import { allPeople, ME, PEOPLE, type PersonId } from "@/lib/data/people";
+import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
+import { TIMES_NOW } from "@/components/community/PlanCall";
 import { ConvoList, EmptyPane, text, ThreadPane } from "./parts";
 import RemoteMessages from "./RemoteMessages";
 
@@ -34,7 +34,6 @@ export default function Messages({ initial }: { initial?: string }) {
 }
 
 function LocalMessages({ initial }: { initial?: string }) {
-  const router = useRouter();
   const [extra, setExtra] = useLocal<Convo[]>("km:convos", []);
   const [added, setAdded] = useLocal<Record<string, KMsg[]>>("km:msgs", {});
   const [read, setRead] = useLocal<string[]>("km:read", []);
@@ -57,7 +56,8 @@ function LocalMessages({ initial }: { initial?: string }) {
   };
   const last = (c: Convo) => { const all = [...c.msgs, ...(added[c.id] ?? [])]; const m = all[all.length - 1]; return m ? text(m) : c.last; };
   const meta = (c: Convo) => { const all = [...c.msgs, ...(added[c.id] ?? [])]; return all[all.length - 1]?.at.split(" · ")[0] ?? ""; };
-  const someone = allPeople.find((p) => p.id !== ME_ID && !saved.some((c) => c.kind === "direct" && c.members[0] === p.id));
+  // The Quick Catch-up suggests someone you already talk to (the design suggests Folake).
+  const friend = saved.find((c) => c.kind === "direct")?.members[0];
 
   const plan = (c: Convo) => ({
     eyebrow: "Create Call",
@@ -86,7 +86,7 @@ function LocalMessages({ initial }: { initial?: string }) {
           plan={open.kind === "direct" || open.kind === "project" ? plan(open) : undefined}
         />
       ) : (
-        <EmptyPane onStart={someone ? () => router.push(`/messages/${someone.id}`) : undefined} />
+        <EmptyPane quick={friend ? { eyebrow: "About 15 minutes", title: "Quick Catch-up", lead: "A short, easy conversation with someone from your circle.", people: [friend], peopleText: `Suggested: ${PEOPLE[friend].name.split(" ")[0]}`, times: TIMES_NOW, note: `Hi ${PEOPLE[friend].name.split(" ")[0]}, do you have a few minutes for a quick catch-up?`, image: photoSrc("talkTwo", 1120) } : undefined} />
       )}
     </div>
   );

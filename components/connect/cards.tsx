@@ -105,9 +105,17 @@ export function CardView({ card, reveal }: { card: Card; reveal: boolean }) {
               <p className="dxf-meta dxf-meta--block">{card.meta}</p>
               <p className="dxf-desc">{card.text}</p>
             </div>
-            <div className="dxf-foot dxf-foot--end">
-              <Done done={has(card.circle)} label="Joined"><Button variant="secondary" aria-label={`Join ${card.name}`} onClick={() => toggle(card.circle)}>Join</Button></Done>
-            </div>
+            {/* Open circles have the button alone, on the right. Approval circles keep the note on the left, also after the request. */}
+            {card.access === "approval" ? (
+              <div className="dxf-foot">
+                <span className="dxf-meta">Approval needed</span>
+                <Done done={d.isCircleRequested(card.circle)} label="Requested"><Button variant="secondary" aria-label={`Request to join ${card.name}`} onClick={() => d.requestCircle(card.circle)}>Request to join</Button></Done>
+              </div>
+            ) : (
+              <div className="dxf-foot dxf-foot--end">
+                <Done done={has(card.circle)} label="Joined"><Button variant="secondary" aria-label={`Join ${card.name}`} onClick={() => { if (!has(card.circle)) toggle(card.circle); }}>Join</Button></Done>
+              </div>
+            )}
           </>
         );
       case "artwork":

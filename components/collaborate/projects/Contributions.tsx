@@ -38,11 +38,12 @@ function Record({ item }: { item: Contribution }) {
     : <div className="co-rec co-rec--static">{inner}</div>;
 }
 
-export default function Contributions() {
+/** `empty`: the design's Empty frame, at its own address. */
+export default function Contributions({ variant }: { variant?: "empty" }) {
   const collab = useCollab({ engine: true });
-  const status = pageStatus(collab);
+  const status = variant === "empty" ? "ready" : pageStatus(collab);
   const head = <PageHead eyebrow="My contributions" title="What you have contributed." lead="A record of your work with others, shown with the context it came from. Only you can see this list." />;
-  const items = status === "ready" ? contributionsOf(collab.projects, collab.myApps, collab.call) : [];
+  const items = status === "ready" && !variant ? contributionsOf(collab.projects, collab.myApps, collab.call) : [];
 
   let body: React.ReactNode;
   if (status === "loading") {

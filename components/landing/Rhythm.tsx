@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { rhythm } from '@/lib/landing/content';
-import { Button } from './Button';
+import Button, { IconButton } from '@/components/kin/Button';
 import { ArrowLeftIcon, ArrowRightIcon, Icon } from './Icon';
 import { Lines } from './Lines';
 
@@ -143,12 +143,12 @@ export function Rhythm() {
               />
             ))}
             <div className="rhythm__controls">
-              <button type="button" className="round-btn" aria-label="Previous step" onClick={() => go(active - 1)}>
+              <IconButton variant="primary" light tooltip={false} label="Previous step" onClick={() => go(active - 1)}>
                 <ArrowLeftIcon />
-              </button>
-              <button type="button" className="round-btn" aria-label="Next step" onClick={() => go(active + 1)}>
+              </IconButton>
+              <IconButton variant="primary" light tooltip={false} label="Next step" onClick={() => go(active + 1)}>
                 <ArrowRightIcon />
-              </button>
+              </IconButton>
             </div>
           </div>
 
@@ -180,9 +180,9 @@ export function Rhythm() {
               ))}
             </div>
             <div className="card__nav">
-              <button type="button" className="round-btn round-btn--outline" aria-label="Previous step" onClick={() => swipe(-1)}>
+              <IconButton variant="secondary" tooltip={false} label="Previous step" onClick={() => swipe(-1)}>
                 <ArrowLeftIcon />
-              </button>
+              </IconButton>
               <p className="card__count">
                 <span className="sr-only" aria-live="polite">{`Step ${rhythm.steps[active].n} of ${String(count).padStart(2, '0')}`}</span>
                 <span className="card__num" aria-hidden="true">
@@ -193,9 +193,9 @@ export function Rhythm() {
                   <span className="card__num-all">{String(count).padStart(2, '0')}</span>
                 </span>
               </p>
-              <button type="button" className="round-btn round-btn--outline" aria-label="Next step" onClick={() => swipe(1)}>
+              <IconButton variant="secondary" tooltip={false} label="Next step" onClick={() => swipe(1)}>
                 <ArrowRightIcon />
-              </button>
+              </IconButton>
             </div>
           </div>
 
@@ -240,7 +240,7 @@ export function Rhythm() {
                 );
               })}
             </ol>
-            <Button href={rhythm.cta.href} variant="dark-outline" className="rhythm__cta">
+            <Button href={rhythm.cta.href} variant="secondary" fluid arrow="up-right" className="rhythm__cta">
               {rhythm.cta.label}
             </Button>
           </div>

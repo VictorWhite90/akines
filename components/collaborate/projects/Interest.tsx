@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Button from "@/components/kin/Button";
 import { Chip } from "@/components/kin/Chip";
 import { Radio } from "@/components/kin/Choice";
@@ -12,7 +12,8 @@ import { ANOTHER_WAY, INTEREST_TIMES, discoverProject, firstOf, type DiscoverPro
 import type { Application } from "@/lib/collab/types";
 import { PEOPLE } from "@/lib/data/people";
 import { requestHref } from "@/components/collaborate/applications/paths";
-import { ArrowIcon, Back, DsLink, Notice, PageState, Portrait, Status, pageStatus } from "./parts";
+import { LOADING_MS } from "@/components/collaborate/overview-lists/loading";
+import { ArrowIcon, Back, DsLink, Notice, PageState, Portrait, Status, pageStatus, sampleApp } from "./parts";
 
 /*
  * Express interest, mirrored from the product design (classes in ../styles/projects.css): choose a role, say how
@@ -21,8 +22,10 @@ import { ArrowIcon, Back, DsLink, Notice, PageState, Portrait, Status, pageStatu
  */
 
 type Phase = "form" | "sending" | "error" | "sent";
+/** The design's frames at their own addresses: the blank form, Sending, Could not send and Interest sent. */
+export type InterestVariant = "empty" | "sending" | "error" | "sent";
 
-export default function Interest({ id }: { id: string }) {
+export default function Interest({ id, variant }: { id: string; variant?: InterestVariant }) {
   const collab = useCollab({ engine: true });
   const status = pageStatus(collab);
   const call = collab.call(id);
@@ -41,12 +44,12 @@ export default function Interest({ id }: { id: string }) {
     );
   }
   const p = discoverProject(call, collab.projects);
-  const app = collab.appFor(call.id);
+  const app = collab.appFor(call.id) ?? (variant === "sent" ? sampleApp(p, INTEREST_TIMES[0]) : undefined);
   if (app) return <Sent project={p} app={app} />;
-  return <InterestForm key={call.id} project={p} />;
+  return <InterestForm key={call.id} project={p} variant={variant} />;
 }
 
-function InterestForm({ project: p }: { project: DiscoverProject }) {
+function InterestForm({ project: p, variant }: { project: DiscoverProject; variant?: InterestVariant }) {
   const collab = useCollab();
   const router = useRouter();
   const uid = useId();
@@ -54,12 +57,20 @@ function InterestForm({ project: p }: { project: DiscoverProject }) {
   const roles = [...p.roles, ANOTHER_WAY];
   // A role that is what you already do starts chosen; nothing else is filled in for you.
   const mine = PEOPLE[ME]?.role?.toLowerCase();
-  const [role, setRole] = useState(() => roles.find((r) => r.toLowerCase() === mine) ?? "");
-  const [time, setTime] = useState("");
+  // The Sending and Could not send frames show a role and a time chosen, as drawn.
+  const framed = variant === "sending" || variant === "error";
+  const [role, setRole] = useState(() => (variant === "empty" ? "" : roles.find((r) => r.toLowerCase() === mine) ?? (framed ? roles[0] : "")));
+  const [time, setTime] = useState(framed ? INTEREST_TIMES[0] : "");
   const [message, setMessage] = useState("");
-  const [phase, setPhase] = useState<Phase>("form");
+  const [phase, setPhase] = useState<Phase>(variant === "sending" ? "sending" : variant === "error" ? "error" : "form");
   const back = `/collaborate/projects/${encodeURIComponent(p.id)}`;
   const sending = phase === "sending";
+  // The Sending route sends nothing: after the design's 2.5 s it goes on to Interest sent.
+  useEffect(() => {
+    if (variant !== "sending") return;
+    const t = window.setTimeout(() => router.replace(`${back}/interest/state-sent`), LOADING_MS);
+    return () => window.clearTimeout(t);
+  }, [variant, back, router]);
 
   const send = async () => {
     if (!role || sending) return;
@@ -93,7 +104,8 @@ function InterestForm({ project: p }: { project: DiscoverProject }) {
         <div className="dsc-interest__fields" inert={sending || undefined}>
           <div className="dsc-group" role="group" aria-labelledby={`${uid}-role`}>
             <p className="dsc-eyebrow" id={`${uid}-role`}>Which role would you like to take?</p>
-            <div className="dsc-roles">{roles.map((r) => <Radio key={r} name="role" value={r} label={r} checked={role === r} onChange={() => setRole(r)} />)}</div>
+            {/* The chosen role is a toggle, as in the design: clicking it again clears the choice. */}
+            <div className="dsc-roles" onClick={(e) => { if (e.target instanceof HTMLInputElement && e.target.value === role) setRole(""); }}>{roles.map((r) => <Radio key={r} name="role" value={r} label={r} checked={role === r} onChange={() => setRole(r)} />)}</div>
           </div>
           <div className="dsc-group" role="group" aria-labelledby={`${uid}-time`}>
             <p className="dsc-eyebrow" id={`${uid}-time`}>How much time can you give?</p>

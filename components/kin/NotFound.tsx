@@ -28,7 +28,7 @@ export default function NotFound() {
       <div className="nf__parallax">
         <picture className="nf__media">
           <source media="(min-width: 768px)" srcSet="/kin/notfound/notfound.jpg" />
-          <img alt="Two hands reaching toward each other, almost touching, in warm evening light" sizes="100vw" loading="eager" decoding="async" className="cover nf__img" src="/kin/notfound/notfound-portrait.jpg" style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
+          <img alt="Two hands reaching toward each other, almost touching, in warm evening light" sizes="100vw" loading="eager" decoding="async" className="cover nf__img" src="/kin/notfound/notfound-portrait.jpg" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", color: "transparent" }} />
         </picture>
       </div>
       <div className="nf__scrim" aria-hidden />

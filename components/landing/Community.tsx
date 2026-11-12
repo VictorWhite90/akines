@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { community } from '@/lib/landing/content';
-import { Button } from './Button';
+import Button from '@/components/kin/Button';
 import { Icon } from './Icon';
 import { Lines } from './Lines';
 
@@ -51,7 +51,7 @@ export function Community() {
           </h3>
           <div className="invitation__right">
             <p className="lead lead--muted">{community.invitation.body}</p>
-            <Button href={community.invitation.cta.href} variant="dark-filled">
+            <Button href={community.invitation.cta.href} fluid arrow="up-right">
               {community.invitation.cta.label}
             </Button>
           </div>

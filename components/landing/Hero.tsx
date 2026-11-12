@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { hero } from '@/lib/landing/content';
-import { Button } from './Button';
+import Button from '@/components/kin/Button';
 import { Lines } from './Lines';
 
 export function Hero() {
@@ -24,10 +24,10 @@ export function Hero() {
           <Lines text={hero.headline} words />
         </h1>
         <div className="hero__actions">
-          <Button href={hero.primary.href} variant="light-filled">
+          <Button href={hero.primary.href} light fluid arrow="up-right">
             {hero.primary.label}
           </Button>
-          <Button href={hero.secondary.href} variant="light-outline" icon="arrow-down">
+          <Button href={hero.secondary.href} variant="secondary" light fluid arrow="down">
             {hero.secondary.label}
           </Button>
         </div>

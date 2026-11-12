@@ -9,7 +9,7 @@ import { useDocument, type Block, type Doc, type DocThread, type Part } from "@/
 import { clock24, editedAt, firstName, initialsOf, nameOf, type Version } from "@/lib/collab/live";
 import { ME } from "@/lib/collab/me";
 import type { PersonId } from "@/lib/data/people";
-import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, useToolState, viewingTitle, type ToolState, type Ws } from "./ToolFrame";
+import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, lostTitle, useToolState, viewingTitle, type ToolState, type WorkspaceState, type Ws } from "./ToolFrame";
 import "../styles/research-workspace.css";
 
 /*
@@ -24,25 +24,26 @@ const STYLES = [
 ];
 const MODES = ["Editing", "Suggesting", "Viewing"] as const;
 
-function Tool({ label, icon, dim }: { label: string; icon: LucideIcon; dim?: boolean }) {
+function Tool({ label, icon, dim }: { label: string; icon: LucideIcon; dim: boolean }) {
   return <button type="button" className="tr-tool" aria-label={label} disabled={dim}><Ico icon={icon} size={20} /></button>;
 }
 
-function FormatBar({ mode, onMode, style, styleOpen, onStyle }: { mode: string; onMode: (m: (typeof MODES)[number]) => void; style: string; styleOpen: boolean; onStyle: () => void }) {
+/** View only dims every tool but Comment (you can still comment). */
+function FormatBar({ viewOnly: v, mode, onMode, style, styleOpen, onStyle }: { viewOnly: boolean; mode: string; onMode: (m: (typeof MODES)[number]) => void; style: string; styleOpen: boolean; onStyle: () => void }) {
   const label = STYLES.find((s) => s.id === style)!.label;
   return (
-    <div className="tr-bar" role="toolbar" aria-label="Formatting">
-      <div className="tr-bar__group"><Tool label="Undo" icon={Undo2} /><Tool label="Redo" icon={Redo2} /></div>
+    <div className="tr-bar" role="toolbar" aria-label="Formatting" data-view={v || undefined}>
+      <div className="tr-bar__group"><Tool label="Undo" icon={Undo2} dim={v} /><Tool label="Redo" icon={Redo2} dim={v} /></div>
       <i className="tr-bar__rule" />
-      <button type="button" className="tr-style" onClick={onStyle} aria-haspopup="menu" aria-expanded={styleOpen} aria-label={`Text style: ${label}`}>
+      <button type="button" className="tr-style" onClick={onStyle} aria-haspopup="menu" aria-expanded={styleOpen} disabled={v} aria-label={`Text style: ${label}`}>
         <span>{label}</span><Ico icon={ChevronDown} />
       </button>
       <i className="tr-bar__rule" />
-      <div className="tr-bar__group"><Tool label="Bold" icon={Bold} /><Tool label="Italic" icon={Italic} /><Tool label="Underline" icon={Underline} /><Tool label="Link" icon={LinkIcon} /></div>
+      <div className="tr-bar__group"><Tool label="Bold" icon={Bold} dim={v} /><Tool label="Italic" icon={Italic} dim={v} /><Tool label="Underline" icon={Underline} dim={v} /><Tool label="Link" icon={LinkIcon} dim={v} /></div>
       <i className="tr-bar__rule" />
-      <div className="tr-bar__group"><Tool label="Bulleted list" icon={List} /><Tool label="Numbered list" icon={ListOrdered} /><Tool label="Align left" icon={TextAlignStart} /><Tool label="Align centre" icon={TextAlignCenter} /></div>
+      <div className="tr-bar__group"><Tool label="Bulleted list" icon={List} dim={v} /><Tool label="Numbered list" icon={ListOrdered} dim={v} /><Tool label="Align left" icon={TextAlignStart} dim={v} /><Tool label="Align centre" icon={TextAlignCenter} dim={v} /></div>
       <i className="tr-bar__rule" />
-      <div className="tr-bar__group"><Tool label="Table" icon={Table} /><Tool label="Quote" icon={Quote} /><Tool label="Comment" icon={MessageSquarePlus} /></div>
+      <div className="tr-bar__group"><Tool label="Table" icon={Table} dim={v} /><Tool label="Quote" icon={Quote} dim={v} /><Tool label="Comment" icon={MessageSquarePlus} dim={false} /></div>
       <span className="tr-bar__spacer" />
       <div className="tr-mode" role="radiogroup" aria-label="Mode">
         {MODES.map((m) => <button key={m} type="button" role="radio" aria-checked={mode === m} className="tr-mode__item" data-on={mode === m || undefined} onClick={() => onMode(m)}>{m}</button>)}
@@ -84,10 +85,10 @@ function Run({ part, caret }: { part: Part; caret: boolean }) {
   );
 }
 
-function Page({ doc, caret }: { doc: Doc; caret: boolean }) {
+function Page({ doc, caret, offline }: { doc: Doc; caret: boolean; offline: boolean }) {
   const last = doc.versions[0];
   return (
-    <article className="tr-page">
+    <article className="tr-page" data-offline={offline || undefined}>
       <h2 className="tr-page__title">{doc.title}</h2>
       <p className="tr-page__meta">Draft {doc.draft}{last ? `, last edited ${editedAt(last.at)}` : ""}</p>
       {doc.blocks.map((b: Block, i) => (b.kind === "h2"
@@ -150,9 +151,10 @@ function ThreadCard({ thread, state, active, onState, onPick }: { thread: DocThr
   );
 }
 
-function Comments({ doc, onReply, onResolve }: { doc: Doc; onReply: (id: string, t: string) => void; onResolve: (id: string, r: boolean) => void }) {
+function Comments({ doc, initialReply, onReply, onResolve }: { doc: Doc; initialReply: boolean; onReply: (id: string, t: string) => void; onResolve: (id: string, r: boolean) => void }) {
   const [filter, setFilter] = useState<"Open" | "Resolved" | "Mine">("Open");
-  const [replying, setReplying] = useState<string | null>(null);
+  // the comment reply frame opens with the first open thread in the reply state
+  const [replying, setReplying] = useState<string | null>(initialReply ? doc.threads.find((t) => !t.resolved)?.id ?? null : null);
   const [active, setActive] = useState(doc.threads.find((t) => !t.resolved)?.id);
   // Threads you resolve here stay in place (with Reopen) until you change the filter.
   const [kept, setKept] = useState<string[]>([]);
@@ -179,25 +181,31 @@ function Comments({ doc, onReply, onResolve }: { doc: Doc; onReply: (id: string,
   );
 }
 
-export default function ResearchWorkspace({ ws, failed }: { ws: Ws; failed?: boolean }) {
+export default function ResearchWorkspace({ ws, state: frame }: { ws: Ws; state?: WorkspaceState }) {
   const { doc, reply, resolve, restore } = useDocument(ws.project);
-  const tool = useToolState(failed);
-  const [mode, setMode] = useState<(typeof MODES)[number]>("Editing");
+  const tool = useToolState(ws, frame);
+  const viewOnly = frame === "viewOnly";
+  const [mode, setMode] = useState<(typeof MODES)[number]>(viewOnly ? "Viewing" : "Editing");
   const [style, setStyle] = useState("h2");
   const [styleOpen, setStyleOpen] = useState(false);
-  const [history, setHistory] = useState(false);
+  const [history, setHistory] = useState(frame === "versionHistory");
   const [preview, setPreview] = useState<Version | null>(null);
   if (!doc) return null;
 
-  const state: ToolState = tool.net !== "online" ? tool.net : history ? "versionHistory" : tool.saving ? "saving" : tool.failed ? "failed" : "saved";
+  // the collaborator whose cursor is on the page drops out in the Collaborator offline frame
+  const cursorOf = doc.blocks.flatMap((b) => (b.kind === "h2" ? [] : b.lines.flatMap((l) => l.parts))).find((p): p is { sel: string; cursor: PersonId } => typeof p !== "string" && "cursor" in p)?.cursor;
+  const offline = frame === "collaboratorOffline" ? cursorOf ?? doc.presence.find((p) => p.who !== ME && p.state === "editing")?.who : undefined;
+  const state: ToolState = tool.net !== "online" ? tool.net : history ? "versionHistory" : tool.saving ? "saving" : tool.failed ? "failed" : viewOnly ? "viewOnly" : offline ? "collaboratorOffline" : "saved";
   const banner = bannerFor(state);
   const picked = preview ?? doc.versions[Math.min(2, doc.versions.length - 1)];
   const toggleHistory = () => { setHistory((h) => !h); setPreview(null); };
   const save = { last: lastSaved(tool.savedAt, doc.versions[0]?.at), onSaveNow: tool.save, onHistory: toggleHistory, onRetry: tool.save };
 
   return (
-    <ToolFrame ws={ws} kind="research" state={state} title={doc.title} people={doc.presence}
-      history={history} onHistory={toggleHistory} comments={!history} onComments={() => setHistory(false)} save={save} saveOpen={failed}
+    <ToolFrame ws={ws} kind="research" state={state} title={doc.title} people={doc.presence} offline={offline}
+      history={history} onHistory={toggleHistory} comments={!history} onComments={() => setHistory(false)}
+      // the comment reply frame's pill has no popover, as in the design
+      save={frame === "commentReply" ? undefined : save} saveOpen={frame === "couldNotSave"} onSaveOpenChange={tool.onSaveOpenChange}
       overlays={styleOpen ? (
         <Pop onClose={() => setStyleOpen(false)} label="Text style" className="tr-pop--style">
           <ul className="tr-styles" role="menu">
@@ -211,20 +219,21 @@ export default function ResearchWorkspace({ ws, failed }: { ws: Ws; failed?: boo
           </ul>
         </Pop>
       ) : null}>
-      <FormatBar mode={mode} onMode={setMode} style={style} styleOpen={styleOpen} onStyle={() => setStyleOpen((o) => !o)} />
+      <FormatBar viewOnly={viewOnly} mode={mode} onMode={setMode} style={style} styleOpen={styleOpen} onStyle={() => setStyleOpen((o) => !o)} />
       <div className="tr-body">
         <Outline doc={doc} history={history} onHistory={toggleHistory} />
         <div className="tr-stage">
           {banner && picked ? (
-            <Banner kind={banner} title={banner === "version" ? viewingTitle(picked) : undefined} onRetry={tool.retry}
+            <Banner kind={banner} title={banner === "version" ? viewingTitle(picked) : banner === "collaborator" && offline ? lostTitle(offline) : undefined} onRetry={tool.retry}
+              onRequest={() => toast.show({ message: "Edit access requested." })}
               onBack={() => setHistory(false)}
               onRestore={() => { restore(picked); setHistory(false); tool.save(); toast.show({ message: "Version restored." }); }} />
           ) : null}
-          <main className="tr-canvas" id="main" tabIndex={-1}><Page doc={doc} caret={mode !== "Viewing"} /></main>
+          <main className="tr-canvas" id="main" tabIndex={-1}><Page doc={doc} caret={mode !== "Viewing"} offline={!!offline} /></main>
         </div>
         <aside className="tr-side" aria-label={history ? "Version history" : "Comments"}>
           {history ? <VersionList versions={doc.versions} selected={picked?.id} onSelect={setPreview} />
-            : <Comments doc={doc} onReply={(id, t) => { reply(id, t); tool.save(); }} onResolve={(id, r) => { resolve(id, r); tool.save(); }} />}
+            : <Comments doc={doc} initialReply={frame === "commentReply"} onReply={(id, t) => { reply(id, t); tool.save(); }} onResolve={(id, r) => { resolve(id, r); tool.save(); }} />}
         </aside>
       </div>
     </ToolFrame>

@@ -3,7 +3,7 @@ import Workspace from "@/components/collaborate/tools/Workspace";
 
 export const metadata: Metadata = { title: "Workspace · Akines" };
 
-/** The workspace after a save that failed: "Could not save" with the save status popover open. */
+/** The design's state frame: the workspace after a save that failed: "Could not save" with the save status popover open. */
 export default async function WorkspaceCouldNotSavePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   return <Workspace projectId={decodeURIComponent(id)} state="couldNotSave" />;

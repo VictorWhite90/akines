@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { FileText } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { Field, Input, Textarea } from "@/components/kin/Field";
@@ -14,6 +15,7 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { CtxBlock, PageHead, WorkspaceFrame } from "./Frame";
 import { milestoneHref } from "./Overview";
 import { BackLink, CwLink, Dot, IconCheck, Initials, Over, initialsOf, when } from "./parts";
+import { fileHref, useProjectFiles } from "./Files";
 import { Box, memberByName, PriorityMark, StatusMark, TaskPop, tasksHref } from "./Tasks";
 import "../styles/tasks.css";
 import "../styles/conversations.css";
@@ -174,6 +176,8 @@ const UPDATED = "Task updated. Everyone on it has been told.";
 export default function Task({ projectId, slug, state }: { projectId: string; slug: string; /** The state-* routes: the Edit task slide-out open, in Needs attention, or just saved. */ state?: "edit" | "invalid" | "updated" }) {
   const ws = useWorkspace(projectId);
   const tasks = useTasks(ws.project, ws.collab);
+  // Open goes to the file's page in Files (the design shows Open on every related file).
+  const projectFiles = useProjectFiles(projectId).files;
   const [requesting, setRequesting] = useState(false);
   const [menu, setMenu] = useState(false);
   const [editing, setEditing] = useState(state === "edit" || state === "invalid");
@@ -256,7 +260,11 @@ export default function Task({ projectId, slug, state }: { projectId: string; sl
                 <li key={f.id} className="tk-file">
                   <span className="tk-file__icon" aria-hidden><FileText size={22} strokeWidth={1.5} focusable={false} /></span>
                   <span className="tk-file__text"><span className="tk-file__name">{f.name}</span><span className="tk-file__meta">{f.meta}</span></span>
-                  {f.href ? <a className="cw-link" href={f.href} target="_blank" rel="noreferrer"><span className="cw-link__label">Open</span></a> : null}
+                  {(() => {
+                    const page = projectFiles.find((x) => x.id === f.id);
+                    if (page) return <Link className="cw-link" href={fileHref(p.id, page)}><span className="cw-link__label">Open</span></Link>;
+                    return f.href ? <a className="cw-link" href={f.href} target="_blank" rel="noreferrer"><span className="cw-link__label">Open</span></a> : null;
+                  })()}
                 </li>
               ))}
             </ul>

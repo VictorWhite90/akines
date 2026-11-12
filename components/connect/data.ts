@@ -3,6 +3,7 @@
 import { faceSrc, photoSrc } from "@/components/kin/home/parts";
 import { useAllProducts } from "@/components/shop/useShop";
 import { useCollab } from "@/lib/collab/useCollab";
+import { circleAccess, type CircleAccess } from "@/lib/connect/circles";
 import { EVENTS, eventMeta, eventTag, type ConnectEvent } from "@/lib/connect/events";
 import type { Interest } from "@/lib/connect/interests";
 import { profilePath } from "@/lib/connect/profiles";
@@ -50,21 +51,29 @@ export const FILTERS = [
 export type Filter = (typeof FILTERS)[number]["key"];
 
 export type PersonCard = { kind: "person"; id: string; person: string; name: string; image?: string; identity: string; text: string; href: string };
-export type CircleCard = { kind: "circle"; id: string; circle: string; name: string; image: string; meta: string; text: string; href: string };
+export type CircleCard = { kind: "circle"; id: string; circle: string; name: string; image: string; meta: string; text: string; href: string; access: CircleAccess };
 export type ArtCard = { kind: "artwork"; id: string; tag: string; title: string; maker: PersonId; makerHref: string; price: string; edition: string; image: string; href: string };
 export type ItemCard = { kind: "project" | "studio" | "story" | "event"; id: string; tag: string; title: string; text: string; meta: string; image: string; action: string; href?: string };
 export type Card = PersonCard | CircleCard | ArtCard | ItemCard;
 
 export const personCard = (p: Person): PersonCard => ({ kind: "person", id: `person-${p.id}`, person: p.id, name: p.name, image: faceSrc(p.id as PersonId, 640) ?? p.photo ?? undefined, identity: [p.role, p.city].filter(Boolean).join(" · "), text: p.about, href: profilePath(p.id) });
-export const circleCard = (c: Circle): CircleCard => ({ kind: "circle", id: `circle-${c.id}`, circle: c.id, name: c.name, image: photoSrc(c.photo), meta: `${c.members} members · ${c.active} active`, text: c.blurb, href: "/connect/kincircle" });
+export const circleCard = (c: Circle): CircleCard => ({ kind: "circle", id: `circle-${c.id}`, circle: c.id, name: c.name, image: photoSrc(c.photo), meta: `${c.members} members · ${c.active} active`, text: c.blurb, href: "/connect/kincircle", access: circleAccess(c.id) });
 export const eventCard = (e: ConnectEvent): ItemCard => ({ kind: "event", id: `event-${e.id}`, tag: eventTag(e), title: e.title, text: e.summary, meta: eventMeta(e), image: photoSrc(e.photo), action: "View event", href: eventPath(e.id) });
+
+/** Open and approval circles taken in turn, as the design orders its circles (open, approval, open, approval, then the rest). */
+function interleave(list: CircleCard[]): CircleCard[] {
+  const open = list.filter((c) => c.access === "open"), approval = list.filter((c) => c.access === "approval");
+  const out: CircleCard[] = [];
+  for (let i = 0; i < Math.max(open.length, approval.length); i++) { if (open[i]) out.push(open[i]); if (approval[i]) out.push(approval[i]); }
+  return out;
+}
 
 /** Every card kind, from our data. */
 export function useCardLists() {
   const { calls } = useCollab();
   const products = sortProducts(useAllProducts(), "new");
   const people = allPeople.filter((p) => p.id !== ME.id).map(personCard);
-  const circles = CIRCLES.filter((c) => !c.joined).map(circleCard);
+  const circles = interleave(CIRCLES.filter((c) => !c.joined).map(circleCard));
   const art: ArtCard[] = products.slice(0, 1).map((p) => ({ kind: "artwork", id: `artwork-${p.id}`, tag: p.category.toUpperCase(), title: p.title, maker: p.seller, makerHref: profilePath(p.seller), price: `$${p.price.toLocaleString()}`, edition: p.unique ? "1 of 1" : `${p.stock} available`, image: photoSrc(p.photos[0]), href: "/make-sell" }));
   const projects: ItemCard[] = calls.filter((c) => !c.postedByMe).map((c) => ({ kind: "project", id: `project-${c.id}`, tag: "PROJECT", title: c.title, text: c.summary, meta: `${PEOPLE[c.host]?.name ?? c.org} · ${c.teamSize} people`, image: photoSrc(c.photo), action: "View project", href: `/collaborate/projects/${c.id}` }));
   const studios: ItemCard[] = STUDIOS.map((v) => ({ kind: "studio", id: `studio-${v.id}`, tag: "STUDIO VISIT", title: `${first(v.artist)}'s studio`, text: v.blurb, meta: `${v.place} · ${v.when}`, image: photoSrc(v.photo), action: "Request a visit", href: "/explore/studio-visits" }));

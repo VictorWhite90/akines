@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DEMO } from "@/lib/demo/mode";
 
 /*
  * The design's Loading frames: a screen shows its skeleton the first time it is opened in a visit (2.5 s, the
@@ -21,6 +22,9 @@ export const takeFirstVisit = (key: string) => {
 export function useFirstVisit(key: string, { stateRoute, skip, onDone }: { stateRoute?: boolean; skip?: boolean; onDone?: () => void } = {}) {
   const [loading, setLoading] = useState(() => {
     if (stateRoute) { takeFirstVisit(key); return true; }
+    // The timed skeleton is the prototype's: the preview shows it, the live app never waits on a timer. On real data
+    // a screen shows its skeleton only while its data is actually loading (each screen's own `ready` check).
+    if (!DEMO) return false;
     return skip ? false : takeFirstVisit(key);
   });
   useEffect(() => {
