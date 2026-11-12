@@ -8,8 +8,15 @@ import type { BanterNow } from "@/lib/data/banter";
 import { PEOPLE } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 import Img from "@/components/kin/Img";
+import { useActs } from "@/components/community/Collaboration";
+import { useLayout } from "@/components/kin/useLayout";
+import "@/components/messages/messages-mobile.css";
 
-/** The product design's Banter page (Community Home, /community/banter) (classes in components/kin/community.css): what it is, who is there, then join. */
+/**
+ * The product design's Banter page (Community Home, /community/banter) (classes in components/kin/community.css): what it is, who is
+ * there, then join. Phones (the design's V2 Mobile Banter): photo on top, Join full width at the Large size, top bar instead of the
+ * back link (components/messages/messages-mobile.css).
+ */
 export default function BanterIntro({ session }: { session: BanterNow }) {
   const [reminded, setReminded] = useLocal<string[]>("ak:banter-reminders", []);
   const host = PEOPLE[session.host];
@@ -18,20 +25,24 @@ export default function BanterIntro({ session }: { session: BanterNow }) {
   const rest = others.length - named.length + (session.more ?? 0);
   const withText = named.length ? `, with ${named.join(rest > 0 ? ", " : " and ")}${rest > 0 ? ` and ${rest} other${rest > 1 ? "s" : ""}` : ""}` : "";
   const on = reminded.includes(session.id);
+  const acts = useActs();
+  // phones: the design's People Row, 40 photos in 44 white rings overlapping by 12
+  const phone = useLayout() === "mobile";
+  const av = phone ? 44 : 40;
   return (
-    <div className="ch-page">
+    <div className="ch-page ms-detail">
       <div className="ch-split">
         <div className="ch-split__main">
-          <Link href="/" className="ch-tlink">Back to Community Home</Link>
+          <Link href="/" className="ch-tlink ms-back">Back to Community Home</Link>
           <p className="ch-label">Banter · {session.context}</p>
           <h1 className="ch-split__title" data-m="words">{session.topic}</h1>
           <p className="ch-split__desc">An open conversation. Listen first, or join in when you feel like it.</p>
           <p className="ch-when"><CalendarDays size={20} strokeWidth={1.25} aria-hidden /><span>{session.when ?? `${session.live ? "Live now" : `Starts ${session.startsIn ?? "soon"}`} · ${session.minutes} minutes`}</span></p>
           <div className="ch-ppl">
-            <span className="ch-avs" style={{ "--ch-av-gap": "-10px" } as React.CSSProperties}>
+            <span className="ch-avs" style={{ "--ch-av-gap": phone ? "-12px" : "-10px" } as React.CSSProperties}>
               {session.people.slice(0, 3).map((p) => {
                 const src = faceSrc(p);
-                return <span key={p} className="ch-av ch-av--light" style={{ width: 40, height: 40 }}>{src ? <Img src={src} sizes="40px" /> : null}</span>;
+                return <span key={p} className="ch-av ch-av--light" style={{ width: av, height: av }}>{src ? <Img src={src} sizes={`${av}px`} /> : null}</span>;
               })}
             </span>
             <span className="ch-ppl__text">Hosted by {host.name.split(" ")[0]}{withText}</span>
@@ -47,7 +58,7 @@ export default function BanterIntro({ session }: { session: BanterNow }) {
                 <button type="button" className="ch-tlink" onClick={() => setReminded(reminded.filter((x) => x !== session.id))}>Leave Banter</button>
               </>
             ) : (
-              <Button iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={() => setReminded([...reminded, session.id])}>Join Banter</Button>
+              <Button {...acts} iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={() => setReminded([...reminded, session.id])}>Join Banter</Button>
             )}
           </div>
         </div>

@@ -8,7 +8,7 @@ import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { DEMO } from "@/lib/demo/mode";
 import { newId, useLocal } from "@/lib/useLocal";
 import { TIMES_NOW } from "@/components/community/PlanCall";
-import { ConvoList, EmptyPane, text, ThreadPane } from "./parts";
+import { ConvoList, EmptyPane, InboxActs, text, ThreadPane } from "./parts";
 import RemoteMessages from "./RemoteMessages";
 
 /*
@@ -66,6 +66,7 @@ function LocalMessages({ initial }: { initial?: string }) {
   const meta = (c: Convo) => { const mine = added[c.id] ?? []; if (!mine.length && c.meta) return c.meta; const all = [...c.msgs, ...mine]; return all[all.length - 1]?.at.split(" · ")[0] ?? ""; };
   // The Quick Catch-up suggests someone you already talk to (the design suggests Folake).
   const friend = (saved.find((c) => c.id === "folake") ?? saved.find((c) => c.kind === "direct"))?.members[0];
+  const quick = friend ? { eyebrow: "About 15 minutes", title: "Quick Catch-up", lead: "A short, easy conversation with someone from your circle.", people: [friend], peopleText: `Suggested: ${PEOPLE[friend].name.split(" ")[0]}`, times: TIMES_NOW, note: `Hi ${PEOPLE[friend].name.split(" ")[0]}, do you have a few minutes for a quick catch-up?`, image: "/kin/design/home/community/friends.jpg" } : undefined;
 
   const plan = (c: Convo) => ({
     eyebrow: "Create Call",
@@ -81,6 +82,7 @@ function LocalMessages({ initial }: { initial?: string }) {
   return (
     <div className="ch-msg" data-view={open ? "thread" : "list"}>
       <ConvoList rows={convos.map((c) => ({ id: c.id, name: c.name, desc: last(c), meta: meta(c), face: faceOf(c) }))} openId={open?.id} />
+      {open ? null : <InboxActs quick={quick} />}
       {open ? (
         <ThreadPane
           key={open.id}
@@ -96,7 +98,7 @@ function LocalMessages({ initial }: { initial?: string }) {
           plan={open.kind === "direct" || open.kind === "project" ? plan(open) : undefined}
         />
       ) : (
-        <EmptyPane quick={friend ? { eyebrow: "About 15 minutes", title: "Quick Catch-up", lead: "A short, easy conversation with someone from your circle.", people: [friend], peopleText: `Suggested: ${PEOPLE[friend].name.split(" ")[0]}`, times: TIMES_NOW, note: `Hi ${PEOPLE[friend].name.split(" ")[0]}, do you have a few minutes for a quick catch-up?`, image: "/kin/design/home/community/friends.jpg" } : undefined} />
+        <EmptyPane quick={quick} />
       )}
     </div>
   );

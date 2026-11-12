@@ -1,0 +1,539 @@
+/* Community Home on phones: the design's feed/feed-mobile.css (12 Nov 2026), copied verbatim. Do not restyle here. */
+/*
+ * Community Home feed on PHONES (below 768). Figma: V2 Mobile, section "10 - COMMUNITY HOME", frames 10.1 Feed Version A to D,
+ * Loading and Section error (402 wide), built from the "Feed system (Mobile)" components:
+ * Feed Hero Card / Mobile 232 x 376, Feed Section Header / Mobile, Feed Card / Mobile 264, Feed Conversation Card / Mobile 280,
+ * Feed Trait Card / Mobile 264, Feed Product Card / Mobile 171 (two column grid), Feed Post / Mobile and Feed Wellbeing / Mobile 354,
+ * Feed Loading Note, Feed Skeleton Section and Feed Section Error / Mobile.
+ *
+ * Every rule sits in the phone media query and under .fd-home (the Community Home root): Connect Discover also carries .fd-page and
+ * reads feed.css, so it must not pick these up. Tablet and desktop are untouched.
+ * Rhythm: 16 under the app header, hero 376, 48 between hero and sections and between sections, 16 header to content,
+ * 24 side padding (content 354 at 402), 40 above the bottom bar.
+ */
+@media (max-width: 767px) {
+  .fd-page.fd-home {
+    --fd-pad: 24px;
+    --fd-top: 16px;
+    --fd-bottom: 40px;
+    --fd-header-h: 64px; /* Header Mobile */
+    --fd-hero-gap: 48px;
+    --fd-sec-gap: 48px;
+    --fd-head-gap: 16px;
+
+    --fd-hcard-w: 232px;
+    --fd-hcard-photo-h: 290px;
+    --fd-hcard-gap: 12px;
+    --fd-hcard-title: 18px;
+    --fd-hcard-title-lh: 25.2px;
+    --fd-hcard-meta: 14px;
+    --fd-hcard-meta-lh: 16.8px;
+
+    --fd-title: 24px;
+    --fd-support: 14px;
+
+    --fd-row-gap: 12px;
+    --fd-card-photo-gap: 12px;
+    --fd-card-title: 18px;
+    --fd-card-title-lh: 25.2px;
+    --fd-card-text: 14px;
+    --fd-card-text-lh: 22.4px;
+    --fd-lines: 2;
+    --fd-card-meta-gap: 12px;
+    --fd-card-bottom: 0px;
+
+    --fd-post-gap: 16px;
+    --fd-media-gap: 8px;
+    --fd-well-pad: 24px;
+    --fd-well-reply-h: 51px;
+  }
+
+  /* ------------------------------------------------------------------------------------------- layout: no rail */
+  .fd-home .fd-rail {
+    display: none;
+  }
+  .fd-home .fd-layout {
+    display: block;
+    margin-top: var(--fd-hero-gap);
+    padding-inline: var(--fd-pad);
+  }
+  .fd-home .fd-feed {
+    margin-top: 0;
+    gap: var(--fd-sec-gap);
+  }
+  .fd-home .fd-section {
+    scroll-margin-top: calc(var(--fd-header-h) + 16px);
+  }
+
+  /* ------------------------------------------------------------------------------------------- hero: swipe row of 232 cards */
+  .fd-home .fd-hero__track {
+    scroll-snap-type: x mandatory;
+  }
+  .fd-home .fd-hcard__tag {
+    top: 12px;
+    left: 12px;
+    gap: 6px;
+    padding: 5px 12px;
+    font: 500 12px/1.6 var(--font-sans);
+  }
+  .fd-home .fd-hcard__dot {
+    width: 6px;
+    height: 6px;
+  }
+  .fd-home .fd-hcard__text {
+    gap: 2px;
+    padding: 10px 0 4px;
+  }
+  .fd-home .fd-hcard__title {
+    height: 52px; /* two lines, fixed so the cards line up */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+  }
+  .fd-home .fd-hcard__meta {
+    height: 18px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .fd-home .fd-hcard__photo {
+    transition: opacity 0.15s ease-out;
+  }
+  .fd-home .fd-hcard:active .fd-hcard__photo {
+    opacity: 0.88;
+  }
+
+  /* ------------------------------------------------------------------------------------------- section header */
+  /* Title (Alice 24, up to two lines) with the link at the right of the title row in a 44 high area; support under both. */
+  .fd-home .fd-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 4px 12px;
+    margin-bottom: var(--fd-head-gap);
+  }
+  .fd-home .fd-head__copy {
+    display: contents;
+  }
+  .fd-home .fd-head__title {
+    grid-column: 1;
+    grid-row: 1;
+    padding-top: 7px;
+    font: 400 24px/1.2 var(--font-serif);
+    letter-spacing: -0.12px;
+  }
+  .fd-home .fd-head > .fd-link {
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 44px;
+    white-space: nowrap;
+  }
+  .fd-home .fd-head__support {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    font: 400 14px/1.6 var(--font-sans);
+  }
+
+  /* ------------------------------------------------------------------------------------------- swipe rows */
+  .fd-home .fd-row {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 264px;
+    grid-template-columns: none;
+    grid-template-rows: none;
+    gap: 0 var(--fd-row-gap);
+    margin: -6px calc(var(--fd-pad) * -1);
+    padding: 6px var(--fd-pad);
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--fd-pad);
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+  .fd-home .fd-row::-webkit-scrollbar {
+    display: none;
+  }
+  .fd-home .fd-row > * {
+    scroll-snap-align: start;
+  }
+  .fd-home .fd-row--banter {
+    grid-auto-columns: 280px;
+  }
+  .fd-home .fd-row--sk {
+    overflow: hidden;
+  }
+  /* shop: two columns of 171 (at 402), 12 apart, no swipe */
+  .fd-home .fd-row--shop {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--fd-row-gap);
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+
+  /* ------------------------------------------------------------------------------------------- Feed Card / Mobile 264 */
+  /* Fixed line counts (title 2, description 2) keep a row aligned, so the subgrid of the wide layout is not needed. */
+  .fd-home .fd-card--sub {
+    display: flex;
+    grid-row: auto;
+  }
+  .fd-home .fd-card {
+    padding-bottom: 0;
+    transition: opacity 0.15s ease-out;
+  }
+  .fd-home .fd-card__photo {
+    aspect-ratio: 264 / 198;
+  }
+  .fd-home .fd-card__tag {
+    margin-top: var(--fd-card-photo-gap);
+    font: 500 12px/1.6 var(--font-sans);
+    letter-spacing: 0.96px;
+  }
+  .fd-home .fd-card__title {
+    height: 52px;
+    min-height: 0;
+    margin-top: 6px;
+    letter-spacing: 0;
+  }
+  .fd-home .fd-card__photo + .fd-card__title {
+    margin-top: var(--fd-card-photo-gap);
+  }
+  .fd-home .fd-card__text {
+    height: 46px;
+    min-height: 0;
+    margin: 6px 0 12px;
+    letter-spacing: 0.25px;
+  }
+  .fd-home .fd-card__meta {
+    gap: 4px 12px;
+    margin-top: auto;
+    letter-spacing: 0.5px;
+  }
+  .fd-home a.fd-card:active,
+  .fd-home .fd-product__link:active,
+  .fd-home .fd-banter:active {
+    opacity: 0.92;
+  }
+
+  /* ------------------------------------------------------------------------------------------- Feed Product Card / Mobile 171 */
+  .fd-home .fd-product .fd-card__photo {
+    aspect-ratio: 1;
+  }
+  .fd-home .fd-product__link {
+    transition: opacity 0.15s ease-out;
+  }
+  .fd-home .fd-product__title {
+    height: 52px;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+  .fd-home .fd-product__maker {
+    --fd-face: 20px;
+    gap: 8px;
+    min-width: 0;
+    margin-top: 6px;
+    font: 400 14px/1.6 var(--font-sans);
+    letter-spacing: 0.25px;
+  }
+  .fd-home .fd-product__maker > span:last-child {
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .fd-home .fd-product__buy {
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin-top: 12px;
+    padding: 12px 0;
+  }
+  .fd-home .fd-product__price {
+    gap: 2px;
+    min-height: 0;
+    font: 400 18px/1.4 var(--font-serif);
+    white-space: nowrap;
+  }
+  .fd-home .fd-product__edition {
+    letter-spacing: 0.5px;
+  }
+
+  /* ------------------------------------------------------------------------------------------- Feed Conversation Card / Mobile 280 */
+  .fd-home .fd-banter {
+    gap: 12px;
+    min-height: 0;
+    padding: 20px;
+    transition:
+      border-color 0.4s var(--ease-out),
+      opacity 0.15s ease-out;
+  }
+  .fd-home .fd-banter__tag {
+    font: 500 12px/1.6 var(--font-sans);
+    letter-spacing: 0.96px;
+  }
+  .fd-home .fd-banter__dot {
+    display: none; /* the mobile card has the tag text only */
+  }
+  .fd-home .fd-banter__title {
+    height: 59px;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    font: 400 24px/1.2 var(--font-serif);
+    letter-spacing: -0.5px;
+  }
+  .fd-home .fd-banter__text {
+    height: 69px;
+    letter-spacing: 0.25px;
+  }
+  .fd-home .fd-banter__foot {
+    gap: 12px;
+    padding-top: 12px;
+  }
+  .fd-home .fd-banter__people,
+  .fd-home .fd-trait__people {
+    gap: 12px;
+    font: 500 12px/1.6 var(--font-sans);
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+  }
+
+  /* ------------------------------------------------------------------------------------------- Feed Trait Card / Mobile 264 */
+  .fd-home .fd-trait {
+    gap: 12px;
+    min-height: 0;
+    padding: 20px;
+  }
+  .fd-home .fd-trait__eyebrow {
+    font: 500 12px/1.6 var(--font-sans);
+    letter-spacing: 0.96px;
+  }
+  .fd-home .fd-trait__title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 400 20px/1.4 var(--font-serif);
+    letter-spacing: 0;
+  }
+  .fd-home .fd-trait__text {
+    height: 46px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    letter-spacing: 0.25px;
+  }
+  .fd-home .fd-trait__foot {
+    align-self: stretch;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .fd-home .fd-trait__people {
+    --fd-face: 28px;
+  }
+  /* the 30 high Card Link gets a 44 high touch area without moving anything */
+  .fd-home .fd-trait__foot .fd-link {
+    position: relative;
+  }
+  .fd-home .fd-trait__foot .fd-link::after {
+    content: '';
+    position: absolute;
+    inset: -7px 0;
+  }
+
+  /* ------------------------------------------------------------------------------------------- Feed Post / Mobile 354 */
+  .fd-home .fd-post {
+    gap: 14px;
+    padding: 20px;
+  }
+  .fd-home .fd-post__head {
+    --fd-face: 40px;
+    flex-wrap: wrap;
+    gap: 14px 12px; /* the circle tag drops under the name, 14 below it */
+  }
+  .fd-home .fd-post__who {
+    display: flex;
+    flex: 1 1 calc(100% - 52px);
+    flex-direction: column;
+    gap: 2px;
+  }
+  .fd-home .fd-post__name {
+    font: 600 16px/1.6 var(--font-sans);
+  }
+  .fd-home .fd-post__meta {
+    font: 400 14px/1.6 var(--font-sans);
+    letter-spacing: 0.25px;
+  }
+  .fd-home .fd-post__circle {
+    flex: 0 0 auto;
+    max-width: 100%;
+    min-height: 19px;
+    margin-left: 0;
+    white-space: normal;
+    text-align: left;
+  }
+  .fd-home .fd-post__body {
+    gap: 12px;
+  }
+  /* photos fit the card width: two of 152 x 190 or three of 99 x 132 at 402 */
+  .fd-home .fd-post__media {
+    display: grid;
+    gap: var(--fd-media-gap);
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .fd-home .fd-post__media--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fd-home .fd-post__media--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .fd-home .fd-post__media .fd-post__img {
+    flex: none;
+  }
+  .fd-home .fd-post__media--2 .fd-post__img {
+    aspect-ratio: 152 / 190;
+  }
+  .fd-home .fd-post__media--3 .fd-post__img {
+    aspect-ratio: 296 / 396;
+  }
+  /* one flat row under a hairline: reactions, + React and the replies link wrap together */
+  .fd-home .fd-post__foot {
+    justify-content: flex-start;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+  }
+  .fd-home .fd-post__reacts {
+    display: contents;
+  }
+  /* reaction chip label as in Figma ("👏 3", Manrope Medium 14): emoji and count a space apart */
+  .fd-home .fd-post__foot .k-chip {
+    gap: 4px;
+  }
+  .fd-home .fd-post__foot .fd-emoji {
+    font-size: 14px;
+  }
+  .fd-home .fd-post__foot .k-chip__count {
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+  .fd-home .fd-post__foot .k-chip:not(.k-chip--selected) .k-chip__count {
+    color: var(--text-primary);
+  }
+
+  /* ------------------------------------------------------------------------------------------- Feed Wellbeing / Mobile 354 */
+  .fd-home .fd-well {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+  .fd-home .fd-well__photo.fd-photo {
+    order: -1;
+    min-height: 0;
+    margin: 1px 1px 0;
+    aspect-ratio: 352 / 200;
+  }
+  .fd-home .fd-well__body {
+    justify-content: flex-start;
+    gap: 14px;
+    padding: var(--fd-well-pad);
+  }
+  .fd-home .fd-well__eyebrow {
+    font: 500 12px/1.6 var(--font-sans);
+    letter-spacing: 0.96px;
+    color: var(--text-accent);
+  }
+  .fd-home .fd-well__title {
+    font: 400 24px/1.2 var(--font-serif);
+    letter-spacing: -0.5px;
+  }
+  .fd-home .fd-well__support {
+    font: 400 14px/1.6 var(--font-sans);
+  }
+  .fd-home .fd-well__chips {
+    gap: 8px;
+    margin-top: 0;
+  }
+  .fd-home .fd-well__reply {
+    font: 400 18px/1.4 var(--font-serif);
+    letter-spacing: 0;
+  }
+  .fd-home .fd-well .fd-link {
+    min-height: 44px;
+  }
+  .fd-home .fd-well .fd-link svg {
+    display: none; /* the phone card shows "Reflect privately" without the arrow */
+  }
+
+  /* ------------------------------------------------------------------------------------------- loading */
+  .fd-home .fd-note {
+    gap: 8px;
+    margin: 0;
+    font: 400 14px/1.6 var(--font-sans);
+    letter-spacing: 0.25px;
+  }
+  .fd-home .fd-section--sk .fd-head {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .fd-home .fd-sk-card {
+    gap: 14px;
+  }
+  .fd-home .fd-sk-photo {
+    aspect-ratio: 264 / 198;
+  }
+
+  /* ------------------------------------------------------------------------------------------- section error */
+  .fd-home .fd-error {
+    gap: 16px;
+    padding: 24px;
+  }
+  .fd-home .fd-error__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .fd-home .fd-error__icon {
+    display: inline-flex;
+    flex: none;
+    color: #957600; /* Icon/Warning in Figma, the value the other warning icons of the app use */
+  }
+  .fd-home .fd-error__title {
+    min-width: 0;
+    font: 400 22px/1.4 var(--font-serif);
+  }
+  .fd-home .fd-error__text {
+    margin: 0;
+    font: 400 14px/1.6 var(--font-sans);
+  }
+}
+
+/* Skeleton bars in the Figma phone frames are Border/Default (the kit skeleton is a shade lighter); same pulse as the kit. */
+@media (max-width: 767px) {
+  .fd-home .fd-feed .k-skel {
+    background-color: var(--border-default);
+  }
+}
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .fd-home .fd-feed .k-skel {
+    animation-name: fd-sk-pulse;
+  }
+}
+@keyframes fd-sk-pulse {
+  from {
+    background-color: var(--border-default);
+  }
+  to {
+    background-color: var(--border-subtle);
+  }
+}

@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { Chip } from "@/components/kin/Chip";
-import { Toggle } from "@/components/kin/Choice";
 import { account, type MyProfile } from "@/lib/api/account";
-import { PrivacyExtras } from "./ConnectionSections";
+import { PrivacyExtras, Row } from "./ConnectionSections";
 import { Notice, Status, useLoad } from "./useLoad";
 
 const WHO: { value: MyProfile["message_permission"]; label: string }[] = [
@@ -41,10 +40,7 @@ export default function PrivacySection() {
         </div>
       </div>
       <div className="ch-set__list">
-        <div className="ch-set__row">
-          <div className="ch-set__rowtext"><span className="ch-set__rowtitle">Show me in search and suggestions</span><span className="ch-set__rowdesc">Turn off to only be found by people who already know your @username.</span></div>
-          <Toggle checked={p.show_in_search} onChange={(v) => change({ show_in_search: v })} aria-label="Show me in search and suggestions" />
-        </div>
+        <Row title="Show me in search and suggestions" text="Turn off to only be found by people who already know your @username." checked={p.show_in_search} onChange={(v) => change({ show_in_search: v })} />
       </div>
       <Notice text={notice?.text ?? null} tone={notice?.tone} />
       <PrivacyExtras />

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Bell, BriefcaseBusiness, Camera, Check, ChevronDown, ChevronRight, ChevronUp, Compass, Fingerprint, Heart, CircleHelp, House, Image as ImageIcon, Link2, LogOut, Mail, MapPin, MessageSquare, Palette, PenLine, SlidersHorizontal, Sparkles, User, UserCheck, Users } from "lucide-react";
 import { chat } from "@/lib/api/chat";
 import { notifications as noticesApi, type Notice } from "@/lib/api/notifications";
@@ -16,6 +16,10 @@ import Avatar from "./Avatar";
 import { IconButton } from "./Button";
 import Logo from "./Logo";
 import { Modal } from "./Overlay";
+import { MobileTopBar } from "./MobileTopBar";
+import type { MobileRoute } from "./mobileRoutes";
+import { useLayout } from "./useLayout";
+import { useSwipeDown } from "./useSwipeDown";
 import "./header.css";
 import "./community.css";
 import type { ImageInput } from "@/lib/images";
@@ -23,20 +27,11 @@ import type { ImageInput } from "@/lib/images";
 /*
  * The app header, mirrored from the product design (classes in header.css, sheets in akines/library.css):
  * desktop (1280 and up) shows the six sections and the open section's tabs; tablet shows the page title;
- * phones show the title on top, the sections in a bottom bar, and a sheet for a section's pages.
+ * phones show the title on top (or, on sub-pages, the top bar with a back button), the sections in a bottom bar (hidden on chat
+ * threads), and a sheet for a section's pages. What a phone shows on each page comes from `mobile` (components/kin/mobileRoutes.ts).
  */
 
-type Layout = "desktop" | "tablet" | "mobile";
-const MQ = { mobile: "(max-width: 767px)", tablet: "(min-width: 768px) and (max-width: 1279px)" };
-function subscribe(cb: () => void) {
-  const a = window.matchMedia(MQ.mobile), t = window.matchMedia(MQ.tablet);
-  a.addEventListener("change", cb); t.addEventListener("change", cb);
-  return () => { a.removeEventListener("change", cb); t.removeEventListener("change", cb); };
-}
-const current = (): Layout => (window.matchMedia(MQ.mobile).matches ? "mobile" : window.matchMedia(MQ.tablet).matches ? "tablet" : "desktop");
-export function useLayout(): Layout {
-  return useSyncExternalStore(subscribe, current, () => "desktop");
-}
+export { useLayout } from "./useLayout";
 
 /** Two overlapping circles: Collaborate. */
 function Pair({ size = 24 }: { size?: number }) {
@@ -244,7 +239,7 @@ function NotificationsPanel({ open, onClose, onRead }: { open: boolean; onClose:
   }, [open, onRead]);
   const go = (href: string) => { onClose(); router.push(href); };
   return (
-    <Modal open={open} onClose={onClose} title="Notifications" hideClose flush width={400} className="ch-notif">
+    <Modal open={open} onClose={onClose} title="Notifications" hideClose flush width={400} className="ch-notif" sheet="list">
       <div className="ch-notif__list">
         {items === null ? <p className="ch-row__desc" style={{ padding: "16px 24px" }}>Loading…</p> : items.length === 0 ? <p className="ch-row__desc" style={{ padding: "16px 24px" }}>Nothing new. Notifications appear here.</p> : items.slice(0, 8).map((n) => (
           <button key={n.id} type="button" className="ch-row" onClick={() => (n.link ? go(n.link) : onClose())}>
@@ -259,7 +254,7 @@ function NotificationsPanel({ open, onClose, onRead }: { open: boolean; onClose:
   );
 }
 
-export default function Header() {
+export default function Header({ mobile }: { mobile?: MobileRoute }) {
   const pathname = usePathname();
   const router = useRouter();
   const layout = useLayout();
@@ -280,6 +275,9 @@ export default function Header() {
   const logout = () => void signOut().then(() => router.replace("/landing"));
   const resetDemo = () => void import("@/lib/demo/backend").then((d) => { d.resetDemo(); window.location.assign("/login"); });
   const onRead = useCallback(() => void unread.refresh(), [unread]);
+  const phone = layout === "mobile";
+  const topBar = phone && mobile?.bar === "top";
+  const bottomBar = layout === "tablet" || (phone && mobile?.bottomBar !== false);
 
   useEffect(() => {
     if (!section) return;
@@ -347,7 +345,9 @@ export default function Header() {
           </div>
         </header>
       )}
-      {layout === "mobile" && (
+      {topBar && <MobileTopBar title={mobile?.title ?? title.title} back={mobile?.back} />}
+      {phone && !topBar && (
+        // Figma "Header Mobile": no profile progress here; the profile sheet carries "Complete your profile"
         <header className="hdr hdr--mobile" data-layout="mobile">
           <div className="hdr__row">
             <div className="hdr__left">
@@ -355,8 +355,7 @@ export default function Header() {
               <div className="hdr__title">{title.eyebrow ? <span className="hdr__eyebrow">{title.eyebrow}</span> : null}<span className="hdr__h">{title.title}</span></div>
             </div>
             <div className="hdr__actions">
-              <ProfileProgress compact />
-              <button type="button" className="hdr-avatar__btn hdr-avatar__btn--solo" aria-label="Profile, messages and notifications" aria-haspopup="dialog" onClick={() => setProfileSheet(true)}>
+              <button type="button" className="hdr-avatar__btn hdr-avatar__btn--solo" aria-label="Profile, messages and notifications" aria-haspopup="dialog" aria-expanded={profileSheet} data-open={profileSheet ? "true" : undefined} onClick={() => setProfileSheet(true)}>
                 <AvatarCircle name={name} photo={me?.photo} />
                 {unread.messages + unread.notices > 0 ? <span className="hdr-dot" aria-hidden /> : null}
               </button>
@@ -365,7 +364,7 @@ export default function Header() {
         </header>
       )}
 
-      {layout !== "desktop" && (
+      {bottomBar && (
         <nav className="bbar" aria-label="Main">
           <div className="bbar__items">
             {SECTIONS.map((s) => {
@@ -382,8 +381,8 @@ export default function Header() {
           </div>
         </nav>
       )}
-      {layout !== "desktop" && <SectionSheet sectionKey={sheet} active={section?.key === sheet ? activeTab : undefined} onClose={() => setSheet(null)} />}
-      {layout === "mobile" && (
+      {layout !== "desktop" && <SectionSheet sectionKey={sheet} active={section?.key === sheet ? activeTab : undefined} phone={phone} onClose={() => setSheet(null)} />}
+      {phone && (
         <ProfileSheet open={profileSheet} onClose={() => setProfileSheet(false)} name={name} handle={handle} photo={me?.photo} messages={unread.messages} notices={unread.notices} onNotifications={() => { setProfileSheet(false); setNotices(true); }} onLogout={logout} />
       )}
       <NotificationsPanel open={notices} onClose={() => setNotices(false)} onRead={onRead} />
@@ -409,7 +408,16 @@ function useSheet(open: boolean, onClose: () => void) {
   return ref;
 }
 
-function SectionSheet({ sectionKey, active, onClose }: { sectionKey: SectionKey | null; active?: string; onClose: () => void }) {
+/** Handle at the top of a sheet: tap to close, or drag the sheet down (phones). */
+function Handle({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const swipe = useSwipeDown(onClose, open);
+  return <button type="button" className="sheet__handle" aria-label="Close" {...swipe}><span /></button>;
+}
+
+/** Phones only: sheet rows that open a Community page instead of their tab (the Connect sheet's Banter goes to the phone Banter page). */
+const PHONE_HREF: Record<string, string> = { "/connect/banter": "/community/banter" };
+
+function SectionSheet({ sectionKey, active, phone, onClose }: { sectionKey: SectionKey | null; active?: string; phone: boolean; onClose: () => void }) {
   const ref = useSheet(sectionKey !== null, onClose);
   const [shown, setShown] = useState<Section | null>(null);
   const s = SECTIONS.find((x) => x.key === sectionKey) ?? null;
@@ -421,12 +429,12 @@ function SectionSheet({ sectionKey, active, onClose }: { sectionKey: SectionKey 
       <div className="sheet-backdrop" onClick={onClose} aria-hidden />
       {sec && Icon && (
         <div ref={ref} className="sheet" role="dialog" aria-modal="true" aria-label={sec.label} tabIndex={-1}>
-          <button type="button" className="sheet__handle" aria-label="Close" onClick={onClose}><span /></button>
+          <Handle open={sectionKey !== null} onClose={onClose} />
           <div className="sheet__title"><Icon /><span>{sec.label}</span></div>
           <ul className="sheet__rows">
             {sec.tabs.map((t) => (
               <li key={t.href}>
-                <Link href={t.href} className="sheet-row" data-selected={t.label === active ? "true" : "false"} onClick={onClose}>
+                <Link href={(phone && PHONE_HREF[t.href]) || t.href} className="sheet-row" data-selected={t.label === active ? "true" : "false"} onClick={onClose}>
                   <span className="sheet-row__label">{t.label}</span>
                   {t.label === active ? <span className="sheet-row__dot" aria-hidden /> : null}
                 </Link>
@@ -452,7 +460,7 @@ function ProfileSheet({ open, onClose, name, handle, photo, messages, notices, o
     <div className="sheet-layer" data-open={open ? "true" : "false"} aria-hidden={open ? undefined : true}>
       <div className="sheet-backdrop" onClick={onClose} aria-hidden />
       <div ref={ref} className="sheet" role="dialog" aria-modal="true" aria-label="Profile" tabIndex={-1} hidden={!open}>
-        <button type="button" className="sheet__handle" aria-label="Close" onClick={onClose}><span /></button>
+        <Handle open={open} onClose={onClose} />
         <div className="sheet__profile"><AvatarCircle name={name} photo={photo} lg /><span className="sheet__username">{handle || name}</span></div>
         <ul className="sheet__rows">
           <li>{row(MessageSquare, "Messages", "/messages", messages)}</li>

@@ -1,0 +1,290 @@
+/* Phone bottom sheets (Sheet in Overlay.tsx): the design's features/community/sheets-mobile.css (12 Nov 2026), copied verbatim. */
+/*
+ * Community overlays on phones (below 768): every modal, drawer and result panel is a bottom sheet, as the Figma V2 Mobile
+ * Sheet:* frames of "10 - COMMUNITY HOME" (component "Bottom Sheet / Mobile" 18067:28619). Markup: Sheet in Overlays.tsx
+ * (prefix chs-), on the kit Modal. Only the phone media query: tablet and desktop keep their modals and drawers.
+ */
+@media (max-width: 767px) {
+  /* sheet: padding 10 / 12 / 34 (home indicator) / 12, gap 4, top radius 28, white, drop shadow 0 -8 32 at 14% */
+  .k-panel.chs {
+    gap: 0;
+    max-height: 92dvh;
+    padding: 10px 12px max(34px, env(safe-area-inset-bottom, 0px));
+    border-radius: 28px 28px 0 0;
+    background: var(--surface-default);
+    box-shadow: var(--shadow-sheet);
+  }
+  .k-panel.chs > .k-panel__handle {
+    display: none;
+  }
+  .k-panel.chs > .k-panel__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* Handle area: 18 high, handle 40 x 4; tap or drag down to close (the touch area reaches the top edge of the sheet) */
+  .chs__handle {
+    position: relative;
+    display: flex;
+    flex: none;
+    justify-content: center;
+    height: 18px;
+    cursor: grab;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .chs__handle::before {
+    content: '';
+    position: absolute;
+    inset: -10px 0 0;
+  }
+  .chs__handle span {
+    width: 40px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-default);
+  }
+
+  /* Header: title Alice 22 (wraps) and the close button (Top Bar Button / Mobile with icon/x), padding 4 / 4 / 8 / 16 */
+  .chs__head {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 8px;
+    min-height: 56px;
+    padding: 4px 4px 8px 16px;
+  }
+  .chs__title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    color: var(--text-primary);
+    font: 400 22px/1.3 var(--font-serif);
+    letter-spacing: 0;
+    text-wrap: wrap;
+  }
+  .chs__close {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 22px;
+    background: transparent;
+    color: var(--icon-primary);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      background-color 0.25s ease-out,
+      scale 0.35s var(--ease-out);
+  }
+  .chs__close:active {
+    background: var(--surface-muted);
+    scale: 0.94;
+  }
+  .chs__close:focus-visible {
+    outline: none;
+    border-radius: 22px;
+    box-shadow: inset 0 0 0 2px var(--text-primary);
+  }
+
+  /* Content: 16 side padding (346 wide on a 402 screen), scrolls when the sheet reaches its maximum height */
+  .chs__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    padding: 0 16px 8px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .chs--plan .chs__body {
+    gap: 10px;
+  }
+  .chs--form .chs__body {
+    gap: 20px;
+    padding-bottom: 0;
+  }
+  .chs--result .chs__body {
+    gap: 16px;
+    padding-bottom: 0;
+  }
+  .chs--list .chs__body {
+    gap: 4px;
+  }
+  .chs--detail.chs--pinned .chs__body {
+    padding-bottom: 0;
+  }
+  .chs__body > * {
+    flex: none;
+  }
+
+  /* Pinned action row: two Large buttons that share the width (Secondary left, Primary right), padding 16 / 4 / 0 / 4, gap 12 */
+  .chs__actions {
+    display: flex;
+    flex: none;
+    gap: 12px;
+    padding: 16px 4px 0;
+  }
+  .chs__actions > .k-btn {
+    --k-px: 16px;
+    flex: 1 1 0;
+    min-width: max-content;
+  }
+
+  /* Photo banner: 80 high (plans) or 140 (details) with radius 16; 140 with radius 20 and a label on a dark gradient (forms) */
+  .chs__banner {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    background: var(--surface-muted);
+  }
+  .chs__banner img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .chs__banner--sm {
+    height: 80px;
+  }
+  .chs__banner--md {
+    height: 140px;
+  }
+  .chs__banner--label {
+    border-radius: 20px;
+  }
+  .chs__scrim {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(13, 10, 8, 0) 0%, rgba(13, 10, 8, 0.42) 50%, rgba(13, 10, 8, 0.88) 100%);
+  }
+  .chs__banner-label {
+    position: absolute;
+    left: 16px;
+    bottom: 16px;
+    color: var(--text-inverse);
+    font: 500 12px/1.6 var(--font-sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .chs__eyebrow {
+    margin: 0;
+    color: var(--text-accent);
+    font: 500 12px/1.6 var(--font-sans);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Plans: label 10 above the options, times stacked full width (44 high, 6 apart), note field one line high */
+  .chs--plan .ch-ov__field {
+    gap: 10px;
+  }
+  .chs__times {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .chs__times > .k-chip--choice {
+    width: 100%;
+    min-height: 44px;
+  }
+  /* Figma draws the 1 px field stroke inside its 16 px padding: 15 px plus the border keeps the 314 px text width of the design */
+  .chs .ch-note {
+    min-height: 64px;
+    padding: 14px 15px;
+  }
+  .chs--form .ch-note {
+    min-height: 104px;
+    padding: 15px;
+  }
+  .chs--form .ch-ov__field {
+    gap: 12px;
+  }
+
+  /* privacy and "not used" notes with the 20 px icon */
+  .chs__privacy-lg {
+    gap: 10px;
+  }
+  .chs__privacy-lg svg {
+    margin-top: 1px;
+  }
+
+  /* Share why we matched: a white card with a subtle border, radius 20 */
+  .chs__card {
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+  }
+
+  /* Why we matched: avatar 56 next to the interest tags */
+  .chs__person {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chs__person .ch-tags {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Upcoming and Invitation: agenda items 12 apart, actions stacked full width (Medium 48) under the content */
+  .chs__agenda {
+    gap: 12px;
+  }
+  .chs__stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 12px;
+  }
+
+  /* Result: the success icon (40) over the text */
+  .chs__ok {
+    display: inline-flex;
+    align-self: flex-start;
+    color: var(--icon-success);
+  }
+
+  /* Text link in a 44 high link area; --inset lines its label up with the text above */
+  .chs__linkarea {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .chs__linkarea--inset {
+    margin-left: -8px;
+  }
+  .chs .ch-notif__list {
+    margin-bottom: 0;
+  }
+}
+
+/* motion: the sheet slides up in 0.32 s (ease out) over the blurred 28% backdrop, and slides down when it closes */
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .k-panel.chs[data-state='open'] {
+    animation: k-sheet-in 0.32s var(--ease-out) backwards;
+  }
+  .k-panel.chs[data-state='closed'] {
+    animation: k-sheet-out 0.28s var(--ease-io) forwards;
+  }
+  .k-layer:has(> .k-panel.chs)[data-state='open'] .k-backdrop {
+    animation-duration: 0.32s;
+  }
+}
+@media (max-width: 767px) {
+  /* Sheet:Notifications rows keep the List Row's empty meta slot (14 before the chevron), so titles wrap as in Figma */
+  .chs--list .ch-row__chev {
+    margin-left: 14px;
+  }
+}

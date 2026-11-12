@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { ArrowRight, ChevronRight, MessageCircle } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { ArrowRight, ArrowUp, Calendar, ChevronRight, MessageCircle } from "lucide-react";
 import PlanCall, { type Plan } from "@/components/community/PlanCall";
-import Button from "@/components/kin/Button";
+import Button, { IconButton } from "@/components/kin/Button";
+import { MobileTopBarAction, MobileTopBarTitle } from "@/components/kin/MobileTopBar";
+import { useLayout } from "@/components/kin/useLayout";
+import "./messages-mobile.css";
 import { photoSrc } from "@/components/kin/home/parts";
 import type { KMsg } from "@/lib/data/kinmessage";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
@@ -15,6 +18,9 @@ import type { ImageInput } from "@/lib/images";
  * The pieces of Messages, mirrored from the product design (classes in components/kin/community.css): the
  * conversation list, the open conversation with date groups and bubbles, and a one-line composer. Shared by the
  * sample-data version (demo) and the one that reads the Akines chat API, so both look the same.
+ * Phones (the design's V2 Mobile 10.2): the shell's top bar carries the title and back; the inbox ends with "Start a Quick
+ * Catch-up"; a thread opens with the intro block, its composer is pinned to the bottom with a round send button and "Arrange a
+ * Create Call" moves to the top bar as a calendar action. Phone rules: ./messages-mobile.css.
  */
 
 /** A line from Akines itself ("Ada joined the team"), or a message its sender took back. */
@@ -86,6 +92,31 @@ export function ConvoList({ rows, openId, onEnd }: { rows: Row[]; openId?: strin
   );
 }
 
+/** Phones have no second pane: the inbox action sits under the list (the design's inbox). Nothing on tablet and desktop. */
+export function InboxActs({ quick }: { quick?: Plan }) {
+  const phone = useLayout() === "mobile";
+  const [planning, setPlanning] = useState(false);
+  if (!phone || !quick) return null;
+  return (
+    <div className="ms-inbox__acts">
+      <Button variant="secondary" size="lg" full onClick={() => setPlanning(true)}>Start a Quick Catch-up</Button>
+      <PlanCall open={planning} onClose={() => setPlanning(false)} plan={quick} />
+    </div>
+  );
+}
+
+/** Phones: the composer's draft field grows with its text (the design's Composer / Mobile), up to the CSS max-height. */
+function useAutoGrow(ref: React.RefObject<HTMLTextAreaElement | null>, value: string, on: boolean) {
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!on || !el) return;
+    const fit = () => { el.style.height = "auto"; el.style.height = `${el.scrollHeight + el.offsetHeight - el.clientHeight}px`; };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, [ref, value, on]);
+}
+
 /** Nothing open: the design's empty pane. `quick` is the Quick Catch-up its button plans (the plan modal, as in the design). */
 export function EmptyPane({ quick }: { quick?: Plan }) {
   const [planning, setPlanning] = useState(false);
@@ -128,7 +159,10 @@ export function ThreadPane({
 }) {
   const [draft, setDraft] = useState(startDraft ?? "");
   const [planning, setPlanning] = useState(false);
+  const phone = useLayout() === "mobile";
   const feed = useRef<HTMLDivElement>(null);
+  const field = useRef<HTMLTextAreaElement>(null);
+  useAutoGrow(field, draft, phone);
   const edges = useRef<{ first?: string; last?: string; fromBottom: number }>({ fromBottom: 0 });
   const first = msgs[0]?.id, last = msgs[msgs.length - 1]?.id;
   useLayoutEffect(() => {
@@ -140,6 +174,13 @@ export function ThreadPane({
     else el.scrollTop = el.scrollHeight;
     edges.current = { first, last, fromBottom: el.scrollHeight - el.scrollTop };
   }, [first, last, msgs.length]);
+  // Phones: the page scrolls, not the feed; a new message brings the newest up above the pinned composer.
+  const lastSeen = useRef(last);
+  useEffect(() => {
+    if (lastSeen.current === last) return;
+    lastSeen.current = last;
+    if (phone) window.scrollTo({ top: document.documentElement.scrollHeight, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  }, [last, phone]);
   const onScroll = () => {
     const el = feed.current;
     if (!el) return;
@@ -158,7 +199,18 @@ export function ThreadPane({
       onDragOver={onPhoto && !closed ? (e) => { if (e.dataTransfer.types.includes("Files")) e.preventDefault(); } : undefined}
       onDrop={onPhoto && !closed ? (e) => { if (pickPhoto(e.dataTransfer.files)) e.preventDefault(); } : undefined}
     >
+      <MobileTopBarTitle title={name} />
+      {phone && plan && !closed ? <MobileTopBarAction label="Arrange a Create Call" icon={<Calendar size={24} strokeWidth={1.5} absoluteStrokeWidth aria-hidden focusable={false} />} onClick={() => setPlanning(true)} /> : null}
       <Link href="/messages" className="ch-tlink ch-msg__back">Back to Messages</Link>
+      {phone ? (
+        <header className="ms-intro">
+          <Face src={face} size={72} />
+          <div className="ms-intro__details">
+            <h1 className="ms-intro__name">{name}</h1>
+            <p className="ms-intro__sub">{sub}</p>
+          </div>
+        </header>
+      ) : null}
       <header className="ch-conv__head">
         <div className="ch-conv__who">
           <Face src={face} size={48} />
@@ -179,17 +231,40 @@ export function ThreadPane({
         {status}
       </div>
       <form className="ch-composer" onSubmit={(e) => { e.preventDefault(); send(); }}>
-        <input
-          className="ch-composer__field"
-          aria-label={`Message ${name}`}
-          placeholder={closed ? "This conversation has closed. You can still read it." : "Write a message"}
-          value={draft}
-          disabled={closed}
-          maxLength={2000}
-          onChange={(e) => { setDraft(e.target.value); onDraft?.(e.target.value); }}
-          onPaste={onPhoto ? (e) => { if (pickPhoto(e.clipboardData?.files)) e.preventDefault(); } : undefined}
-        />
-        <Button type="submit" iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} disabled={closed || !draft.trim()}>Send</Button>
+        {phone ? (
+          <>
+            <textarea
+              ref={field}
+              className="ch-composer__field ms-composer__field"
+              rows={1}
+              aria-label={`Message ${name}`}
+              placeholder={closed ? "This conversation has closed. You can still read it." : "Write a message"}
+              enterKeyHint="send"
+              value={draft}
+              disabled={closed}
+              maxLength={2000}
+              onChange={(e) => { setDraft(e.target.value); onDraft?.(e.target.value); }}
+              onPaste={onPhoto ? (e) => { if (pickPhoto(e.clipboardData?.files)) e.preventDefault(); } : undefined}
+              // Enter sends, as on desktop; Shift+Enter keeps a line break
+              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); send(); } }}
+            />
+            <IconButton type="submit" label="Send" variant="primary" tooltip={false} className="ms-send" disabled={closed || !draft.trim()}><ArrowUp strokeWidth={1.25} absoluteStrokeWidth /></IconButton>
+          </>
+        ) : (
+          <>
+          <input
+            className="ch-composer__field"
+            aria-label={`Message ${name}`}
+            placeholder={closed ? "This conversation has closed. You can still read it." : "Write a message"}
+            value={draft}
+            disabled={closed}
+            maxLength={2000}
+            onChange={(e) => { setDraft(e.target.value); onDraft?.(e.target.value); }}
+            onPaste={onPhoto ? (e) => { if (pickPhoto(e.clipboardData?.files)) e.preventDefault(); } : undefined}
+          />
+          <Button type="submit" iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} disabled={closed || !draft.trim()}>Send</Button>
+          </>
+        )}
       </form>
       {plan ? <PlanCall open={planning} onClose={() => setPlanning(false)} plan={plan} /> : null}
     </div>

@@ -1,20 +1,40 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ArrowRight, CircleCheck, ShieldCheck } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { Chip, Tag } from "@/components/kin/Chip";
 import { Toggle } from "@/components/kin/Choice";
-import { Drawer } from "@/components/kin/Overlay";
+import { Drawer, Sheet } from "@/components/kin/Overlay";
+import { useLayout } from "@/components/kin/useLayout";
 import { faceSrc } from "@/components/kin/home/parts";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { toggleIn, useConnectionPrefs } from "./prefs";
 import Img from "@/components/kin/Img";
 
-/* The design's four connection settings (classes in components/kin/community.css). */
+/*
+ * The design's four connection settings (classes in components/kin/community.css). Phones (below 768): rows in white cards, the whole
+ * toggle row tappable, full width Save with the Saved note under it, and "Why we matched" as a bottom sheet
+ * (components/care/care-settings-mobile.css, components/kin/sheets-mobile.css).
+ */
+
+const usePhone = () => useLayout() === "mobile";
+/** Phones use the design's "Button Large" (56, full width, arrow up-right); wider screens keep today's button. */
+const primaryBtn = (phone: boolean) => (phone ? ({ size: "lg", full: true, arrow: "up-right" } as const) : { iconRight: <ArrowRight strokeWidth={1.5} aria-hidden /> });
 
 export function Row({ title, text, checked, onChange, children }: { title: string; text: string; checked?: boolean; onChange?: (v: boolean) => void; children?: React.ReactNode }) {
+  const phone = usePhone();
+  const id = useId();
+  // Phones: the whole row is the tap target (the design's Setting Toggle Row / Mobile); the label hands its click to the switch.
+  if (phone && !children) {
+    return (
+      <label className="ch-set__row ch-set__row--tap" htmlFor={id}>
+        <span className="ch-set__rowtext"><span className="ch-set__rowtitle">{title}</span><span className="ch-set__rowdesc">{text}</span></span>
+        <Toggle id={id} checked={!!checked} onChange={(v) => onChange?.(v)} aria-label={title} />
+      </label>
+    );
+  }
   return (
     <div className="ch-set__row">
       <div className="ch-set__rowtext"><span className="ch-set__rowtitle">{title}</span><span className="ch-set__rowdesc">{text}</span></div>
@@ -25,9 +45,10 @@ export function Row({ title, text, checked, onChange, children }: { title: strin
 
 function Save({ id, label }: { id: string; label: string }) {
   const { saved, save } = useConnectionPrefs();
+  const phone = usePhone();
   return (
     <div className="ch-set__save">
-      <Button iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={() => save(id)}>{label}</Button>
+      <Button {...primaryBtn(phone)} onClick={() => save(id)}>{label}</Button>
       {saved === id ? <p className="ch-confirm" aria-live="polite"><CircleCheck size={20} strokeWidth={1.5} aria-hidden /><span>Saved. Your choices apply from now on.</span></p> : null}
     </div>
   );
@@ -72,17 +93,21 @@ export function ExplanationsSection() {
   const { prefs: e, set } = useConnectionPrefs();
   const [why, setWhy] = useState<PersonId | null>(null);
   const [shown, setShown] = useState<PersonId | null>(null);
+  const phone = usePhone();
   if (why && why !== shown) setShown(why);
   return (
     <>
       <div className="ch-set__list" data-m="stagger">
         {WHY.map((m) => {
           const src = faceSrc(m.id);
+          const size = phone ? 40 : 48;
+          const link = <button type="button" className="ch-tlink" onClick={() => setWhy(m.id)}>See the full reason</button>;
+          // Phones (the design's Explanation Row / Mobile): avatar 40, the link sits under the text instead of at the right.
           return (
             <div key={m.id} className="ch-why">
-              <span className="ch-av" style={{ width: 48, height: 48 }}>{src ? <Img src={src} sizes="48px" /> : null}</span>
-              <div className="ch-why__text"><span className="ch-why__title">Why {firstOf(m.id)} was suggested</span><span className="ch-why__desc">{m.text}</span></div>
-              <button type="button" className="ch-tlink" onClick={() => setWhy(m.id)}>See the full reason</button>
+              <span className="ch-av" style={{ width: size, height: size }}>{src ? <Img src={src} sizes={`${size}px`} /> : null}</span>
+              <div className="ch-why__text"><span className="ch-why__title">Why {firstOf(m.id)} was suggested</span><span className="ch-why__desc">{m.text}</span>{phone ? <span className="ch-why__link">{link}</span> : null}</div>
+              {phone ? null : link}
             </div>
           );
         })}
@@ -98,9 +123,34 @@ export function ExplanationsSection() {
 /** The design's "Why we matched" drawer (520 wide). */
 function WhyDrawer({ id, open, onClose }: { id: PersonId; open: boolean; onClose: () => void }) {
   const router = useRouter();
+  const phone = usePhone();
   const m = WHY.find((x) => x.id === id);
   if (!m) return null;
   const qa: [string, string][] = [["Why this person?", m.why], ["Why now?", m.now], ["What could we do together?", m.together], ["What information was used?", m.used]];
+  const introduce = () => { onClose(); router.push(`/messages/${id}`); };
+  if (phone) {
+    // The design's Sheet:Why we matched.
+    const src = faceSrc(id);
+    return (
+      <Sheet open={open} onClose={onClose} title={`You and ${firstOf(id)}`} variant="detail" actions={<><Button variant="secondary" size="lg" onClick={onClose}>Not now</Button><Button size="lg" onClick={introduce}>Introduce us</Button></>}>
+        <div className="chs__person">
+          <span className="ch-av" style={{ width: 56, height: 56 }}>{src ? <Img src={src} sizes="56px" /> : null}</span>
+          <div className="ch-tags">{m.tags.map((t) => <Tag key={t}>{t}</Tag>)}</div>
+        </div>
+        <hr className="ch-rule" />
+        {qa.map(([q, a]) => (
+          <div className="ch-qa" key={q}>
+            <p className="ch-ov__label">{q}</p>
+            <p className="ch-qa__a">{a}</p>
+          </div>
+        ))}
+        <p className="ch-ov__privacy chs__privacy-lg"><ShieldCheck size={20} strokeWidth={1.25} absoluteStrokeWidth aria-hidden /><span>Not used: popularity, follower counts or relationship scores. Akines does not show them.</span></p>
+        <div className="chs__linkarea chs__linkarea--inset">
+          <button type="button" className="ch-tlink" onClick={() => { onClose(); router.push("/settings/recommendations"); }}>Recommendation preferences</button>
+        </div>
+      </Sheet>
+    );
+  }
   return (
     <Drawer open={open} onClose={onClose} width={520} image={m.image} eyebrow="Why we matched" title={`You and ${firstOf(id)}`} className="ch-ov ch-ov--drawer ch-ov--why">
       <div className="ch-dbody ch-dbody--why">
@@ -114,7 +164,7 @@ function WhyDrawer({ id, open, onClose }: { id: PersonId; open: boolean; onClose
         ))}
         <p className="ch-ov__privacy ch-ov__privacy--shield"><ShieldCheck size={16} strokeWidth={1.25} absoluteStrokeWidth aria-hidden /><span>Not used: popularity, follower counts or relationship scores. Akines does not show them.</span></p>
         <div className="ch-ov__actions ch-ov__actions--wrap ch-dbody__end">
-          <Button iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={() => { onClose(); router.push(`/messages/${id}`); }}>Introduce us</Button>
+          <Button iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={introduce}>Introduce us</Button>
           <button type="button" className="ch-tlink" onClick={onClose}>Not now</button>
           <button type="button" className="ch-tlink" onClick={() => { onClose(); router.push("/settings"); }}>Recommendation preferences</button>
         </div>

@@ -5,6 +5,9 @@ import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import Img from "@/components/kin/Img";
+import { useLayout } from "@/components/kin/useLayout";
+import { useSwipeDown } from "@/components/kin/useSwipeDown";
+import "./sheets-mobile.css";
 
 const EXIT_MS = 300;
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
@@ -95,14 +98,52 @@ function Layer({ open, onClose, kind, panelClass, panelStyle, title, description
   );
 }
 
-/** The design's modal (k-layer--modal): centred on desktop, a bottom sheet on phones. */
-export function Modal({ size = "md", width, className, ...rest }: Props & { size?: "sm" | "md" | "lg" | "xl"; width?: number }) {
+/**
+ * The design's modal (k-layer--modal): centred on desktop, a bottom sheet on phones. `sheet` opts into the phone bottom sheet of the
+ * Community flow (Sheet below: handle, Alice 22 title, close, `footer` as the pinned action row) below 768; tablet and desktop unchanged.
+ */
+export function Modal({ size = "md", width, className, sheet, ...rest }: Props & { size?: "sm" | "md" | "lg" | "xl"; width?: number; sheet?: SheetVariant }) {
+  const phone = useLayout() === "mobile";
+  if (sheet && phone) return <Sheet open={rest.open} onClose={rest.onClose} title={rest.title ?? rest.label ?? ""} label={rest.label} variant={sheet} actions={rest.footer}>{rest.children}</Sheet>;
   return <Layer {...rest} kind="modal" panelClass={cn(`k-panel--${size}`, rest.image && "k-panel--photo", className)} panelStyle={width ? ({ "--k-modal-w": `${width}px` } as React.CSSProperties) : undefined} />;
 }
 
 /** The design's drawer (k-layer--drawer), from the right unless `side="left"`. */
 export function Drawer({ side = "right", width = 480, className, ...rest }: Props & { side?: "left" | "right"; width?: number }) {
   return <Layer {...rest} kind="drawer" panelClass={cn(`k-panel--${side}`, rest.image && "k-panel--photo", className)} panelStyle={{ "--k-drawer-w": `${width}px` } as React.CSSProperties} />;
+}
+
+export type SheetVariant = "plan" | "form" | "detail" | "result" | "list";
+
+/**
+ * Phone bottom sheet of the Community flow (the design's Overlays.tsx Sheet, "Bottom Sheet / Mobile"; classes chs- in
+ * sheets-mobile.css): handle (tap or drag down to close), title in Alice 22 with a close button, scrolling content and, where the
+ * design has one, an action row pinned at the bottom. Built on Modal (portal, backdrop, focus trap, Escape, scroll lock); slides up
+ * in 0.32 s over the blurred 28% backdrop. Use it on phones only: above 768 its chs rules do not apply.
+ */
+export function Sheet({ open, onClose, title, label, actions, variant, className, children }: { open: boolean; onClose: () => void; title: React.ReactNode; label?: string; actions?: React.ReactNode; variant: SheetVariant; className?: string; children?: React.ReactNode }) {
+  const swipe = useSwipeDown(onClose, open);
+  return (
+    <Layer open={open} onClose={onClose} kind="modal" label={label ?? (typeof title === "string" ? title : undefined)} hideClose flush panelClass={cn("k-panel--md", "chs", `chs--${variant}`, actions ? "chs--pinned" : null, className)}>
+      <div className="chs__handle" aria-hidden {...swipe}><span /></div>
+      <header className="chs__head">
+        <h2 className="chs__title">{title}</h2>
+        <button type="button" className="chs__close" aria-label="Close" onClick={onClose}><X size={24} strokeWidth={1.5} aria-hidden focusable={false} /></button>
+      </header>
+      <div className="chs__body">{children}</div>
+      {actions ? <div className="chs__actions">{actions}</div> : null}
+    </Layer>
+  );
+}
+
+/** Photo at the top of a sheet's content: 80 high (plans), 140 high (details), or 140 with a label on a dark gradient (forms). */
+export function SheetBanner({ image, size, label }: { image?: string; size: "sm" | "md"; label?: string }) {
+  return (
+    <div className={cn("chs__banner", `chs__banner--${size}`, label && "chs__banner--label")}>
+      {image ? <Img src={image} sizes="(max-width: 767px) 100vw, 560px" loading="eager" /> : null}
+      {label ? <><span className="chs__scrim" aria-hidden /><span className="chs__banner-label">{label}</span></> : null}
+    </div>
+  );
 }
 
 /** Placeholder bars while something loads (k-skel). */

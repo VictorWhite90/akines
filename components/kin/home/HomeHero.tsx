@@ -97,7 +97,7 @@ export default function HomeHero() {
           <li key={c.id} className="fd-hero__item" style={{ ["--i" as string]: i } as React.CSSProperties}>
             <Link className="fd-hcard" data-kind={c.kind} href={c.href} draggable={false}>
               <span className="fd-hcard__photo">
-                <Img className="cover" src={c.image} sizes="316px" priority={i === 0} loading={i < EAGER ? "eager" : "lazy"} draggable={false} />
+                <Img className="cover" src={c.image} sizes="(max-width: 767px) 232px, 316px" priority={i === 0} loading={i < EAGER ? "eager" : "lazy"} draggable={false} />
                 <span className="fd-hcard__tag">{c.kind === "live" ? <span className="fd-hcard__dot" aria-hidden /> : null}{c.tag}</span>
               </span>
               <span className="fd-hcard__text">

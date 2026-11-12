@@ -17,11 +17,15 @@ import HomeHero from "./HomeHero";
 import HomeRail from "./HomeRail";
 import { ErrorPanel, FdAvatar, FdFaces, FdLink, FdPhoto, FeedSkeleton, SkeletonCards } from "./parts";
 import "./home.css";
+import "./home-mobile.css";
+import { useMedia } from "@/components/kin/useMedia";
 
 /*
  * Community Home, mirrored from the product design (classes in home.css): a row of what is happening now, a column
  * with your circles and a match, and a feed of six sections. Like the design, each visit shows
  * one of four feed versions, never the same one twice in a row. All copy and photos are the design's (./content.ts).
+ * Phones (below 768): no rail, a short swipe hero and swipe rows of cards (home-mobile.css, scoped to .fd-home because Connect
+ * Discover also carries .fd-page).
  */
 
 type SectionName = FeedKey;
@@ -35,7 +39,7 @@ function Cards({ cards }: { cards: FeedCard[] }) {
     <div className="fd-row fd-row--sub" data-m="stagger">
       {cards.map((c) => (
         <Link key={c.id} className="fd-card fd-card--sub" href={c.href}>
-          <FdPhoto src={c.image} className="fd-card__photo" sizes="(max-width: 767px) 78vw, (max-width: 1279px) 33vw, 330px" />
+          <FdPhoto src={c.image} className="fd-card__photo" sizes="(max-width: 767px) 264px, (max-width: 1279px) 33vw, 330px" />
           {c.tag ? <p className="fd-card__tag">{c.tag}</p> : null}
           <h3 className="fd-card__title">{c.title}</h3>
           <p className="fd-card__text">{c.text}</p>
@@ -75,7 +79,7 @@ function SectionBody({ name }: { name: SectionName }) {
       return <FeedPosts />;
     case "banter":
       return (
-        <div className="fd-row" data-m="stagger">
+        <div className="fd-row fd-row--banter" data-m="stagger">
           {BANTER_CARDS.map((b) => (
             <Link key={b.id} className="fd-banter" href={BANTER_JOIN.href}>
               <p className="fd-banter__tag">{b.tag.endsWith("LIVE") ? <span className="fd-banter__dot" aria-hidden /> : null}{b.tag}</p>
@@ -98,11 +102,11 @@ function SectionBody({ name }: { name: SectionName }) {
       return <Cards cards={PROJECT_CARDS.map(({ match, ...c }) => ({ ...c, right: DEMO ? match : undefined }))} />;
     case "shop":
       return (
-        <div className="fd-row" data-m="stagger">
+        <div className="fd-row fd-row--shop" data-m="stagger">
           {PRODUCTS.map((p) => (
             <article key={p.id} className="fd-card fd-product">
               <Link className="fd-product__link" href={SHOP_COPY.href}>
-                <FdPhoto src={p.image} className="fd-card__photo" sizes="(max-width: 767px) 78vw, (max-width: 1279px) 33vw, 330px" />
+                <FdPhoto src={p.image} className="fd-card__photo" sizes="(max-width: 767px) 50vw, (max-width: 1279px) 33vw, 330px" />
                 <p className="fd-card__tag">{p.tag}</p>
                 <h3 className="fd-card__title fd-product__title">{p.title}</h3>
               </Link>
@@ -122,7 +126,7 @@ function SectionBody({ name }: { name: SectionName }) {
       return <Cards cards={STORY_CARDS} />;
     case "dna":
       return (
-        <div className="fd-row" data-m="stagger">
+        <div className="fd-row fd-row--dna" data-m="stagger">
           {TRAITS.map((t) => (
             <article key={t.id} className="fd-trait">
               <p className="fd-trait__eyebrow">{t.eyebrow}</p>
@@ -214,11 +218,13 @@ export default function Home() {
   }, [state]);
   const sections = v ? VERSIONS[v] : null;
   const ready = sections && (state !== "loading" || settled);
+  // Phones show no rail (Your circles and the match card); tablet keeps them above the feed, desktop at the side.
+  const rail = !useMedia("(max-width: 767px)");
   return (
-    <div className="fd-page" data-feed-version={v ?? undefined} data-feed-state={state}>
+    <div className="fd-page fd-home" data-feed-version={v ?? undefined} data-feed-state={state}>
       <HomeHero />
       <div className="fd-layout">
-        <HomeRail empty={state === "empty"} />
+        {rail ? <HomeRail empty={state === "empty"} /> : null}
         <div className="fd-feed">
           {ready ? sections.map((s, i) => <Section key={s} name={s} isFirst={i === 0} failing={state === "error" && s === "banter"} />) : <FeedSkeleton note={state === "loading"} />}
         </div>

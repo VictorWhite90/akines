@@ -14,12 +14,20 @@ import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { DEMO } from "@/lib/demo/mode";
 import { useLocal } from "@/lib/useLocal";
 import Img from "@/components/kin/Img";
+import { MobileTopBarTitle } from "@/components/kin/MobileTopBar";
+import { useLayout } from "@/components/kin/useLayout";
+import "@/components/messages/messages-mobile.css";
 
 /*
  * A collaboration you share with someone, as Community Home shows it in the product design (classes ch-split,
  * ch-steps in components/kin/community.css): who it's with, what is done, what is in progress and what comes next,
  * when it last moved, and ways to pick it up together. Read from the project in useCollab.
+ * Phones (the design's V2 Mobile Collaborations and Lagos Makers Zine): the photograph sits on top (354 x 240), the actions stack
+ * full width at the Large size, and the shell's top bar replaces the back link (components/messages/messages-mobile.css).
  */
+
+/** Phones: actions are stacked, full width, Large (56). Tablet and desktop keep the default size. */
+export const useActs = () => (useLayout() === "mobile" ? ({ size: "lg", full: true } as const) : {});
 
 const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
 function ago(at: number) {
@@ -47,6 +55,8 @@ function steps(p: Project) {
 type Step = { text: string; status: string; done?: boolean };
 type DesignCollab = {
   id: string; label: string; title: string; desc: string; steps: Step[]; last: string; photo: string;
+  /** The crop the phone design uses for the 354 x 240 photo on top. */
+  phonePhoto?: string;
   message?: { label: string; href: string };
   contribute?: { label: string; done: string };
   plan: Plan;
@@ -64,6 +74,7 @@ const DESIGN: Record<string, DesignCollab> = {
     ],
     last: "Last activity six days ago",
     photo: "/kin/design/home/community/health-tall.jpg",
+    phonePhoto: "/kin/design/home/community/health.jpg",
     message: { label: "Message Amara", href: "/messages/amara" },
     plan: { eyebrow: "Create Call", title: "Arrange a Create Call with Amara", lead: "Pick a time to work on the Community Health Initiative together.", people: ["amara-okafor"], peopleText: "Amara", convo: "amara", note: "Let us draft the outreach plan and agree the first clinic visit.", placeholder: "Add what you would like to work on (optional)", image: "/kin/design/home/community/amara.jpg" },
   },
@@ -79,6 +90,7 @@ const DESIGN: Record<string, DesignCollab> = {
     ],
     last: "Last activity two days ago",
     photo: "/kin/design/home/community/zine-tall.jpg",
+    phonePhoto: "/kin/design/home/community/zine.jpg",
     contribute: { label: "Add a contribution", done: "Contribution noted. Folake and Chuka will see it." },
     plan: { eyebrow: "Create Call", title: "Arrange a Create Call for the zine", lead: "Gather the Lagos Makers Zine team for a working session.", people: ["folake", "chuka"] as PersonId[], peopleText: "Folake and Chuka", note: "Let us go through the contributions so far and plan the layout.", image: "/kin/design/home/community/zine.jpg" },
   },
@@ -93,11 +105,14 @@ function DesignCollaboration({ c }: { c: DesignCollab }) {
   const [planning, setPlanning] = useState(false);
   const [added, setAdded] = useLocal<string[]>("ak:collab-contributed", []);
   const done = added.includes(c.id);
+  const acts = useActs();
+  const phone = useLayout() === "mobile";
   return (
-    <div className="ch-page">
+    <div className="ch-page ms-detail">
+      <MobileTopBarTitle title={c.title} />
       <div className="ch-split">
         <div className="ch-split__main">
-          <Link href="/" className="ch-tlink">Back to Community Home</Link>
+          <Link href="/" className="ch-tlink ms-back">Back to Community Home</Link>
           <p className="ch-label">{c.label}</p>
           <h1 className="ch-split__title" data-m="words">{c.title}</h1>
           <p className="ch-split__desc">{c.desc}</p>
@@ -112,18 +127,18 @@ function DesignCollaboration({ c }: { c: DesignCollab }) {
           </div>
           <p className="ch-line"><Clock size={16} strokeWidth={1.25} absoluteStrokeWidth aria-hidden /><span>{c.last}</span></p>
           <div className="ch-acts">
-            {c.message ? <Button href={c.message.href} iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />}>{c.message.label}</Button> : null}
+            {c.message ? <Button {...acts} href={c.message.href} iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />}>{c.message.label}</Button> : null}
             {c.contribute ? (
               done
                 ? <p className="ch-confirm" aria-live="polite"><CircleCheck size={20} strokeWidth={1.5} aria-hidden /><span>{c.contribute.done}</span></p>
-                : <Button iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={() => setAdded([...added, c.id])}>{c.contribute.label}</Button>
+                : <Button {...acts} iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />} onClick={() => setAdded([...added, c.id])}>{c.contribute.label}</Button>
             ) : null}
-            <Button variant="secondary" onClick={() => setPlanning(true)}>Arrange a Create Call</Button>
+            <Button {...acts} variant="secondary" onClick={() => setPlanning(true)}>Arrange a Create Call</Button>
           </div>
         </div>
         <div className="ch-split__photo">
           <div className="ch-photo ch-photo--fill" data-m="frame">
-            <Img className="cover" src={c.photo} sizes="(max-width: 899px) 100vw, 40vw" priority />
+            <Img className="cover" src={phone && c.phonePhoto ? c.phonePhoto : c.photo} sizes="(max-width: 899px) 100vw, 40vw" priority />
           </div>
         </div>
       </div>
@@ -137,16 +152,17 @@ function ProjectCollaboration({ id }: { id?: string }) {
   const mine = projects.filter(isMine);
   const p = id ? mine.find((x) => x.id === id) : mine[0];
   const [planning, setPlanning] = useState(false);
+  const acts = useActs();
   if (!ready) return <div className="ch-page" aria-busy="true" />;
   if (!p) {
     return (
-      <div className="ch-page">
+      <div className="ch-page ms-detail">
         <div className="ch-split">
           <div className="ch-split__main">
-            <Link href="/" className="ch-tlink">Back to Community Home</Link>
+            <Link href="/" className="ch-tlink ms-back">Back to Community Home</Link>
             <h1 className="ch-split__title">No collaboration here yet</h1>
             <p className="ch-split__desc">When you start or join a project, you can pick it up together from here.</p>
-            <div className="ch-acts"><Button href="/collaborate/discover" iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />}>Discover projects</Button></div>
+            <div className="ch-acts"><Button {...acts} href="/collaborate/discover" iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />}>Discover projects</Button></div>
           </div>
         </div>
       </div>
@@ -157,10 +173,11 @@ function ProjectCollaboration({ id }: { id?: string }) {
   const last = p.ledger.reduce((t, e) => Math.max(t, e.at), p.createdAt);
   const one = others.length === 1;
   return (
-    <div className="ch-page">
+    <div className="ch-page ms-detail">
+      <MobileTopBarTitle title={p.title} />
       <div className="ch-split">
         <div className="ch-split__main">
-          <Link href="/" className="ch-tlink">Back to Community Home</Link>
+          <Link href="/" className="ch-tlink ms-back">Back to Community Home</Link>
           <p className="ch-label">Collaboration · With {withNames}</p>
           <h1 className="ch-split__title" data-m="words">{p.title}</h1>
           <p className="ch-split__desc">{p.summary}</p>
@@ -175,8 +192,8 @@ function ProjectCollaboration({ id }: { id?: string }) {
           </div>
           <p className="ch-line"><Clock size={16} strokeWidth={1.25} absoluteStrokeWidth aria-hidden /><span>Last activity {ago(last)}</span></p>
           <div className="ch-acts">
-            <Button href={one ? `/messages/${others[0]}` : `/messages/${p.convoId}`} iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />}>{one ? `Message ${first(others[0])}` : "Message the team"}</Button>
-            <Button variant="secondary" onClick={() => setPlanning(true)}>Arrange a Create Call</Button>
+            <Button {...acts} href={one ? `/messages/${others[0]}` : `/messages/${p.convoId}`} iconRight={<ArrowRight strokeWidth={1.5} aria-hidden />}>{one ? `Message ${first(others[0])}` : "Message the team"}</Button>
+            <Button {...acts} variant="secondary" onClick={() => setPlanning(true)}>Arrange a Create Call</Button>
           </div>
         </div>
         <div className="ch-split__photo">

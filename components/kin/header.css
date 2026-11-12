@@ -110,3 +110,27 @@ a.pp-row:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--surface-inv
 @media (min-width: 768px) { body:has(.ak-demo) .ch-msg { height: max(600px, calc(100dvh - 110px)); } }
 /* The design renders text with greyscale smoothing everywhere (its base sets it on body); older pages follow. */
 body:has(.ak-demo, .hdr, .bbar) { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+/* Phone shell (their app-shell.css, 12 Nov 2026, Figma V2 Mobile "10 - COMMUNITY HOME"): Top Bar Mobile on sub-pages, Header Mobile
+   details, and the Create AI launcher above the bottom bar or a chat composer. Sheets and toasts: akines/library.css. */
+@media(max-width:767px){
+/* Top Bar Mobile: 56 high (1 px bottom border inside), back button, centred title, action slot */
+.mtb{position:sticky;top:0;z-index:40;display:flex;align-items:center;height:56px;padding:0 8px;background:var(--surface-brand);border-bottom:1px solid var(--border-subtle)}
+.mtb__slot{display:flex;flex:none;width:44px;height:44px}
+.mtb__title{flex:1;min-width:0;margin:0;overflow:hidden;color:var(--text-primary);font:600 17px/1.3 var(--font-sans);text-align:center;white-space:nowrap;text-overflow:ellipsis}
+/* Top Bar Button / Mobile: 44 round; Hover Surface/Default, Pressed Surface/Muted, Focus a 2 px ring inside */
+.mtb__btn{display:inline-flex;flex:none;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;border-radius:22px;background:transparent;color:var(--icon-primary);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background-color .25s ease-out,scale .35s var(--ease-out)}
+.mtb__btn svg{flex:none}
+.mtb__btn:active{background:var(--surface-muted);scale:.94}
+.app .mtb__btn:focus-visible{outline:none;border-radius:22px;box-shadow:inset 0 0 0 2px var(--text-primary)}
+/* Header Mobile: unread dot is 12 px orange with a 2 px ring in the header colour outside it (16 overall), at 28, 2 */
+.hdr--mobile .hdr-dot{right:2px;top:0;width:16px;height:16px}
+/* Avatar button Pressed (and while the profile sheet is open): 2 px orange ring inside the avatar */
+.hdr-avatar__btn--solo{-webkit-tap-highlight-color:transparent}
+.hdr-avatar__btn--solo:active .hdr-avatar__circle,.hdr-avatar__btn--solo[data-open=true] .hdr-avatar__circle{border-color:var(--border-akines-secondary);box-shadow:inset 0 0 0 1px var(--border-akines-secondary)}
+.app .hdr-avatar__btn--solo:focus-visible{border-radius:50%}
+/* bottom bar hidden (chat threads): nothing to keep clear of at the bottom */
+.app[data-layout=mobile][data-bottombar=off] .app__main{padding-bottom:0}
+/* Create AI launcher: above the bottom bar (56 + home indicator area + 1 px border), or above the composer on chat threads */
+html .cai[data-app][data-layout=mobile]{--cai-b: calc(57px + max(28px, env(safe-area-inset-bottom, 0px)) + 20px)}
+html[data-m-bottombar=off] .cai[data-app][data-layout=mobile]{--cai-b: calc(var(--m-composer-h, 96px) + 12px)}
+}

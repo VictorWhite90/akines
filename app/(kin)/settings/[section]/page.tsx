@@ -8,6 +8,7 @@ export const metadata: Metadata = { title: "Settings · Akines" };
 export default async function SettingsSectionPage({ params }: { params: Promise<{ section: string }> }) {
   const { section } = await params;
   if (section === "profile") redirect("/profile"); // the public profile moved to its own page
+  if (section === "preferences") redirect("/settings/recommendations"); // the design's Recommendation preferences path
   if (!isSectionId(section)) notFound();
   return <Settings section={section} />;
 }

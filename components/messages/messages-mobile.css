@@ -1,0 +1,217 @@
+/* Messages, Collaborations and Banter on phones: the design's features/community/messages-mobile.css (12 Nov 2026), copied verbatim. */
+/*
+ * Messages, Collaborations and Banter on phones (below 768). Figma V2 Mobile, section 10: inbox 18084:6694, threads 18084:6720,
+ * 6825, 6911, 6993, 7067, Collaborations 18085:37468, Lagos Makers Zine 18085:37732, Banter 18085:37904.
+ * Every rule sits in the phone media query: tablet and desktop keep community.css as it is. Prefix ms- for the phone-only parts.
+ * The shell draws the top bar (title, back, the calendar action of a thread) and the bottom bar; threads have no bottom bar.
+ */
+@media (max-width: 767px) {
+  /* ---------------------------------------------------------------- inbox */
+  .ch-msg[data-view='list'] {
+    min-height: 0;
+  }
+  .ch-msg[data-view='list'] .ch-msg__side {
+    gap: 0;
+    padding: 16px 24px 0;
+    overflow: visible;
+  }
+  /* the top bar carries the title; the heading stays for screen readers */
+  .ch-msg[data-view='list'] .ch-msg__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .ms-inbox__acts {
+    padding: 24px 24px 40px;
+  }
+
+  /* ---------------------------------------------------------------- thread */
+  .ch-msg[data-view='thread'] {
+    min-height: 0;
+  }
+  /* one screen under the top bar (56); messages are anchored above the composer, like a chat app */
+  .ch-msg[data-view='thread'] .ch-msg__main {
+    min-height: calc(100dvh - 56px);
+    padding-top: 16px;
+  }
+  .ch-msg[data-view='thread'] .ch-msg__back,
+  .ch-msg[data-view='thread'] .ch-conv__head {
+    display: none;
+  }
+
+  /* Thread Intro / Mobile 18080:178124 */
+  .ms-intro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: auto 24px 24px;
+    padding: 8px 0;
+    text-align: center;
+  }
+  .ms-intro__details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+  }
+  .ms-intro__name {
+    margin: 0;
+    font: 400 24px/1.4 var(--font-serif);
+    color: var(--text-primary);
+  }
+  .ms-intro__sub {
+    margin: 0;
+    font: 400 14px/1.6 var(--font-sans);
+    letter-spacing: 0.25px;
+    color: var(--text-secondary);
+  }
+
+  /* the page scrolls on phones, not the feed */
+  .ch-msg[data-view='thread'] .ch-conv__feed {
+    flex: none;
+    min-height: 0;
+    gap: 12px;
+    padding: 0 24px 16px;
+    overflow: visible;
+  }
+  .ch-msg[data-view='thread'] .ch-date {
+    padding: 4px 0;
+  }
+
+  /* Message Bubble / Mobile 18080:178119: hugs its text up to 280, the corner nearest the sender is the tail (6) */
+  .ch-msg[data-view='thread'] .ch-bub__col {
+    width: auto;
+    max-width: min(280px, 100%);
+  }
+  .ch-msg[data-view='thread'] .ch-bub__text {
+    padding: 12px 16px;
+    border-radius: 20px 20px 20px 6px;
+    font: 400 16px/1.6 var(--font-sans);
+  }
+  .ch-msg[data-view='thread'] .ch-bub--out .ch-bub__text {
+    border-radius: 20px 20px 6px 20px;
+  }
+  /* Show status: "Sent" sits 4 under the last out bubble */
+  .ch-msg[data-view='thread'] .ch-sent {
+    gap: 4px;
+    margin-top: -8px;
+  }
+
+  /* Composer / Mobile 18080:178199: pinned to the bottom of the viewport, above the home indicator area (as the bottom bar) */
+  .ch-msg[data-view='thread'] .ch-composer {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 10px 16px calc(10px + max(28px, env(safe-area-inset-bottom, 0px)));
+    border-top: 1px solid var(--border-subtle);
+    background: var(--surface-brand);
+  }
+  .ms-composer__field {
+    display: block;
+    height: auto;
+    min-height: 44px;
+    max-height: 152px;
+    padding: 9px 18px;
+    border-radius: 22px;
+    font: 400 16px/1.6 var(--font-sans);
+    resize: none;
+    overflow-y: auto;
+  }
+  .ms-send {
+    --k-ig: 18px;
+  }
+
+  /* ---------------------------------------------------------------- Collaborations, Lagos Makers Zine, Banter */
+  .ms-detail .ms-back {
+    display: none;
+  }
+  .ms-detail .ch-split {
+    min-height: 0;
+  }
+  .ms-detail .ch-split__photo {
+    height: 240px;
+    min-height: 0;
+    margin: 16px 24px 0;
+  }
+  .ms-detail .ch-split__main {
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 24px;
+    padding: 24px 24px 40px;
+  }
+  /* Detail Header / Mobile 18081:28822: eyebrow, title and description 12 apart */
+  .ms-detail .ch-split__title {
+    max-width: none;
+    margin-top: -12px;
+    font-size: 32px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+  .ms-detail .ch-split__desc {
+    margin-top: -12px;
+    font-size: 16px;
+  }
+
+  /* Step Row / Mobile 18081:28849: the status sits under the step text */
+  .ms-detail .ch-step {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    column-gap: 12px;
+    row-gap: 2px;
+    align-items: start;
+    padding: 14px 0;
+  }
+  .ms-detail .ch-step svg {
+    grid-row: 1 / span 2;
+    margin-top: 3px;
+  }
+  .ms-detail .ch-step__text,
+  .ms-detail .ch-step__status {
+    grid-column: 2;
+    margin-left: 0;
+  }
+  .ms-detail .ch-step--todo svg {
+    color: var(--icon-secondary);
+  }
+
+  /* Banter: When and People 16 apart, "How it works" label 12 above its steps */
+  .ms-detail .ch-when + .ch-ppl {
+    margin-top: -8px;
+  }
+  .ms-detail .ch-bullets {
+    gap: 12px;
+    margin-top: -12px;
+  }
+  .ms-detail .ch-bullets li {
+    align-items: flex-start;
+  }
+  .ms-detail .ch-bullets li svg {
+    margin-top: 5px;
+  }
+
+  /* stacked full-width actions; confirmations take the place of the button they answer */
+  .ms-detail .ch-acts {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .ms-detail .ch-acts--col {
+    gap: 4px;
+  }
+  /* Meta Row / Mobile Style=Confirm: check-circle in Icon/Success */
+  .ms-detail .ch-confirm svg {
+    color: var(--icon-success);
+  }
+  .ms-detail .ch-acts--col .ch-tlink {
+    align-self: flex-start;
+    min-height: 44px;
+  }
+}

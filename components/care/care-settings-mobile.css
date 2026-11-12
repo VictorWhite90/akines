@@ -1,0 +1,331 @@
+/* Care and Settings on phones: the design's features/community/care-settings-mobile.css (12 Nov 2026), copied verbatim. */
+/*
+ * Care and support and Settings on phones (below 768 px), Figma V2 Mobile section 10 - COMMUNITY HOME:
+ * Quiet company 18084:7303, Reflect privately 18084:7419, Find professional support 18084:7573,
+ * Settings list 18085:7841, Recommendation preferences 18085:7953, Recommendation explanations 18085:8134,
+ * Privacy settings 18085:8289, Connection preferences 18085:8481.
+ * Every rule sits in the phone media query and under .ch-csm (the page root of these screens), so tablet and desktop are unchanged.
+ * Page: 24 px sides, 16 px under the top bar, 40 px above the bottom bar, 24 px between blocks; the top bar (shell) replaces the
+ * back links and the headings that repeat its title (kept for screen readers).
+ */
+@media (max-width: 767px) {
+  .ch-page.ch-csm {
+    --ch-pad: 24px;
+  }
+
+  /* headings that repeat the top bar title: hidden on screen, kept for screen readers */
+  .ch-csm .ch-set__title,
+  .ch-csm--pro .ch-wide__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Text Link: 34 high, its touch area grows to the 44 px Link area of Figma */
+  .ch-csm .ch-tlink {
+    position: relative;
+  }
+  .ch-csm .ch-tlink::after {
+    content: '';
+    position: absolute;
+    inset: -5px 0;
+  }
+
+  /* inline notes (Inline Note / Mobile): 20 px icon in a 22 px slot, 10 px gap, 14 px text */
+  .ch-csm .ch-line,
+  .ch-csm .ch-ov__privacy {
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .ch-csm .ch-line svg,
+  .ch-csm .ch-ov__privacy svg {
+    flex: none;
+    margin-top: 1px;
+  }
+  .ch-csm .ch-confirm {
+    align-items: flex-start;
+    gap: 10px;
+    color: var(--text-primary);
+  }
+  .ch-csm .ch-confirm svg {
+    margin-top: 1px;
+    color: var(--icon-success);
+  }
+
+  /* ------------------------------------------------------------- Quiet company (Page Intro centred, avatars 72, actions) */
+  .ch-page--bleed.ch-csm {
+    background: var(--surface-brand);
+  }
+  .ch-csm .ch-care {
+    gap: 24px;
+    /* fills the screen between the top bar (56) and the bottom bar, content centred like the Figma frame */
+    min-height: calc(100dvh - 56px - (56px + max(28px, env(safe-area-inset-bottom, 0px)) + 1px));
+    padding: 16px 24px 40px;
+    background: var(--surface-brand);
+  }
+  .ch-csm .ch-care__eyebrow {
+    display: none;
+  }
+  .ch-csm .ch-care__title {
+    max-width: 354px;
+    font: 400 32px/1.2 var(--font-serif);
+    letter-spacing: -0.5px;
+  }
+  .ch-csm .ch-care__desc {
+    max-width: 354px;
+    margin-top: -12px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .ch-csm .ch-care__present {
+    flex-wrap: nowrap;
+    gap: 12px;
+    padding: 16px 0;
+  }
+  /* Avatar 72 (Figma); on phones narrower than 372 px the four shrink to stay on one row */
+  .ch-csm .ch-care__present .ch-av {
+    width: clamp(48px, calc((100vw - 84px) / 4), 72px) !important;
+    height: clamp(48px, calc((100vw - 84px) / 4), 72px) !important;
+  }
+  .ch-csm .ch-care__acts {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    width: 100%;
+    max-width: 354px;
+  }
+  .ch-csm .ch-care__acts .ch-tlink {
+    align-self: center;
+    margin-block: 5px;
+  }
+
+  /* ------------------------------------------------------------- Reflect privately and Find professional support */
+  .ch-csm .ch-wide {
+    align-items: stretch;
+    gap: 24px;
+    min-height: 0;
+    padding: 16px 24px 40px;
+  }
+  /* "Back to Community Home" at the top: the top bar back button replaces it */
+  .ch-csm .ch-wide > .ch-tlink:first-child {
+    display: none;
+  }
+  .ch-csm .ch-wide__title {
+    margin-top: -12px;
+    font: 400 32px/1.2 var(--font-serif);
+    letter-spacing: -0.5px;
+  }
+  .ch-csm .ch-wide__desc {
+    margin-top: -12px;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .ch-csm .ch-acts {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 12px;
+  }
+  /* Saved block: note, left aligned "Write another" (label in line with the text above), Back to Community Home */
+  .ch-csm .ch-acts--col .ch-tlink {
+    align-self: flex-start;
+    margin: 5px 0 5px -8px;
+  }
+
+  /* Support options in a white card (Support Option / Mobile) */
+  .ch-csm .ch-opts {
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    background: var(--surface-default);
+  }
+  .ch-csm .ch-opt {
+    position: relative;
+    gap: 4px;
+    padding: 16px;
+    border-bottom: 0;
+  }
+  .ch-csm .ch-opt__title {
+    font-size: 20px;
+    line-height: 1.4;
+  }
+  .ch-csm .ch-alert svg {
+    margin-top: 1px;
+  }
+
+  /* ------------------------------------------------------------- Settings pages */
+  .ch-csm .ch-set {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 16px 24px 40px;
+  }
+  /* desktop settings nav and its back link: the top bar back button returns to the Settings list instead */
+  .ch-csm .ch-nav {
+    display: none;
+  }
+  .ch-csm .ch-set__main {
+    align-items: stretch;
+    gap: 24px;
+  }
+  .ch-csm .ch-set__desc {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  /* rows in a white card (radius 20, Border/Subtle), dividers inset 16 between rows */
+  .ch-csm .ch-set__list {
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    background: var(--surface-default);
+  }
+  .ch-csm .ch-set__row {
+    position: relative;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 0;
+  }
+  .ch-csm .ch-set__rowtext {
+    flex: 1;
+  }
+  /* Setting Toggle Row / Mobile: the whole row switches the value */
+  .ch-csm .ch-set__row--tap {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .ch-csm .ch-set__row--tap:active {
+    background: var(--surface-muted);
+  }
+  /* Explanation Row / Mobile: avatar 40, the link under the text */
+  .ch-csm .ch-why {
+    position: relative;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 16px 4px;
+    border-bottom: 0;
+  }
+  .ch-csm .ch-why__link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin-left: -8px;
+  }
+  .ch-csm .ch-opt + .ch-opt::before,
+  .ch-csm .ch-set__row + .ch-set__row::before,
+  .ch-csm .ch-why + .ch-why::before,
+  .ch-csm .ch-setlist__row + .ch-setlist__row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 16px;
+    right: 16px;
+    height: 1px;
+    background: var(--border-subtle);
+    pointer-events: none;
+  }
+  /* Option Chip idle: no fill on the page ivory (Figma), kit hover and press kept */
+  .ch-csm .k-chip--choice:not(.k-chip--selected) {
+    background: transparent;
+  }
+  .ch-csm .k-chip--choice:not(.k-chip--selected):active {
+    background: var(--action-subtle-pressed);
+  }
+  /* long labels ("People in my Cliqs and KinCircles") wrap inside the chip on very narrow phones instead of running off screen */
+  .ch-csm .k-chip--choice {
+    max-width: 100%;
+    white-space: normal;
+    text-align: left;
+  }
+  /* Save: full width button, the Saved note under it */
+  .ch-csm .ch-set__save {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  /* ------------------------------------------------------------- Settings list (phones only, /community/settings) */
+  .ch-setlist {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px 24px 40px;
+  }
+  .ch-setlist__card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    background: var(--surface-default);
+  }
+  .ch-setlist__row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 44px;
+    padding: 14px 16px;
+    color: var(--text-primary);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ch-setlist__row:active {
+    background: var(--surface-muted);
+  }
+  .ch-setlist__row:focus-visible {
+    outline: 2px solid var(--text-primary);
+    outline-offset: -2px;
+  }
+  .ch-setlist__text {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .ch-setlist__title {
+    font: 600 16px/1.6 var(--font-sans);
+  }
+  .ch-setlist__desc {
+    font: 400 14px/1.6 var(--font-sans);
+    letter-spacing: 0.25px;
+    color: var(--text-secondary);
+  }
+  .ch-setlist__chev {
+    display: inline-flex;
+    flex: none;
+    color: var(--icon-secondary);
+  }
+}
+
+/* hover only on pointer devices (Figma Hover variants: Surface/Subtle) */
+@media (max-width: 767px) and (hover: hover) {
+  .ch-csm .ch-set__row--tap:hover,
+  .ch-setlist__row:hover {
+    background: var(--surface-subtle);
+  }
+  .ch-csm .ch-set__row--tap:active,
+  .ch-setlist__row:active {
+    background: var(--surface-muted);
+  }
+  .ch-csm button.k-chip--choice:not(.k-chip--selected):hover {
+    background: var(--surface-muted);
+  }
+}
+
+/* press feedback eases in like the kit rows (CHANGE_TO 0.15 ease out); none with reduced motion */
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .ch-csm .ch-set__row--tap,
+  .ch-setlist__row {
+    transition: background-color 0.15s ease-out;
+  }
+}

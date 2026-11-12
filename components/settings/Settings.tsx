@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
+import { useLayout } from "@/components/kin/useLayout";
 import BlockedSection from "./BlockedSection";
 import DataSection from "./DataSection";
 import DevicesSection from "./DevicesSection";
@@ -9,10 +11,13 @@ import PersonalSection from "./PersonalSection";
 import SecuritySection from "./SecuritySection";
 import { ConnectionSection, ExplanationsSection, RecommendationsSection } from "./ConnectionSections";
 import type { SectionId } from "./sections";
+import "@/components/care/care-settings-mobile.css";
 
 /**
  * Settings in the product design's layout (classes in components/kin/community.css): a back link, the section
  * list, and the open section under a title. Our account sections first, then the design's connection settings.
+ * Phones (below 768, the design's V2 Mobile): /settings is the Settings list (the mobile form of the nav), and a section page drops the
+ * nav and back link (the shell's top bar replaces them); rows sit in white cards. Rules in components/care/care-settings-mobile.css.
  */
 type S = { id: SectionId; label: string; title: string; desc: string; View: () => React.JSX.Element };
 const ACCOUNT: S[] = [
@@ -30,11 +35,40 @@ const CONNECTIONS: S[] = [
 ];
 const ALL = [...ACCOUNT, ...CONNECTIONS];
 
+/** Phone Settings list (the design's Settings (Mobile)): the connection settings as in the design, then our account settings. */
+function SettingsList() {
+  const card = (id: string, label: string, list: S[]) => (
+    <>
+      <p className="ch-label" id={id}>{label}</p>
+      <nav className="ch-setlist__card" aria-labelledby={id} data-m="up">
+        {list.map((r) => (
+          <Link key={r.id} href={`/settings/${r.id}`} className="ch-setlist__row">
+            <span className="ch-setlist__text"><span className="ch-setlist__title">{r.title}</span><span className="ch-setlist__desc">{r.desc}</span></span>
+            <span className="ch-setlist__chev" aria-hidden><ChevronRight size={20} strokeWidth={1.5} aria-hidden /></span>
+          </Link>
+        ))}
+      </nav>
+    </>
+  );
+  return (
+    <div className="ch-page ch-csm">
+      <div className="ch-setlist">
+        <h1 className="sr-only">Settings</h1>
+        {card("ch-setlist-connections", "Your connections", CONNECTIONS)}
+        {card("ch-setlist-account", "Your account", ACCOUNT)}
+      </div>
+    </div>
+  );
+}
+
+/** /settings: the Settings list on phones; Recommendation preferences on tablet and desktop (as before). */
 export default function Settings({ section }: { section?: SectionId }) {
+  const phone = useLayout() === "mobile";
+  if (phone && !section) return <SettingsList />;
   const current = ALL.find((s) => s.id === section) ?? CONNECTIONS[0];
   const item = (s: S) => <Link key={s.id} href={`/settings/${s.id}`} className={`ch-nav__item${s.id === current.id ? " ch-nav__item--on" : ""}`} aria-current={s.id === current.id ? "page" : undefined}>{s.label}</Link>;
   return (
-    <div className="ch-page">
+    <div className="ch-page ch-csm">
       <div className="ch-set">
         <nav className="ch-nav" aria-label="Settings">
           <Link href="/" className="ch-tlink">Back to Community Home</Link>

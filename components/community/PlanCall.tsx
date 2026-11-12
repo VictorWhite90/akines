@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, CircleCheck, Lock } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CircleCheck, Lock } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { Chip } from "@/components/kin/Chip";
-import { Modal } from "@/components/kin/Overlay";
+import { Modal, Sheet, SheetBanner } from "@/components/kin/Overlay";
+import { useLayout } from "@/components/kin/useLayout";
 import { faceSrc } from "@/components/kin/home/parts";
 import { useSendMessage } from "@/components/messages/send";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
@@ -56,6 +57,48 @@ export default function PlanCall({ plan, open, onClose }: { plan: Plan; open: bo
     setSent(true);
   };
   const image = plan.image ?? faceSrc(plan.people[0]);
+  const phone = useLayout() === "mobile";
+  const times = plan.times ?? TIMES;
+  const faces = (size: number, gap: number) => (
+    <div className="ch-ppl">
+      <span className="ch-avs" style={{ "--ch-av-gap": `-${gap}px` } as React.CSSProperties}>
+        {plan.people.map((p) => (
+          <span key={p} className="ch-av ch-av--light" style={{ width: size, height: size }}>
+            {faceSrc(p) ? <Img src={faceSrc(p)} sizes={`${size}px`} /> : null}
+          </span>
+        ))}
+      </span>
+      <span className="ch-ppl__text">{plan.peopleText ?? names(plan.people)}</span>
+    </div>
+  );
+
+  // Phones: the design's bottom sheets (Sheet:Arrange a Create Call / Quick Catch-up, Sheet:Invitation sent).
+  if (phone) {
+    if (sent) {
+      return (
+        <Sheet open={open} onClose={close} title="Invitation sent" variant="result" actions={<Button size="lg" onClick={close}>Done</Button>}>
+          <span className="chs__ok"><CircleCheck size={40} strokeWidth={1.25} absoluteStrokeWidth aria-hidden /></span>
+          <p className="ch-ov__lead">{PRIVACY}</p>
+        </Sheet>
+      );
+    }
+    return (
+      <Sheet open={open} onClose={close} title={plan.title} variant="plan" actions={<><Button variant="secondary" size="lg" onClick={close}>Cancel</Button><Button size="lg" iconRight={<ArrowUpRight strokeWidth={1.5} aria-hidden />} onClick={invite}>Send invitation</Button></>}>
+        <SheetBanner image={image} size="sm" />
+        <p className="chs__eyebrow">{plan.eyebrow}</p>
+        <p className="ch-ov__lead">{plan.lead}</p>
+        {faces(44, 12)}
+        <div className="ch-ov__field">
+          <p className="ch-ov__label">Choose a time</p>
+          <div className="ch-chips chs__times" role="group" aria-label="Choose a time">
+            {times.map((t, i) => <Chip key={t} variant="choice" selected={slot === i} onClick={() => setSlot(i)}>{t}</Chip>)}
+          </div>
+        </div>
+        <textarea className="ch-note" aria-label="Add a short note" placeholder={plan.placeholder ?? "Add a short note (optional)"} rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
+        <p className="ch-ov__privacy"><Lock size={16} strokeWidth={1.25} absoluteStrokeWidth aria-hidden /><span>{PRIVACY}</span></p>
+      </Sheet>
+    );
+  }
 
   if (sent) {
     return (
@@ -75,20 +118,11 @@ export default function PlanCall({ plan, open, onClose }: { plan: Plan; open: bo
     <Modal open={open} onClose={close} width={560} image={image} eyebrow={plan.eyebrow} title={plan.title} className="ch-ov ch-ov--modal">
       <div className="ch-ov__body">
         <p className="ch-ov__lead">{plan.lead}</p>
-        <div className="ch-ppl">
-          <span className="ch-avs" style={{ "--ch-av-gap": "-10px" } as React.CSSProperties}>
-            {plan.people.map((p) => (
-              <span key={p} className="ch-av ch-av--light" style={{ width: 40, height: 40 }}>
-                {faceSrc(p) ? <Img src={faceSrc(p)} sizes="40px" /> : null}
-              </span>
-            ))}
-          </span>
-          <span className="ch-ppl__text">{plan.peopleText ?? names(plan.people)}</span>
-        </div>
+        {faces(40, 10)}
         <div className="ch-ov__field">
           <p className="ch-ov__label">Choose a time</p>
           <div className="ch-chips" role="group" aria-label="Choose a time">
-            {(plan.times ?? TIMES).map((t, i) => <Chip key={t} variant="choice" selected={slot === i} onClick={() => setSlot(i)}>{t}</Chip>)}
+            {times.map((t, i) => <Chip key={t} variant="choice" selected={slot === i} onClick={() => setSlot(i)}>{t}</Chip>)}
           </div>
         </div>
         <textarea className="ch-note" aria-label="Add a short note" placeholder={plan.placeholder ?? "Add a short note (optional)"} rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
