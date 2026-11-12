@@ -13,6 +13,7 @@ import { DEMO } from "@/lib/demo/mode";
 import { PEOPLE } from "@/lib/data/people";
 import { first, interestPath, type Card, type EXPLORE } from "./data";
 import { useDiscoverState, type RecStatus } from "./state";
+import Img from "@/components/kin/Img";
 
 /**
  * The cards of Discover and its pages, mirrored from the product design (connect/discover/cards.tsx, ExploreCard.tsx,
@@ -29,11 +30,10 @@ export const revealFocused = (e: React.FocusEvent) => {
 export { reduced };
 
 /* ---------------------------------------------------------------- Explore Card */
-export function ExploreCard({ c, eager }: { c: (typeof EXPLORE)[number]; eager?: boolean }) {
+export function ExploreCard({ c, eager, priority }: { c: (typeof EXPLORE)[number]; eager?: boolean; priority?: boolean }) {
   const body = (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element -- the design's category photo */}
-      <span className="dxe-photo"><img className="dxe-img" src={c.image} alt="" loading={eager ? "eager" : "lazy"} decoding="async" draggable={false} /></span>
+      <span className="dxe-photo"><Img className="dxe-img" src={c.image} sizes="280px" priority={priority} loading={eager ? "eager" : "lazy"} draggable={false} /></span>
       <span className="dxe-text">
         <span className="dxe-line"><span className="dxe-title">{c.title}</span><span className="dxe-arrow" aria-hidden><ArrowRight size={20} strokeWidth={1.5} /></span></span>
         <span className="dxe-desc">{c.text}</span>
@@ -48,8 +48,7 @@ export function ExploreCard({ c, eager }: { c: (typeof EXPLORE)[number]; eager?:
 export function InterestCard({ interest }: { interest: Interest }) {
   return (
     <Link className="dxi-card" href={interestPath(interest.id)} draggable={false}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- the design's interest photo */}
-      <img className="dxi-photo" src={photoSrc(interest.photo)} alt="" loading="lazy" decoding="async" draggable={false} />
+      <Img className="dxi-photo" src={photoSrc(interest.photo)} sizes="280px" draggable={false} />
       <span className="dxi-blur" aria-hidden><i /><i /><i /></span>
       <span className="dxi-scrim" aria-hidden />
       <span className="dxi-title">{interest.title}</span>
@@ -63,8 +62,7 @@ export function InterestCard({ interest }: { interest: Interest }) {
 function Photo({ src, reveal }: { src?: string; reveal: boolean }) {
   return (
     <div className="fd-photo dxf-photo" data-m={reveal ? "frame" : undefined}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- the card's photo */}
-      {src ? <img className="cover" src={src} alt="" loading="lazy" decoding="async" draggable={false} /> : null}
+      {src ? <Img className="cover" src={src} sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 460px" draggable={false} /> : null}
     </div>
   );
 }
@@ -129,8 +127,7 @@ export function CardView({ card, reveal }: { card: Card; reveal: boolean }) {
               <h3 className="dxf-name"><Main href={card.href}>{card.title}</Main></h3>
               {/* The maker row is its own link, above the control that covers the card: it opens the maker's profile */}
               <Link className="dxf-maker dxf-maker--link" href={card.makerHref}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- the maker's face */}
-                <span className="fd-av dxf-av">{faceSrc(card.maker) ? <img src={faceSrc(card.maker)} alt="" loading="lazy" decoding="async" draggable={false} /> : null}</span>
+                <span className="fd-av dxf-av">{faceSrc(card.maker) ? <Img src={faceSrc(card.maker)} sizes="24px" draggable={false} /> : null}</span>
                 <span className="dxf-maker__name">{PEOPLE[card.maker]?.name ?? "A member"}</span>
               </Link>
             </div>
@@ -200,8 +197,7 @@ export function RecCard({ rec: m, index }: { rec: Recommendation; index: number 
       <div className="dxr-card__body" inert={status === "dismissed"}>
         <div className="dxr-top"><p className="dxr-eyebrow">Someone to meet</p>{DEMO ? <p className="dxr-match">{`${m.match}% match`}</p> : null}</div>
         <Link className="dxr-who" href={profilePath(id)}>
-          {/* eslint-disable-next-line @next/next/no-img-element -- the member's face */}
-          <span className="dxr-photo">{(m.image ?? faceSrc(id)) ? <img src={m.image ?? faceSrc(id)} alt="" width={72} height={72} loading="lazy" decoding="async" draggable={false} /> : null}</span>
+          <span className="dxr-photo">{(m.image ?? faceSrc(id)) ? <Img src={m.image ?? faceSrc(id)} sizes="72px" width={72} height={72} draggable={false} /> : null}</span>
           <span className="dxr-who__text"><span className="dxr-name" id={nameId}>{p?.name}</span><span className="dxr-role">{p ? `${p.role} · ${p.city}` : ""}</span></span>
         </Link>
         <ul className="dxr-tags">{m.tags.map((t) => <li key={t}>{t}</li>)}</ul>

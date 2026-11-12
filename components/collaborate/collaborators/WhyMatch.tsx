@@ -8,6 +8,7 @@ import { CC, collabHref, leadId, useCollaborator, wordsFor } from "@/lib/collab/
 import { PEOPLE } from "@/lib/data/people";
 import Overlays, { type OverlayKind } from "./Overlays";
 import { Back, Heading, photoOf } from "./parts";
+import Img from "@/components/kin/Img";
 
 /* Why this match, mirrored from the product design (cc-why): each reason with where it came from, and a summary of the person. */
 
@@ -16,7 +17,7 @@ export default function WhyMatch({ id }: { id?: string }) {
   const [open, setOpen] = useState<OverlayKind | null>(null);
   if (!c) notFound();
   const p = PEOPLE[c.id], h = collabHref(c.id), w = wordsFor(c);
-  const src = c.photos?.wide ?? photoOf(c.id, 800);
+  const src = c.photos?.wide ?? photoOf(c.id);
   return (
     <>
       <div className="cc-page cc-why">
@@ -38,8 +39,7 @@ export default function WhyMatch({ id }: { id?: string }) {
         <aside className="cc-why__side" aria-label="Match summary">
           <div className="cc-summary" data-m="up">
             <div className="cc-summary__photo">
-              {/* eslint-disable-next-line @next/next/no-img-element -- member photo */}
-              {src ? <img src={src} alt="" loading="lazy" decoding="async" width={382} height={300} /> : null}
+              {src ? <Img sizes="382px" src={src} width={382} height={300} /> : null}
             </div>
             <p className="cc-card__avail-text"><span className="cc-dot" aria-hidden />{c.availability}</p>
             <h2 className="cc-summary__name">{p.name}</h2>

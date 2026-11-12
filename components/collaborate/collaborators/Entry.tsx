@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import Button from "@/components/kin/Button";
 import { CC } from "@/lib/collab/collaborators";
 import { HERO } from "./parts";
+import Img from "@/components/kin/Img";
 
 /* Collaborators, the way in, mirrored from the product design (cc-split): a hero with the three promises and a photo. */
 
@@ -27,8 +28,7 @@ export default function Entry() {
         </ul>
       </div>
       <div className="cc-split__photo" data-m="frame">
-        {/* eslint-disable-next-line @next/next/no-img-element -- the design's photo */}
-        <img className="cover" src={HERO} alt="" decoding="async" width={605} height={762} />
+        <Img sizes="(max-width: 899px) 100vw, 40vw" className="cover" src={HERO} width={605} height={762} />
       </div>
     </div>
   );

@@ -1,14 +1,15 @@
 "use client";
 
-import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
 import { useId } from "react";
 import { FACE } from "@/lib/data/images";
 import type { Person } from "@/lib/data/people";
 import { cn } from "@/lib/cn";
 import { ease, spring } from "./motion";
+import Img from "@/components/kin/Img";
+import type { ImageInput } from "@/lib/images";
 
-export type AvatarPerson = Pick<Person, "name" | "face"> & { photo?: string | null };
+export type AvatarPerson = Pick<Person, "name" | "face"> & { photo?: ImageInput };
 
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((s) => s[0]!.toUpperCase()).join("");
@@ -16,11 +17,11 @@ function initials(name: string) {
 
 /** A round portrait, or initials on the surface tone. `live` adds the breathing amber ring. */
 export default function Avatar({ person, size = 40, live = false, className }: { person: AvatarPerson; size?: number; live?: boolean; className?: string }) {
-  const face = person.photo ? { src: person.photo, alt: person.name } : person.face ? FACE[person.face] : null;
+  const face: { src: ImageInput; alt: string } | null = person.photo ? { src: person.photo, alt: person.name } : person.face ? FACE[person.face] : null;
   return (
     <span className={cn("k-ava-wrap", live && "live", className)} title={person.name}>
       <span className="k-ava" style={{ width: size, height: size, fontSize: Math.max(10, Math.round(size * 0.36)) }}>
-        {face ? <Image src={face.src} alt={face.alt} width={size} height={size} sizes={`${size * 2}px`} unoptimized={!!person.photo} /> : initials(person.name)}
+        {face ? <Img src={face.src} alt={face.alt} width={size} height={size} sizes={`${size}px`} /> : initials(person.name)}
       </span>
     </span>
   );

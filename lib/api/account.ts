@@ -1,4 +1,5 @@
 import { api, upload } from "./client";
+import type { ImageSource } from "@/lib/images";
 
 /** The signed-in member's own profile (backend: GET/PUT /api/v1/profile/). */
 export type MyProfile = {
@@ -16,6 +17,9 @@ export type MyProfile = {
   is_2fa_set: boolean;
   profile_photo: string | null;
   cover_photo: string | null;
+  /** profile_photo with its sizes and resized variants, when the server has made them (lib/images ImageSource). */
+  profile_photo_image?: ImageSource | null;
+  cover_photo_image?: ImageSource | null;
   location: string;
   website: string;
   /** Why they joined ("What brings you here today?"): one of the reason ids in lib/data/community INTENTS, or "". */
@@ -33,12 +37,13 @@ export type Interest = { slug: string; name: string };
 
 export type Device = { device_id: string; device: string; ip_address: string | null; created_at: string; last_seen_at: string; is_current: boolean };
 
-export type PublicMember = { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null };
+export type PublicMember = { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null; profile_photo_image?: ImageSource | null };
 
 /** Another member's public profile (backend: GET /api/v1/profile/members/<username>). */
 export type MemberProfile = PublicMember & {
   bio: string;
   cover_photo: string | null;
+  cover_photo_image?: ImageSource | null;
   location: string;
   website: string;
   interests: Interest[];

@@ -10,6 +10,7 @@ import { Drawer } from "@/components/kin/Overlay";
 import { faceSrc } from "@/components/kin/home/parts";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { toggleIn, useConnectionPrefs } from "./prefs";
+import Img from "@/components/kin/Img";
 
 /* The design's four connection settings (classes in components/kin/community.css). */
 
@@ -76,11 +77,10 @@ export function ExplanationsSection() {
     <>
       <div className="ch-set__list" data-m="stagger">
         {WHY.map((m) => {
-          const src = faceSrc(m.id, 96);
+          const src = faceSrc(m.id);
           return (
             <div key={m.id} className="ch-why">
-              {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
-              <span className="ch-av" style={{ width: 48, height: 48 }}>{src ? <img src={src} alt="" /> : null}</span>
+              <span className="ch-av" style={{ width: 48, height: 48 }}>{src ? <Img src={src} sizes="48px" /> : null}</span>
               <div className="ch-why__text"><span className="ch-why__title">Why {firstOf(m.id)} was suggested</span><span className="ch-why__desc">{m.text}</span></div>
               <button type="button" className="ch-tlink" onClick={() => setWhy(m.id)}>See the full reason</button>
             </div>

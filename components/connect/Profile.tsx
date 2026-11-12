@@ -12,6 +12,7 @@ import { first } from "./data";
 import { BackLink } from "./parts";
 import { useDiscoverState } from "./state";
 import "./profile.css";
+import Img from "@/components/kin/Img";
 
 /**
  * Connect, People: a member's public profile, mirrored from the product design (connect/discover/profile.tsx, 11.73),
@@ -31,15 +32,14 @@ function ProfileView({ profile }: { profile: Profile }) {
   const d = useDiscoverState();
   const name = first(profile.id) || profile.name.split(" ")[0];
   const nameId = `dxp-name-${profile.id}`;
-  const photo = profile.portrait ?? faceSrc(profile.id as PersonId, 720) ?? profile.photo ?? undefined;
+  const photo = profile.portrait ?? faceSrc(profile.id as PersonId) ?? profile.photo ?? undefined;
   return (
     <div className="dxp-body">
       <article className="dxp-main" aria-labelledby={nameId}>
         <BackLink href="/connect">Back to Discover</BackLink>
         <div className="dxp-header">
           <div className="fd-photo dxp-portrait" data-m="frame">
-            {/* eslint-disable-next-line @next/next/no-img-element -- the member's portrait */}
-            {photo ? <img className="cover" src={photo} alt="" decoding="async" draggable={false} /> : null}
+            {photo ? <Img className="cover" src={photo} sizes="280px" priority draggable={false} /> : null}
           </div>
           <div className="dxp-info">
             {DEMO && profile.connections ? <p className="dxp-status"><span className="dxp-dot" aria-hidden="true" />{profile.connections}</p> : null}

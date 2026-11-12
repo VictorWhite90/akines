@@ -11,6 +11,7 @@ import { requestHref } from "@/components/collaborate/applications/paths";
 import type { PersonId } from "@/lib/data/people";
 import { ME } from "@/lib/collab/me";
 import "../styles/projects.css";
+import Img from "@/components/kin/Img";
 
 /*
  * The design's shared pieces for Discover Projects, Saved projects, a project's page, Express interest and member
@@ -242,9 +243,8 @@ export function SkelSide({ rows }: { rows?: boolean }) {
 /** The owner's photo, or their initials when we have none. */
 export function Portrait({ project, size }: { project: DiscoverProject; size: number }) {
   const owner = project.team[0];
-  const src = owner ? faceSrc(owner.id, size * 2) : undefined;
-  // eslint-disable-next-line @next/next/no-img-element -- the design's owner portrait
-  if (src) return <img className="dsc-portrait" src={src} alt="" width={size} height={size} loading="lazy" decoding="async" />;
+  const src = owner ? faceSrc(owner.id) : undefined;
+  if (src) return <Img sizes={`${size}px`} className="dsc-portrait" src={src} width={size} height={size} />;
   return <span className="dsc-portrait dsc-portrait--initials" style={{ width: size, height: size }} aria-hidden="true">{owner?.initials ?? project.owner[0]}</span>;
 }
 

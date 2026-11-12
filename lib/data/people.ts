@@ -1,4 +1,5 @@
 import type { FaceKey } from "./images";
+import type { ImageInput } from "@/lib/images";
 
 /** Creative presence: what someone is doing, not whether they are "online". */
 export type Presence = "studio" | "room" | "quiet" | "open";
@@ -20,7 +21,7 @@ export type Person = {
   note?: string;
   about: string;
   /** A real member's photo URL (members from the backend have no catalogue face). */
-  photo?: string | null;
+  photo?: ImageInput;
 };
 
 /**

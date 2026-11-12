@@ -10,6 +10,7 @@ import { shrinkImage } from "@/lib/imageShrink";
 import { live } from "@/lib/live";
 import { ConvoList, EmptyPane, ThreadPane } from "./parts";
 import { convoName, convoSub, kindOf, preview, remember, toShown, when, type Live } from "./remote";
+import { apiPhoto, imageKey } from "@/lib/images";
 
 /*
  * Messages on the Akines chat API (chat/ in the backend; lib/api/chat.ts):
@@ -133,10 +134,10 @@ export default function RemoteMessages({ initial }: { initial?: string }) {
       name: convoName(c),
       desc: preview(c.last_message),
       meta: c.unread_count > 0 && c.id !== open?.id ? `${c.unread_count} new` : when(c.last_message_at),
-      face: c.kind === "direct" ? c.peer?.profile_photo : null,
+      face: c.kind === "direct" ? apiPhoto(c.peer?.profile_photo, c.peer?.profile_photo_image) : null,
       label: c.unread_count > 0 ? `${convoName(c)}, ${c.unread_count} unread` : undefined,
     }));
-    if (open && !list.some((c) => c.id === open.id)) shown.unshift({ id: open.id, name: convoName(open), desc: preview(open.last_message), meta: when(open.last_message_at), face: open.peer?.profile_photo, label: undefined });
+    if (open && !list.some((c) => c.id === open.id)) shown.unshift({ id: open.id, name: convoName(open), desc: preview(open.last_message), meta: when(open.last_message_at), face: apiPhoto(open.peer?.profile_photo, open.peer?.profile_photo_image), label: undefined });
     if (person) shown.unshift({ id: person, name: personOf(person as PersonId).name, desc: "", meta: "", face: personOf(person as PersonId).photo, label: undefined });
     return shown;
   }, [list, open, person]);
@@ -303,7 +304,7 @@ function RemoteThread({
       body,
       image: null,
       card: null,
-      sender: { user_id: meId, username: me?.username ?? null, first_name: me?.firstName ?? "", last_name: "", profile_photo: me?.photo ?? null },
+      sender: { user_id: meId, username: me?.username ?? null, first_name: me?.firstName ?? "", last_name: "", profile_photo: imageKey(me?.photo) ?? null },
       reply_to: null,
       client_id: newClientId(),
       is_removed: false,
@@ -355,7 +356,7 @@ function RemoteThread({
     <ThreadPane
       name={name}
       sub={convo ? convoSub(convo) : ""}
-      face={convo ? (convo.kind === "direct" ? convo.peer?.profile_photo : null) : personOf(personId as PersonId).photo}
+      face={convo ? (convo.kind === "direct" ? apiPhoto(convo.peer?.profile_photo, convo.peer?.profile_photo_image) : null) : personOf(personId as PersonId).photo}
       group={kind !== "direct"}
       msgs={shown}
       me={meId}

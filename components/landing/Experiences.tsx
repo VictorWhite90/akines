@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Img from '@/components/kin/Img';
 import { experiences, type Experience } from '@/lib/landing/content';
 import { DiscoveryLink } from './DiscoveryLink';
 import { Icon } from './Icon';
@@ -33,7 +33,7 @@ function Caption({
 function FullCard({ item, align }: { item: Experience; align: 'left' | 'right' }) {
   return (
     <article id={item.id} className={`fullcard fullcard--${align}`}>
-      <Image src={item.image} alt={item.imageAlt} fill sizes="100vw" className="cover" />
+      <Img src={item.image} alt={item.imageAlt} fill sizes="100vw" className="cover" />
       <div className="fullcard__scrim" aria-hidden="true" />
       <div className="fullcard__inner container">
         <Caption item={item} tone="light" size="big" />
@@ -56,7 +56,7 @@ function Story({
   return (
     <article id={item.id} className={`story story--${size} ${offset ? 'story--offset' : ''}`}>
       <div className={`story__media story__media--${ratio}`}>
-        <Image
+        <Img
           src={item.image}
           alt={item.imageAlt}
           fill

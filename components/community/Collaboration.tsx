@@ -13,6 +13,7 @@ import type { Project } from "@/lib/collab/types";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { DEMO } from "@/lib/demo/mode";
 import { useLocal } from "@/lib/useLocal";
+import Img from "@/components/kin/Img";
 
 /*
  * A collaboration you share with someone, as Community Home shows it in the product design (classes ch-split,
@@ -122,8 +123,7 @@ function DesignCollaboration({ c }: { c: DesignCollab }) {
         </div>
         <div className="ch-split__photo">
           <div className="ch-photo ch-photo--fill" data-m="frame">
-            {/* eslint-disable-next-line @next/next/no-img-element -- the design's photo */}
-            <img className="cover" src={c.photo} alt="" loading="eager" decoding="async" />
+            <Img className="cover" src={c.photo} sizes="(max-width: 899px) 100vw, 40vw" priority />
           </div>
         </div>
       </div>
@@ -181,8 +181,7 @@ function ProjectCollaboration({ id }: { id?: string }) {
         </div>
         <div className="ch-split__photo">
           <div className="ch-photo ch-photo--fill" data-m="frame">
-            {/* eslint-disable-next-line @next/next/no-img-element -- the project's photo */}
-            <img className="cover" src={photoSrc(p.photo, 1400)} alt="" loading="eager" decoding="async" />
+            <Img className="cover" src={photoSrc(p.photo)} sizes="(max-width: 899px) 100vw, 40vw" priority />
           </div>
         </div>
       </div>
@@ -197,7 +196,7 @@ function ProjectCollaboration({ id }: { id?: string }) {
           convo: one ? undefined : p.convoId,
           note: steps(p).find((s) => !s.done) ? `Shall we work on this together: ${steps(p).find((s) => !s.done)!.text.replace(/\.$/, "").toLowerCase()}?` : "Shall we pick this up together?",
           placeholder: "Add what you would like to work on (optional)",
-          image: photoSrc(p.photo, 1120),
+          image: photoSrc(p.photo),
           href: `${workspaceHref(p.id)}/meet`,
         }}
       />

@@ -9,6 +9,8 @@ import { ME } from "@/lib/collab/me";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import { media, useMedia } from "./media";
 import "../styles/meeting.css";
+import Img from "@/components/kin/Img";
+import type { ImageInput } from "@/lib/images";
 
 /*
  * Shared pieces of the product design's meeting screens (meeting.css, mc-): the round controls and their icons,
@@ -55,7 +57,7 @@ export function useCast(projectId: string) {
   const call = callOf(projectId);
   return useMemo(() => {
     const roleOf = (id: PersonId) => ws.project?.members.find((m) => m.id === id)?.role ?? "";
-    const personOf = (id: PersonId): CastPerson => ({ id, name: PEOPLE[id]?.name ?? "A member", photo: CALL_PHOTO[id] ?? faceSrc(id, 640), role: roleOf(id) });
+    const personOf = (id: PersonId): CastPerson => ({ id, name: PEOPLE[id]?.name ?? "A member", photo: CALL_PHOTO[id] ?? faceSrc(id), role: roleOf(id) });
     const you = personOf(ME);
     const seats: (Seat & { person: CastPerson })[] = call.here.map((s) => ({ ...s, person: personOf(s.who) }));
     const others = seats.map((s) => s.person);
@@ -105,8 +107,8 @@ export function Video({ stream, mirror, contain }: { stream: MediaStream | null;
   return <video ref={ref} className={["mc-tile__video", mirror && "mc-tile__video--mirror", contain && "mc-tile__video--contain"].filter(Boolean).join(" ")} autoPlay playsInline muted aria-hidden="true" />;
 }
 
-/* eslint-disable @next/next/no-img-element -- the design's tiles are plain images */
-const Feed = ({ src, className = "mc-tile__feed" }: { src?: string; className?: string }) => (src ? <img className={className} src={src} alt="" draggable={false} decoding="async" /> : null);
+/** A member's photo standing in for their video: a tile, or the round photo when their camera is off. */
+const Feed = ({ src, className = "mc-tile__feed" }: { src?: ImageInput; className?: string }) => (src ? <Img sizes={className === "mc-tile__feed" ? "(max-width: 767px) 100vw, 50vw" : "160px"} className={className} src={src} draggable={false} /> : null);
 
 /** Someone with their camera on: their photo stands in for the video. */
 export function PersonTile({ person, speaking }: { person: CastPerson; speaking?: boolean }) {
@@ -143,7 +145,6 @@ export function SelfTile({ self, person, name, badge }: { self: Self; person: Ca
     </div>
   );
 }
-/* eslint-enable @next/next/no-img-element */
 
 export function MeetTop({ project }: { project: string }) {
   return (

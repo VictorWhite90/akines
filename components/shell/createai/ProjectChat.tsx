@@ -11,6 +11,7 @@ import type { WorkspaceKind } from "@/lib/collab/workspace";
 import { BLANK, NEEDS, PREPARE_MS, SAMPLE, STAGES, TYPES, briefOf, followSample, needsList, needsSentence, recommend, stageOf, type Brief } from "@/components/collaborate/start/data";
 import { callFrom } from "@/components/collaborate/start/call";
 import "../project-chat.css";
+import Img from "@/components/kin/Img";
 
 /*
  * Create AI starts a project inside the thread, mirrored from the product design (Figma section 16, journey 16.3,
@@ -116,8 +117,7 @@ function WorkspaceCard({ accepted, kind }: { accepted: boolean; kind: WorkspaceK
   return (
     <article className="cai-wcard" data-state={accepted ? "accepted" : "default"} data-kind={kind} aria-label={`${ws.name}, ${accepted ? "accepted" : "recommended"}`}>
       <div className="cai-wcard__preview">
-        {/* eslint-disable-next-line @next/next/no-img-element -- a small fixed crop, as the design's */}
-        <img src={ws.photo} loading="lazy" decoding="async" alt="" />
+        <Img src={ws.photo} sizes="362px" />
       </div>
       <div className="cai-wcard__body">
         <span className="cai-wcard__chip">

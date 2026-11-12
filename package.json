@@ -4,7 +4,10 @@
   "private": true,
   "description": "Artelia Connect \u2014 vibe-coded UI prototype of the community and collaboration layer described in the Artelia Connect concept note.",
   "scripts": {
+    "images": "node scripts/images.mjs",
+    "predev": "node scripts/images.mjs",
     "dev": "next dev --port 3100",
+    "prebuild": "node scripts/images.mjs",
     "build": "next build",
     "start": "next start --port 3100",
     "lint": "eslint"
@@ -36,6 +39,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "sharp": "^0.35.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

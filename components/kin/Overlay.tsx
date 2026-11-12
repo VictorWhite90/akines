@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/lib/cn";
+import Img from "@/components/kin/Img";
 
 const EXIT_MS = 300;
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
@@ -77,7 +78,7 @@ function Layer({ open, onClose, kind, panelClass, panelStyle, title, description
         <span className="k-panel__handle" aria-hidden />
         {title || description || eyebrow || !hideClose ? (
           <header className={cn("k-panel__head", image && "k-panel__head--image")}>
-            {image ? <>{/* eslint-disable-next-line @next/next/no-img-element -- panel photo */}<img className="k-panel__img" src={image} alt="" decoding="async" /><span className="k-panel__scrim" aria-hidden /></> : null}
+            {image ? <><Img className="k-panel__img" src={image} sizes="(max-width: 767px) 100vw, 720px" loading="eager" /><span className="k-panel__scrim" aria-hidden /></> : null}
             <div className="k-panel__heading">
               {eyebrow ? <p className="k-panel__eyebrow">{eyebrow}</p> : null}
               {title ? <h2 className="k-panel__title" id={titleId}>{title}</h2> : null}

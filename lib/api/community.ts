@@ -1,5 +1,6 @@
 import { api, upload } from "./client";
 import type { PublicMember } from "./account";
+import type { ImageSource } from "@/lib/images";
 
 /** A community as the backend returns it (community.v1.serializers.CommunitySerializer). */
 export type Community = {
@@ -30,12 +31,13 @@ export type Community = {
 };
 
 export type InvitePreview = Pick<Community, "id" | "slug" | "name" | "tagline" | "category_label" | "area" | "city" | "cover_photo" | "is_verified" | "member_count" | "visibility">;
-export type PostAuthor = { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null };
+export type PostAuthor = { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null; profile_photo_image?: ImageSource | null };
 export type CommunityPost = {
   id: number;
   kind: "announcement" | "discussion";
   body: string;
-  images: { id: number; url: string }[];
+  /** Each photo with its sizes and resized variants (lib/images ImageSource) when the server has made them. */
+  images: (ImageSource & { id: number })[];
   author: PostAuthor;
   author_is_leader: boolean;
   is_pinned: boolean;

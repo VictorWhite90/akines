@@ -23,6 +23,7 @@ import { isMine, membersOf, phaseOf, workspaceHref } from "@/lib/collab/workspac
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 import Carousel from "./Carousel";
 import "../styles/home-start.css";
+import Img from "@/components/kin/Img";
 
 /*
  * Collaborate Home, mirrored from the product design (cs-home in ../styles/home-start.css): the welcome, four
@@ -99,7 +100,7 @@ function NewProject() {
 function PersonCard({ c, onSave, onOverlay }: { c: Collaborator; onSave: () => void; onOverlay: (k: OverlayKind) => void }) {
   const person = PEOPLE[c.id];
   const href = collabHref(c.id);
-  const src = c.photos?.home ?? photoOf(c.id, 900);
+  const src = c.photos?.home ?? photoOf(c.id);
   // Home's own words for the person where they have them, else their discovery card's.
   const h = c.home;
   const purpose = h?.purpose ?? c.reasons.find((r) => r.category === "Shared purpose")?.text ?? c.matchContext;
@@ -107,8 +108,7 @@ function PersonCard({ c, onSave, onOverlay }: { c: Collaborator; onSave: () => v
   return (
     <article className="cs-cc cs-hcard">
       <Link className="cs-cc__photo" href={href.profile} tabIndex={-1} aria-hidden>
-        {/* eslint-disable-next-line @next/next/no-img-element -- the collaborator's portrait */}
-        {src ? <img className="cover" src={src} loading="lazy" decoding="async" alt="" /> : null}
+        {src ? <Img sizes="(max-width: 767px) 100vw, 400px" className="cover" src={src} /> : null}
       </Link>
       <div className="cs-cc__body">
         <div className="cs-cc__profile">

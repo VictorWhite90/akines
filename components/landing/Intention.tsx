@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Img from '@/components/kin/Img';
 import { intention } from '@/lib/landing/content';
 import { DiscoveryLink } from './DiscoveryLink';
 import { Icon } from './Icon';
@@ -13,7 +13,7 @@ function PanelCard({ panel }: { panel: Panel }) {
       style={{ '--order': panel.order } as React.CSSProperties}
     >
       <div className="panel__media">
-        <Image
+        <Img
           src={panel.image}
           alt={panel.imageAlt}
           fill

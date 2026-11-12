@@ -108,7 +108,7 @@ function seedCanvas(project: Project, now: number): Canvas {
   return {
     ...base,
     title: `${project.title}: shared canvas`,
-    art: photoSrc(project.photo, 1760),
+    art: photoSrc(project.photo),
     layers: LAYERS,
     cursors: [],
     pins: [],

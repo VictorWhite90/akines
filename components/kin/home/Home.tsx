@@ -35,7 +35,7 @@ function Cards({ cards }: { cards: FeedCard[] }) {
     <div className="fd-row fd-row--sub" data-m="stagger">
       {cards.map((c) => (
         <Link key={c.id} className="fd-card fd-card--sub" href={c.href}>
-          <FdPhoto src={c.image} className="fd-card__photo" />
+          <FdPhoto src={c.image} className="fd-card__photo" sizes="(max-width: 767px) 78vw, (max-width: 1279px) 33vw, 330px" />
           {c.tag ? <p className="fd-card__tag">{c.tag}</p> : null}
           <h3 className="fd-card__title">{c.title}</h3>
           <p className="fd-card__text">{c.text}</p>
@@ -62,7 +62,7 @@ function Wellbeing({ id }: { id?: string }) {
         <p className="fd-well__reply" aria-live="polite">{reply ? <span key={mood}>{reply}</span> : null}</p>
         <FdLink href={WELLBEING.link.href}>{WELLBEING.link.label}</FdLink>
       </div>
-      <FdPhoto src={WELLBEING.image} className="fd-well__photo" />
+      <FdPhoto src={WELLBEING.image} className="fd-well__photo" sizes="(max-width: 899px) 100vw, 400px" />
     </section>
   );
 }
@@ -102,7 +102,7 @@ function SectionBody({ name }: { name: SectionName }) {
           {PRODUCTS.map((p) => (
             <article key={p.id} className="fd-card fd-product">
               <Link className="fd-product__link" href={SHOP_COPY.href}>
-                <FdPhoto src={p.image} className="fd-card__photo" />
+                <FdPhoto src={p.image} className="fd-card__photo" sizes="(max-width: 767px) 78vw, (max-width: 1279px) 33vw, 330px" />
                 <p className="fd-card__tag">{p.tag}</p>
                 <h3 className="fd-card__title fd-product__title">{p.title}</h3>
               </Link>

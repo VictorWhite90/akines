@@ -124,7 +124,8 @@ img.cover {
   .story:hover .story__media img {
     scale: 1.05;
   }
-  .fullcard:hover > img {
+  .fullcard:hover > img,
+  .fullcard:hover > picture > img {
     scale: 1.04;
   }
 }

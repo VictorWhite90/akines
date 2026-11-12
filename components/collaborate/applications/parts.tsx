@@ -11,6 +11,7 @@ import { slotDays, slotFull, type Slot } from "./data";
 import { StatusPill, type ApplicationStatus } from "./shared";
 import "../styles/projects.css";
 import "../styles/applications.css";
+import Img from "@/components/kin/Img";
 
 /*
  * Building blocks of the application stage pages, mirrored from the product design (12.44 APPLICATION STATUS, classes
@@ -22,15 +23,14 @@ type Collab = ReturnType<typeof useCollab>;
 
 /** The host's round photo (Request Summary, Offer Card); initials when we have none. */
 function HostAvatar({ project, size, large }: { project: DiscoverProject; size: number; large?: boolean }) {
-  const src = faceSrc(project.ownerId, size * 2);
+  const src = faceSrc(project.ownerId);
   const cls = `apl-card__avatar${large ? " apl-card__avatar--lg" : ""}`;
-  // eslint-disable-next-line @next/next/no-img-element -- the design's host portrait
-  if (src) return <img className={cls} src={src} alt="" width={size} height={size} decoding="async" />;
+  if (src) return <Img sizes={`${size}px`} className={cls} src={src} width={size} height={size} />;
   return <span className={`${cls} dsc-portrait--initials`} aria-hidden="true">{project.team[0]?.initials ?? project.owner[0]}</span>;
 }
 
 /** The large photograph of the end states, as on "Interest sent". */
-export const endPhoto = (p: DiscoverProject) => faceSrc(p.ownerId, 1200) ?? photoSrc(p.call.photo, 1200);
+export const endPhoto = (p: DiscoverProject) => faceSrc(p.ownerId) ?? photoSrc(p.call.photo);
 
 /**
  * Withdrawing interest, from the request page or the project page: the Interest withdrawn toast offers Undo, which sends
@@ -264,8 +264,7 @@ export function EndState({ project: p, eyebrow, title, lead, meta, status, note,
         <div className="dsc-actions">{children}</div>
       </div>
       <div className="dsc-sent__photo" data-m="frame">
-        {/* eslint-disable-next-line @next/next/no-img-element -- the design's photo beside the end state */}
-        <img className="cover" src={endPhoto(p)} alt="" decoding="async" />
+        <Img sizes="(max-width: 899px) 100vw, 40vw" className="cover" src={endPhoto(p)} />
       </div>
     </div>
   );

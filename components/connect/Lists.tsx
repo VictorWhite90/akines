@@ -21,7 +21,7 @@ export function ExploreAll() {
     <ListPage wide title="Explore" support="Find people, circles, work, projects and events.">
       <Input type="search" className="dxl-search" iconLeft={<Search size={20} strokeWidth={1.25} absoluteStrokeWidth aria-hidden focusable={false} />} placeholder="Search people, circles, work and events" aria-label="Search people, circles, work and events" autoComplete="off" enterKeyHint="search" />
       <ul className="dxe-grid" data-m="stagger">
-        {EXPLORE.map((c, i) => <li key={c.id} style={{ ["--i" as string]: i } as React.CSSProperties}><ExploreCard c={c} eager={i < 3} /></li>)}
+        {EXPLORE.map((c, i) => <li key={c.id} style={{ ["--i" as string]: i } as React.CSSProperties}><ExploreCard c={c} eager={i < 3} priority={i === 0} /></li>)}
       </ul>
     </ListPage>
   );

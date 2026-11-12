@@ -7,6 +7,7 @@ import { meetingClock } from "@/lib/collab/meetings";
 import { media, useMedia } from "./media";
 import { AvatarTile, CamIcon, CamOffIcon, ChatIcon, CloseIcon, LeaveIcon, MicIcon, MicOffIcon, PeopleIcon, PersonTile, PresentIcon, Round, SelfTile, Video, useCast, useClock, useMeetingScreen, useSelf, type CastPerson, type Self } from "./MeetingParts";
 import { MeetingMissing } from "./MeetingEnded";
+import Img from "@/components/kin/Img";
 
 /*
  * The meeting call, mirrored from the product design (meeting.css, mc-call): the team's tiles with the speaker
@@ -63,8 +64,7 @@ const PeoplePanel = forwardRef<HTMLElement, { roster: { person: CastPerson; name
       <ul className="mc-people">
         {roster.map(({ person, name, micOff }) => (
           <li key={person.id} className="mc-person">
-            {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
-            {person.photo ? <img className="mc-person__img" src={person.photo} alt="" width={40} height={40} draggable={false} /> : <span className="mc-person__img" aria-hidden="true" />}
+            {person.photo ? <Img sizes="40px" className="mc-person__img" src={person.photo} width={40} height={40} draggable={false} /> : <span className="mc-person__img" aria-hidden="true" />}
             <span className="mc-person__text"><span className="mc-person__name">{name}</span><span className="mc-person__role">{person.role}</span></span>
             <span className={`mc-person__mic${micOff ? " mc-person__mic--off" : ""}`} role="img" aria-label={micOff ? "Microphone off" : "Microphone on"}>{micOff ? <MicOffIcon size={18} /> : <MicIcon size={18} />}</span>
           </li>
@@ -146,8 +146,7 @@ export default function MeetingCall({ projectId, simulate = false, initial = {} 
           {presenting ? (
             <>
               <div className="mc-share">
-                {/* eslint-disable-next-line @next/next/no-img-element -- the design's shared screen */}
-                {m.screen ? <Video stream={m.screen} contain /> : <img className="mc-share__img" src="/kin/collaborate/shared-screen.jpg" alt="Your shared screen" draggable={false} />}
+                {m.screen ? <Video stream={m.screen} contain /> : <Img sizes="(max-width: 767px) 100vw, 75vw" className="mc-share__img" src="/kin/collaborate/shared-screen.jpg" alt="Your shared screen" draggable={false} />}
                 <div className="mc-pill" role="status">
                   <span className="mc-pill__dot" aria-hidden="true" />
                   <span className="mc-pill__text">You are presenting to everyone</span>

@@ -5,6 +5,7 @@ import { toast } from "@/components/kin/Toast";
 import { api } from "@/lib/api/client";
 import type { Collaborator, IncomingIntroduction, IncomingStatus, Introduction, IntroStatus, MatchIntention, MatchPrefs, Pronoun } from "@/lib/collab/collaborators";
 import { registerPerson, type PersonId } from "@/lib/data/people";
+import { apiPhoto, type ImageSource } from "@/lib/images";
 
 /**
  * Collaborator matching, saved to the backend (/api/v1/matching/*): the member's intention, recommendations with
@@ -26,7 +27,7 @@ import { registerPerson, type PersonId } from "@/lib/data/people";
 
 // ── What the backend sends ──────────────────────────────────────────────────────────────────
 
-type ApiPerson = { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null; headline?: string; location?: string };
+type ApiPerson = { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null; profile_photo_image?: ImageSource | null; headline?: string; location?: string };
 type ApiPage<T> = { results: T[]; page: number; page_size: number; has_more: boolean; server_time: string };
 type ApiIntention = { intention: MatchIntention["intention"]; project_id: string | null; prefs: MatchPrefs | null; need: string | null; updated_at: string | null };
 export type ApiCollaborator = {
@@ -52,7 +53,7 @@ const at = (iso: string | null | undefined) => (iso ? Date.parse(iso) : undefine
 function who(p: ApiPerson): PersonId {
   registerPerson({
     id: p.user_id, name: `${p.first_name} ${p.last_name}`.trim() || p.username || "A member", role: p.headline ?? "",
-    city: p.location ?? "", presence: "open", about: "", photo: p.profile_photo,
+    city: p.location ?? "", presence: "open", about: "", photo: apiPhoto(p.profile_photo, p.profile_photo_image),
   });
   return p.user_id as PersonId;
 }

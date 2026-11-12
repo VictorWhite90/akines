@@ -76,7 +76,8 @@
   isolation: isolate;
   background: #2a2a2a;
 }
-.fullcard > img {
+.fullcard > img,
+.fullcard > picture > img {
   z-index: -2;
 }
 .fullcard__scrim {

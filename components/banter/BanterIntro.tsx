@@ -7,6 +7,7 @@ import { faceSrc } from "@/components/kin/home/parts";
 import type { BanterNow } from "@/lib/data/banter";
 import { PEOPLE } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
+import Img from "@/components/kin/Img";
 
 /** The product design's Banter page (Community Home, /community/banter) (classes in components/kin/community.css): what it is, who is there, then join. */
 export default function BanterIntro({ session }: { session: BanterNow }) {
@@ -29,9 +30,8 @@ export default function BanterIntro({ session }: { session: BanterNow }) {
           <div className="ch-ppl">
             <span className="ch-avs" style={{ "--ch-av-gap": "-10px" } as React.CSSProperties}>
               {session.people.slice(0, 3).map((p) => {
-                const src = faceSrc(p, 80);
-                // eslint-disable-next-line @next/next/no-img-element -- member face
-                return <span key={p} className="ch-av ch-av--light" style={{ width: 40, height: 40 }}>{src ? <img src={src} alt="" /> : null}</span>;
+                const src = faceSrc(p);
+                return <span key={p} className="ch-av ch-av--light" style={{ width: 40, height: 40 }}>{src ? <Img src={src} sizes="40px" /> : null}</span>;
               })}
             </span>
             <span className="ch-ppl__text">Hosted by {host.name.split(" ")[0]}{withText}</span>
@@ -53,8 +53,7 @@ export default function BanterIntro({ session }: { session: BanterNow }) {
         </div>
         <div className="ch-split__photo">
           <div className="ch-photo ch-photo--fill" data-m="frame">
-            {/* eslint-disable-next-line @next/next/no-img-element -- the design's Banter photo */}
-            <img className="cover" src={session.photo ?? "/kin/banter/friends.jpg"} alt="" loading="eager" decoding="async" />
+            <Img className="cover" src={session.photo ?? "/kin/banter/friends.jpg"} sizes="(max-width: 899px) 100vw, 40vw" priority />
           </div>
         </div>
       </div>

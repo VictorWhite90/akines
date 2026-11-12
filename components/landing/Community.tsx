@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Img from '@/components/kin/Img';
 import { community } from '@/lib/landing/content';
 import Button from '@/components/kin/Button';
 import { Icon } from './Icon';
@@ -17,14 +17,14 @@ export function Community() {
         </div>
 
         <div className="community__photo">
-          <Image
+          <Img
             src={community.imageNarrow}
             alt={community.imageAlt}
             fill
             sizes="100vw"
             className="cover pic-narrow"
           />
-          <Image
+          <Img
             src={community.image}
             alt=""
             aria-hidden="true"

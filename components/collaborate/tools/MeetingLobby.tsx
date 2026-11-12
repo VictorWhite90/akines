@@ -6,6 +6,7 @@ import Button from "@/components/kin/Button";
 import { media, useMedia } from "./media";
 import { CamIcon, CamOffIcon, MeetTop, MicIcon, MicOffIcon, PresentIcon, Round, SelfTile, useCast, useMeetingScreen, useSelf } from "./MeetingParts";
 import { MeetingMissing } from "./MeetingEnded";
+import Img from "@/components/kin/Img";
 
 /*
  * The meeting lobby, mirrored from the product design (meeting.css, mc-lobby): your preview with the microphone
@@ -46,8 +47,7 @@ export default function MeetingLobby({ projectId, cameraOff = false }: { project
           <h1 id="mc-join-title" className="mc-join__title">Ready to join?</h1>
           <p className="mc-join__when">{meeting.status === "ongoing" ? `Started at ${meeting.startedAt ?? "now"}` : meeting.when || "Now"}, {meeting.minutes} minutes</p>
           <div className="mc-join__who">
-            {/* eslint-disable-next-line @next/next/no-img-element -- the design's faces */}
-            <span className="mc-faces" aria-hidden="true">{cast.others.map((o) => (o.photo ? <img key={o.id} className="mc-faces__img" src={o.photo} alt="" width={32} height={32} draggable={false} /> : null))}</span>
+            <span className="mc-faces" aria-hidden="true">{cast.others.map((o) => (o.photo ? <Img sizes="32px" key={o.id} className="mc-faces__img" src={o.photo} width={32} height={32} draggable={false} /> : null))}</span>
             <span className="mc-join__who-text">{cast.others.length ? `${cast.firstNames} ${cast.others.length === 1 ? "is" : "are"} here` : "No one else is here yet"}</span>
           </div>
           <div className="mc-join__actions">

@@ -12,6 +12,7 @@ import { useSendMessage } from "@/components/messages/send";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
 import { DEMO } from "@/lib/demo/mode";
 import { useLocal } from "@/lib/useLocal";
+import Img from "@/components/kin/Img";
 
 /* The product design's care screens (classes in components/kin/community.css). */
 
@@ -28,10 +29,9 @@ export function QuietCompany() {
         <p className="ch-care__desc">Four others are here. No one is expected to speak. Stay as long as you like.</p>
         <div className="ch-care__present" aria-label="Four people are here">
           {here.map((id) => {
-            const src = faceSrc(id, 160);
+            const src = faceSrc(id);
             return (
-              // eslint-disable-next-line @next/next/no-img-element -- member face
-              <span key={id} className="ch-av ch-av--accent" style={{ width: 80, height: 80 }}>{src ? <img src={src} alt="" /> : null}</span>
+              <span key={id} className="ch-av ch-av--accent" style={{ width: 80, height: 80 }}>{src ? <Img src={src} sizes="80px" /> : null}</span>
             );
           })}
         </div>

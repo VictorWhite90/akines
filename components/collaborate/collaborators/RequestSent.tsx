@@ -5,6 +5,7 @@ import Button from "@/components/kin/Button";
 import { CC, leadId, requestHref, useCollaborator, useIntroductions, useMatching, wordsFor } from "@/lib/collab/collaborators";
 import { PEOPLE } from "@/lib/data/people";
 import { CcAvatar, HERO, Status } from "./parts";
+import Img from "@/components/kin/Img";
 
 /* Request sent, mirrored from the product design (cc-split with cc-sent): where the introduction stands now. */
 
@@ -41,8 +42,7 @@ export default function RequestSent({ id }: { id?: string }) {
         </div>
       </div>
       <div className="cc-split__photo" data-m="frame">
-        {/* eslint-disable-next-line @next/next/no-img-element -- the design's photo */}
-        <img className="cover" src={HERO} alt="" decoding="async" width={605} height={762} />
+        <Img sizes="(max-width: 899px) 100vw, 40vw" className="cover" src={HERO} width={605} height={762} />
       </div>
     </div>
   );

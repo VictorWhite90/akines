@@ -8,6 +8,7 @@ import { Modal } from "@/components/kin/Overlay";
 import { faceSrc } from "@/components/kin/home/parts";
 import { useSendMessage } from "@/components/messages/send";
 import { ME, PEOPLE, type PersonId } from "@/lib/data/people";
+import Img from "@/components/kin/Img";
 
 /*
  * The design's plan modal (classes ch-ov* in components/kin/community.css): who, a few times to choose from, a
@@ -54,7 +55,7 @@ export default function PlanCall({ plan, open, onClose }: { plan: Plan; open: bo
     if (!(plan.convo && send(plan.convo, msg))) send(plan.people[0], msg);
     setSent(true);
   };
-  const image = plan.image ?? faceSrc(plan.people[0], 1120);
+  const image = plan.image ?? faceSrc(plan.people[0]);
 
   if (sent) {
     return (
@@ -78,8 +79,7 @@ export default function PlanCall({ plan, open, onClose }: { plan: Plan; open: bo
           <span className="ch-avs" style={{ "--ch-av-gap": "-10px" } as React.CSSProperties}>
             {plan.people.map((p) => (
               <span key={p} className="ch-av ch-av--light" style={{ width: 40, height: 40 }}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
-                {faceSrc(p) ? <img src={faceSrc(p)} alt="" loading="lazy" decoding="async" /> : null}
+                {faceSrc(p) ? <Img src={faceSrc(p)} sizes="40px" /> : null}
               </span>
             ))}
           </span>

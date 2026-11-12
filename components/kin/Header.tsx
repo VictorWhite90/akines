@@ -18,6 +18,7 @@ import Logo from "./Logo";
 import { Modal } from "./Overlay";
 import "./header.css";
 import "./community.css";
+import type { ImageInput } from "@/lib/images";
 
 /*
  * The app header, mirrored from the product design (classes in header.css, sheets in akines/library.css):
@@ -188,14 +189,14 @@ const ACCOUNT = [
   { label: "Settings", href: "/settings", Icon: SlidersHorizontal },
   { label: "Help", href: "/help", Icon: CircleHelp },
 ];
-function AvatarCircle({ name, photo, lg }: { name: string; photo?: string | null; lg?: boolean }) {
+function AvatarCircle({ name, photo, lg }: { name: string; photo?: ImageInput; lg?: boolean }) {
   return (
     <span className={`hdr-avatar__circle${lg ? " hdr-avatar__circle--lg" : ""}`}>
       {photo ? <Avatar person={{ name, photo }} size={lg ? 44 : 36} /> : initials(name)}
     </span>
   );
 }
-function AccountMenu({ name, handle, photo, onLogout }: { name: string; handle: string; photo?: string | null; onLogout: () => void }) {
+function AccountMenu({ name, handle, photo, onLogout }: { name: string; handle: string; photo?: ImageInput; onLogout: () => void }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(open, ref, () => setOpen(false));
@@ -438,7 +439,7 @@ function SectionSheet({ sectionKey, active, onClose }: { sectionKey: SectionKey 
   );
 }
 
-function ProfileSheet({ open, onClose, name, handle, photo, messages, notices, onNotifications, onLogout }: { open: boolean; onClose: () => void; name: string; handle: string; photo?: string | null; messages: number; notices: number; onNotifications: () => void; onLogout: () => void }) {
+function ProfileSheet({ open, onClose, name, handle, photo, messages, notices, onNotifications, onLogout }: { open: boolean; onClose: () => void; name: string; handle: string; photo?: ImageInput; messages: number; notices: number; onNotifications: () => void; onLogout: () => void }) {
   const ref = useSheet(open, onClose);
   const row = (Icon: typeof User, label: string, href: string, n?: number) => (
     <Link href={href} className="sheet-row" data-selected="false" onClick={onClose}>

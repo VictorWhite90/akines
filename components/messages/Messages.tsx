@@ -34,7 +34,7 @@ function sub(c: Convo) {
   return `${KIND_LABEL[c.kind]} · ${c.members.length + 1} members`;
 }
 
-const faceOf = (c: Convo, size: number) => (c.kind === "direct" ? faceSrc(c.members[0], size * 2) : c.photo ? photoSrc(c.photo, size * 2) : faceSrc(c.members[0], size * 2));
+const faceOf = (c: Convo) => (c.kind === "direct" ? faceSrc(c.members[0]) : c.photo ? photoSrc(c.photo) : faceSrc(c.members[0]));
 
 export default function Messages({ initial }: { initial?: string }) {
   return DEMO ? <LocalMessages initial={initial} /> : <RemoteMessages initial={initial} />;
@@ -80,13 +80,13 @@ function LocalMessages({ initial }: { initial?: string }) {
 
   return (
     <div className="ch-msg" data-view={open ? "thread" : "list"}>
-      <ConvoList rows={convos.map((c) => ({ id: c.id, name: c.name, desc: last(c), meta: meta(c), face: faceOf(c, 44) }))} openId={open?.id} />
+      <ConvoList rows={convos.map((c) => ({ id: c.id, name: c.name, desc: last(c), meta: meta(c), face: faceOf(c) }))} openId={open?.id} />
       {open ? (
         <ThreadPane
           key={open.id}
           name={open.name}
           sub={sub(open)}
-          face={faceOf(open, 48)}
+          face={faceOf(open)}
           group={open.kind !== "direct"}
           msgs={[...open.msgs, ...(added[open.id] ?? [])]}
           me={ME_ID}

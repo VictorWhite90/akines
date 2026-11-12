@@ -10,6 +10,7 @@ import type { PersonId } from "@/lib/data/people";
 import { useLocal } from "@/lib/useLocal";
 import { CIRCLES, CIRCLES_COPY, MATCHES, MATCH_COPY } from "./content";
 import { FdAvatar } from "./parts";
+import Img from "@/components/kin/Img";
 
 /**
  * The design's right column on Community Home and Connect Discover: your circles and a match to meet, with the
@@ -39,8 +40,7 @@ function Circles() {
         {circles.map((c) => (
           <li key={c.id}>
             <Link className="fd-circle" href={c.href}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- circle photo */}
-              <span className="fd-circle__photo"><img className="cover" src={c.image} alt="" loading="lazy" decoding="async" draggable={false} /></span>
+              <span className="fd-circle__photo"><Img className="cover" src={c.image} sizes="56px" draggable={false} /></span>
               <span className="fd-circle__text"><span className="fd-circle__name">{c.name}</span><span className="fd-circle__meta">{c.meta}</span></span>
               <span className="fd-circle__chev"><ChevronRight size={16} strokeWidth={1.5} aria-hidden /></span>
             </Link>

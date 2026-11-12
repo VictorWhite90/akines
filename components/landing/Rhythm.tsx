@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Img from '@/components/kin/Img';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { rhythm } from '@/lib/landing/content';
 import Button, { IconButton } from '@/components/kin/Button';
@@ -105,7 +105,7 @@ export function Rhythm() {
     <section id="philosophy" className="rhythm-section" aria-labelledby="rhythm-title">
       {/* Immersive photo with the chapter headline */}
       <div className="immersive">
-        <Image
+        <Img
           src={rhythm.image}
           alt={rhythm.imageAlt}
           fill
@@ -132,7 +132,7 @@ export function Rhythm() {
         <div className="container rhythm__grid">
           <div className="rhythm__stage">
             {rhythm.steps.map((step, i) => (
-              <Image
+              <Img
                 key={step.n}
                 src={step.image}
                 alt={i === active ? step.imageAlt : ''}
@@ -233,7 +233,7 @@ export function Rhythm() {
                         <Icon name={step.icon} size={24} />
                       </span>
                       <span className="step__thumb">
-                        <Image src={step.image} alt="" fill sizes="80px" className="cover" />
+                        <Img src={step.image} alt="" fill sizes="80px" className="cover" />
                       </span>
                     </div>
                   </li>

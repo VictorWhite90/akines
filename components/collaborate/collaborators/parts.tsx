@@ -8,6 +8,7 @@ import { faceSrc } from "@/components/kin/home/parts";
 import { collabHref, INTRO_STATUS, type Collaborator, type IntroStatus } from "@/lib/collab/collaborators";
 import { PEOPLE, type Person, type PersonId } from "@/lib/data/people";
 import "../styles/collaborators.css";
+import Img from "@/components/kin/Img";
 
 /*
  * Small pieces shared by the Collaborators screens, mirrored from the product design (classes cc-* in
@@ -15,7 +16,7 @@ import "../styles/collaborators.css";
  */
 
 export const HERO = "/akines/collaborators/hero.jpg";
-export const photoOf = (id: PersonId, w = 480) => faceSrc(id, w) ?? (PEOPLE[id] as Person | undefined)?.photo ?? undefined;
+export const photoOf = (id: PersonId) => faceSrc(id) ?? (PEOPLE[id] as Person | undefined)?.photo ?? undefined;
 
 /** The design's arrow in buttons: 16px, a fine stroke. */
 export const Arrow = () => <ArrowRight size={16} strokeWidth={1.25} />;
@@ -54,11 +55,10 @@ export function Status({ status }: { status: IntroStatus }) {
 /** The design's avatar (k-avatar), a round photo. */
 export function CcAvatar({ id, size, shown }: { id: PersonId; size: number; shown?: number }) {
   const px = shown ?? size;
-  const src = photoOf(id, size * 2);
+  const src = photoOf(id);
   return (
     <span role="img" aria-label={PEOPLE[id].name} className="k-avatar k-avatar--warm" data-size={size} style={{ width: px, height: px, fontSize: Math.round(size * 0.375) }}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- member photo */}
-      {src ? <img alt="" loading="lazy" decoding="async" src={src} /> : null}
+      {src ? <Img sizes={`${px}px`} src={src} /> : null}
     </span>
   );
 }
@@ -72,8 +72,7 @@ export function PersonCard({ c, saved, saveLabel, onSave, hideNotRelevant, onNot
     <article className="cc-card" data-saved={saved || undefined} aria-labelledby={`cc-card-${c.id}`}>
       <div className="cc-card__top">
         <div className="cc-card__photo">
-          {/* eslint-disable-next-line @next/next/no-img-element -- member photo */}
-          {src ? <img src={src} alt="" loading="lazy" decoding="async" width={188} height={228} /> : null}
+          {src ? <Img sizes="188px" src={src} width={188} height={228} /> : null}
         </div>
         <div className="cc-card__info">
           <div className="cc-card__avail">

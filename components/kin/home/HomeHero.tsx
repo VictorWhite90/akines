@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { HERO_CARDS, HERO_HEADING, HERO_INTERVAL, HERO_LABEL } from "./content";
+import Img from "@/components/kin/Img";
 
 /*
  * The top of Community Home, mirrored from the product design (classes in home.css): a row of what is happening
@@ -96,8 +97,7 @@ export default function HomeHero() {
           <li key={c.id} className="fd-hero__item" style={{ ["--i" as string]: i } as React.CSSProperties}>
             <Link className="fd-hcard" data-kind={c.kind} href={c.href} draggable={false}>
               <span className="fd-hcard__photo">
-                {/* eslint-disable-next-line @next/next/no-img-element -- the design's card photo */}
-                <img className="cover" src={c.image} alt="" loading={i < EAGER ? "eager" : "lazy"} decoding="async" draggable={false} />
+                <Img className="cover" src={c.image} sizes="316px" priority={i === 0} loading={i < EAGER ? "eager" : "lazy"} draggable={false} />
                 <span className="fd-hcard__tag">{c.kind === "live" ? <span className="fd-hcard__dot" aria-hidden /> : null}{c.tag}</span>
               </span>
               <span className="fd-hcard__text">

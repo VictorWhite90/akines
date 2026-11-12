@@ -1,4 +1,5 @@
 import { api } from "./client";
+import type { ImageSource } from "@/lib/images";
 
 export type Notice = {
   id: number;
@@ -8,7 +9,7 @@ export type Notice = {
   link: string;
   target_type: string;
   target_id: string;
-  actor: { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null } | null;
+  actor: { user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null; profile_photo_image?: ImageSource | null } | null;
   is_read: boolean;
   created_at: string;
 };

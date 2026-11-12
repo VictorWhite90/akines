@@ -1,5 +1,6 @@
 import { api, upload } from "./client";
 import type { PostAuthor } from "./community";
+import type { ImageSource } from "@/lib/images";
 
 /**
  * An invitation card (chat.v1.serializers.CardSerializer): the only structured message. `href` is a page of this
@@ -19,7 +20,8 @@ export type ChatMessage = {
   /** "card": an invitation; `card` holds it and `body` a plain-text version for previews. */
   kind: "text" | "image" | "system" | "card";
   body: string;
-  image: { id: number; url: string } | null;
+  /** The photo, with its sizes and resized variants (lib/images ImageSource) when the server has made them. */
+  image: (ImageSource & { id: number }) | null;
   card?: ChatCard | null;
   sender: PostAuthor | null;
   reply_to: { id: number; kind: string; is_removed: boolean; body: string; sender_name: string } | null;

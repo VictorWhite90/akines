@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Img from '@/components/kin/Img';
 import { closing } from '@/lib/landing/content';
 import Button from '@/components/kin/Button';
 import { Lines } from './Lines';
@@ -7,14 +7,14 @@ export function FinalCta() {
   return (
     <section id="join" className="closing" aria-labelledby="closing-title">
       <div className="closing__photo">
-        <Image
+        <Img
           src={closing.imageNarrow}
           alt={closing.imageAlt}
           fill
           sizes="100vw"
           className="cover pic-narrow"
         />
-        <Image src={closing.image} alt="" aria-hidden="true" fill sizes="100vw" className="cover pic-wide" />
+        <Img src={closing.image} alt="" aria-hidden="true" fill sizes="100vw" className="cover pic-wide" />
       </div>
       <div className="closing__content">
         <p className="eyebrow">{closing.eyebrow}</p>

@@ -10,6 +10,7 @@ import { ME } from "@/lib/collab/me";
 import type { PersonId } from "@/lib/data/people";
 import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, lostDetail, lostTitle, toolFace, useToolState, viewingTitle, type ToolState, type WorkspaceState, type Ws } from "./ToolFrame";
 import "../styles/research-workspace.css";
+import Img from "@/components/kin/Img";
 
 /*
  * The Research Workspace, mirrored from the product design (research-workspace.css, tr-): the formatting bar with
@@ -103,8 +104,7 @@ function Page({ doc, caret, offline }: { doc: Doc; caret: boolean; offline: bool
 
 function Face({ who }: { who: PersonId }) {
   const src = toolFace(who);
-  // eslint-disable-next-line @next/next/no-img-element -- member face
-  return src ? <img className="tr-c28" src={src} alt="" loading="lazy" decoding="async" /> : <span className="tr-c28 tr-c28--kemi" aria-hidden="true">{initialsOf(who)}</span>;
+  return src ? <Img sizes="28px" className="tr-c28" src={src} /> : <span className="tr-c28 tr-c28--kemi" aria-hidden="true">{initialsOf(who)}</span>;
 }
 
 type ThreadState = "open" | "replying" | "resolved";

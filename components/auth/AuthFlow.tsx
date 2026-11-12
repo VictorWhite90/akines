@@ -13,6 +13,7 @@ import GoogleButton from "./GoogleButton";
 import { STRONG, STRONG_HINT } from "./LoginScreen";
 import { AgeCheck, AuField, AuSubmit, IconTick, Meter, OrRule, Progress, Provider, ShowToggle, StepHeader, type Strength } from "./parts";
 import "./auth.css";
+import Img from "@/components/kin/Img";
 
 type Mode = "login" | "signup";
 /**
@@ -351,8 +352,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
                   return (
                     <label key={it.id} className="au-reason" data-state={state}>
                       <input type="radio" name="au-reason" className="au-reason__input" checked={state === "selected"} onChange={() => {}} onClick={() => { setReasonErr(false); setReason((r) => (r === i ? null : i)); }} />
-                      {/* eslint-disable-next-line @next/next/no-img-element -- the design's photo tiles */}
-                      <img className="au-reason__photo" src={`/landing/images/${REASON_PHOTO[i] ?? "conversation"}.jpg`} alt="" loading="lazy" decoding="async" draggable={false} />
+                      <Img className="au-reason__photo" src={`/landing/images/${REASON_PHOTO[i] ?? "conversation"}.jpg`} sizes="(max-width: 767px) 50vw, 240px" draggable={false} />
                       <span className="au-reason__scrim" aria-hidden />
                       <span className="au-reason__dim" aria-hidden />
                       <span className="au-reason__index" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
@@ -368,8 +368,7 @@ export default function AuthFlow({ mode, startAt }: { mode: Mode; startAt?: stri
           {step === "welcome" && (
             <div className="au-card" data-step="5">
               <Progress step={5} />
-              {/* eslint-disable-next-line @next/next/no-img-element -- the design's welcome photo */}
-              <img className="au-welcome__photo" src="/landing/images/conversation.jpg" alt="" decoding="async" />
+              <Img className="au-welcome__photo" src="/landing/images/conversation.jpg" sizes="(max-width: 767px) 100vw, 480px" loading="eager" />
               <StepHeader eyebrow="You're in" title={h ? `Welcome to Akines, @${h}.` : mode === "login" ? "Welcome back." : "Welcome to Akines."} headingRef={heading}>
                 {"Your seat is saved. Take a look around. You can add your photo, role and city whenever you like from your profile."}
               </StepHeader>

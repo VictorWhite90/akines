@@ -33,7 +33,7 @@ function Explore() {
         </div>
       </header>
       <ul className="dxe-scroller" id="dx-explore-cards" ref={row} onFocus={revealFocused}>
-        {EXPLORE.map((c, i) => <li key={c.id} className="dxe-item" style={{ ["--i" as string]: i } as React.CSSProperties}><ExploreCard c={c} eager={i < 4} /></li>)}
+        {EXPLORE.map((c, i) => <li key={c.id} className="dxe-item" style={{ ["--i" as string]: i } as React.CSSProperties}><ExploreCard c={c} eager={i < 4} priority={i === 0} /></li>)}
       </ul>
     </section>
   );

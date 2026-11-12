@@ -25,6 +25,7 @@ import { CwLink, initialsOf } from "./parts";
 import { fileHref, useProjectFiles } from "./Files";
 import { ScheduleDialog } from "./Rail";
 import "../styles/conversations.css";
+import Img from "@/components/kin/Img";
 
 /*
  * The project workspace's Conversations page, mirrored from the product design (classes cv-* in
@@ -59,11 +60,10 @@ const lcFirst = (s: string) => (s ? s[0]!.toLowerCase() + s.slice(1) : s);
 const nameOf = (id: PersonId) => PEOPLE[id]?.name ?? "A member";
 
 function Face({ id, size, className }: { id: PersonId; size: number; className?: string }) {
-  const src = faceSrc(id, size * 2);
+  const src = faceSrc(id);
   return (
     <span className={cn("cv-face", className)} style={{ "--cv-face": `${size}px` } as React.CSSProperties} aria-hidden>
-      {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
-      {src ? <img src={src} alt="" width={size} height={size} loading="lazy" decoding="async" /> : <span>{initialsOf(nameOf(id))}</span>}
+      {src ? <Img sizes={`${size}px`} src={src} width={size} height={size} /> : <span>{initialsOf(nameOf(id))}</span>}
     </span>
   );
 }

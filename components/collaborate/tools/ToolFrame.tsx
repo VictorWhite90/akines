@@ -11,6 +11,7 @@ import { accessOf, editedAt, firstName, initialsOf, nameOf, presenceSummary, ver
 import { ME } from "@/lib/collab/me";
 import type { PersonId } from "@/lib/data/people";
 import "../styles/art-workspace.css";
+import Img from "@/components/kin/Img";
 
 /*
  * The frame both full-screen workspace tools share, mirrored from the product design (art-workspace.css, tw-):
@@ -68,8 +69,7 @@ export function LiveAvatar({ who, state }: { who: PersonId; state: LivePerson["s
   return (
     <span className="tw-av" data-state={state} title={nameOf(who)}>
       {state !== "away" ? <span className="tw-av__ring" /> : null}
-      {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
-      <span className="tw-av__photo">{src ? <img src={src} alt="" loading="lazy" decoding="async" /> : <span className="tw-av__initials">{initialsOf(who)}</span>}</span>
+      <span className="tw-av__photo">{src ? <Img sizes="40px" src={src} /> : <span className="tw-av__initials">{initialsOf(who)}</span>}</span>
       {state !== "away" ? <span className="tw-av__dot" /> : null}
     </span>
   );

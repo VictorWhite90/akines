@@ -7,6 +7,7 @@ import { CC, requestHref, sampleCollaborator, sentOn, useIntroductions, useSaved
 import { PEOPLE } from "@/lib/data/people";
 import Overlays, { type OverlayKind } from "./Overlays";
 import { Back, CcAvatar, CcEmpty, Heading, PersonCard, photoOf, Status } from "./parts";
+import Img from "@/components/kin/Img";
 
 /*
  * Saved collaborators and introduction requests, mirrored from the product design (cc-list). `staticEmpty` is the
@@ -55,12 +56,11 @@ export function IntroductionRequests({ staticEmpty }: { staticEmpty?: boolean })
         <ul className="cc-reqs" data-m="stagger">
           {rows.map((r) => {
             const p = PEOPLE[r.to];
-            const src = photoOf(r.to, 240);
+            const src = photoOf(r.to);
             return (
               <li className="cc-req-row" key={r.id}>
                 <div className="cc-req-row__photo">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- member photo */}
-                  {src ? <img src={src} alt="" loading="lazy" decoding="async" width={96} height={120} /> : <CcAvatar id={r.to} size={96} />}
+                  {src ? <Img sizes="96px" src={src} width={96} height={120} /> : <CcAvatar id={r.to} size={96} />}
                 </div>
                 <div className="cc-req-row__info">
                   <h2 className="cc-req-row__name">{p.name}</h2>

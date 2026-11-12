@@ -27,7 +27,8 @@ function liveOrigin() {
 const google = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ? " https://accounts.google.com/gsi/" : "";
 
 // Next's own hydration scripts are inline, hence 'unsafe-inline' for scripts; everything else is locked to our origin.
-// Images and media come from S3/CDN and the sample-content CDNs, so any https source is allowed for those only.
+// Our own photos are served from this origin (public/_img); member uploads and media come from S3/CDN, so any https
+// source is allowed for images and media only.
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${production ? "" : " 'unsafe-eval'"}${google}`,
@@ -74,6 +75,9 @@ const nextConfig: NextConfig = {
       ...(google ? GOOGLE_PAGES.map((source) => ({ source, headers: [{ key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" }] })) : []),
       // API answers are per member: never stored by a browser or proxy cache.
       { source: "/api/:path*", headers: [{ key: "Cache-Control", value: "no-store" }] },
+      // Resized photos (scripts/images.mjs): the file name carries a hash of the photo, so a changed photo gets a new
+      // address and these can be kept for a year without asking again.
+      { source: "/_img/:path*", headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }] },
     ];
   },
   async redirects() {
@@ -135,6 +139,8 @@ const nextConfig: NextConfig = {
     const origin = (process.env.AKINES_API_URL ?? "http://localhost:8000/api/v1").replace(/\/api\/v1\/?$/, "");
     return [{ source: "/media/:path*", destination: `${origin}/media/:path*` }];
   },
+  // next/image is not used by the app (components/kin/Img draws every photo); the loader maps our photos to the
+  // prebuilt variants so it never resizes on request should it be used.
   images: {
     loader: "custom",
     loaderFile: "./lib/imageLoader.ts",

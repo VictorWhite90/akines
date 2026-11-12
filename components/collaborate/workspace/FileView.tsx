@@ -15,6 +15,7 @@ import { BackLink, CwLink, IconUpRight, Initials } from "./parts";
 import { useProjectFiles } from "./Files";
 import "../styles/files.css";
 import "../styles/file.css";
+import Img from "@/components/kin/Img";
 
 /*
  * One file in the project workspace, mirrored from the product design (classes fp-* in ../styles/file.css and the
@@ -34,13 +35,12 @@ function when(at: number) {
 const Lines = ({ w }: { w: number[] }) => <div className="fl-page__lines" aria-hidden>{w.map((x, i) => <i key={i} style={{ width: `${(x / 276) * 100}%` }} />)}</div>;
 
 function Preview({ f, project }: { f: ProjectFile; project: string }) {
-  const img = f.src ?? (f.photo ? photoSrc(f.photo, 720) : undefined);
+  const img = f.src ?? (f.photo ? photoSrc(f.photo) : undefined);
   const label = f.size ? `${f.typeLong}, ${fileSize(f.size)}` : f.typeLong;
   if (img) {
     return (
       <div className="fl-panel" role="img" aria-label={`Preview of ${f.name}.`}>
-        {/* eslint-disable-next-line @next/next/no-img-element -- the file itself */}
-        <div className="fl-sheet fl-sheet--photo" aria-hidden><img src={img} alt="" decoding="async" /></div>
+        <div className="fl-sheet fl-sheet--photo" aria-hidden><Img sizes="(max-width: 767px) 100vw, 720px" src={img} /></div>
         <p className="fl-panel__label" aria-hidden>{label}</p>
       </div>
     );

@@ -11,6 +11,7 @@ import { StatusPill } from "../applications/shared";
 import { CwLink, Dot, Initials, Over, initialsOf } from "../workspace/parts";
 import { COMPARE, ROW } from "./data";
 import "../styles/applicants.css";
+import Img from "@/components/kin/Img";
 
 /*
  * The pieces the applicant screens share, mirrored from the product design's applicants/parts.tsx (ap-* in
@@ -23,11 +24,10 @@ export type Group = "project" | "call";
 /* ------------------------------------------------------------------ people */
 
 export function Portrait({ a, size = 56 }: { a: Pick<Applicant, "person" | "name">; size?: number }) {
-  const src = faceSrc(a.person, size * 2);
+  const src = faceSrc(a.person);
   return (
     <span className="ap-portrait" style={{ ["--ap-p" as string]: `${size}px` } as React.CSSProperties} aria-hidden>
-      {/* eslint-disable-next-line @next/next/no-img-element -- their face */}
-      {src ? <img src={src} alt="" width={size} height={size} decoding="async" /> : <Initials initials={initialsOf(a.name)} size={size} />}
+      {src ? <Img sizes={`${size}px`} src={src} width={size} height={size} /> : <Initials initials={initialsOf(a.name)} size={size} />}
     </span>
   );
 }

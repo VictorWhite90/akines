@@ -8,6 +8,8 @@ import Button from "@/components/kin/Button";
 import { photoSrc } from "@/components/kin/home/parts";
 import type { KMsg } from "@/lib/data/kinmessage";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
+import Img from "@/components/kin/Img";
+import type { ImageInput } from "@/lib/images";
 
 /*
  * The pieces of Messages, mirrored from the product design (classes in components/kin/community.css): the
@@ -21,11 +23,10 @@ export type Shown = KMsg | { id: string; from: string; at: string; kind: "system
 /** Messages carry a time for today, or a day name for earlier: the day is the group heading. */
 export const day = (at: string) => (/^\d{1,2}:\d{2}/.test(at) ? "Today" : at);
 
-export function Face({ src, size }: { src?: string | null; size: number }) {
+export function Face({ src, size }: { src?: ImageInput; size: number }) {
   return (
     <span className="ch-av" style={{ width: size, height: size }}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- member or group photo */}
-      {src ? <img src={src} alt="" loading="lazy" decoding="async" draggable={false} /> : null}
+      {src ? <Img src={src} sizes={`${size}px`} draggable={false} /> : null}
     </span>
   );
 }
@@ -53,8 +54,7 @@ function Bubble({ m, me, group }: { m: Shown; me: string; group: boolean }) {
       <div className="ch-bub__col">
         {sender ? <span className="ch-bub__sender">{sender}</span> : null}
         {m.kind === "photo" ? (
-          // eslint-disable-next-line @next/next/no-img-element -- a shared photo
-          <img src={photoSrc(m.photo, 640)} alt="" style={{ width: "100%", maxWidth: 360, borderRadius: 12, marginBottom: 8 }} />
+          <Img src={typeof m.photo === "string" ? photoSrc(m.photo) : m.photo} sizes="360px" style={{ width: "100%", maxWidth: 360, borderRadius: 12, marginBottom: 8 }} />
         ) : null}
         {m.kind === "invite" && m.href ? <p className="ch-bub__text"><Link href={m.href}>{text(m)}</Link></p> : <p className="ch-bub__text">{text(m)}</p>}
       </div>
@@ -62,7 +62,7 @@ function Bubble({ m, me, group }: { m: Shown; me: string; group: boolean }) {
   );
 }
 
-export type Row = { id: string; name: string; desc: string; meta: string; face?: string | null; label?: string };
+export type Row = { id: string; name: string; desc: string; meta: string; face?: ImageInput; label?: string };
 
 /** The conversation list. `onEnd` is called when it is scrolled near its end (to load the next page). */
 export function ConvoList({ rows, openId, onEnd }: { rows: Row[]; openId?: string; onEnd?: () => void }) {
@@ -112,7 +112,7 @@ export function ThreadPane({
 }: {
   name: string;
   sub: string;
-  face?: string | null;
+  face?: ImageInput;
   group: boolean;
   msgs: Shown[];
   me: string;

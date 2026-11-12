@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Img from '@/components/kin/Img';
 import { hero } from '@/lib/landing/content';
 import Button from '@/components/kin/Button';
 import { Lines } from './Lines';
@@ -7,7 +7,7 @@ export function Hero() {
   return (
     <section id="top" className="hero" aria-labelledby="hero-title">
       <div className="hero__media">
-        <Image
+        <Img
           src={hero.image}
           alt={hero.imageAlt}
           fill

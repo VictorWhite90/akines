@@ -5,6 +5,10 @@ import { Fragment, useEffect } from "react";
 import Button from "./Button";
 import Logo from "./Logo";
 import "./akines/notfound.css";
+import { resolveImage } from "@/lib/images";
+
+const WIDE = resolveImage("/kin/notfound/notfound.jpg")!;
+const TALL = resolveImage("/kin/notfound/notfound-portrait.jpg")!;
 
 const HEADLINE = ["This", "connection", null, "has", "not", "been", "made", "yet."] as const;
 
@@ -27,8 +31,13 @@ export default function NotFound() {
     <div className="nf">
       <div className="nf__parallax">
         <picture className="nf__media">
-          <source media="(min-width: 768px)" srcSet="/kin/notfound/notfound.jpg" />
-          <img alt="Two hands reaching toward each other, almost touching, in warm evening light" sizes="100vw" loading="eager" decoding="async" className="cover nf__img" src="/kin/notfound/notfound-portrait.jpg" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", color: "transparent" }} />
+          {/* Art-directed: the wide photo from 768px, the portrait crop below; each in AVIF/WebP (scripts/images.mjs) */}
+          {WIDE.avif ? <source media="(min-width: 768px)" type="image/avif" srcSet={WIDE.avif} sizes="100vw" /> : null}
+          {WIDE.webp ? <source media="(min-width: 768px)" type="image/webp" srcSet={WIDE.webp} sizes="100vw" /> : null}
+          <source media="(min-width: 768px)" srcSet={WIDE.src} />
+          {TALL.avif ? <source type="image/avif" srcSet={TALL.avif} sizes="100vw" /> : null}
+          {TALL.webp ? <source type="image/webp" srcSet={TALL.webp} sizes="100vw" /> : null}
+          <img alt="Two hands reaching toward each other, almost touching, in warm evening light" sizes="100vw" loading="eager" fetchPriority="high" decoding="async" className="cover nf__img" src={TALL.src} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", color: "transparent" }} />
         </picture>
       </div>
       <div className="nf__scrim" aria-hidden />

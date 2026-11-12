@@ -2,9 +2,10 @@
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { account, fullName, type MyProfile } from "@/lib/api/account";
+import { apiPhoto, type ImageInput } from "@/lib/images";
 
 /** The signed-in member as the app frame shows them. */
-export type Me = { id: string; username: string | null; name: string; firstName: string; email: string; photo: string | null };
+export type Me = { id: string; username: string | null; name: string; firstName: string; email: string; photo: ImageInput };
 
 type MemberState = { me: Me | null; loading: boolean; refresh: () => Promise<void>; setFromProfile: (p: MyProfile) => void };
 
@@ -19,7 +20,7 @@ function toMe(p: MyProfile): Me {
     // First word only: "Victor Chinedu" in the first-name field shows as "Victor" in tight spots.
     firstName: p.first_name?.trim().split(/\s+/)[0] || (p.username ? `@${p.username}` : "You"),
     email: p.email,
-    photo: p.profile_photo,
+    photo: apiPhoto(p.profile_photo, p.profile_photo_image),
   };
 }
 

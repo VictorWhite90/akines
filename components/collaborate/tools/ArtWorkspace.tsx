@@ -12,6 +12,7 @@ import { Banner, Ico, Pop, ToolFrame, VersionList, bannerFor, lastSaved, lostDet
 import "../styles/art-workspace-panels.css";
 // For the reply field (tr-thread__field), which the canvas thread borrows from the document.
 import "../styles/research-workspace.css";
+import Img from "@/components/kin/Img";
 
 /*
  * The Digital Art Workspace, mirrored from the product design (art-workspace-panels.css, ta-): the tool rail,
@@ -66,8 +67,7 @@ function Cursor({ who, slot, faded }: Canvas["cursors"][number] & { faded?: bool
 
 function Avatar({ who }: { who: Pin["messages"][number]["who"] }) {
   const src = toolFace(who);
-  // eslint-disable-next-line @next/next/no-img-element -- member face
-  return src ? <img className="ta-msg__av" src={src} alt="" loading="lazy" decoding="async" /> : <span className="ta-msg__av ta-msg__av--init" aria-hidden="true">{initialsOf(who)}</span>;
+  return src ? <Img sizes="28px" className="ta-msg__av" src={src} /> : <span className="ta-msg__av ta-msg__av--init" aria-hidden="true">{initialsOf(who)}</span>;
 }
 
 function ThreadCard({ pin, onReply, onResolve }: { pin: Pin; onReply: (t: string) => void; onResolve: () => void }) {
@@ -157,8 +157,7 @@ function LayerRow({ layer, selected, onToggle }: { layer: Layer; selected: boole
     <>
       <span className="ta-layer__thumb" data-layer={layer.id} />
       <span className="ta-layer__text"><span className="ta-layer__name">{layer.name}</span><span className="ta-layer__detail">{layerDetail(layer)}</span></span>
-      {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
-      {layer.editor && src ? <img className="ta-layer__editor" src={src} alt="" loading="lazy" decoding="async" title={`${nameOf(layer.editor)} is editing this layer`} /> : null}
+      {layer.editor && src ? <Img sizes="22px" className="ta-layer__editor" src={src} title={`${nameOf(layer.editor)} is editing this layer`} /> : null}
       <span className="ta-layer__eye" aria-hidden="true"><Ico icon={layer.hidden ? EyeOff : Eye} size={18} /></span>
     </>
   );
@@ -218,8 +217,7 @@ export default function ArtWorkspace({ ws, state: frame }: { ws: Ws; state?: Wor
           <div className="ta-scroll">
             <div className="ta-stage">
               <div className="ta-board">
-                {/* eslint-disable-next-line @next/next/no-img-element -- the artwork */}
-                <img className="ta-board__art" src={photoSrc(canvas.art, 1760)} alt="" width={880} height={660} loading="lazy" decoding="async" />
+                <Img sizes="(max-width: 1023px) 100vw, 880px" className="ta-board__art" src={photoSrc(canvas.art)} width={880} height={660} />
                 {canvas.cursors.map((c) => <Cursor key={c.who} {...c} faded={c.who === offline} />)}
                 {pins.map((p) => (p.n === 1
                   ? <button key={p.id} type="button" className="ta-pin" data-n={1} data-selected={(thread && !history) || undefined} aria-label={thread ? "Close comment 1" : "Open comment 1"} aria-expanded={history ? undefined : thread} onClick={history ? undefined : () => setThread((t) => !t)}>1</button>

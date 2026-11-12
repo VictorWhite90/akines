@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import Img from '@/components/kin/Img';
 import { useState } from 'react';
 import { trust } from '@/lib/landing/content';
 import { DiscoveryLink } from './DiscoveryLink';
@@ -46,7 +46,7 @@ export function Trust() {
 
       <div className={`stage ${paused ? 'is-paused' : ''}`}>
         {trust.steps.map((step, i) => (
-          <Image
+          <Img
             key={step.chip}
             src={step.image}
             alt={i === active ? step.imageAlt : ''}

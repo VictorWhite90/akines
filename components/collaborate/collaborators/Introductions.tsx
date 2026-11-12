@@ -16,6 +16,7 @@ import { useWorkspace } from "@/lib/collab/workspace";
 import { threadHref, useThreads } from "@/lib/collab/conversations";
 import { StartModal } from "@/components/collaborate/workspace/Conversations";
 import { PEOPLE } from "@/lib/data/people";
+import Img from "@/components/kin/Img";
 
 /*
  * Introduction requests: people who asked to be introduced to you, mirrored from the product design (12.49,
@@ -66,14 +67,13 @@ type Answer = { id: string; status: "accepted" | "notnow" };
 
 function RequestCard({ r, onAccept, onNotNow }: { r: IncomingIntroduction; onAccept: () => void; onNotNow: () => void }) {
   const name = nameOf(r);
-  const photo = faceSrc(r.from, 112);
+  const photo = faceSrc(r.from);
   const skills = skillsOf(r.from);
   return (
     <article className="pt-req ol-req" aria-label={`Introduction request from ${name}`}>
       <div className="pt-req__top">
         <div className="pt-req__person">
-          {/* eslint-disable-next-line @next/next/no-img-element -- their face */}
-          <span className="pt-photo" style={{ "--pt-ph": "56px" } as React.CSSProperties} aria-hidden>{photo ? <img src={photo} alt="" width={56} height={56} loading="lazy" decoding="async" /> : null}</span>
+          <span className="pt-photo" style={{ "--pt-ph": "56px" } as React.CSSProperties} aria-hidden>{photo ? <Img sizes="56px" src={photo} width={56} height={56} /> : null}</span>
           <div className="pt-req__text"><h3 className="pt-req__name">{name}</h3><p className="pt-req__role">{PEOPLE[r.from]?.role}</p></div>
         </div>
         <p className="pt-req__sent">{receivedOn(r.receivedAt)}</p>

@@ -19,6 +19,7 @@ import type { KMsg } from "@/lib/data/kinmessage";
 import { registerPerson, type PersonId } from "@/lib/data/people";
 import type { Piece } from "@/lib/portfolio";
 import { newId } from "@/lib/useLocal";
+import { apiPhoto, type ImageSource } from "@/lib/images";
 
 /**
  * Collaboration, saved to the backend (/api/v1/collab/*): open calls, applications, proposals and project
@@ -30,7 +31,7 @@ import { newId } from "@/lib/useLocal";
 // ── What the backend sends ──────────────────────────────────────────────────────────────────
 
 type ApiPerson = {
-  user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null; headline?: string;
+  user_id: string; username: string | null; first_name: string; last_name: string; profile_photo: string | null; profile_photo_image?: ImageSource | null; headline?: string;
   /** From their published work profile, where the backend sends them (applicants, team members). */
   skills?: string[]; experience?: string;
 };
@@ -132,7 +133,7 @@ function who(p: ApiPerson): PersonId {
   if (p.skills || p.experience) extras.people[p.user_id] = { skills: p.skills ?? [], experience: p.experience ?? "" };
   registerPerson({
     id: p.user_id, name: `${p.first_name} ${p.last_name}`.trim() || p.username || "A member", role: p.headline ?? "",
-    city: "", presence: "open", about: "", photo: p.profile_photo,
+    city: "", presence: "open", about: "", photo: apiPhoto(p.profile_photo, p.profile_photo_image),
   });
   return p.user_id as PersonId;
 }
@@ -345,7 +346,7 @@ async function start() {
   const me = await account.profile();
   if (!me.ok) { started = false; return emit({ ready: true, notice: me.message }); }
   setMe(me.data.user_id);
-  registerPerson({ id: me.data.user_id, name: `${me.data.first_name} ${me.data.last_name}`.trim() || "You", role: "", city: me.data.location, presence: "open", about: me.data.bio, photo: me.data.profile_photo });
+  registerPerson({ id: me.data.user_id, name: `${me.data.first_name} ${me.data.last_name}`.trim() || "You", role: "", city: me.data.location, presence: "open", about: me.data.bio, photo: apiPhoto(me.data.profile_photo, me.data.profile_photo_image) });
   await refresh();
   setInterval(() => { if (subs.size && document.visibilityState === "visible") void refresh(); }, 30_000);
   document.addEventListener("visibilitychange", () => { if (subs.size && document.visibilityState === "visible") void refresh(); });

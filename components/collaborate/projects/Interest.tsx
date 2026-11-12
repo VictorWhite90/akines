@@ -14,6 +14,7 @@ import { PEOPLE } from "@/lib/data/people";
 import { requestHref } from "@/components/collaborate/applications/paths";
 import { LOADING_MS } from "@/components/collaborate/overview-lists/loading";
 import { ArrowIcon, Back, DsLink, Notice, PageState, Portrait, Status, pageStatus, sampleApp } from "./parts";
+import Img from "@/components/kin/Img";
 
 /*
  * Express interest, mirrored from the product design (classes in ../styles/projects.css): choose a role, say how
@@ -130,7 +131,7 @@ function InterestForm({ project: p, variant }: { project: DiscoverProject; varia
 
 function Sent({ project: p, app }: { project: DiscoverProject; app: Application }) {
   const owner = firstOf(p.ownerId);
-  const photo = faceSrc(p.ownerId, 1200) ?? photoSrc(p.call.photo, 1200);
+  const photo = faceSrc(p.ownerId) ?? photoSrc(p.call.photo);
   const pending = !["joined", "not-selected", "offer"].includes(app.stage);
   return (
     <div className="dsc-sent">
@@ -158,8 +159,7 @@ function Sent({ project: p, app }: { project: DiscoverProject; app: Application 
         </div>
       </div>
       <div className="dsc-sent__photo" data-m="frame">
-        {/* eslint-disable-next-line @next/next/no-img-element -- the design's photo beside the sent page */}
-        <img className="cover" src={photo} alt="" decoding="async" />
+        <Img sizes="(max-width: 899px) 100vw, 40vw" className="cover" src={photo} />
       </div>
     </div>
   );

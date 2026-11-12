@@ -16,6 +16,7 @@ import { PATHS } from "./data";
 import { BackLink, NoResults } from "./parts";
 import { useRegistration } from "./state";
 import "./event.css";
+import Img from "@/components/kin/Img";
 
 /**
  * Connect, an event, mirrored from the product design (connect/discover/event.tsx, 11.71): the Register panel, the
@@ -111,15 +112,13 @@ function EventDetail({ event }: { event: ConnectEvent }) {
         <article className="dxv-main" aria-labelledby="dxv-title">
           <BackLink href={PATHS.events}>Back to Events</BackLink>
           <div className="fd-photo dxv-hero" data-m="frame">
-            {/* eslint-disable-next-line @next/next/no-img-element -- the event photo */}
-            <img className="cover" src={photoSrc(event.photo, 1600)} alt="" decoding="async" draggable={false} />
+            <Img className="cover" src={photoSrc(event.photo)} sizes="(max-width: 1023px) 100vw, 880px" priority draggable={false} />
           </div>
           <div className="dxv-title">
             <p className="dxv-tag">{eventTag(event)}</p>
             <h1 className="dxv-h1" id="dxv-title">{event.title}</h1>
             <Link href={profilePath(event.host)} className="dxv-host">
-              {/* eslint-disable-next-line @next/next/no-img-element -- the host's face */}
-              <span className="dxv-av">{faceSrc(event.host) ? <img src={faceSrc(event.host)} alt="" decoding="async" draggable={false} /> : null}</span>
+              <span className="dxv-av">{faceSrc(event.host) ? <Img src={faceSrc(event.host)} sizes="40px" draggable={false} /> : null}</span>
               <span className="dxv-host__text"><span className="dxv-host__label">Hosted by</span><span className="dxv-host__name">{host.name}</span></span>
             </Link>
           </div>

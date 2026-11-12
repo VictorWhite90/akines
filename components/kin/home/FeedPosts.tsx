@@ -58,7 +58,7 @@ function Post({ post, chips, onToggle, onPick }: { post: FeedPost; chips: ReactC
         {post.circle ? <Tag className="fd-post__circle">{post.circle}</Tag> : null}
       </header>
       <div className="fd-post__body">{post.body.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}</div>
-      {n > 0 ? <div className={`fd-post__media fd-post__media--${n}`}>{post.media.map((m) => <FdPhoto key={m} src={m} className="fd-post__img" />)}</div> : null}
+      {n > 0 ? <div className={`fd-post__media fd-post__media--${n}`}>{post.media.map((m) => <FdPhoto key={m} src={m} className="fd-post__img" sizes={n === 1 ? "(max-width: 767px) 100vw, 984px" : `(max-width: 767px) 72vw, ${Math.ceil(984 / n)}px`} />)}</div> : null}
       <footer className="fd-post__foot">
         <div className="fd-post__reacts">
           {chips.map((c) => <Chip key={c.emoji} selected={c.on} count={c.count} aria-label={`${cap(c.label)}, ${c.count}`} onClick={() => onToggle(c.emoji)}><span className="fd-emoji" aria-hidden>{c.emoji}</span></Chip>)}

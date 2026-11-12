@@ -20,6 +20,7 @@ import { InterestBand, useInterestRequests } from "./InterestRequests";
 import { CwLink, IconUpRight } from "./parts";
 import "../styles/team.css";
 import "../styles/applicants.css";
+import Img from "@/components/kin/Img";
 
 /*
  * The project workspace's Team page, mirrored from the product design (classes pt-* in ../styles/team.css):
@@ -77,7 +78,7 @@ export function MemberPanel({ projectId, person, open, onClose }: { projectId: s
   useEffect(() => { if (person) setLast(person); }, [person]);
   const m = person ?? last;
   if (!m || !ws.project) return null;
-  const photo = teamPhoto(projectId, m.id) ?? faceSrc(m.id, 960);
+  const photo = teamPhoto(projectId, m.id) ?? faceSrc(m.id);
   const recent = sampleMember(projectId, m.id)?.recent ?? recentOf(ws.project, m.id);
   return (
     <Drawer open={open} onClose={onClose} eyebrow="MEMBER" label={m.name} flush className="cd-slide" footer={<>
@@ -86,8 +87,7 @@ export function MemberPanel({ projectId, person, open, onClose }: { projectId: s
       <CwLink href={memberHref(projectId, m.name)}>Open full profile</CwLink>
     </>}>
       <div className="cd-member">
-        {/* eslint-disable-next-line @next/next/no-img-element -- member photo */}
-        {photo ? <div className="cd-member__photo"><img src={photo} alt="" decoding="async" /></div> : null}
+        {photo ? <div className="cd-member__photo"><Img sizes="(max-width: 767px) 100vw, 480px" src={photo} /></div> : null}
         <div className="cd-member__body">
           <div className="cd-member__id">
             <h2 className="cd-member__name">{m.name}</h2>
@@ -120,12 +120,11 @@ export function SkillList({ labels, wrap }: { labels: { label: string; used?: bo
 
 function MemberCard({ m, wide, onOpen, projectId }: { m: TeamPerson; wide: boolean; onOpen: () => void; projectId: string }) {
   const [first, ...rest] = skillsOf(m.id, projectId);
-  const photo = teamPhoto(projectId, m.id) ?? faceSrc(m.id, wide ? 1404 : 684);
+  const photo = teamPhoto(projectId, m.id) ?? faceSrc(m.id);
   return (
     <button type="button" className={wide ? "pt-mcard pt-mcard--wide" : "pt-mcard"} onClick={onOpen} aria-haspopup="dialog">
       <span className="pt-mcard__media">
-        {/* eslint-disable-next-line @next/next/no-img-element -- member photo */}
-        <span className="pt-mcard__img">{photo ? <img src={photo} alt="" width={wide ? 702 : 342} height={430} loading="lazy" decoding="async" data-crop={wide ? "top" : undefined} /> : <span className="pt-mcard__initials">{m.initials}</span>}</span>
+        <span className="pt-mcard__img">{photo ? <Img sizes={wide ? "(max-width: 767px) 100vw, 702px" : "(max-width: 767px) 100vw, 342px"} src={photo} width={wide ? 702 : 342} height={430} data-crop={wide ? "top" : undefined} /> : <span className="pt-mcard__initials">{m.initials}</span>}</span>
         <span className="pt-mcard__go" aria-hidden><IconUpRight size={18} /></span>
       </span>
       <span className="pt-mcard__info">

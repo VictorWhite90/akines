@@ -19,6 +19,7 @@ import { CwLink, Dot } from "./parts";
 import "../styles/pages.css";
 import "../styles/team.css";
 import "../styles/applicants.css";
+import Img from "@/components/kin/Img";
 
 /*
  * Interest requests, as the design's Team page shows them (pt-req in ../styles/team.css): people who pressed
@@ -112,15 +113,14 @@ function Sent({ links, files }: { links: ProofLink[]; files: ProofFile[] }) {
 
 function RequestCard({ r, onAccept, onNotNow }: { r: InterestRequest; onAccept: () => void; onNotNow: () => void }) {
   const name = nameOf(r.person);
-  const photo = faceSrc(r.person, 112);
+  const photo = faceSrc(r.person);
   const skills = skillsOf(r.person);
   const sent = r.links.length + r.files.length > 0;
   return (
     <article className="pt-req" aria-label={`Interest request from ${name}`}>
       <div className="pt-req__top">
         <div className="pt-req__person">
-          {/* eslint-disable-next-line @next/next/no-img-element -- their face */}
-          <span className="pt-photo" style={{ "--pt-ph": "56px" } as React.CSSProperties} aria-hidden>{photo ? <img src={photo} alt="" width={56} height={56} loading="lazy" decoding="async" /> : null}</span>
+          <span className="pt-photo" style={{ "--pt-ph": "56px" } as React.CSSProperties} aria-hidden>{photo ? <Img sizes="56px" src={photo} width={56} height={56} /> : null}</span>
           <div className="pt-req__text"><h3 className="pt-req__name">{name}</h3><p className="pt-req__role">{r.role}</p></div>
         </div>
         <p className="pt-req__sent">{sentOn(r.sentAt)}</p>

@@ -1,5 +1,6 @@
 import type { PhotoKey } from "./images";
 import type { PersonId } from "./people";
+import type { ImageSource } from "@/lib/images";
 
 /* ---------- KinMessage: relationship-aware messaging ---------- */
 
@@ -21,7 +22,7 @@ export type IntentId = (typeof INTENTS)[number]["id"];
 export type KMsg =
   | { id: string; from: PersonId; at: string; kind: "text"; text: string; react?: string[]; sender?: string }
   | { id: string; from: PersonId; at: string; kind: "voice"; length: string; text?: string }
-  | { id: string; from: PersonId; at: string; kind: "photo"; photo: PhotoKey; text?: string }
+  | { id: string; from: PersonId; at: string; kind: "photo"; photo: PhotoKey | (string & {}) | ImageSource; text?: string }
   | { id: string; from: PersonId; at: string; kind: "poll"; question: string; options: string[]; votes: number[] }
   | { id: string; from: PersonId; at: string; kind: "invite"; invite: "meetup" | "banter" | "game" | "project"; title: string; detail: string; href?: string }
   | { id: string; from: "ai"; at: string; kind: "spark"; title: string; body: string; action: "collab" | "circle" };

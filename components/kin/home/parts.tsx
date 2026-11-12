@@ -1,33 +1,34 @@
 import Link from "next/link";
 import { ArrowRight, RefreshCw } from "lucide-react";
 import Button from "@/components/kin/Button";
+import Img from "@/components/kin/Img";
 import { Skeleton } from "@/components/kin/Overlay";
+import type { ImageInput } from "@/lib/images";
 import { FACE, PHOTO, type PhotoKey } from "@/lib/data/images";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
 
 /** Small pieces of the design's Community Home (classes in home.css), fed by our photos and people. */
 
-/** Unsplash sources are sized here (the app's image loader does the same for next/image). */
-const sized = (src: string, w: number) => (src.startsWith("https://images.unsplash.com/") && !src.includes("?") ? `${src}?w=${w}&q=70&auto=format&fit=crop` : src);
-export const photoSrc = (p: PhotoKey | string, w = 800) => sized((PHOTO as Record<string, { src: string }>)[p]?.src ?? p, w);
-export const faceSrc = (id: PersonId, w = 160) => { const f = (PEOPLE[id] as { face?: string } | undefined)?.face; const src = f ? (FACE as Record<string, { src: string }>)[f]?.src : undefined; return src ? sized(src, w) : undefined; };
+/** A photo key (lib/data/images) or a path, as the photo's address; Img picks the right size and format. */
+export const photoSrc = (p: PhotoKey | string) => (PHOTO as Record<string, { src: string }>)[p]?.src ?? p;
+/** A member's face (their designer portrait), or undefined. */
+export const faceSrc = (id: PersonId) => { const f = (PEOPLE[id] as { face?: string } | undefined)?.face; return f ? (FACE as Record<string, { src: string }>)[f]?.src : undefined; };
 
-export function FdPhoto({ src, className, eager, position }: { src: string; className?: string; eager?: boolean; position?: string }) {
+/** A cover photo filling its frame. `sizes` is how wide the frame is drawn (see Img). */
+export function FdPhoto({ src, className, eager, position, sizes }: { src: ImageInput; className?: string; eager?: boolean; position?: string; sizes: string }) {
   return (
     <div className={["fd-photo", className].filter(Boolean).join(" ")} data-m="frame">
-      {/* eslint-disable-next-line @next/next/no-img-element -- the design's cover image */}
-      <img className="cover" src={src} alt="" loading={eager ? "eager" : "lazy"} decoding="async" draggable={false} style={position ? { objectPosition: position } : undefined} />
+      <Img className="cover" src={src} sizes={sizes} priority={eager} draggable={false} style={position ? { objectPosition: position } : undefined} />
     </div>
   );
 }
 
 /** A member's face, or `src` when a card shows a particular photo (the design reuses photos across people). */
-export function FdAvatar({ id, src: given, size = 32, ring }: { id?: PersonId; src?: string; size?: number; ring?: boolean }) {
+export function FdAvatar({ id, src: given, size = 32, ring }: { id?: PersonId; src?: ImageInput; size?: number; ring?: boolean }) {
   const src = given ?? (id ? faceSrc(id) : undefined);
   return (
     <span className={ring ? "fd-av fd-av--ring" : "fd-av"} style={{ width: size, height: size }}>
-      {/* eslint-disable-next-line @next/next/no-img-element -- member face */}
-      {src ? <img src={src} alt="" loading="lazy" decoding="async" draggable={false} /> : null}
+      {src ? <Img src={src} sizes={`${size}px`} draggable={false} /> : null}
     </span>
   );
 }

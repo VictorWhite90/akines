@@ -9,6 +9,7 @@ import { ME } from "@/lib/collab/me";
 import type { Decision } from "@/lib/collab/decisions";
 import type { Deliverable, Project } from "@/lib/collab/types";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
+import { apiPhoto } from "@/lib/images";
 
 /*
  * A project's team beyond its members, as the design's Team page shows it (components/collaborate/workspace/Team):
@@ -133,7 +134,7 @@ type Store = { requests: JoinRequest[]; invitations: Invitation[] };
 const REQUEST_STATUS: Record<ApiJoinRequest["status"], JoinRequestStatus> = { pending: "pending", accepted: "accepted", not_now: "dismissed", withdrawn: "dismissed" };
 function requestFromApi(r: ApiJoinRequest): JoinRequest {
   const name = `${r.person.first_name} ${r.person.last_name}`.trim() || r.person.username || "A member";
-  registerPerson({ id: r.person.user_id, name, role: r.person.headline ?? "", city: "", presence: "open", about: "", photo: r.person.profile_photo });
+  registerPerson({ id: r.person.user_id, name, role: r.person.headline ?? "", city: "", presence: "open", about: "", photo: apiPhoto(r.person.profile_photo, r.person.profile_photo_image) });
   return {
     id: r.id, projectId: r.workspace_id, person: r.person.user_id as PersonId, role: r.person.headline ?? "", wants: r.role, message: r.message,
     sentAt: Date.parse(r.sent_at), status: REQUEST_STATUS[r.status], decidedAt: r.decided_at ? Date.parse(r.decided_at) : undefined, reply: r.reply || undefined,

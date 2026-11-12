@@ -7,6 +7,7 @@ import type { DraftAnswers } from "@/lib/collab/drafts";
 import type { WorkspaceKind } from "@/lib/collab/workspace";
 import { NEEDS, QN, QUESTIONS, STAGES, TYPES, WORKSPACES, nextOfQ, prevOfQ, type QId, type Step } from "./data";
 import { Arrow, Back, GrowField, Head, Ico, Notice, Options, Progress, QuestionCount } from "./parts";
+import Img from "@/components/kin/Img";
 
 /* The builder's question steps, mirrored from the product design: entry, idea, purpose, progress, people, workspace. */
 
@@ -28,8 +29,7 @@ export function Entry({ go }: { go: (s: Step) => void }) {
         </div>
       </div>
       <div className="cs-split__photo" data-m="frame">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="cover cs-photo" src="/kin/collab-start/start-idea.jpg" loading="lazy" decoding="async" alt="" />
+        <Img sizes="(max-width: 899px) 100vw, 40vw" className="cover cs-photo" src="/kin/collab-start/start-idea.jpg" />
       </div>
     </section>
   );
@@ -146,8 +146,7 @@ export function Workspace({ kind, accepted, project, onAccept, go }: { kind: Wor
       </div>
       <article className="cs-wsr" data-accepted={accepted || undefined} data-kind={kind} aria-label={w.name} data-m="up">
         <div className="cs-wsr__photo">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="cover cs-wsr__img" src={w.photo} loading="lazy" decoding="async" alt="" />
+          <Img sizes="(max-width: 767px) 100vw, 400px" className="cover cs-wsr__img" src={w.photo} />
         </div>
         <div className="cs-wsr__body">
           {accepted

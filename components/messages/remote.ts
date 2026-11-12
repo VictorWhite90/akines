@@ -1,9 +1,9 @@
 import type { ChatCard, ChatMessage, Conversation } from "@/lib/api/chat";
 import type { PostAuthor } from "@/lib/api/community";
-import type { PhotoKey } from "@/lib/data/images";
 import { KIND_LABEL, type ConvoKind, type KMsg } from "@/lib/data/kinmessage";
 import { PEOPLE, person, registerPerson, type PersonId } from "@/lib/data/people";
 import type { Shown } from "./parts";
+import { apiPhoto } from "@/lib/images";
 
 /*
  * Turning the chat API's shapes (lib/api/chat.ts) into what the Messages screens draw (./parts.tsx).
@@ -23,7 +23,7 @@ export const fullName = (a: PostAuthor) => [a.first_name, a.last_name].filter(Bo
 export function remember(a: PostAuthor | null | undefined) {
   if (!a) return;
   const cur = person(a.user_id as PersonId);
-  registerPerson({ ...cur, id: a.user_id, name: fullName(a), photo: a.profile_photo ?? cur.photo ?? null });
+  registerPerson({ ...cur, id: a.user_id, name: fullName(a), photo: apiPhoto(a.profile_photo, a.profile_photo_image) ?? cur.photo ?? null });
 }
 
 export const convoName = (c: Conversation) =>
@@ -74,8 +74,9 @@ export function toShown(m: Live): Shown {
   if (m.kind === "system") return { id, from, at, kind: "system", text: m.body };
   if (m.is_removed) return { id, from, at, kind: "removed", text: "" };
   if (m.kind === "card" && m.card) return { id, from, at, kind: "invite", invite: m.card.invite, title: m.card.title, detail: m.card.detail, href: m.card.href || undefined };
-  const img = m.localImage || m.image?.url;
-  if (img) return { id, from, at, kind: "photo", photo: img as PhotoKey, text: m.body || undefined };
+  // The server's image carries its sizes and variants (lib/images ImageSource); a photo still sending is a local URL.
+  const img = m.localImage || (m.image?.url ? m.image : null);
+  if (img) return { id, from, at, kind: "photo", photo: img, text: m.body || undefined };
   return { id, from, at, kind: "text", text: m.body };
 }
 

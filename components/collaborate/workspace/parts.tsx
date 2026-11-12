@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { cn } from "@/lib/cn";
+import Img from "@/components/kin/Img";
 
 /*
  * Small pieces every workspace page uses, mirrored from the product design (classes cw-* and cd-* in ../styles):
@@ -48,8 +49,7 @@ export function Initials({ initials, size = 32, tone = "brand", className }: { i
 export function Portrait({ src, size = 56, tone, className, initials }: { src?: string; size?: number; tone?: Tone; className?: string; initials?: string }) {
   return (
     <span className={cn("cd-portrait", className)} style={{ ["--cd-p" as string]: `${size}px` } as React.CSSProperties} aria-hidden>
-      {/* eslint-disable-next-line @next/next/no-img-element -- member photo */}
-      {src ? <img alt="" width={size} height={size} loading="lazy" decoding="async" src={src} /> : initials ? <Initials initials={initials} size={size} /> : null}
+      {src ? <Img sizes={`${size}px`} width={size} height={size} src={src} /> : initials ? <Initials initials={initials} size={size} /> : null}
       {tone ? <i className={cn("cd-portrait__dot", `cd-portrait__dot--${tone}`)} /> : null}
     </span>
   );

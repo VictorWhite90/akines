@@ -9,6 +9,7 @@ import { CC, collabHref, leadId, useCollaborator, useSavedCollaborators, wordsFo
 import { PEOPLE } from "@/lib/data/people";
 import Overlays, { type OverlayKind } from "./Overlays";
 import { Arrow, Back, photoOf } from "./parts";
+import Img from "@/components/kin/Img";
 
 /* A collaborator's profile, mirrored from the product design (cc-prof): who they are and what they shared, with the next steps beside it. */
 
@@ -18,7 +19,7 @@ export default function Profile({ id }: { id?: string }) {
   const [open, setOpen] = useState<OverlayKind | null>(null);
   if (!c) notFound();
   const p = PEOPLE[c.id], h = collabHref(c.id), w = wordsFor(c);
-  const src = photoOf(c.id, 640);
+  const src = photoOf(c.id);
   const onSave = () => { const undo = save(c.id); toast.show({ message: "Saved to your collaborators.", actionLabel: "Undo", onAction: undo }); };
   return (
     <>
@@ -27,8 +28,7 @@ export default function Profile({ id }: { id?: string }) {
           <Back href={CC.discovery}>Back to collaborators</Back>
           <header className="cc-prof__head">
             <div className="cc-prof__photo" data-m="frame">
-              {/* eslint-disable-next-line @next/next/no-img-element -- member photo */}
-              {src ? <img className="cover" src={src} alt="" decoding="async" width={280} height={352} /> : null}
+              {src ? <Img sizes="280px" className="cover" src={src} width={280} height={352} /> : null}
             </div>
             <div className="cc-prof__id">
               <p className="cc-prof__avail"><span className="cc-dot" aria-hidden />{c.availability}</p>

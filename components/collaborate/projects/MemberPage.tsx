@@ -9,6 +9,7 @@ import { discoverProject } from "@/lib/collab/projects";
 import type { PersonId } from "@/lib/data/people";
 import { useFirstVisit } from "@/components/collaborate/overview-lists/loading";
 import { Back, Bar, DsLink, Facts, InterestPanel, Item, Match, PageState, PrivacyPanel, Section, SkelSection, SkelSide, Tags, pageStatus } from "./parts";
+import Img from "@/components/kin/Img";
 
 /*
  * A member's page as seen from a project (the design's collaborate/members/<slug>; classes in
@@ -54,7 +55,7 @@ export default function MemberPage({ id: slug, variant }: { id: string; variant?
 
   const limited = m.limited || variant === "limited";
   const saved = collab.state.saved.includes(project.id);
-  const portrait = limited ? undefined : m.portrait ?? faceSrc(m.portraitId, 560);
+  const portrait = limited ? undefined : m.portrait ?? faceSrc(m.portraitId);
   const pr = variant === "limited" ? undefined : m.profile;
   return (
     <div className="dsc-page">
@@ -64,8 +65,7 @@ export default function MemberPage({ id: slug, variant }: { id: string; variant?
           <span className="dsc-spacer" style={{ height: 36 }} />
           <header className="dsc-profile-head">
             {portrait
-              // eslint-disable-next-line @next/next/no-img-element -- the member's portrait
-              ? <img className="dsc-profile-head__portrait" src={portrait} alt={m.name} width={280} height={352} loading="lazy" decoding="async" />
+              ? <Img sizes="280px" className="dsc-profile-head__portrait" src={portrait} alt={m.name} width={280} height={352} />
               : <div className="dsc-profile-head__portrait dsc-profile-head__portrait--initials" aria-hidden="true">{m.initials}</div>}
             <div className="dsc-profile-head__info">
               <p className="dsc-profile-head__label"><i aria-hidden="true" />{m.kind === "owner" ? "Project owner" : "Team member"}</p>
