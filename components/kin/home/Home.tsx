@@ -173,6 +173,12 @@ const STATES: Record<string, FeedState> = { "state-loading": "loading", "state-e
  * One of the four feed versions, a different one from last visit. Like the design's review links, ?feed=a|b|c|d shows one
  * version and ?feed=state-loading|state-error|state-empty one state (on version A); neither touches the rotation.
  */
+/**
+ * The arrangement chosen for this page load. Module state survives moving around the app (client navigation), so
+ * coming back to Community Home shows the same feed; a refresh or a new visit loads the module again and picks anew.
+ */
+let thisLoad: keyof typeof VERSIONS | null = null;
+
 function useVersion() {
   const [view, setView] = useState<{ v: keyof typeof VERSIONS; state?: FeedState } | null>(null);
   const picked = useRef(false);
@@ -183,12 +189,14 @@ function useVersion() {
     let next: { v: keyof typeof VERSIONS; state?: FeedState };
     if (asked in VERSIONS) next = { v: asked as keyof typeof VERSIONS };
     else if (asked in STATES) next = { v: "a", state: STATES[asked] };
+    else if (thisLoad) next = { v: thisLoad };
     else {
       let last: string | null = null;
       try { last = localStorage.getItem(VERSION_KEY); } catch {}
       const options = (Object.keys(VERSIONS) as (keyof typeof VERSIONS)[]).filter((k) => k !== last);
       next = { v: options[Math.floor(Math.random() * options.length)] };
       try { localStorage.setItem(VERSION_KEY, next.v); } catch {}
+      thisLoad = next.v;
     }
     setView(next);
   }, []);
