@@ -17,7 +17,7 @@ import "./companion.css";
 
 /**
  * Create AI, mirrored from the product design (classes in companion.css): a launcher in the corner that
- * opens a chat panel once a day by itself, a "How would you like to connect today?" survey whose answers
+ * opens a chat panel when tapped, a "How would you like to connect today?" survey whose answers
  * list places to go, and free questions answered by a built-in guide until the model is connected.
  * Every suggestion opens the page that shows it, or, where that page is not built yet, its section's Coming soon page
  * (lib/soon), never another page in its place. "Start a project", "Explore collaborators" and "Open a project"
@@ -181,12 +181,8 @@ type Msg =
   | { id: number; role: "assistant"; kind: "result"; intention: number }
   | { id: number; role: "user" | "assistant"; kind: "text"; text: string; go?: Go[]; pending?: boolean; note?: string };
 
-const DAY_KEY = "ak:createai-day";
-const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
 const stamp = () => `Today, ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`;
 const greeting = (name: string | null) => { const h = new Date().getHours(); const g = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening"; return name ? `${g}, ${name}.` : `${g}.`; };
-/** Pages where the panel never opens by itself. */
-const quietPage = (p: string) => p === "/login" || p.startsWith("/signup");
 /** Pages with their own composer at the bottom: the launcher would sit on their Send button. Messages keeps it, as the design shows. */
 function hasComposer(p: string) {
   return p.includes("/events/") || p.startsWith("/collaborate/projects/");
@@ -217,7 +213,6 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
   const input = useRef<HTMLInputElement>(null);
   const launcher = useRef<HTMLButtonElement>(null);
   const noted = useRef(false);
-  const auto = useRef(false);
   // The journeys inside the thread: their own steps replace the conversation until the person starts again.
   const project = useProjectChat();
   const collab = useCollabChat();
@@ -250,20 +245,7 @@ export default function Companion({ guest = false }: { guest?: boolean } = {}) {
   }, []);
   const hide = useCallback(() => { setOpen(false); window.setTimeout(() => launcher.current?.focus({ preventScroll: true }), 0); }, []);
 
-  // Opens by itself once a day, a moment after the page settles.
-  useEffect(() => {
-    if (auto.current || quietPage(pathname)) return;
-    let seen: string | null = null;
-    try { seen = localStorage.getItem(DAY_KEY); } catch {}
-    if (seen === today()) { auto.current = true; return; }
-    const t = window.setTimeout(() => {
-      if (auto.current) return;
-      auto.current = true;
-      try { localStorage.setItem(DAY_KEY, today()); } catch {}
-      show(false);
-    }, 1600);
-    return () => window.clearTimeout(t);
-  }, [pathname, show]);
+  // Create AI opens only when the member taps the launcher (it never opens by itself).
 
   // Close when the page changes.
   const [lastPath, setLastPath] = useState(pathname);
