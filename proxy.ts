@@ -5,10 +5,10 @@ import { DEMO } from "@/lib/demo/mode";
  * Who sees what, decided on the server before any page renders:
  * - Visitors without an account only reach the public pages (the landing page, sign-in and join); everything else sends them to the landing page.
  * - Signed-in members skip the landing page, log-in and sign-up and go straight to Home.
- * - Demo (preview) builds: a link straight to any page opens it, signed in as the demo guest, so reviewers can
- *   share and open page links directly, the bare address included. The landing page is at /landing.
+ * - Preview (demo) builds follow the same flow: the landing page first, then sign in (any details, or
+ *   "Preview as guest") to reach the app. The All pages directory (/pages) stays open so it can be shared.
  */
-const PUBLIC = ["/landing", "/login", "/signup"];
+const PUBLIC = ["/landing", "/login", "/signup", "/pages"];
 // Pages a signed-in member has no reason to see. /login stays reachable for its post-sign-in steps (?step=…).
 const MEMBERS_SKIP = ["/landing", "/signup"];
 
@@ -29,11 +29,6 @@ export function proxy(req: NextRequest) {
     const url = req.nextUrl.clone();
     url.search = "";
     return NextResponse.redirect(url);
-  }
-  if (DEMO && !signedIn && !isPublic) {
-    const res = NextResponse.next();
-    res.cookies.set("ak_in", "1", { path: "/", maxAge: 864000, sameSite: "lax" });
-    return res;
   }
   if (!signedIn && !isPublic) {
     const url = req.nextUrl.clone();

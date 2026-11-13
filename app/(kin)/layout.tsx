@@ -7,7 +7,6 @@ import "@/components/kin/akines/base.css";
 import "@/components/kin/akines/library.css";
 import "@/components/kin/base.css";
 import "@/components/kin/community.css";
-import Splash from "@/components/onboarding/Splash";
 import Shell from "@/components/kin/Shell";
 import { BOOT_SCRIPT } from "@/lib/boot";
 
@@ -30,7 +29,6 @@ export default function KinLayout({ children }: Readonly<{ children: React.React
         <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       </head>
       <body>
-        <Splash />
         <Shell>{children}</Shell>
       </body>
     </html>

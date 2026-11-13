@@ -13,7 +13,7 @@ import Toaster from "./Toast";
 import { ViewTransitions } from "./ViewTransitions";
 import { useReveal } from "./useReveal";
 
-const PUBLIC = ["/landing", "/login", "/signup"];
+const PUBLIC = ["/landing", "/login", "/signup", "/pages"];
 /** Full-screen tools in the design (a project's canvas or document, and its meetings): signed in, but no header or Create AI. */
 const FULL = /^\/collaborate\/my-projects\/[^/]+\/(workspace|meet)(\/|$)/;
 
