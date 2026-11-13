@@ -9,6 +9,7 @@ import Tooltip from "@/components/kin/Tooltip";
 import Avatar from "@/components/kin/Avatar";
 import { DEMO } from "@/lib/demo/mode";
 import { isSignedIn } from "@/lib/session";
+import { SOON, soon } from "@/lib/soon";
 import { useMe } from "./MemberContext";
 import { ProjectChatView, START_PATH, useProjectChat } from "./createai/ProjectChat";
 import { CollabChatView, EXPLORE_PATH, OPEN_PATH, useCollabChat } from "./createai/CollabChat";
@@ -18,7 +19,8 @@ import "./companion.css";
  * Create AI, mirrored from the product design (classes in companion.css): a launcher in the corner that
  * opens a chat panel once a day by itself, a "How would you like to connect today?" survey whose answers
  * list places to go, and free questions answered by a built-in guide until the model is connected.
- * Every suggestion points to a real page in our app. "Start a project", "Explore collaborators" and "Open a project"
+ * Every suggestion opens the page that shows it, or, where that page is not built yet, its section's Coming soon page
+ * (lib/soon), never another page in its place. "Start a project", "Explore collaborators" and "Open a project"
  * run their journeys inside the thread (createai/, the design's 16.3 to 16.5) instead of opening the page.
  */
 
@@ -29,7 +31,7 @@ type Intention = { label: string; headline: string; items: Item[] };
 const INTENTIONS: Intention[] = [
   { label: "I want some company.", headline: "Some company, whenever you are ready.", items: [
     { title: "Rooms open now", text: "Drop in, listen, or speak when you are ready.", meta: "Anytime", href: "/connect/rooms" },
-    { title: "Banter", text: "One question and a small chat that fades or grows.", meta: "Today", href: "/community/banter" },
+    { title: "Banter", text: "One question and a small chat that fades or grows.", meta: "Today", href: SOON.banter },
     { title: "Things to do together", text: "Small, easy ways to meet people nearby.", meta: "This week", href: "/connect/activities" },
   ] },
   { label: "I want to collaborate.", headline: "People and projects to build with.", items: [
@@ -40,7 +42,7 @@ const INTENTIONS: Intention[] = [
   { label: "I want to meet someone new.", headline: "Someone new, for a good reason.", items: [
     { title: "Discover people", text: "Introductions that come with a reason.", meta: "Introduction", href: "/connect/discover/suggestions" },
     { title: "KinCircle", text: "A small group you return to.", meta: "KinCircle", href: "/connect/kincircle" },
-    { title: "Banter", text: "A question everyone can answer.", meta: "Today", href: "/community/banter" },
+    { title: "Banter", text: "A question everyone can answer.", meta: "Today", href: SOON.banter },
   ] },
   { label: "I want to talk to a friend.", headline: "Time with someone you know.", items: [
     { title: "Messages", text: "Pick up a conversation where you left off.", meta: "Conversation", href: "/messages" },
@@ -72,7 +74,7 @@ const INTENTIONS: Intention[] = [
 const AV = (name: string) => `/kin/design/home/community/av-${name}.jpg`;
 const DESIGN_INTENTIONS: Intention[] = [
   { label: "I want some company.", headline: "Some company, whenever you are ready.", items: [
-    { title: "Quick Catch-up", text: "A short, easy conversation with someone from your circle.", meta: "About 15 min", avatar: AV("folake"), href: "/messages" },
+    { title: "Quick Catch-up", text: "A short, easy conversation with someone from your circle.", meta: "About 15 min", avatar: AV("folake"), href: "/messages/folake" },
     { title: "Banter: Can ambition and rest coexist?", text: "Starts at 6:00 PM. Come to listen or to join in.", meta: "Today", href: "/community/banter" },
     { title: "Quiet company", text: "Be in a calm room with others. No talking needed.", meta: "Anytime", href: "/wellbeing/quiet" },
   ] },
@@ -80,12 +82,12 @@ const DESIGN_INTENTIONS: Intention[] = [
     { title: "Tunde", text: "Community-health collaborator who likes practical, small-group work.", meta: "Collaborator", avatar: AV("tunde"), href: "/settings/explanations" },
     { title: "Lagos Makers Zine", text: "An open project that could use one more maker.", meta: "Open project", avatar: AV("zine"), href: "/community/collaborations/lagos-makers-zine" },
     { title: "Arrange a Create Call with Amara", text: "Pick up the Community Health Initiative together.", meta: "Create Call", avatar: AV("amara"), href: "/community/collaborations" },
-    { title: "Starting a purpose-driven business", text: "A KinCircle gathering on Thursday. Two places available.", meta: "KinCircle", avatar: AV("kincircle"), href: "/connect/kincircle" },
+    { title: "Starting a purpose-driven business", text: "A KinCircle gathering on Thursday. Two places available.", meta: "KinCircle", avatar: AV("kincircle"), href: soon(SOON.kincircle, "Starting a purpose-driven business") },
   ] },
   { label: "I want to meet someone new.", headline: "Someone new, for a good reason.", items: [
     { title: "Tunde", text: "Community-health initiatives and small-group collaboration.", meta: "Introduction", avatar: AV("tunde"), href: "/settings/explanations" },
     { title: "Ngozi", text: "Writing to remember, and quiet one-to-one conversation.", meta: "Introduction", avatar: AV("ngozi"), href: "/settings/explanations" },
-    { title: "Starting a purpose-driven business", text: "Meet five members at a KinCircle on Thursday.", meta: "KinCircle", avatar: AV("kincircle"), href: "/connect/kincircle" },
+    { title: "Starting a purpose-driven business", text: "Meet five members at a KinCircle on Thursday.", meta: "KinCircle", avatar: AV("kincircle"), href: soon(SOON.kincircle, "Starting a purpose-driven business") },
   ] },
   { label: "I want to talk to a friend.", headline: "Time with someone you know.", items: [
     { title: "Amara", text: "Your project has been quiet for six days.", meta: "Conversation", avatar: AV("amara"), href: "/messages/amara" },
@@ -94,7 +96,7 @@ const DESIGN_INTENTIONS: Intention[] = [
   ] },
   { label: "I want to play.", headline: "Time to play.", items: [
     { title: "Game night with university friends", text: "Friday, with people you already know.", meta: "Friday", href: "/messages/university-friends" },
-    { title: "Play Call", text: "Games and play with people who like to laugh.", meta: "About 30 min", href: "/messages/university-friends" },
+    { title: "Play Call", text: "Games and play with people who like to laugh.", meta: "About 30 min", href: soon(SOON.activities, "Play Call") },
   ] },
   { label: "I need encouragement.", headline: "A little encouragement.", items: [
     { title: "Message someone I trust", text: "Send a note to someone who knows you well.", meta: "Private", href: "/wellbeing/support" },
@@ -115,7 +117,7 @@ const DESIGN_INTENTIONS: Intention[] = [
 const SURVEY = DEMO ? DESIGN_INTENTIONS : INTENTIONS;
 
 const PLACES: Go[] = [
-  { path: "/", label: "Community home" }, { path: "/messages", label: "Messages" }, { path: "/community/banter", label: "Banter" },
+  { path: "/", label: "Community home" }, { path: "/messages", label: "Messages" }, { path: SOON.banter, label: "Banter" },
   { path: "/connect", label: "Connect" }, { path: "/connect/kincircle", label: "KinCircle" }, { path: "/connect/rooms", label: "Rooms" }, { path: "/connect/activities", label: "Activities" },
   { path: "/collaborate", label: "Collaborate" }, { path: "/collaborate/start", label: "Start a project" },
   { path: "/collaborate/collaborators", label: "Explore collaborators" }, { path: "/collaborate/discover", label: "Discover projects" }, { path: "/collaborate/my-projects", label: "Open a project" },
@@ -134,7 +136,7 @@ const RULES: { test: RegExp; text: string; go?: string[] }[] = [
   { test: /\b(start|begin|launch|new)\b.*\bproject\b|\bproject\b.*\b(start|begin|idea)\b/i, text: "Starting a project takes a few short questions about what you want to make and who you would like beside you. You can save it and come back.", go: ["/collaborate/start", "/collaborate/collaborators", "/collaborate/my-projects"] },
   { test: /\b(collaborat\w*|co-?found\w*|partners?|teammates?|find (a )?(maker|person|people))\b/i, text: "Collaborate is where projects and people meet. You can start your own, look for collaborators, or see open projects that could use another pair of hands.", go: ["/collaborate/collaborators", "/collaborate/discover"] },
   { test: /\b(open projects?|discover)\b/i, text: "Discover projects lists open projects you could join. Each one shows what is needed and who is already in.", go: ["/collaborate/discover"] },
-  { test: /\bbanter\b/i, text: "Banter is a live conversation on one question, with a start time. You can listen quietly or join in.", go: ["/community/banter"] },
+  { test: /\bbanter\b/i, text: "Banter is a live conversation on one question, with a start time. You can listen quietly or join in.", go: [SOON.banter] },
   { test: /\b(kin ?circle|circle|gathering)\b/i, text: "A KinCircle is a small gathering around something you both care about. Places are limited, so they stay personal.", go: ["/connect/kincircle"] },
   { test: /\b(room|quiet|calm)\b/i, text: "Rooms are open spaces to be with others. Some are for talking, and some are calm rooms where no talking is needed.", go: ["/connect/rooms"] },
   { test: /\b(activit|game|play|workshop)\b/i, text: "Activities are shared things to do together, from games to making sessions.", go: ["/connect/activities"] },

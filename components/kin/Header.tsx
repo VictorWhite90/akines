@@ -8,6 +8,7 @@ import { chat } from "@/lib/api/chat";
 import { notifications as noticesApi, type Notice } from "@/lib/api/notifications";
 import { DEMO } from "@/lib/demo/mode";
 import { signOut } from "@/lib/session";
+import { SOON, soon } from "@/lib/soon";
 import { usePortfolio } from "@/lib/portfolio";
 import { completeness, useWorkProfile } from "@/lib/workprofile";
 import { useMe } from "@/components/shell/MemberContext";
@@ -148,7 +149,7 @@ function ProfileProgress({ compact = false }: { compact?: boolean }) {
               const t = p.text && p.Icon ? { text: p.text, Icon: p.Icon } : PART_TEXT[p.id] ?? { text: "", Icon: Sparkles };
               return (
                 <li key={p.id}>
-                  <Link href="/profile/complete" className="pp-row" onClick={() => setOpen(false)}>
+                  <Link href={soon(SOON.completeProfile, p.label)} className="pp-row" onClick={() => setOpen(false)}>
                     <span className="pp-ico"><t.Icon size={20} strokeWidth={1.5} /></span>
                     <span className="pp-txt"><span className="pp-t">{p.label}</span><span className="pp-s">{t.text}</span></span>
                     <ChevronRight size={16} strokeWidth={1.5} className="pp-go" aria-hidden />
@@ -227,6 +228,16 @@ function when(iso: string) {
   if (mins < 48 * 60) return "Yesterday";
   return d.toLocaleDateString([], { day: "numeric", month: "short" });
 }
+/**
+ * Where a notification opens. Circle notifications go to KinCircle, which is not built yet (its Coming soon page): the circle
+ * pages of the old app (/circles/...) do not exist here, and a circle invite may come without a link.
+ */
+function noticeHref(n: Notice): string | null {
+  if (n.link.startsWith("/circles/")) return SOON.kincircle;
+  if (n.link) return n.link;
+  return n.target_type === "circle" || n.kind.startsWith("circle_") || n.kind === "community_invite" ? SOON.kincircle : null;
+}
+
 function NotificationsPanel({ open, onClose, onRead }: { open: boolean; onClose: () => void; onRead: () => void }) {
   const router = useRouter();
   const [items, setItems] = useState<Notice[] | null>(null);
@@ -242,7 +253,7 @@ function NotificationsPanel({ open, onClose, onRead }: { open: boolean; onClose:
     <Modal open={open} onClose={onClose} title="Notifications" hideClose flush width={400} className="ch-notif" sheet="list">
       <div className="ch-notif__list">
         {items === null ? <p className="ch-row__desc" style={{ padding: "16px 24px" }}>Loading…</p> : items.length === 0 ? <p className="ch-row__desc" style={{ padding: "16px 24px" }}>Nothing new. Notifications appear here.</p> : items.slice(0, 8).map((n) => (
-          <button key={n.id} type="button" className="ch-row" onClick={() => (n.link ? go(n.link) : onClose())}>
+          <button key={n.id} type="button" className="ch-row" onClick={() => { const href = noticeHref(n); if (href) go(href); else onClose(); }}>
             {n.actor ? <Avatar person={{ name: [n.actor.first_name, n.actor.last_name].filter(Boolean).join(" ") || n.actor.username || "Member", photo: n.actor.profile_photo }} size={44} /> : null}
             <span className="ch-row__text"><span className="ch-row__title">{n.text}</span><span className="ch-row__desc">{when(n.created_at)}</span></span>
             <span className="ch-row__chev"><ChevronRight size={16} strokeWidth={1.5} aria-hidden /></span>
@@ -381,7 +392,7 @@ export default function Header({ mobile }: { mobile?: MobileRoute }) {
           </div>
         </nav>
       )}
-      {layout !== "desktop" && <SectionSheet sectionKey={sheet} active={section?.key === sheet ? activeTab : undefined} phone={phone} onClose={() => setSheet(null)} />}
+      {layout !== "desktop" && <SectionSheet sectionKey={sheet} active={section?.key === sheet ? activeTab : undefined} onClose={() => setSheet(null)} />}
       {phone && (
         <ProfileSheet open={profileSheet} onClose={() => setProfileSheet(false)} name={name} handle={handle} photo={me?.photo} messages={unread.messages} notices={unread.notices} onNotifications={() => { setProfileSheet(false); setNotices(true); }} onLogout={logout} />
       )}
@@ -414,10 +425,8 @@ function Handle({ open, onClose }: { open: boolean; onClose: () => void }) {
   return <button type="button" className="sheet__handle" aria-label="Close" {...swipe}><span /></button>;
 }
 
-/** Phones only: sheet rows that open a Community page instead of their tab (the Connect sheet's Banter goes to the phone Banter page). */
-const PHONE_HREF: Record<string, string> = { "/connect/banter": "/community/banter" };
-
-function SectionSheet({ sectionKey, active, phone, onClose }: { sectionKey: SectionKey | null; active?: string; phone: boolean; onClose: () => void }) {
+/** A section's tabs on tablets and phones. Each row opens its tab, as the header tabs do (Banter is its Coming soon page). */
+function SectionSheet({ sectionKey, active, onClose }: { sectionKey: SectionKey | null; active?: string; onClose: () => void }) {
   const ref = useSheet(sectionKey !== null, onClose);
   const [shown, setShown] = useState<Section | null>(null);
   const s = SECTIONS.find((x) => x.key === sectionKey) ?? null;
@@ -434,7 +443,7 @@ function SectionSheet({ sectionKey, active, phone, onClose }: { sectionKey: Sect
           <ul className="sheet__rows">
             {sec.tabs.map((t) => (
               <li key={t.href}>
-                <Link href={(phone && PHONE_HREF[t.href]) || t.href} className="sheet-row" data-selected={t.label === active ? "true" : "false"} onClick={onClose}>
+                <Link href={t.href} className="sheet-row" data-selected={t.label === active ? "true" : "false"} onClick={onClose}>
                   <span className="sheet-row__label">{t.label}</span>
                   {t.label === active ? <span className="sheet-row__dot" aria-hidden /> : null}
                 </Link>

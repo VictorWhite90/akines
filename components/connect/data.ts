@@ -9,6 +9,7 @@ import type { Interest } from "@/lib/connect/interests";
 import { profilePath } from "@/lib/connect/profiles";
 import { DEMO } from "@/lib/demo/mode";
 import { PEOPLE, type PersonId } from "@/lib/data/people";
+import { SOON, soon } from "@/lib/soon";
 
 /**
  * The cards of Discover and the pages it leads to (the design's connect/discover/data.ts), with the design's people, circles,
@@ -31,9 +32,9 @@ export const eventPath = (id: string) => `/connect/events/${id}`;
 export const first = (id: string) => PEOPLE[id as PersonId]?.name.split(" ")[0] ?? "";
 
 export const EXPLORE: { id: string; title: string; text: string; image: string; href?: string }[] = [
-  { id: "people", title: "People", text: "Artists, creators and kindred spirits.", image: designImg("community/av-ngozi"), href: "/collaborate/collaborators" },
-  { id: "circles", title: "Circles", text: "Communities and shared interests.", image: designImg("community/av-kincircle"), href: "/connect/kincircle" },
-  { id: "stores", title: "Artworks & Stores", text: "Original work that's made-to-order.", image: designImg("discover/explore-stores"), href: "/make-sell" },
+  { id: "people", title: "People", text: "Artists, creators and kindred spirits.", image: designImg("community/av-ngozi"), href: PATHS.suggestions },
+  { id: "circles", title: "Circles", text: "Communities and shared interests.", image: designImg("community/av-kincircle"), href: SOON.kincircle },
+  { id: "stores", title: "Artworks & Stores", text: "Original work that's made-to-order.", image: designImg("discover/explore-stores"), href: SOON.shop },
   { id: "projects", title: "Projects", text: "Collaborations and creative builds.", image: designImg("community/zine"), href: "/collaborate/discover" },
   { id: "events", title: "Events", text: "Talks, workshops and gatherings.", image: designImg("discover/event-workshop"), href: PATHS.events },
 ];
@@ -59,7 +60,7 @@ export const personCard = (d: DiscoverPerson): PersonCard => {
   const p = PEOPLE[d.person];
   return { kind: "person", id: `person-${d.person}`, person: d.person, name: p.name, image: d.image, identity: [p.role, p.city].filter(Boolean).join(" · "), text: d.text, href: profilePath(d.person), connections: DEMO ? d.connections : undefined };
 };
-export const circleCard = (c: DiscoverCircle): CircleCard => ({ kind: "circle", id: `circle-${c.id}`, circle: c.id, name: c.name, image: c.image, meta: `${c.members} members · ${c.active} active`, text: c.text, href: "/connect/kincircle", access: circleAccess(c.id) });
+export const circleCard = (c: DiscoverCircle): CircleCard => ({ kind: "circle", id: `circle-${c.id}`, circle: c.id, name: c.name, image: c.image, meta: `${c.members} members · ${c.active} active`, text: c.text, href: soon(SOON.kincircle, c.name), access: circleAccess(c.id) });
 export const eventCard = (e: ConnectEvent): ItemCard => ({ kind: "event", id: `event-${e.id}`, tag: eventTag(e), title: e.title, text: e.summary, meta: eventMeta(e), image: photoSrc(e.photo), action: "View event", href: eventPath(e.id) });
 const item = (kind: ItemCard["kind"], tag: string, action: string) => (d: DiscoverItem): ItemCard => ({ kind, id: `${kind}-${d.id}`, tag, title: d.title, text: d.text, meta: d.meta, image: d.image, action, href: d.href });
 

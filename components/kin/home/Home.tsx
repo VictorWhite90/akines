@@ -8,6 +8,7 @@ import { Chip } from "@/components/kin/Chip";
 import { toast } from "@/components/kin/Toast";
 import { DEMO } from "@/lib/demo/mode";
 import { useLocal } from "@/lib/useLocal";
+import { soon } from "@/lib/soon";
 import {
   ACTIVITY_CARDS, ARRANGEMENTS, BANTER_CARDS, BANTER_JOIN, EXPLORE_CARDS, HEADS, LOADING_MS, PRODUCTS, PROJECT_CARDS, ROOM_CARDS, SHOP_COPY,
   STORY_CARDS, STUDIO_CARDS, TRAITS, TRAIT_LINK, TRAIT_META, WELLBEING, type FeedCard, type FeedKey, type FeedVersion,
@@ -81,7 +82,7 @@ function SectionBody({ name }: { name: SectionName }) {
       return (
         <div className="fd-row fd-row--banter" data-m="stagger">
           {BANTER_CARDS.map((b) => (
-            <Link key={b.id} className="fd-banter" href={BANTER_JOIN.href}>
+            <Link key={b.id} className="fd-banter" href={b.href}>
               <p className="fd-banter__tag">{b.tag.endsWith("LIVE") ? <span className="fd-banter__dot" aria-hidden /> : null}{b.tag}</p>
               <h3 className="fd-banter__title">{b.title}</h3>
               <p className="fd-banter__text">{b.text}</p>
@@ -105,7 +106,7 @@ function SectionBody({ name }: { name: SectionName }) {
         <div className="fd-row fd-row--shop" data-m="stagger">
           {PRODUCTS.map((p) => (
             <article key={p.id} className="fd-card fd-product">
-              <Link className="fd-product__link" href={SHOP_COPY.href}>
+              <Link className="fd-product__link" href={p.href}>
                 <FdPhoto src={p.image} className="fd-card__photo" sizes="(max-width: 767px) 50vw, (max-width: 1279px) 33vw, 330px" />
                 <p className="fd-card__tag">{p.tag}</p>
                 <h3 className="fd-card__title fd-product__title">{p.title}</h3>
@@ -134,7 +135,7 @@ function SectionBody({ name }: { name: SectionName }) {
               <p className="fd-trait__text">{t.text}</p>
               <div className="fd-trait__foot">
                 <div className="fd-trait__people"><FdFaces ids={t.faces} /><span>{TRAIT_META}</span></div>
-                <FdLink href={TRAIT_LINK.href}>{TRAIT_LINK.label}</FdLink>
+                <FdLink href={soon(TRAIT_LINK.href, t.title)}>{TRAIT_LINK.label}</FdLink>
               </div>
             </article>
           ))}

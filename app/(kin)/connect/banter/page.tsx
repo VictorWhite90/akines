@@ -1,8 +1,5 @@
-import type { Metadata } from "next";
-import ComingSoon, { soonTitle } from "@/components/kin/ComingSoon";
+import { soonPage } from "@/components/kin/ComingSoon";
 
-export const metadata: Metadata = { title: soonTitle("Banter") };
-
-export default function Page() {
-  return <ComingSoon eyebrow="Connect" title="Banter" />;
-}
+const soon = soonPage("Connect", "Banter");
+export const generateMetadata = soon.generateMetadata;
+export default soon.Page;

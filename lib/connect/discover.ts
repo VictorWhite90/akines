@@ -1,4 +1,5 @@
 import type { PersonId } from "@/lib/data/people";
+import { SOON, soon } from "@/lib/soon";
 
 /**
  * Connect Discover's sample content, word for word from the product design (connect/discover/data.ts): the people, circles,
@@ -34,25 +35,28 @@ export const DISCOVER_CIRCLES: DiscoverCircle[] = [
 ];
 
 export const DISCOVER_ARTWORK = {
-  id: "vase", tag: "CERAMICS", title: "Firing day vase", maker: "thandi" as PersonId, price: "$10,000", edition: "1 of 1", image: designImg("feed/product-3"), href: "/make-sell",
+  id: "vase", tag: "CERAMICS", title: "Firing day vase", maker: "thandi" as PersonId, price: "$10,000", edition: "1 of 1", image: designImg("feed/product-3"), href: soon(SOON.shop, "Firing day vase"),
 };
 
-/** Project, studio visit and story cards: `href` only where the design has a destination. */
-export type DiscoverItem = { id: string; title: string; text: string; meta: string; image: string; href?: string };
+/**
+ * Project, studio visit and story cards. Each opens the built page that shows it (a project, a collaboration) or, where that page
+ * is not built yet, its section's Coming soon page with the card's name (lib/soon).
+ */
+export type DiscoverItem = { id: string; title: string; text: string; meta: string; image: string; href: string };
 export const DISCOVER_PROJECTS: DiscoverItem[] = [
   { id: "better-way", title: "A Better Way to Learn", text: "A digital learning initiative exploring more accessible ways for students to learn.", meta: "Ngozi Eze · 2 people", image: designImg("feed/journal-1"), href: "/collaborate/projects/a-better-way-to-learn" },
-  { id: "zine", title: "Lagos Makers Zine", text: "A shared zine collecting maker stories from across the city.", meta: "Obinna Adeyemi · 3 people", image: designImg("community/zine") },
-  { id: "health", title: "Community Health Initiative", text: "Mapping simple, trusted health information for neighbourhoods.", meta: "Amara Okafor · 4 people", image: designImg("community/health") },
+  { id: "zine", title: "Lagos Makers Zine", text: "A shared zine collecting maker stories from across the city.", meta: "Obinna Adeyemi · 3 people", image: designImg("community/zine"), href: "/community/collaborations/lagos-makers-zine" },
+  { id: "health", title: "Community Health Initiative", text: "Mapping simple, trusted health information for neighbourhoods.", meta: "Amara Okafor · 4 people", image: designImg("community/health"), href: "/community/collaborations" },
 ];
 export const DISCOVER_STUDIOS: DiscoverItem[] = [
-  { id: "tunde", title: "Tunde's studio", text: "Ceramics, clay and slow making in Ibadan.", meta: "Ibadan · Saturdays", image: designImg("feed/studio-1") },
-  { id: "chidi", title: "Chidi's studio", text: "Weaving and natural dyes in Abuja.", meta: "Abuja · By appointment", image: designImg("feed/studio-2") },
-  { id: "amina", title: "Amina's studio", text: "Printmaking and paper in Lagos.", meta: "Lagos · Fridays", image: designImg("feed/studio-3") },
+  { id: "tunde", title: "Tunde's studio", text: "Ceramics, clay and slow making in Ibadan.", meta: "Ibadan · Saturdays", image: designImg("feed/studio-1"), href: soon(SOON.studioVisits, "Tunde's studio") },
+  { id: "chidi", title: "Chidi's studio", text: "Weaving and natural dyes in Abuja.", meta: "Abuja · By appointment", image: designImg("feed/studio-2"), href: soon(SOON.studioVisits, "Chidi's studio") },
+  { id: "amina", title: "Amina's studio", text: "Printmaking and paper in Lagos.", meta: "Lagos · Fridays", image: designImg("feed/studio-3"), href: soon(SOON.studioVisits, "Amina's studio") },
 ];
 export const DISCOVER_STORIES: DiscoverItem[] = [
-  { id: "dye-yard", title: "The dye yard in Ibadan", text: "Anaya Smith follows the cloth from the vat to the line.", meta: "By Anaya Smith", image: designImg("feed/story-1") },
-  { id: "saturday", title: "A year of Saturday studios", text: "What changed when one studio opened its doors every week.", meta: "By Tunde Bakare", image: designImg("feed/story-2") },
-  { id: "loom", title: "What the loom remembers", text: "A weaver on patterns passed down and patterns broken.", meta: "By Ngozi Eze", image: designImg("feed/story-3") },
+  { id: "dye-yard", title: "The dye yard in Ibadan", text: "Anaya Smith follows the cloth from the vat to the line.", meta: "By Anaya Smith", image: designImg("feed/story-1"), href: soon(SOON.stories, "The dye yard in Ibadan") },
+  { id: "saturday", title: "A year of Saturday studios", text: "What changed when one studio opened its doors every week.", meta: "By Tunde Bakare", image: designImg("feed/story-2"), href: soon(SOON.stories, "A year of Saturday studios") },
+  { id: "loom", title: "What the loom remembers", text: "A weaver on patterns passed down and patterns broken.", meta: "By Ngozi Eze", image: designImg("feed/story-3"), href: soon(SOON.stories, "What the loom remembers") },
 ];
 
 /**

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import "./coming-soon.css";
 
 /**
@@ -16,3 +17,28 @@ export default function ComingSoon({ eyebrow, title }: { eyebrow?: string; title
 
 /** Metadata title for a Coming soon page. */
 export const soonTitle = (title: string) => `${title} · Akines`;
+
+type SoonProps = { searchParams: Promise<Record<string, string | string[] | undefined>> };
+
+/** The clicked thing's name, from ?item= (lib/soon.ts builds the link). */
+async function itemOf(searchParams: SoonProps["searchParams"]) {
+  const v = (await searchParams).item;
+  const s = (Array.isArray(v) ? v[0] : v)?.replace(/\s+/g, " ").trim();
+  return s ? s.slice(0, 120) : undefined;
+}
+
+/**
+ * A Coming soon route: `const s = soonPage("Connect", "Rooms"); export default s.Page; export const generateMetadata = s.generateMetadata;`
+ * Opened for one thing (?item=Evening Studio Hour), the page says what was clicked: the page's name moves up to the eyebrow
+ * and the thing's name is the title, in the same placeholder layout.
+ */
+export function soonPage(eyebrow: string | undefined, title: string) {
+  async function Page({ searchParams }: SoonProps) {
+    const item = await itemOf(searchParams);
+    return item ? <ComingSoon eyebrow={title} title={item} /> : <ComingSoon eyebrow={eyebrow} title={title} />;
+  }
+  async function generateMetadata({ searchParams }: SoonProps): Promise<Metadata> {
+    return { title: soonTitle((await itemOf(searchParams)) ?? title) };
+  }
+  return { Page, generateMetadata };
+}

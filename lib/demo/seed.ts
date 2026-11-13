@@ -156,7 +156,7 @@ export function seed(): DemoState {
   // The design's three notifications (the header bell), newest first.
   const notices: DemoNotice[] = [
     { id: 1, recipient: ME_ID, kind: "collab_update", text: "Amara replied in Community Health Initiative", link: "/messages/amara", target_type: "conversation", target_id: "amara", actor: "amara-okafor", read: false, created_at: at(3 * MIN) },
-    { id: 2, recipient: ME_ID, kind: "circle_invite", text: "Two places left: Starting a purpose-driven business", link: "", target_type: "circle", target_id: "kincircle-reflection", actor: null, read: false, created_at: at(HOUR) },
+    { id: 2, recipient: ME_ID, kind: "circle_invite", text: "Two places left: Starting a purpose-driven business", link: "/connect/kincircle?item=Starting%20a%20purpose-driven%20business", target_type: "circle", target_id: "kincircle-reflection", actor: null, read: false, created_at: at(HOUR) },
     { id: 3, recipient: ME_ID, kind: "announcement", text: "Reminder: Project Call with the Food Systems Cliq at 2:00 PM", link: "/messages/food-systems-cliq", target_type: "conversation", target_id: "food-systems-cliq", actor: null, read: false, created_at: at(2 * HOUR) },
   ];
 
