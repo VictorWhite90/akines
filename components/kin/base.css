@@ -23,6 +23,8 @@
 .k-media { position: relative; overflow: hidden; background: var(--surface); }
 .k-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: scale 1.6s var(--ease-out); }
 @media (hover: hover) { a:hover > .k-media img, .k-zoom:hover .k-media img { scale: 1.04; } }
+.app [data-reveal=frame][data-in] img.cover { animation: none; }
+.js .app [data-reveal=frame]::after { content: none; }
 html[data-theme="dark"] .k-media::after { content: ""; position: absolute; inset: 0; border: 1px solid var(--hairline); pointer-events: none; }
 
 /* ---- Toggle switch ---- */

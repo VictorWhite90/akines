@@ -160,7 +160,7 @@
     scroll-snap-align: start;
   }
   .fd-home .fd-row--banter {
-    grid-auto-columns: 280px;
+    grid-auto-columns: 352px;
   }
   .fd-home .fd-row--sk {
     overflow: hidden;
@@ -175,6 +175,32 @@
     padding: 0;
     overflow: visible;
     scroll-snap-type: none;
+  }
+
+  .fd-home .fd-row--sub,
+  .fd-home .fd-row--banter,
+  .fd-home .fd-row--dna,
+  .fd-home .fd-posts {
+    display: flex;
+    justify-content: center;
+    margin-inline: 0;
+    padding-inline: 0;
+    overflow: visible;
+    scroll-snap-type: none;
+  }
+  .fd-home .fd-row--sub > *,
+  .fd-home .fd-row--banter > *,
+  .fd-home .fd-row--dna > *,
+  .fd-home .fd-post {
+    width: min(100%, 352px);
+    max-width: 100%;
+    margin-inline: auto;
+  }
+  .fd-home .fd-row--banter > * {
+    width: min(100%, 352px);
+  }
+  .fd-home .fd-post {
+    width: min(100%, 352px);
   }
 
   /* ------------------------------------------------------------------------------------------- Feed Card / Mobile 264 */

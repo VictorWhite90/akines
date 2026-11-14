@@ -72,7 +72,98 @@ function Wellbeing({ id }: { id?: string }) {
   );
 }
 
-function SectionBody({ name }: { name: SectionName }) {
+function MobilePreviewCard({ title, text, image, href, tag, left, right }: { title: string; text: string; image: string; href: string; tag?: string; left?: string; right?: string }) {
+  return (
+    <div className="fd-row fd-row--sub" data-m="stagger">
+      <Link className="fd-card fd-card--sub" href={href}>
+        <FdPhoto src={image} className="fd-card__photo" sizes="(max-width: 767px) 264px, (max-width: 1279px) 33vw, 330px" />
+        {tag ? <p className="fd-card__tag">{tag}</p> : null}
+        <h3 className="fd-card__title">{title}</h3>
+        <p className="fd-card__text">{text}</p>
+        {left || right ? <div className="fd-card__meta"><span>{left}</span>{right ? <span>{right}</span> : null}</div> : null}
+        <span className="fd-card__rule" aria-hidden />
+      </Link>
+    </div>
+  );
+}
+
+function SectionBody({ name, mobile }: { name: SectionName; mobile: boolean }) {
+  if (mobile) {
+    switch (name) {
+      case "explore":
+        return <MobilePreviewCard title={EXPLORE_CARDS[0].title} text={EXPLORE_CARDS[0].text} image={EXPLORE_CARDS[0].image} href={EXPLORE_CARDS[0].href} tag={EXPLORE_CARDS[0].tag} left={EXPLORE_CARDS[0].left} right={EXPLORE_CARDS[0].right} />;
+      case "kincircle":
+        return <FeedPosts limit={mobile ? 1 : undefined} />;
+      case "banter": {
+        const b = BANTER_CARDS[0];
+        return (
+          <div className="fd-row fd-row--banter" data-m="stagger">
+            <Link className="fd-banter" href={b.href}>
+              <p className="fd-banter__tag">{b.tag.endsWith("LIVE") ? <span className="fd-banter__dot" aria-hidden /> : null}{b.tag}</p>
+              <h3 className="fd-banter__title">{b.title}</h3>
+              <p className="fd-banter__text">{b.text}</p>
+              <div className="fd-banter__foot">
+                <div className="fd-banter__people"><FdFaces ids={b.faces} /><span>{b.talking}</span></div>
+                <span className="fd-link fd-link--static"><span>{BANTER_JOIN.label}</span><ArrowRight size={16} strokeWidth={1.5} aria-hidden /></span>
+              </div>
+            </Link>
+          </div>
+        );
+      }
+      case "rooms":
+        return <MobilePreviewCard title={ROOM_CARDS[0].title} text={ROOM_CARDS[0].text} image={ROOM_CARDS[0].image} href={ROOM_CARDS[0].href} tag={ROOM_CARDS[0].tag} left={ROOM_CARDS[0].left} right={ROOM_CARDS[0].right} />;
+      case "activities":
+        return <MobilePreviewCard title={ACTIVITY_CARDS[0].title} text={ACTIVITY_CARDS[0].text} image={ACTIVITY_CARDS[0].image} href={ACTIVITY_CARDS[0].href} tag={ACTIVITY_CARDS[0].tag} left={ACTIVITY_CARDS[0].left} right={ACTIVITY_CARDS[0].right} />;
+      case "collaborate": {
+        const c = PROJECT_CARDS[0];
+        return <MobilePreviewCard title={c.title} text={c.text} image={c.image} href={c.href} tag={c.tag} left={c.left} right={DEMO ? c.match : undefined} />;
+      }
+      case "shop": {
+        return (
+          <div className="fd-row fd-row--shop" data-m="stagger">
+            {PRODUCTS.slice(0, 2).map((p) => (
+              <article key={p.id} className="fd-card fd-product">
+                <Link className="fd-product__link" href={p.href}>
+                  <FdPhoto src={p.image} className="fd-card__photo" sizes="(max-width: 767px) 50vw, (max-width: 1279px) 33vw, 330px" />
+                  <p className="fd-card__tag">{p.tag}</p>
+                  <h3 className="fd-card__title fd-product__title">{p.title}</h3>
+                </Link>
+                <div className="fd-product__maker"><FdAvatar src={p.face} size={24} /><span>{p.maker}</span></div>
+                <div className="fd-product__buy">
+                  <p className="fd-product__price"><span>{p.price}</span>{p.edition ? <span className="fd-product__edition">{p.edition}</span> : null}</p>
+                  <Button variant="secondary" onClick={() => toast.show({ message: SHOP_COPY.toast })} aria-label={`${SHOP_COPY.buy} ${p.title}`}>{SHOP_COPY.buy}</Button>
+                </div>
+                <span className="fd-card__rule" aria-hidden />
+              </article>
+            ))}
+          </div>
+        );
+      }
+      case "studios":
+        return <MobilePreviewCard title={STUDIO_CARDS[0].title} text={STUDIO_CARDS[0].text} image={STUDIO_CARDS[0].image} href={STUDIO_CARDS[0].href} tag={STUDIO_CARDS[0].tag} left={STUDIO_CARDS[0].left} />;
+      case "stories":
+        return <MobilePreviewCard title={STORY_CARDS[0].title} text={STORY_CARDS[0].text} image={STORY_CARDS[0].image} href={STORY_CARDS[0].href} tag={STORY_CARDS[0].tag} left={STORY_CARDS[0].left} right={STORY_CARDS[0].right} />;
+      case "dna": {
+        const t = TRAITS[0];
+        return (
+          <div className="fd-row fd-row--dna" data-m="stagger">
+            <article className="fd-trait">
+              <p className="fd-trait__eyebrow">{t.eyebrow}</p>
+              <h3 className="fd-trait__title">{t.title}</h3>
+              <p className="fd-trait__text">{t.text}</p>
+              <div className="fd-trait__foot">
+                <div className="fd-trait__people"><FdFaces ids={t.faces} /><span>{TRAIT_META}</span></div>
+                <FdLink href={soon(TRAIT_LINK.href, t.title)}>{TRAIT_LINK.label}</FdLink>
+              </div>
+            </article>
+          </div>
+        );
+      }
+      default:
+        return null;
+    }
+  }
+
   switch (name) {
     case "explore":
       return <Cards cards={EXPLORE_CARDS} />;
@@ -99,7 +190,6 @@ function SectionBody({ name }: { name: SectionName }) {
     case "activities":
       return <Cards cards={ACTIVITY_CARDS} />;
     case "collaborate":
-      // The design's "% match" is sample content: shown in preview only.
       return <Cards cards={PROJECT_CARDS.map(({ match, ...c }) => ({ ...c, right: DEMO ? match : undefined }))} />;
     case "shop":
       return (
@@ -147,7 +237,7 @@ function SectionBody({ name }: { name: SectionName }) {
 }
 
 /** `failing` starts the section in its error state (the error state link); "Try again" shows the skeleton for a moment, then the section. */
-function Section({ name, isFirst, failing }: { name: SectionName; isFirst: boolean; failing?: boolean }) {
+function Section({ name, isFirst, failing, mobile }: { name: SectionName; isFirst: boolean; failing?: boolean; mobile: boolean }) {
   const [phase, setPhase] = useState<"error" | "loading" | "live">(failing ? "error" : "live");
   useEffect(() => {
     if (phase !== "loading") return;
@@ -166,7 +256,7 @@ function Section({ name, isFirst, failing }: { name: SectionName; isFirst: boole
         </div>
         {h.link ? <FdLink href={h.link.href}>{h.link.label}</FdLink> : null}
       </header>
-      {phase === "error" ? <ErrorPanel onRetry={() => setPhase("loading")} /> : phase === "loading" ? <SkeletonCards /> : <SectionBody name={name} />}
+      {phase === "error" ? <ErrorPanel onRetry={() => setPhase("loading")} /> : phase === "loading" ? <SkeletonCards /> : <SectionBody name={name} mobile={mobile} />}
     </section>
   );
 }
@@ -219,15 +309,16 @@ export default function Home() {
   }, [state]);
   const sections = v ? VERSIONS[v] : null;
   const ready = sections && (state !== "loading" || settled);
+  const mobile = useMedia("(max-width: 767px)");
   // Phones show no rail (Your circles and the match card); tablet keeps them above the feed, desktop at the side.
-  const rail = !useMedia("(max-width: 767px)");
+  const rail = !mobile;
   return (
     <div className="fd-page fd-home" data-feed-version={v ?? undefined} data-feed-state={state}>
       <HomeHero />
       <div className="fd-layout">
         {rail ? <HomeRail empty={state === "empty"} /> : null}
         <div className="fd-feed">
-          {ready ? sections.map((s, i) => <Section key={s} name={s} isFirst={i === 0} failing={state === "error" && s === "banter"} />) : <FeedSkeleton note={state === "loading"} />}
+          {ready ? sections.map((s, i) => <Section key={s} name={s} isFirst={i === 0} failing={state === "error" && s === "banter"} mobile={mobile} />) : <FeedSkeleton note={state === "loading"} />}
         </div>
       </div>
     </div>

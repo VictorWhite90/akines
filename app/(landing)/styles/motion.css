@@ -120,12 +120,16 @@ img.cover {
   opacity: 0;
 }
 @media (hover: hover) {
-  .panel:hover .panel__media img,
-  .story:hover .story__media img {
+  body.about-page .panel:hover .panel__media img,
+  body.about-page .story:hover .story__media img,
+  .about-page .panel:hover .panel__media img,
+  .about-page .story:hover .story__media img {
     scale: 1.05;
   }
-  .fullcard:hover > img,
-  .fullcard:hover > picture > img {
+  body.about-page .fullcard:hover > img,
+  body.about-page .fullcard:hover > picture > img,
+  .about-page .fullcard:hover > img,
+  .about-page .fullcard:hover > picture > img {
     scale: 1.04;
   }
 }

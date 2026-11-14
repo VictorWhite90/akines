@@ -70,7 +70,7 @@ function Post({ post, chips, onToggle, onPick }: { post: FeedPost; chips: ReactC
   );
 }
 
-export default function FeedPosts() {
+export default function FeedPosts({ limit }: { limit?: number }) {
   const [reacts, setReacts] = useLocal<Reacts>("ak:feed-reactions", INITIAL);
   const flip = (c: ReactChip): ReactChip => ({ ...c, on: !c.on, count: c.count + (c.on ? -1 : 1) });
   const toggle = (id: string, emoji: string) => setReacts((prev) => ({ ...prev, [id]: (prev[id] ?? []).map((c) => (c.emoji === emoji ? flip(c) : c)) }));
@@ -81,9 +81,10 @@ export default function FeedPosts() {
         ? { ...prev, [id]: list.map((c) => (c.emoji === emoji ? flip(c) : c)) }
         : { ...prev, [id]: [...list, { emoji, label, count: 1, on: true }] };
     });
+  const items = typeof limit === "number" ? POSTS.slice(0, limit) : POSTS;
   return (
     <div className="fd-posts" data-m="stagger">
-      {POSTS.map((p) => <Post key={p.id} post={p} chips={reacts[p.id] ?? INITIAL[p.id]} onToggle={(e) => toggle(p.id, e)} onPick={(e, l) => pick(p.id, e, l)} />)}
+      {items.map((p) => <Post key={p.id} post={p} chips={reacts[p.id] ?? INITIAL[p.id]} onToggle={(e) => toggle(p.id, e)} onPick={(e, l) => pick(p.id, e, l)} />)}
     </div>
   );
 }
