@@ -205,6 +205,54 @@ export const POSTS: FeedPost[] = [
     replies: "No replies yet",
   },
 ];
+/**
+ * More member posts for the longer desktop feed, placed between the sections. Sample content in the design's voice, by the
+ * design's cast (lib/data/people) with the design's photos; not from the design files, so the designer can replace the words.
+ */
+export const MORE_POSTS: FeedPost[] = [
+  {
+    id: "ngozi",
+    name: "Ngozi Eze",
+    face: img("community/av-ngozi"),
+    meta: "Writer and zine maker · Lagos · 6h",
+    circle: "Poetry and wine talk circle",
+    body: ["Printing day for the new issue. This one follows the bus routes and market streets I ride every week, and the people I keep meeting on them.", "Whose street should the next one follow?"],
+    media: [img("community/zine"), img("community/zine-tall")],
+    reactions: [E("❤️", 9), E("👏", 4)],
+    replies: "6 replies",
+  },
+  {
+    id: "tunde-bakare",
+    name: "Tunde Bakare",
+    face: img("community/av-tunde"),
+    meta: "Community health designer · Abuja · 8h",
+    body: ["Another week of long conversations before anything gets built. Twenty mothers, three clinics, one question: what makes a visit feel worth the trip? Small trials start Monday."],
+    media: [img("community/health"), img("community/health-tall")],
+    reactions: [E("👍", 7), E("🙌", 3)],
+    replies: "4 replies",
+  },
+  {
+    id: "folake",
+    name: "Folake Adeniran",
+    face: img("community/av-folake"),
+    meta: "Storyteller · Lagos · 1d",
+    circle: "Textiles and adire circle",
+    body: ["Sunday walk, long talk. Heard about a tailor who kept every offcut for forty years because each one belonged to someone's wedding. Saving that story for our next gathering."],
+    media: [img("community/friends")],
+    reactions: [E("❤️", 15), E("😮", 2)],
+    replies: "9 replies",
+  },
+  {
+    id: "chuka",
+    name: "Chuka Nwosu",
+    face: img("community/av-chuka"),
+    meta: "Founder and maker · Port Harcourt · 1d",
+    body: ["Building the studio slowly, one conversation at a time. I'd rather think an idea through with one person over tea than pitch it to a room.", "Who do you call first when an idea is still half-formed?"],
+    media: [],
+    reactions: [E("👍", 6), E("❤️", 3)],
+    replies: "5 replies",
+  },
+];
 export const REACT_LABEL = "+ React";
 
 export const WELLBEING = {

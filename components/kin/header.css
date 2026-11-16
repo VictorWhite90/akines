@@ -134,3 +134,34 @@ body:has(.ak-demo, .hdr, .bbar) { -webkit-font-smoothing: antialiased; -moz-osx-
 html .cai[data-app][data-layout=mobile]{--cai-b: calc(57px + max(28px, env(safe-area-inset-bottom, 0px)) + 20px)}
 html[data-m-bottombar=off] .cai[data-app][data-layout=mobile]{--cai-b: calc(var(--m-composer-h, 96px) + 12px)}
 }
+
+/* ---- Ours, not in the design: desktop (1280 and up) puts the six sections in a vertical bar on the left (SideNav in
+   Header.tsx), as Instagram's desktop web does. The header keeps the logo (its mark centred over the bar), the actions and
+   the section tabs (which start where the page does). Tablet and phones keep .app__body as display: contents, so their
+   layout is exactly as before. ---- */
+.app__body{display:contents}
+@media(min-width:1280px){
+.app[data-layout=desktop]{--k-rail-w:88px;--k-hdr-h:80px}
+.app[data-layout=desktop]:has(.hdr-tabs){--k-hdr-h:132px}
+.app[data-layout=desktop] .app__body{display:flex;flex:1;align-items:stretch;min-width:0}
+.app[data-layout=desktop] .app__main{flex:1;min-width:0}
+.hdr[data-layout=desktop] .hdr__row{padding-left:calc((var(--k-rail-w) - 32px) / 2)}
+.hdr[data-layout=desktop] .hdr-tabs{padding-left:calc(var(--k-rail-w) + 64px)}
+.snav{position:sticky;top:var(--k-hdr-h);z-index:30;flex:none;width:var(--k-rail-w);height:calc(100dvh - var(--k-hdr-h));border-right:1px solid var(--border-subtle);background:var(--surface-brand)}
+.snav__list{display:flex;flex-direction:column;align-items:center;gap:12px;margin:0;padding:28px 0;list-style:none}
+.snav__item{position:relative;display:flex;align-items:center;justify-content:center;width:56px;height:56px;border-radius:16px;color:var(--icon-primary);transition:background-color .3s ease-out,scale .35s var(--ease-out)}
+.snav__item svg{opacity:.6;transition:opacity .35s var(--ease-out),scale .45s var(--ease-out)}
+.snav__item[data-active=true] svg,.snav__item:hover svg,.snav__item:focus-visible svg{opacity:1}
+@media(hover:hover){.snav__item:hover{background:var(--surface-muted)}.snav__item:hover svg{scale:1.06}}
+.snav__item:active{scale:.94}
+.snav__item:focus-visible{outline:2px solid var(--text-primary);outline-offset:2px}
+.snav__ind{position:absolute;left:calc((56px - var(--k-rail-w)) / 2);top:12px;bottom:12px;width:2px;border-radius:0 2px 2px 0;background:var(--border-default);transform:scaleY(0);transition:transform .55s var(--ease-out),background-color .3s ease-out}
+.snav__item:hover .snav__ind,.snav__item:focus-visible .snav__ind{transform:scaleY(1)}
+.snav__item[data-active=true] .snav__ind{transform:scaleY(1);background:var(--border-akines-secondary);top:8px;bottom:8px;width:3px}
+.snav__item[data-active=true]{background:var(--surface-secondary-subtle)}
+.snav__tip{position:absolute;left:calc(100% + 14px);top:50%;translate:-4px -50%;padding:6px 10px;border-radius:6px;background:var(--surface-inverse);color:var(--text-inverse);font:500 12px/1.6 var(--font-sans);letter-spacing:.5px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s ease-out,translate .4s var(--ease-out);z-index:5}
+@media(hover:hover){.snav__item:hover .snav__tip{opacity:1;translate:0 -50%;transition-delay:.15s}}
+.snav__item:focus-visible .snav__tip{opacity:1;translate:0 -50%}
+.app[data-layout=desktop] .toast{left:calc(var(--k-rail-w) + 64px)}
+}
+@media(prefers-reduced-motion:reduce){.snav__item,.snav__item svg,.snav__ind,.snav__tip{transition:none}.snav__item:active{scale:none}}

@@ -10,12 +10,14 @@ import { DEMO } from "@/lib/demo/mode";
 import { useLocal } from "@/lib/useLocal";
 import { soon } from "@/lib/soon";
 import {
-  ACTIVITY_CARDS, ARRANGEMENTS, BANTER_CARDS, BANTER_JOIN, EXPLORE_CARDS, HEADS, LOADING_MS, PRODUCTS, PROJECT_CARDS, ROOM_CARDS, SHOP_COPY,
-  STORY_CARDS, STUDIO_CARDS, TRAITS, TRAIT_LINK, TRAIT_META, WELLBEING, type FeedCard, type FeedKey, type FeedVersion,
+  ACTIVITY_CARDS, ARRANGEMENTS, BANTER_CARDS, BANTER_JOIN, EXPLORE_CARDS, HEADS, LOADING_MS, MORE_POSTS, PRODUCTS, PROJECT_CARDS, ROOM_CARDS, SHOP_COPY,
+  STORY_CARDS, STUDIO_CARDS, TRAITS, TRAIT_LINK, TRAIT_META, WELLBEING, type FeedCard, type FeedKey, type FeedPost, type FeedVersion,
 } from "./content";
 import FeedPosts from "./FeedPosts";
+import { HOME_REFRESH, takeHomeRefresh } from "@/lib/homeRefresh";
 import HomeHero from "./HomeHero";
 import HomeRail from "./HomeRail";
+import { FeedSkeletonDesktop, HomeSide, SectionPost } from "./HomeDesktop";
 import { ErrorPanel, FdAvatar, FdFaces, FdLink, FdPhoto, FeedSkeleton, SkeletonCards } from "./parts";
 import "./home.css";
 import "./home-mobile.css";
@@ -265,37 +267,75 @@ type FeedState = "loading" | "error" | "empty";
 const STATES: Record<string, FeedState> = { "state-loading": "loading", "state-error": "error", "state-empty": "empty" };
 
 /**
- * One of the four feed versions, a different one from last visit. Like the design's review links, ?feed=a|b|c|d shows one
+ * One of the four feed versions, a different one from last time. Like the design's review links, ?feed=a|b|c|d shows one
  * version and ?feed=state-loading|state-error|state-empty one state (on version A); neither touches the rotation.
- */
-/**
- * The arrangement chosen for this page load. Module state survives moving around the app (client navigation), so
- * coming back to Community Home shows the same feed; a refresh or a new visit loads the module again and picks anew.
+ *
+ * The arrangement is kept in module state, which survives moving around the app, so coming back to Community Home by a
+ * link or the back button shows the same feed. A browser refresh loads the module again and picks anew, and so does a
+ * tap on the Home icon or the logo (lib/homeRefresh, as on X): the feed scrolls to the top and loads a new arrangement.
  */
 let thisLoad: keyof typeof VERSIONS | null = null;
+const REFRESH_MS = 600;
+
+function pickNew(): keyof typeof VERSIONS {
+  let last: string | null = thisLoad;
+  if (!last) try { last = localStorage.getItem(VERSION_KEY); } catch {}
+  const options = (Object.keys(VERSIONS) as (keyof typeof VERSIONS)[]).filter((k) => k !== last);
+  const v = options[Math.floor(Math.random() * options.length)];
+  try { localStorage.setItem(VERSION_KEY, v); } catch {}
+  thisLoad = v;
+  return v;
+}
 
 function useVersion() {
-  const [view, setView] = useState<{ v: keyof typeof VERSIONS; state?: FeedState } | null>(null);
+  const [view, setView] = useState<{ v: keyof typeof VERSIONS; state?: FeedState; refreshing?: boolean } | null>(null);
   const picked = useRef(false);
   useEffect(() => {
     if (picked.current) return;
     picked.current = true;
     const asked = new URLSearchParams(window.location.search).get("feed") ?? "";
+    const tapped = takeHomeRefresh();
     let next: { v: keyof typeof VERSIONS; state?: FeedState };
     if (asked in VERSIONS) next = { v: asked as keyof typeof VERSIONS };
     else if (asked in STATES) next = { v: "a", state: STATES[asked] };
-    else if (thisLoad) next = { v: thisLoad };
-    else {
-      let last: string | null = null;
-      try { last = localStorage.getItem(VERSION_KEY); } catch {}
-      const options = (Object.keys(VERSIONS) as (keyof typeof VERSIONS)[]).filter((k) => k !== last);
-      next = { v: options[Math.floor(Math.random() * options.length)] };
-      try { localStorage.setItem(VERSION_KEY, next.v); } catch {}
-      thisLoad = next.v;
-    }
+    else if (thisLoad && !tapped) next = { v: thisLoad };
+    else next = { v: pickNew() };
     setView(next);
   }, []);
+  // A Home tap while already on Community Home: back to the top, a moment of loading, then the new arrangement.
+  useEffect(() => {
+    let t = 0;
+    const onTap = () => {
+      takeHomeRefresh();
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      const v = pickNew();
+      setView({ v, refreshing: true });
+      window.clearTimeout(t);
+      t = window.setTimeout(() => setView({ v }), REFRESH_MS);
+      if (new URLSearchParams(window.location.search).has("feed")) window.history.replaceState(null, "", "/");
+    };
+    window.addEventListener(HOME_REFRESH, onTap);
+    return () => { window.removeEventListener(HOME_REFRESH, onTap); window.clearTimeout(t); };
+  }, []);
   return view;
+}
+
+/**
+ * The long feed (every layout): this load's arrangement first (so a refresh still changes what leads), then every other
+ * section from the other arrangements, with a member post after every second section.
+ */
+type DesktopItem = { kind: "section"; name: FeedKey } | { kind: "post"; post: FeedPost };
+const ALL_SECTIONS = [...new Set(Object.values(VERSIONS).flat())];
+function desktopFeed(lead: FeedKey[]): DesktopItem[] {
+  const order = [...lead, ...ALL_SECTIONS.filter((s) => !lead.includes(s))];
+  const out: DesktopItem[] = [];
+  let p = 0;
+  order.forEach((name, i) => {
+    out.push({ kind: "section", name });
+    if (i % 2 === 1 && p < MORE_POSTS.length) out.push({ kind: "post", post: MORE_POSTS[p++] });
+  });
+  return out;
 }
 
 export default function Home() {
@@ -308,19 +348,34 @@ export default function Home() {
     return () => window.clearTimeout(t);
   }, [state]);
   const sections = v ? VERSIONS[v] : null;
-  const ready = sections && (state !== "loading" || settled);
+  const ready = sections && !view?.refreshing && (state !== "loading" || settled);
   const mobile = useMedia("(max-width: 767px)");
   // Phones show no rail (Your circles and the match card); tablet keeps them above the feed, desktop at the side.
   const rail = !mobile;
+  // Desktop (1280 and up): the feed as Instagram-style posts in a centred column, with the right column beside it (HomeDesktop.tsx).
+  const desktop = useMedia("(min-width: 1280px)");
   return (
     <div className="fd-page fd-home" data-feed-version={v ?? undefined} data-feed-state={state}>
       <HomeHero />
+      {desktop ? (
+        <div className="ig-layout">
+          <div className="ig-feed">
+            {ready ? desktopFeed(sections).map((x, i) => x.kind === "section"
+              ? <SectionPost key={x.name} name={x.name} isFirst={i === 0} failing={state === "error" && x.name === "banter"} />
+              : <FeedPosts key={x.post.id} variant="post" posts={[x.post]} />) : <FeedSkeletonDesktop note={state === "loading"} />}
+          </div>
+          <HomeSide empty={state === "empty"} />
+        </div>
+      ) : (
       <div className="fd-layout">
         {rail ? <HomeRail empty={state === "empty"} /> : null}
         <div className="fd-feed">
-          {ready ? sections.map((s, i) => <Section key={s} name={s} isFirst={i === 0} failing={state === "error" && s === "banter"} mobile={mobile} />) : <FeedSkeleton note={state === "loading"} />}
+          {ready ? desktopFeed(sections).map((x, i) => x.kind === "section"
+            ? <Section key={x.name} name={x.name} isFirst={i === 0} failing={state === "error" && x.name === "banter"} mobile={mobile} />
+            : <section key={x.post.id} className="fd-section fd-section--post" aria-label={`Post by ${x.post.name}`}><FeedPosts posts={[x.post]} /></section>) : <FeedSkeleton note={state === "loading"} />}
         </div>
       </div>
+      )}
     </div>
   );
 }

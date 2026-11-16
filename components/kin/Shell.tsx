@@ -6,7 +6,7 @@ import { isSignedIn } from "@/lib/session";
 import { recordRoute } from "@/lib/navHistory";
 import { MemberProvider } from "@/components/shell/MemberContext";
 import Companion from "@/components/shell/Companion";
-import Header from "./Header";
+import Header, { SideNav } from "./Header";
 import { mobileRoute } from "./mobileRoutes";
 import { useLayout } from "./useLayout";
 import Toaster from "./Toast";
@@ -97,9 +97,13 @@ function Frame({ pathname, children }: { pathname: string; children: React.React
     <div className="app" data-layout={layout} data-ready="true" data-bar={topBar ? "top" : undefined} data-bottombar={noBottomBar ? "off" : undefined}>
       <a className="skip-link" href="#main">Skip to content</a>
       <Header mobile={mobile} />
-      <main id="main" className="app__main" tabIndex={-1}>
-        <div className="route-stage" key={pathname}>{children}</div>
-      </main>
+      {/* Desktop: the section bar on the left beside the page. Elsewhere .app__body is display: contents (header.css). */}
+      <div className="app__body">
+        {layout === "desktop" ? <SideNav /> : null}
+        <main id="main" className="app__main" tabIndex={-1}>
+          <div className="route-stage" key={pathname}>{children}</div>
+        </main>
+      </div>
       <Companion />
       <Toaster />
     </div>

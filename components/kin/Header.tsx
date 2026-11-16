@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { refreshHome } from "@/lib/homeRefresh";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Bell, BriefcaseBusiness, Camera, Check, ChevronDown, ChevronRight, ChevronUp, Compass, Fingerprint, Heart, CircleHelp, House, Image as ImageIcon, Link2, LogOut, Mail, MapPin, MessageSquare, Palette, PenLine, SlidersHorizontal, Sparkles, User, UserCheck, Users } from "lucide-react";
@@ -27,7 +28,8 @@ import type { ImageInput } from "@/lib/images";
 
 /*
  * The app header, mirrored from the product design (classes in header.css, sheets in akines/library.css):
- * desktop (1280 and up) shows the six sections and the open section's tabs; tablet shows the page title;
+ * desktop (1280 and up) shows the logo, the actions and the open section's tabs, with the six sections in a bar on the left
+ * (SideNav, placed by Shell); tablet shows the page title;
  * phones show the title on top (or, on sub-pages, the top bar with a back button), the sections in a bottom bar (hidden on chat
  * threads), and a sheet for a section's pages. What a phone shows on each page comes from `mobile` (components/kin/mobileRoutes.ts).
  */
@@ -320,20 +322,7 @@ export default function Header({ mobile }: { mobile?: MobileRoute }) {
         <header className="hdr" data-layout="desktop">
           <div className="hdr__row">
             <div className="hdr__left">
-              <Link href="/" className="hdr__logo" aria-label="Akines, Community Home"><Logo /></Link>
-              <nav className="hdr-nav" aria-label="Main">
-                {SECTIONS.map((s) => {
-                  const on = section?.key === s.key;
-                  const Icon = SECTION_ICON[s.key];
-                  return (
-                    <Link key={s.key} href={s.href} className="hdr-nav__item" aria-label={s.label} aria-current={on ? "page" : undefined} data-active={on ? "true" : "false"}>
-                      <Icon />
-                      <span className="hdr-nav__bar" aria-hidden />
-                      <span className="hdr-tip" role="presentation">{s.label}</span>
-                    </Link>
-                  );
-                })}
-              </nav>
+              <Link href="/" className="hdr__logo" aria-label="Akines, Community Home" onClick={refreshHome}><Logo /></Link>
             </div>
             <div className="hdr__actions">{actions(false)}</div>
           </div>
@@ -348,7 +337,7 @@ export default function Header({ mobile }: { mobile?: MobileRoute }) {
         <header className="hdr hdr--tablet" data-layout="tablet">
           <div className="hdr__row">
             <div className="hdr__left">
-              <Link href="/" className="hdr__logo" aria-label="Akines, Community Home"><Logo /></Link>
+              <Link href="/" className="hdr__logo" aria-label="Akines, Community Home" onClick={refreshHome}><Logo /></Link>
               <span className="hdr__divider hdr__divider--tall" aria-hidden />
               <div className="hdr__title">{title.eyebrow ? <span className="hdr__eyebrow">{title.eyebrow}</span> : null}<span className="hdr__h">{title.title}</span></div>
             </div>
@@ -362,7 +351,7 @@ export default function Header({ mobile }: { mobile?: MobileRoute }) {
         <header className="hdr hdr--mobile" data-layout="mobile">
           <div className="hdr__row">
             <div className="hdr__left">
-              <Link href="/" className="hdr__logo" aria-label="Akines, Community Home"><Logo word={false} /></Link>
+              <Link href="/" className="hdr__logo" aria-label="Akines, Community Home" onClick={refreshHome}><Logo word={false} /></Link>
               <div className="hdr__title">{title.eyebrow ? <span className="hdr__eyebrow">{title.eyebrow}</span> : null}<span className="hdr__h">{title.title}</span></div>
             </div>
             <div className="hdr__actions">
@@ -382,7 +371,7 @@ export default function Header({ mobile }: { mobile?: MobileRoute }) {
               const on = section?.key === s.key;
               const Icon = SECTION_ICON[s.key];
               return (
-                <button key={s.key} type="button" className="bbar__item" aria-label={s.label} aria-current={on ? "page" : undefined} data-active={on ? "true" : "false"} onClick={() => (s.tabs.length > 1 ? setSheet(s.key) : router.push(s.href))}>
+                <button key={s.key} type="button" className="bbar__item" aria-label={s.label} aria-current={on ? "page" : undefined} data-active={on ? "true" : "false"} onClick={() => { if (s.tabs.length > 1) return setSheet(s.key); if (s.key === "home") refreshHome(); router.push(s.href); }}>
                   <span className="bbar__press" aria-hidden />
                   <span className="bbar__ind" aria-hidden />
                   <Icon />
@@ -398,6 +387,34 @@ export default function Header({ mobile }: { mobile?: MobileRoute }) {
       )}
       <NotificationsPanel open={notices} onClose={() => setNotices(false)} onRead={onRead} />
     </>
+  );
+}
+
+/**
+ * Desktop (1280 and up): the six sections as a vertical icon bar on the left, under the header (Shell places it beside the
+ * page). Each icon shows its name on hover or keyboard focus; the open section has the orange bar at its left edge.
+ */
+export function SideNav() {
+  const pathname = usePathname();
+  const { section } = sectionOf(pathname);
+  return (
+    <nav className="snav" aria-label="Main">
+      <ul className="snav__list">
+        {SECTIONS.map((s) => {
+          const on = section?.key === s.key;
+          const Icon = SECTION_ICON[s.key];
+          return (
+            <li key={s.key}>
+              <Link href={s.href} className="snav__item" onClick={s.key === "home" ? refreshHome : undefined} aria-label={s.label} aria-current={on ? "page" : undefined} data-active={on ? "true" : "false"}>
+                <span className="snav__ind" aria-hidden />
+                <Icon />
+                <span className="snav__tip" role="presentation">{s.label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }
 
